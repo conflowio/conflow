@@ -1,0 +1,2 @@
+# ocl
+Opsidian Configuration Language
