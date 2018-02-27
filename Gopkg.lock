@@ -55,8 +55,8 @@
     "parser",
     "variable"
   ]
-  revision = "1ba9ff3fad7ea82581af8695f5364b77a4de3752"
-  version = "0.1.8"
+  revision = "3e67c090feaad610a7d0a3e0b10d8233e4cb05b6"
+  version = "0.2.0"
 
 [[projects]]
   name = "github.com/opsidian/parsley"
@@ -123,6 +123,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0a0849e6caf5ed5a1dad07f6ba81d2cc63167e5a316c4b28bf60092330226ec1"
+  inputs-digest = "924bd73a0bb4fae9c695d78732220023264f32af6a94d90d134c76390e9e1996"
   solver-name = "gps-cdcl"
   solver-version = 1
