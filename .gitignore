@@ -3,3 +3,4 @@ debug.test
 /vendor
 .envrc
 TODO
+profile.out
