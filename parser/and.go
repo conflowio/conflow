@@ -11,7 +11,6 @@ import (
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
@@ -19,9 +18,9 @@ import (
 //   S -> P ("&&" P)*
 func And(p parsley.Parser) parser.Func {
 	return combinator.Single(
-		combinator.SepBy1(
-			text.LeftTrim(p, text.WsSpaces),
-			text.LeftTrim(terminal.Op("&&"), text.WsSpaces),
+		SepByOp(
+			p,
+			terminal.Op("&&"),
 		).Bind(ast.InterpreterFunc(evalAnd)),
 	)
 }

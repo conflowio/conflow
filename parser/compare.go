@@ -14,7 +14,6 @@ import (
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
@@ -28,9 +27,16 @@ import (
 //          -> ">="
 func Compare(p parsley.Parser) parser.Func {
 	return combinator.Single(
-		combinator.SepBy1(
-			text.LeftTrim(p, text.WsSpaces),
-			text.LeftTrim(terminal.Regexp("CMP", "comparison operator", "(?:==|!=|<=|<|>=|>)", 0), text.WsSpaces),
+		SepByOp(
+			p,
+			combinator.Choice(
+				terminal.Op("=="),
+				terminal.Op("!="),
+				terminal.Op("<="),
+				terminal.Op("<"),
+				terminal.Op(">="),
+				terminal.Op(">"),
+			),
 		).Bind(ast.InterpreterFunc(evalCompare)),
 	)
 }

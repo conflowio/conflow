@@ -13,7 +13,6 @@ import (
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
@@ -23,12 +22,12 @@ import (
 //          -> "-"
 func Sum(p parsley.Parser) parser.Func {
 	return combinator.Single(
-		combinator.SepBy1(
-			text.LeftTrim(p, text.WsSpaces),
-			text.LeftTrim(combinator.Choice(
+		SepByOp(
+			p,
+			combinator.Choice(
 				terminal.Rune('+'),
 				terminal.Rune('-'),
-			), text.WsSpaces),
+			),
 		).Bind(ast.InterpreterFunc(evalSum)),
 	)
 }
