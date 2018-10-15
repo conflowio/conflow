@@ -16,13 +16,13 @@ func MapParser() parser.Func {
 			return nil, cp, err
 		}
 		val := map[string]interface{}{
-			"a": 1,
+			"a": int64(1),
 			"b": "foo",
 			"c": map[string]interface{}{
-				"d": 2,
+				"d": int64(2),
 			},
 			"d": []interface{}{
-				3,
+				int64(3),
 				"bar",
 			},
 		}
