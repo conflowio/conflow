@@ -8,3 +8,6 @@ help:
 .PHONY: test
 test: ## Runs all tests
 	@./test.sh
+
+generate-mocks: ## Regenerates all mocks with mockery
+	go generate ./...
