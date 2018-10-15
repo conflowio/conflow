@@ -4,19 +4,43 @@ import (
 	"fmt"
 
 	. "github.com/onsi/gomega"
+	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 )
 
+var vp = VariableProvider{map[string]interface{}{
+	"foo": "bar",
+	"map": map[string]interface{}{
+		"key1": "value1",
+		"key2": map[string]interface{}{
+			"key3": "value3",
+		},
+		"key4": []interface{}{
+			"value4",
+		},
+	},
+	"arr": []interface{}{
+		"value1",
+		[]interface{}{
+			"value2",
+		},
+		map[string]interface{}{
+			"key1": "value3",
+		},
+	},
+}}
+
 func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
 	return func(input string, expected interface{}) {
 		f := text.NewFile("testfile", []byte(input))
 		fs := parsley.NewFileSet(f)
 		r := text.NewReader(f)
-		ctx := parsley.NewContext(fs, r)
-		val, err := parsley.Evaluate(ctx, combinator.Sentence(p), nil)
+		parseCtx := parsley.NewContext(fs, r)
+		evalCtx := ocl.NewContext(vp)
+		val, err := parsley.Evaluate(parseCtx, combinator.Sentence(p), evalCtx)
 
 		Expect(err).ToNot(HaveOccurred(), "input: %s", input)
 
@@ -47,8 +71,9 @@ func ExpectParserToHaveEvalError(p parsley.Parser) func(string, error) {
 		f := text.NewFile("testfile", []byte(input))
 		fs := parsley.NewFileSet(f)
 		r := text.NewReader(f)
-		ctx := parsley.NewContext(fs, r)
-		val, err := parsley.Evaluate(ctx, combinator.Sentence(p), nil)
+		parseCtx := parsley.NewContext(fs, r)
+		evalCtx := ocl.NewContext(vp)
+		val, err := parsley.Evaluate(parseCtx, combinator.Sentence(p), evalCtx)
 
 		Expect(err).To(HaveOccurred(), "input: %s", input)
 		Expect(err).To(MatchError(expectedErr), "input: %s", input)
