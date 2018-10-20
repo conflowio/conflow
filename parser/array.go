@@ -20,10 +20,7 @@ import (
 func Array(p parsley.Parser, wsMode text.WsMode) *combinator.Recursive {
 	return combinator.Seq(
 		terminal.Rune('['),
-		combinator.SepBy(
-			text.LeftTrim(p, wsMode),
-			text.LeftTrim(terminal.Rune(','), text.WsSpaces),
-		).Bind(interpreter.Array()),
+		text.LeftTrim(SepByComma(p, wsMode).Bind(interpreter.Array()), wsMode),
 		text.LeftTrim(terminal.Rune(']'), wsMode),
 	).Bind(interpreter.Select(1))
 }
