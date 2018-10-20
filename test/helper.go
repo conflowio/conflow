@@ -39,7 +39,7 @@ func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
 		fs := parsley.NewFileSet(f)
 		r := text.NewReader(f)
 		parseCtx := parsley.NewContext(fs, r)
-		evalCtx := ocl.NewContext(vp)
+		evalCtx := ocl.NewContext(vp, &FunctionRegistry{})
 		val, err := parsley.Evaluate(parseCtx, combinator.Sentence(p), evalCtx)
 
 		Expect(err).ToNot(HaveOccurred(), "input: %s", input)
@@ -72,7 +72,7 @@ func ExpectParserToHaveEvalError(p parsley.Parser) func(string, error) {
 		fs := parsley.NewFileSet(f)
 		r := text.NewReader(f)
 		parseCtx := parsley.NewContext(fs, r)
-		evalCtx := ocl.NewContext(vp)
+		evalCtx := ocl.NewContext(vp, &FunctionRegistry{})
 		val, err := parsley.Evaluate(parseCtx, combinator.Sentence(p), evalCtx)
 
 		Expect(err).To(HaveOccurred(), "input: %s", input)
