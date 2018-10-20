@@ -31,6 +31,7 @@ var vp = VariableProvider{map[string]interface{}{
 			"key1": "value3",
 		},
 	},
+	"intkey": int64(1),
 }}
 
 func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
