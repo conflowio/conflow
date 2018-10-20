@@ -22,7 +22,7 @@ import (
 //   S -> "!"? P
 func Not(p parsley.Parser) parser.Func {
 	notp := combinator.Seq(
-		combinator.Optional(terminal.Rune('!')),
+		combinator.SuppressError(combinator.Optional(terminal.Rune('!'))),
 		text.LeftTrim(p, text.WsSpaces),
 	).Bind(ast.InterpreterFunc(evalNot))
 
