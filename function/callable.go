@@ -13,13 +13,13 @@ import (
 // Callable is an interface for callable objects (general function interface)
 //go:generate counterfeiter . Callable
 type Callable interface {
-	Call(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error)
+	CallFunction(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error)
 }
 
 // CallableFunc defines a helper to implement the Callable interface with functions
 type CallableFunc func(ctx interface{}, function parsley.Node, nodes []parsley.Node) (interface{}, parsley.Error)
 
-// Call calls the function
-func (f CallableFunc) Call(ctx interface{}, function parsley.Node, nodes []parsley.Node) (interface{}, parsley.Error) {
+// CallFunction calls the function
+func (f CallableFunc) CallFunction(ctx interface{}, function parsley.Node, nodes []parsley.Node) (interface{}, parsley.Error) {
 	return f(ctx, function, nodes)
 }

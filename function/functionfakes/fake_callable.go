@@ -9,18 +9,18 @@ import (
 )
 
 type FakeCallable struct {
-	CallStub        func(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error)
-	callMutex       sync.RWMutex
-	callArgsForCall []struct {
+	CallFunctionStub        func(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error)
+	callFunctionMutex       sync.RWMutex
+	callFunctionArgsForCall []struct {
 		ctx      interface{}
 		function parsley.Node
 		params   []parsley.Node
 	}
-	callReturns struct {
+	callFunctionReturns struct {
 		result1 interface{}
 		result2 parsley.Error
 	}
-	callReturnsOnCall map[int]struct {
+	callFunctionReturnsOnCall map[int]struct {
 		result1 interface{}
 		result2 parsley.Error
 	}
@@ -28,59 +28,59 @@ type FakeCallable struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeCallable) Call(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error) {
+func (fake *FakeCallable) CallFunction(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error) {
 	var paramsCopy []parsley.Node
 	if params != nil {
 		paramsCopy = make([]parsley.Node, len(params))
 		copy(paramsCopy, params)
 	}
-	fake.callMutex.Lock()
-	ret, specificReturn := fake.callReturnsOnCall[len(fake.callArgsForCall)]
-	fake.callArgsForCall = append(fake.callArgsForCall, struct {
+	fake.callFunctionMutex.Lock()
+	ret, specificReturn := fake.callFunctionReturnsOnCall[len(fake.callFunctionArgsForCall)]
+	fake.callFunctionArgsForCall = append(fake.callFunctionArgsForCall, struct {
 		ctx      interface{}
 		function parsley.Node
 		params   []parsley.Node
 	}{ctx, function, paramsCopy})
-	fake.recordInvocation("Call", []interface{}{ctx, function, paramsCopy})
-	fake.callMutex.Unlock()
-	if fake.CallStub != nil {
-		return fake.CallStub(ctx, function, params)
+	fake.recordInvocation("CallFunction", []interface{}{ctx, function, paramsCopy})
+	fake.callFunctionMutex.Unlock()
+	if fake.CallFunctionStub != nil {
+		return fake.CallFunctionStub(ctx, function, params)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.callReturns.result1, fake.callReturns.result2
+	return fake.callFunctionReturns.result1, fake.callFunctionReturns.result2
 }
 
-func (fake *FakeCallable) CallCallCount() int {
-	fake.callMutex.RLock()
-	defer fake.callMutex.RUnlock()
-	return len(fake.callArgsForCall)
+func (fake *FakeCallable) CallFunctionCallCount() int {
+	fake.callFunctionMutex.RLock()
+	defer fake.callFunctionMutex.RUnlock()
+	return len(fake.callFunctionArgsForCall)
 }
 
-func (fake *FakeCallable) CallArgsForCall(i int) (interface{}, parsley.Node, []parsley.Node) {
-	fake.callMutex.RLock()
-	defer fake.callMutex.RUnlock()
-	return fake.callArgsForCall[i].ctx, fake.callArgsForCall[i].function, fake.callArgsForCall[i].params
+func (fake *FakeCallable) CallFunctionArgsForCall(i int) (interface{}, parsley.Node, []parsley.Node) {
+	fake.callFunctionMutex.RLock()
+	defer fake.callFunctionMutex.RUnlock()
+	return fake.callFunctionArgsForCall[i].ctx, fake.callFunctionArgsForCall[i].function, fake.callFunctionArgsForCall[i].params
 }
 
-func (fake *FakeCallable) CallReturns(result1 interface{}, result2 parsley.Error) {
-	fake.CallStub = nil
-	fake.callReturns = struct {
+func (fake *FakeCallable) CallFunctionReturns(result1 interface{}, result2 parsley.Error) {
+	fake.CallFunctionStub = nil
+	fake.callFunctionReturns = struct {
 		result1 interface{}
 		result2 parsley.Error
 	}{result1, result2}
 }
 
-func (fake *FakeCallable) CallReturnsOnCall(i int, result1 interface{}, result2 parsley.Error) {
-	fake.CallStub = nil
-	if fake.callReturnsOnCall == nil {
-		fake.callReturnsOnCall = make(map[int]struct {
+func (fake *FakeCallable) CallFunctionReturnsOnCall(i int, result1 interface{}, result2 parsley.Error) {
+	fake.CallFunctionStub = nil
+	if fake.callFunctionReturnsOnCall == nil {
+		fake.callFunctionReturnsOnCall = make(map[int]struct {
 			result1 interface{}
 			result2 parsley.Error
 		})
 	}
-	fake.callReturnsOnCall[i] = struct {
+	fake.callFunctionReturnsOnCall[i] = struct {
 		result1 interface{}
 		result2 parsley.Error
 	}{result1, result2}
@@ -89,8 +89,8 @@ func (fake *FakeCallable) CallReturnsOnCall(i int, result1 interface{}, result2 
 func (fake *FakeCallable) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.callMutex.RLock()
-	defer fake.callMutex.RUnlock()
+	fake.callFunctionMutex.RLock()
+	defer fake.callFunctionMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
