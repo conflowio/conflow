@@ -9,7 +9,7 @@ package parser
 import (
 	"errors"
 
-	"github.com/opsidian/ocl/function"
+	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
@@ -32,7 +32,7 @@ func Function(p parsley.Parser) *combinator.Recursive {
 }
 
 func evalFunction(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
-	registry := ctx.(function.Registry)
+	registry := ctx.(ocl.FunctionRegistryAware).GetFunctionRegistry()
 
 	functioNode := nodes[0]
 	name, _ := functioNode.Value(ctx)

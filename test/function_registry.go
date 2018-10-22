@@ -4,13 +4,13 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/opsidian/ocl/function"
+	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/parsley/parsley"
 )
 
 type FunctionRegistry struct{}
 
-func (f *FunctionRegistry) RegisterFunction(name string, callable function.Callable) {
+func (f *FunctionRegistry) RegisterFunction(name string, callable ocl.Callable) {
 }
 
 func (f *FunctionRegistry) FunctionExists(name string) bool {

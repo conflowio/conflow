@@ -6,47 +6,34 @@
 
 package ocl
 
-import (
-	"github.com/opsidian/ocl/function"
-	"github.com/opsidian/ocl/variable"
-	"github.com/opsidian/parsley/parsley"
-)
-
 // Context is the evaluation context
 type Context struct {
-	variableProvider variable.Provider
-	functionRegistry function.Registry
+	variableProvider VariableProvider
+	functionRegistry FunctionRegistry
+	blockRegistry    BlockRegistry
 }
 
 // NewContext creates a new context
-func NewContext(variableProvider variable.Provider, functionRegistry function.Registry) *Context {
+func NewContext(
+	variableProvider VariableProvider,
+	functionRegistry FunctionRegistry,
+	blockRegistry BlockRegistry,
+) *Context {
 	return &Context{
 		variableProvider: variableProvider,
 		functionRegistry: functionRegistry,
+		blockRegistry:    blockRegistry,
 	}
 }
 
-// GetVar returns with the named variable
-func (c *Context) GetVar(name string) (interface{}, bool) {
-	return c.variableProvider.GetVar(name)
+func (c *Context) GetVariableProvider() VariableProvider {
+	return c.variableProvider
 }
 
-// LookupVar searches for the given complex variable
-func (c *Context) LookupVar(lookup variable.LookUp) (interface{}, error) {
-	return c.variableProvider.LookupVar(lookup)
+func (c *Context) GetFunctionRegistry() FunctionRegistry {
+	return c.functionRegistry
 }
 
-// CallFunction calls the named function with the given parameters
-func (c *Context) CallFunction(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error) {
-	return c.functionRegistry.CallFunction(ctx, function, params)
-}
-
-// FunctionExists checks whether the function exists
-func (c *Context) FunctionExists(name string) bool {
-	return c.functionRegistry.FunctionExists(name)
-}
-
-// RegisterFunction registers a new function
-func (c *Context) RegisterFunction(name string, callable function.Callable) {
-	c.functionRegistry.RegisterFunction(name, callable)
+func (c *Context) GetBlockRegistry() BlockRegistry {
+	return c.blockRegistry
 }

@@ -1,14 +1,6 @@
-// Copyright (c) 2017 Opsidian Ltd.
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+package ocl
 
-package function
-
-import (
-	"github.com/opsidian/parsley/parsley"
-)
+import "github.com/opsidian/parsley/parsley"
 
 // Callable is an interface for callable objects (general function interface)
 //go:generate counterfeiter . Callable
@@ -22,4 +14,17 @@ type CallableFunc func(ctx interface{}, function parsley.Node, nodes []parsley.N
 // CallFunction calls the function
 func (f CallableFunc) CallFunction(ctx interface{}, function parsley.Node, nodes []parsley.Node) (interface{}, parsley.Error) {
 	return f(ctx, function, nodes)
+}
+
+// FunctionRegistry is an interface for a function registry
+//go:generate counterfeiter . FunctionRegistry
+type FunctionRegistry interface {
+	Callable
+	FunctionExists(name string) bool
+	RegisterFunction(name string, callable Callable)
+}
+
+// FunctionRegistryAware defines a function to access a function registry
+type FunctionRegistryAware interface {
+	GetFunctionRegistry() FunctionRegistry
 }

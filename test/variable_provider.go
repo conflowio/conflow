@@ -1,8 +1,6 @@
 package test
 
-import (
-	"github.com/opsidian/ocl/variable"
-)
+import "github.com/opsidian/ocl/ocl"
 
 // VariableProvider is a test variable provider
 type VariableProvider struct {
@@ -16,6 +14,6 @@ func (v VariableProvider) GetVar(name string) (interface{}, bool) {
 }
 
 // LookupVar looks up the given variable with a function
-func (v VariableProvider) LookupVar(lookup variable.LookUp) (interface{}, error) {
+func (v VariableProvider) LookupVar(lookup ocl.VariableLookUp) (interface{}, error) {
 	return lookup(v)
 }
