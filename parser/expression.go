@@ -30,6 +30,7 @@ func Expression() parser.Func {
 	), arrayIndex)
 
 	value := combinator.Choice(
+		terminal.TimeDuration(),
 		terminal.Float(),
 		terminal.Integer(),
 		terminal.String(true),

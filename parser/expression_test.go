@@ -2,6 +2,7 @@ package parser_test
 
 import (
 	"errors"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -43,6 +44,7 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`arr[0]`, "value1"),
 		test.TableEntry(`arr[intkey]`, []interface{}{"value2"}),
 		test.TableEntry(`arr[1][0]`, "value2"),
+		test.TableEntry(`1h30m`, time.Hour+30*time.Minute),
 
 		// Function
 		test.TableEntry(`upper(upper("fOO"))`, "FOO"),
