@@ -8,17 +8,18 @@ import (
 )
 
 // SepByComma applies the given value parser zero or more times separated by comma
-func SepByComma(valueP parsley.Parser, wsMode text.WsMode) *combinator.Sequence {
-	commaP := text.LeftTrim(terminal.Rune(','), wsMode)
+func SepByComma(p parsley.Parser, wsMode text.WsMode) *combinator.Sequence {
+	comma := text.LeftTrim(terminal.Rune(','), text.WsSpaces)
+	ptrim := text.LeftTrim(p, wsMode)
 
 	lookup := func(i int) parsley.Parser {
 		if i == 0 {
-			return valueP
+			return p
 		}
 		if i%2 == 0 {
-			return text.LeftTrim(valueP, wsMode)
+			return ptrim
 		} else {
-			return commaP
+			return comma
 		}
 	}
 	lenCheck := func(len int) bool {

@@ -7,15 +7,18 @@ import (
 )
 
 // SepByOp applies the given value parser one or more times separated by the op parser
-func SepByOp(valueP parsley.Parser, opP parsley.Parser) *combinator.Sequence {
+func SepByOp(p parsley.Parser, op parsley.Parser) *combinator.Sequence {
+	ptrim := text.LeftTrim(p, text.WsSpaces)
+	optrim := text.LeftTrim(op, text.WsSpaces)
+
 	lookup := func(i int) parsley.Parser {
 		if i == 0 {
-			return valueP
+			return p
 		}
 		if i%2 == 0 {
-			return text.LeftTrim(valueP, text.WsSpaces)
+			return ptrim
 		} else {
-			return text.LeftTrim(opP, text.WsSpaces)
+			return optrim
 		}
 	}
 	lenCheck := func(len int) bool {

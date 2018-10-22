@@ -34,11 +34,14 @@ func Variable(p parsley.Parser) *combinator.Sequence {
 		text.LeftTrim(terminal.Rune(']'), text.WsSpaces),
 	).Bind(interpreter.Select(1))
 
+	id := ID()
+	arrayOrVariableIndex := combinator.Choice(arrayIndex, variableIndex)
+
 	lookup := func(i int) parsley.Parser {
 		if i == 0 {
-			return ID()
+			return id
 		}
-		return combinator.Choice(arrayIndex, variableIndex)
+		return arrayOrVariableIndex
 	}
 	lenCheck := func(len int) bool {
 		return len > 0
