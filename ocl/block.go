@@ -1,6 +1,8 @@
 package ocl
 
-import "github.com/opsidian/parsley/parsley"
+import (
+	"github.com/opsidian/parsley/parsley"
+)
 
 // Block is an interface for a block object
 type Block interface {

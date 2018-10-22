@@ -43,13 +43,13 @@ var _ = Describe("Variable", func() {
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveParseError(p)(input, expectedErr)
 		},
-		test.TableEntry(`map.`, errors.New("was expecting ID at testfile:1:5")),
-		test.TableEntry(`map.key1.`, errors.New("was expecting ID at testfile:1:10")),
+		test.TableEntry(`map.`, errors.New("was expecting identifier at testfile:1:5")),
+		test.TableEntry(`map.key1.`, errors.New("was expecting identifier at testfile:1:10")),
 		test.TableEntry(`map[`, errors.New("was expecting value at testfile:1:5")),
 		test.TableEntry(`map["key1"`, errors.New("was expecting \"]\" at testfile:1:11")),
 		test.TableEntry(`map[]`, errors.New("was expecting value at testfile:1:5")),
-		test.TableEntry(`arr.0`, errors.New("was expecting ID at testfile:1:5")),
-		test.TableEntry(`arr[1].0`, errors.New("was expecting ID at testfile:1:8")),
+		test.TableEntry(`arr.0`, errors.New("was expecting identifier at testfile:1:5")),
+		test.TableEntry(`arr[1].0`, errors.New("was expecting identifier at testfile:1:8")),
 	)
 
 	DescribeTable("it returns an eval error",

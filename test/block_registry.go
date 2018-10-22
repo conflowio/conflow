@@ -31,16 +31,18 @@ func (b *BlockRegistry) CreateBlock(
 	switch blockType {
 	case "testblock":
 		var id string
-		if idNode != nil {
-			idValue, _ := idNode.Value(ctx)
-			id = idValue.(string)
-			if b.BlockIDExists(id) {
-				return nil, parsley.NewError(idNode.Pos(), errors.New("duplicated id"))
-			}
-		} else {
-			id = b.GenerateBlockID()
+		idValue, _ := idNode.Value(ctx)
+		id = idValue.(string)
+		if b.BlockIDExists(id) {
+			return nil, parsley.NewError(idNode.Pos(), errors.New("duplicated id"))
 		}
-		res := &TestBlock{id: id}
+		b.ids = append(b.ids, id)
+
+		res := &TestBlock{
+			id:     id,
+			Blocks: make(map[string]*TestBlock),
+		}
+
 		for paramName, paramNode := range paramNodes {
 			if paramName == "param1" {
 				value, err := paramNode.Value(ctx)
@@ -71,9 +73,7 @@ func (b *BlockRegistry) GenerateBlockID() string {
 	defer func() {
 		b.nextID++
 	}()
-	id := strconv.Itoa(b.nextID)
-	b.ids = append(b.ids, id)
-	return id
+	return strconv.Itoa(b.nextID)
 }
 
 func (b *BlockRegistry) BlockIDExists(id string) bool {

@@ -19,71 +19,99 @@ import (
 //   ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //   ATTR -> ID "=" P
 func Block() parser.Func {
-	var block parser.Func
+	var p parser.Func
 	expr := Expression()
 
 	parameterValue := combinator.Choice(
-		expr,
 		Array(expr, text.WsSpacesNl),
+		expr,
 	)
-	parameter := combinator.Seq(
+	parameter := combinator.SeqOf(
 		ID(),
 		text.LeftTrim(terminal.Rune('='), text.WsSpaces),
 		text.LeftTrim(parameterValue, text.WsSpaces),
-	)
+	).Token("PARAMETER")
 
 	paramOrBlock := combinator.Choice(
 		parameter,
-		&block,
-	).ReturnError("was expecting parameter or block definition")
+		&p,
+	).Name("parameter or block definition")
 
-	block = parser.ReturnError(
-		combinator.Seq(
-			blockIDs(),
-			text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
-			combinator.Many(
-				text.LeftTrim(paramOrBlock, text.WsSpacesNl),
-			),
-			text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
-		).Bind(ast.InterpreterFunc(evalBlock)),
-		errors.New("was expecting block definition"),
-	)
+	emptyBlock := combinator.SeqOf(
+		blockIDs(),
+		text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
+		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
+	).Token("BLOCK").Bind(ast.InterpreterFunc(evalBlock))
 
-	return block
+	parsers := []parsley.Parser{
+		blockIDs(),
+		text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
+		combinator.Many(
+			text.LeftTrim(paramOrBlock, text.WsSpacesForceNl),
+		),
+		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
+	}
+
+	lookup := func(i int) parsley.Parser {
+		if i < len(parsers) {
+			return parsers[i]
+		}
+		return nil
+	}
+	l := len(parsers)
+	lenCheck := func(len int) bool {
+		return len == 1 || len == l
+	}
+
+	p = combinator.Choice(
+		emptyBlock,
+		combinator.Seq("BLOCK", lookup, lenCheck).Bind(ast.InterpreterFunc(evalBlock)),
+	).Name("block definition")
+
+	return p
 }
 
-func blockIDs() *combinator.Recursive {
+func blockIDs() *combinator.Sequence {
+	id := ID()
+	idtrim := text.LeftTrim(id, text.WsSpaces)
+
 	lookup := func(i int) parsley.Parser {
 		if i == 0 {
-			return ID()
+			return id
 		}
-		return text.LeftTrim(ID(), text.WsSpaces)
+		return idtrim
 	}
 	lenCheck := func(len int) bool {
 		return len == 1 || len == 2
 	}
-	return combinator.NewRecursive("MANY", lookup, lenCheck)
+	return combinator.Seq("MANY", lookup, lenCheck)
 }
 
 func evalBlock(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
 	blockRegistry := ctx.(ocl.BlockRegistryAware).GetBlockRegistry()
 
-	blockIDs := nodes[0].(*ast.NonTerminalNode)
-	typeNode := blockIDs.Children()[0]
-	var idNode *ast.TerminalNode
-	if len(blockIDs.Children()) == 2 {
-		idNode = blockIDs.Children()[1].(*ast.TerminalNode)
+	blockIDNodes := nodes[0].(*ast.NonTerminalNode).Children()
+	typeNode := blockIDNodes[0]
+	var idNode *IDNode
+	if len(blockIDNodes) == 2 {
+		idNode = blockIDNodes[1].(*IDNode)
+	} else {
+		idNode = NewIDNode("", typeNode.ReaderPos(), typeNode.ReaderPos())
+	}
+
+	if len(nodes) < 4 {
+		return blockRegistry.CreateBlock(ctx, typeNode, idNode, nil, nil)
 	}
 
 	paramCnt := 0
 	blockCnt := 0
 
-	paramsBlocks := nodes[2].(*ast.NonTerminalNode).Children()
-	for _, paramBlock := range paramsBlocks {
-		if len(paramBlock.(*ast.NonTerminalNode).Children()) == 3 {
-			paramCnt++
-		} else {
+	blockChildren := nodes[2].(*ast.NonTerminalNode).Children()
+	for _, blockChild := range blockChildren {
+		if blockChild.Token() == "BLOCK" {
 			blockCnt++
+		} else {
+			paramCnt++
 		}
 	}
 
@@ -91,14 +119,17 @@ func evalBlock(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Erro
 	blockNodes := make([]parsley.Node, blockCnt)
 
 	var blockIndex int
-	for _, paramBlock := range paramsBlocks {
-		children := paramBlock.(*ast.NonTerminalNode).Children()
-		if len(children) == 3 {
-			paramName, _ := children[0].Value(ctx)
-			paramNodes[paramName.(string)] = children[2]
-		} else {
-			blockNodes[blockIndex] = paramBlock
+	for _, blockChild := range blockChildren {
+		children := blockChild.(*ast.NonTerminalNode).Children()
+		if blockChild.Token() == "BLOCK" {
+			blockNodes[blockIndex] = blockChild
 			blockIndex++
+		} else {
+			paramName, _ := children[0].Value(ctx)
+			if _, alreadyExists := paramNodes[paramName.(string)]; alreadyExists {
+				return nil, parsley.NewError(children[0].Pos(), errors.New("parameter was already set"))
+			}
+			paramNodes[paramName.(string)] = children[2]
 		}
 	}
 
