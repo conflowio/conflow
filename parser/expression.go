@@ -12,20 +12,34 @@ import (
 func Expression() parser.Func {
 	var p parser.Func
 
+	function := Function(&p)
+	array := Array(&p, text.WsSpaces)
+	variable := Variable(&p)
+
+	arrayIndex := combinator.Choice(
+		terminal.Integer(),
+		terminal.String(true),
+		function,
+		variable,
+	)
+
+	valueWithIndex := Element(combinator.Choice(
+		function,
+		array,
+		variable,
+	), arrayIndex)
+
 	value := combinator.Choice(
 		terminal.Float(),
 		terminal.Integer(),
 		terminal.String(true),
 		terminal.Bool("true", "false"),
 		terminal.Word("nil", nil),
-		Function(&p),
-		Array(&p, text.WsSpaces),
-		Variable(&p),
+		valueWithIndex,
 		combinator.SeqOf(terminal.Rune('('), &p, terminal.Rune(')')).Bind(interpreter.Select(1)),
 	).Name("value")
 
-	valueWithIndex := Element(value)
-	not := Not(valueWithIndex)
+	not := Not(value)
 	prodMod := ProdMod(not)
 	sum := Sum(prodMod)
 	compare := Compare(sum)

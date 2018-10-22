@@ -23,14 +23,14 @@ import (
 //   VAR_INDEX -> "." ID
 //             -> "[" P "]"
 //   ID        -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-func Element(p parsley.Parser) parser.Func {
+func Element(p parsley.Parser, index parsley.Parser) parser.Func {
 	variableIndex := combinator.SeqOf(
 		terminal.Rune('.'),
 		ID(),
 	).Bind(interpreter.Select(1))
 	arrayIndex := combinator.SeqOf(
 		terminal.Rune('['),
-		text.LeftTrim(p, text.WsSpaces),
+		text.LeftTrim(index, text.WsSpaces),
 		text.LeftTrim(terminal.Rune(']'), text.WsSpaces),
 	).Bind(interpreter.Select(1))
 

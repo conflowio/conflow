@@ -112,7 +112,6 @@ var _ = Describe("Expression", func() {
 		// Using parentheses
 		test.TableEntry("(1 + 2) * 3", int64((1+2)*3)),
 		test.TableEntry("(1 + 2) * 3 / ((4 + 5) -(6 + 7)) * (8 + 9) / 10", int64((1+2)*3/((4+5)-(6+7))*(8+9)/10)),
-		test.TableEntry(`([0, 1])[1]`, int64(1)),
 	)
 
 	DescribeTable("it returns a parse error",
@@ -164,6 +163,10 @@ var _ = Describe("Expression", func() {
 
 		// Parentheses
 		test.TableEntry("(1 + 2", errors.New("was expecting \")\" at testfile:1:7")),
+
+		// Index
+		test.TableEntry(`([0, 1])[1]`, errors.New("was expecting the end of input at testfile:1:9")),
+		test.TableEntry(`1[1]`, errors.New("was expecting the end of input at testfile:1:2")),
 	)
 
 	DescribeTable("it returns an eval error",
@@ -205,7 +208,6 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`arr["key"]`, errors.New("invalid non-integer index on array at testfile:1:5")),
 		test.TableEntry(`map["nooo"]`, errors.New("variable 'map[nooo]' does not exist at testfile:1:1")),
 		test.TableEntry(`map[1]`, errors.New("invalid non-string index on map at testfile:1:5")),
-		test.TableEntry(`1[1]`, errors.New("can not get index on int64 type at testfile:1:3")),
 
 		// Functions
 		test.TableEntry(`non_existing()`, errors.New("function does not exist at testfile:1:1")),

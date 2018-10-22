@@ -27,7 +27,13 @@ var _ = Describe("Element", func() {
 		test.MapParser(),
 	).Name("value")
 
-	p := parser.Element(q)
+	index := combinator.Choice(
+		terminal.String(false),
+		terminal.Integer(),
+		test.EvalErrorParser(),
+	).Name("value")
+
+	p := parser.Element(q, index)
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
