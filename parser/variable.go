@@ -23,12 +23,12 @@ import (
 //   ID        -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //   VAR_INDEX -> "." ID
 //             -> "[" P "]"
-func Variable(p parsley.Parser) *combinator.Recursive {
-	variableIndex := combinator.Seq(
+func Variable(p parsley.Parser) *combinator.Sequence {
+	variableIndex := combinator.SeqOf(
 		terminal.Rune('.'),
 		ID(),
 	).Bind(interpreter.Select(1))
-	arrayIndex := combinator.Seq(
+	arrayIndex := combinator.SeqOf(
 		terminal.Rune('['),
 		text.LeftTrim(p, text.WsSpaces),
 		text.LeftTrim(terminal.Rune(']'), text.WsSpaces),
@@ -43,7 +43,7 @@ func Variable(p parsley.Parser) *combinator.Recursive {
 	lenCheck := func(len int) bool {
 		return len > 0
 	}
-	return combinator.NewRecursive("VAR", lookup, lenCheck).Bind(ast.InterpreterFunc(evalVariable))
+	return combinator.Seq("VAR", lookup, lenCheck).Bind(ast.InterpreterFunc(evalVariable))
 }
 
 func evalVariable(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {

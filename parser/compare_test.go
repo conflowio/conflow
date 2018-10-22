@@ -28,7 +28,7 @@ var _ = Describe("Compare", func() {
 		parser.Array(&q, text.WsSpaces),
 		terminal.Word("nil", nil),
 		test.EvalErrorParser(),
-	).ReturnError("was expecting value")
+	).Name("value")
 
 	p := parser.Compare(q)
 

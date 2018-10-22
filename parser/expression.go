@@ -21,8 +21,8 @@ func Expression() parser.Func {
 		Function(&p),
 		Array(&p, text.WsSpaces),
 		Variable(&p),
-		combinator.Seq(terminal.Rune('('), &p, terminal.Rune(')')).Bind(interpreter.Select(1)),
-	).ReturnError("was expecting value")
+		combinator.SeqOf(terminal.Rune('('), &p, terminal.Rune(')')).Bind(interpreter.Select(1)),
+	).Name("value")
 
 	valueWithIndex := Element(value)
 	not := Not(valueWithIndex)

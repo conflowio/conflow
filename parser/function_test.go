@@ -13,14 +13,14 @@ import (
 
 var _ = Describe("Function", func() {
 
-	var p *combinator.Recursive
+	var p *combinator.Sequence
 
 	q := combinator.Choice(
 		terminal.String(false),
 		terminal.Word("nil", nil),
 		parser.Variable(p),
 		test.EvalErrorParser(),
-	).ReturnError("was expecting value")
+	).Name("value")
 
 	p = parser.Function(q)
 

@@ -8,7 +8,7 @@ import (
 )
 
 // SepByComma applies the given value parser zero or more times separated by comma
-func SepByComma(valueP parsley.Parser, wsMode text.WsMode) *combinator.Recursive {
+func SepByComma(valueP parsley.Parser, wsMode text.WsMode) *combinator.Sequence {
 	commaP := text.LeftTrim(terminal.Rune(','), wsMode)
 
 	lookup := func(i int) parsley.Parser {
@@ -28,5 +28,5 @@ func SepByComma(valueP parsley.Parser, wsMode text.WsMode) *combinator.Recursive
 			return len%2 == 0
 		}
 	}
-	return combinator.NewRecursive("SEP_BY", lookup, lenCheck)
+	return combinator.Seq("SEP_BY", lookup, lenCheck)
 }

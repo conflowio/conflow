@@ -20,7 +20,7 @@ var _ = Describe("TernaryIf", func() {
 		terminal.Integer(),
 		terminal.Word("nil", nil),
 		test.EvalErrorParser(),
-	).ReturnError("was expecting value")
+	).Name("value")
 
 	p := parser.TernaryIf(q)
 

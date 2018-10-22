@@ -40,7 +40,7 @@ func TernaryIf(p parsley.Parser) parser.Func {
 		return len == 1 || len == l
 	}
 	return combinator.Single(
-		combinator.NewRecursive("SEQ", lookup, lenCheck).Bind(ast.InterpreterFunc(evalTernaryIf)),
+		combinator.Seq("SEQ", lookup, lenCheck).Bind(ast.InterpreterFunc(evalTernaryIf)),
 	)
 }
 

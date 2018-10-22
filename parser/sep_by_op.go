@@ -7,7 +7,7 @@ import (
 )
 
 // SepByOp applies the given value parser one or more times separated by the op parser
-func SepByOp(valueP parsley.Parser, opP parsley.Parser) *combinator.Recursive {
+func SepByOp(valueP parsley.Parser, opP parsley.Parser) *combinator.Sequence {
 	lookup := func(i int) parsley.Parser {
 		if i == 0 {
 			return valueP
@@ -21,5 +21,5 @@ func SepByOp(valueP parsley.Parser, opP parsley.Parser) *combinator.Recursive {
 	lenCheck := func(len int) bool {
 		return len%2 == 1
 	}
-	return combinator.NewRecursive("SEP_BY", lookup, lenCheck)
+	return combinator.Seq("SEP_BY", lookup, lenCheck)
 }

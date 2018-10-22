@@ -19,7 +19,7 @@ var _ = Describe("Array", func() {
 		terminal.Integer(),
 		terminal.Word("nil", nil),
 		test.EvalErrorParser(),
-	).ReturnError("was expecting value")
+	).Name("value")
 
 	Describe("when new lines are not allowed", func() {
 

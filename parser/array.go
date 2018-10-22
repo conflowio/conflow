@@ -17,8 +17,8 @@ import (
 // Array will match an array expression defined by the following rule, where P is the input parser:
 //   S -> "[" "]"
 //   S -> "[" P ("," P)* "]"
-func Array(p parsley.Parser, wsMode text.WsMode) *combinator.Recursive {
-	return combinator.Seq(
+func Array(p parsley.Parser, wsMode text.WsMode) *combinator.Sequence {
+	return combinator.SeqOf(
 		terminal.Rune('['),
 		text.LeftTrim(SepByComma(p, wsMode).Bind(interpreter.Array()), wsMode),
 		text.LeftTrim(terminal.Rune(']'), wsMode),

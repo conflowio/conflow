@@ -25,7 +25,7 @@ var _ = Describe("Element", func() {
 		parser.Array(&q, text.WsSpaces),
 		test.EvalErrorParser(),
 		test.MapParser(),
-	).ReturnError("was expecting value")
+	).Name("value")
 
 	p := parser.Element(q)
 

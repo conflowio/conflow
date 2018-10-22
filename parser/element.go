@@ -24,11 +24,11 @@ import (
 //             -> "[" P "]"
 //   ID        -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 func Element(p parsley.Parser) parser.Func {
-	variableIndex := combinator.Seq(
+	variableIndex := combinator.SeqOf(
 		terminal.Rune('.'),
 		ID(),
 	).Bind(interpreter.Select(1))
-	arrayIndex := combinator.Seq(
+	arrayIndex := combinator.SeqOf(
 		terminal.Rune('['),
 		text.LeftTrim(p, text.WsSpaces),
 		text.LeftTrim(terminal.Rune(']'), text.WsSpaces),
@@ -44,7 +44,7 @@ func Element(p parsley.Parser) parser.Func {
 		return len > 0
 	}
 	return combinator.Single(
-		combinator.NewRecursive("VAR", lookup, lenCheck).Bind(ast.InterpreterFunc(evalElement)),
+		combinator.Seq("VAR", lookup, lenCheck).Bind(ast.InterpreterFunc(evalElement)),
 	)
 }
 

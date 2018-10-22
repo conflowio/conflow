@@ -21,7 +21,7 @@ import (
 // Not will match a logical not expression defined by the following rule, where P is the input parser:
 //   S -> "!"? P
 func Not(p parsley.Parser) parser.Func {
-	notp := combinator.Seq(
+	notp := combinator.SeqOf(
 		combinator.SuppressError(combinator.Optional(terminal.Rune('!'))),
 		text.LeftTrim(p, text.WsSpaces),
 	).Bind(ast.InterpreterFunc(evalNot))
