@@ -44,12 +44,12 @@ func (b *BlockRegistry) CreateBlock(
 		}
 
 		for paramName, paramNode := range paramNodes {
-			if paramName == "param1" {
+			if paramName == "param1" || paramName == "value" {
 				value, err := paramNode.Value(ctx)
 				if err != nil {
 					return nil, err
 				}
-				res.Param1 = value.(string)
+				res.Param1 = value
 			}
 		}
 
@@ -87,11 +87,11 @@ func (b *BlockRegistry) BlockIDExists(id string) bool {
 
 type TestBlock struct {
 	id     string
-	Param1 string
+	Param1 interface{}
 	Blocks map[string]*TestBlock
 }
 
-func NewTestBlock(id string, param1 string, blocks map[string]*TestBlock) *TestBlock {
+func NewTestBlock(id string, param1 interface{}, blocks map[string]*TestBlock) *TestBlock {
 	return &TestBlock{
 		id:     id,
 		Param1: param1,

@@ -6,7 +6,6 @@ import (
 	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
@@ -18,12 +17,13 @@ import (
 //        }
 //   ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //   ATTR -> ID "=" P
-func Block() parser.Func {
-	var p parser.Func
+func Block() *combinator.Sequence {
+	var p combinator.Sequence
 	expr := Expression()
 
 	parameterValue := combinator.Choice(
 		Array(expr, text.WsSpacesNl),
+		Map(expr),
 		expr,
 	)
 	parameter := combinator.SeqOf(
@@ -37,54 +37,38 @@ func Block() parser.Func {
 		&p,
 	).Name("parameter or block definition")
 
-	emptyBlock := combinator.SeqOf(
-		blockIDs(),
-		text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
+	emptyBlockValue := combinator.SeqOf(
+		terminal.Rune('{'),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
-	).Token("BLOCK").Bind(ast.InterpreterFunc(evalBlock))
+	).Token("BLOCK_BODY")
 
-	parsers := []parsley.Parser{
-		blockIDs(),
-		text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
+	nonEmptyBlockValue := combinator.SeqOf(
+		terminal.Rune('{'),
 		combinator.Many(
 			text.LeftTrim(paramOrBlock, text.WsSpacesForceNl),
 		),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
-	}
+	).Token("BLOCK_BODY")
 
-	lookup := func(i int) parsley.Parser {
-		if i < len(parsers) {
-			return parsers[i]
-		}
-		return nil
-	}
-	l := len(parsers)
-	lenCheck := func(len int) bool {
-		return len == 1 || len == l
-	}
+	blockValue := combinator.Choice(
+		emptyBlockValue,
+		nonEmptyBlockValue,
+		terminal.TimeDuration(),
+		terminal.Float(),
+		terminal.Integer(),
+		terminal.String(true),
+		terminal.Bool("true", "false"),
+		Array(expr, text.WsSpaces),
+		Array(expr, text.WsSpacesNl),
+		Map(expr),
+	)
 
-	p = combinator.Choice(
-		emptyBlock,
-		combinator.Seq("BLOCK", lookup, lenCheck).Bind(ast.InterpreterFunc(evalBlock)),
-	).Name("block definition")
+	p = *combinator.SeqTry(
+		combinator.SeqTry(ID(), text.LeftTrim(ID(), text.WsSpaces)),
+		text.LeftTrim(blockValue, text.WsSpaces),
+	).Name("block definition").Token("BLOCK").Bind(ast.InterpreterFunc(evalBlock))
 
-	return p
-}
-
-func blockIDs() *combinator.Sequence {
-	id := ID()
-	idtrim := text.LeftTrim(id, text.WsSpaces)
-
-	lookup := func(i int) parsley.Parser {
-		if i == 0 {
-			return id
-		}
-		return idtrim
-	}
-	lenCheck := func(len int) bool {
-		return len == 1 || len == 2
-	}
-	return combinator.Seq("MANY", lookup, lenCheck)
+	return &p
 }
 
 func evalBlock(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
@@ -99,14 +83,31 @@ func evalBlock(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Erro
 		idNode = NewIDNode("", typeNode.ReaderPos(), typeNode.ReaderPos())
 	}
 
-	if len(nodes) < 4 {
+	if len(nodes) == 1 {
 		return blockRegistry.CreateBlock(ctx, typeNode, idNode, nil, nil)
 	}
 
+	blockValueNode := nodes[1]
+
+	// We have an expression as the value of the block
+	if blockValueNode.Token() != "BLOCK_BODY" {
+		paramNodes := map[string]parsley.Node{
+			"value": blockValueNode,
+		}
+		return blockRegistry.CreateBlock(ctx, typeNode, idNode, paramNodes, nil)
+	}
+
+	blockValueChildren := blockValueNode.(*ast.NonTerminalNode).Children()
+
+	// We have an empty block
+	if len(blockValueChildren) == 2 {
+		return blockRegistry.CreateBlock(ctx, typeNode, idNode, nil, nil)
+	}
+
+	blockChildren := blockValueChildren[1].(*ast.NonTerminalNode).Children()
+
 	paramCnt := 0
 	blockCnt := 0
-
-	blockChildren := nodes[2].(*ast.NonTerminalNode).Children()
 	for _, blockChild := range blockChildren {
 		if blockChild.Token() == "BLOCK" {
 			blockCnt++

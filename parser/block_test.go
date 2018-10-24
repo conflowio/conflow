@@ -19,19 +19,19 @@ var _ = Describe("Block", func() {
 		},
 		test.TableEntry(
 			`testblock`,
-			test.NewTestBlock("0", "", map[string]*test.TestBlock{}),
+			test.NewTestBlock("0", nil, map[string]*test.TestBlock{}),
 		),
 		test.TableEntry(
 			`testblock foo`,
-			test.NewTestBlock("foo", "", map[string]*test.TestBlock{}),
+			test.NewTestBlock("foo", nil, map[string]*test.TestBlock{}),
 		),
 		test.TableEntry(
 			`testblock {}`,
-			test.NewTestBlock("0", "", map[string]*test.TestBlock{}),
+			test.NewTestBlock("0", nil, map[string]*test.TestBlock{}),
 		),
 		test.TableEntry(
 			`testblock foo {}`,
-			test.NewTestBlock("foo", "", map[string]*test.TestBlock{}),
+			test.NewTestBlock("foo", nil, map[string]*test.TestBlock{}),
 		),
 		test.TableEntry(
 			`testblock foo { 
@@ -73,8 +73,48 @@ var _ = Describe("Block", func() {
 					2,
 					"three",
 				]
+				h = map{
+					"a": "b",
+				}
 			}`,
-			test.NewTestBlock("0", "", map[string]*test.TestBlock{}),
+			test.NewTestBlock("0", nil, map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
+			`testblock "foo"`,
+			test.NewTestBlock("0", "foo", map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
+			`testblock foo "bar"`,
+			test.NewTestBlock("foo", "bar", map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
+			`testblock foo 5`,
+			test.NewTestBlock("foo", int64(5), map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
+			`testblock foo 5.6`,
+			test.NewTestBlock("foo", 5.6, map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
+			`testblock foo true`,
+			test.NewTestBlock("foo", true, map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
+			`testblock foo [1, 2]`,
+			test.NewTestBlock("foo", []interface{}{int64(1), int64(2)}, map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
+			`testblock foo [
+				1,
+				2,
+			]`,
+			test.NewTestBlock("foo", []interface{}{int64(1), int64(2)}, map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
+			`testblock foo map{
+				"a": "b",
+			}`,
+			test.NewTestBlock("foo", map[string]interface{}{"a": "b"}, map[string]*test.TestBlock{}),
 		),
 	)
 
@@ -108,8 +148,7 @@ var _ = Describe("Block", func() {
 		),
 		test.TableEntry(
 			`testblock { 
-				param1 = "bar"}
-			`,
+				param1 = "bar"}`,
 			errors.New("was expecting a new line at testfile:2:19"),
 		),
 	)
