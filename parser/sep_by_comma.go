@@ -13,7 +13,7 @@ func SepByComma(p parsley.Parser, wsMode text.WsMode) *combinator.Sequence {
 	ptrim := text.LeftTrim(p, wsMode)
 
 	lookup := func(i int) parsley.Parser {
-		if i == 0 {
+		if i == 0 && (wsMode == text.WsNone || wsMode == text.WsSpaces) {
 			return p
 		}
 		if i%2 == 0 {
