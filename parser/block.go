@@ -15,8 +15,14 @@ import (
 //   S -> ID ID? {
 //          (ATTR|S)*
 //        }
+//     -> ID ID? VALUE
 //   ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //   ATTR -> ID "=" P
+//   VALUE -> STRING
+//         -> INT
+//         -> FLOAT
+//         -> BOOL
+//         -> TIME_DURATION
 func Block() *combinator.Sequence {
 	var p combinator.Sequence
 	expr := Expression()
