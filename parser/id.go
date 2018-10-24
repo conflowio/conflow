@@ -26,7 +26,11 @@ func ID() parser.Func {
 	return parser.Func(func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
 		tr := ctx.Reader().(*text.Reader)
 		if readerPos, match := tr.ReadRegexp(pos, IDRegExp); match != nil {
-			return NewIDNode(string(match), pos, readerPos), data.EmptyIntSet, nil
+			id := string(match)
+			if ctx.IsKeyword(id) {
+				return nil, data.EmptyIntSet, parsley.NewErrorf(pos, "%s is a reserved keyword", id)
+			}
+			return NewIDNode(id, pos, readerPos), data.EmptyIntSet, nil
 		}
 		return nil, data.EmptyIntSet, parsley.NewError(pos, notFoundErr)
 	})

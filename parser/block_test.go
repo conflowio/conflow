@@ -100,6 +100,10 @@ var _ = Describe("Block", func() {
 			test.NewTestBlock("foo", true, map[string]*test.TestBlock{}),
 		),
 		test.TableEntry(
+			`testblock true`,
+			test.NewTestBlock("0", true, map[string]*test.TestBlock{}),
+		),
+		test.TableEntry(
 			`testblock foo [1, 2]`,
 			test.NewTestBlock("foo", []interface{}{int64(1), int64(2)}, map[string]*test.TestBlock{}),
 		),
