@@ -67,7 +67,7 @@ func generate(args []string) {
 	filename := regexp.MustCompile("[A-Z][a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
 		return "_" + strings.ToLower(str)
 	})
-	filename = strings.TrimLeft(filename, "_") + "_factory.go"
+	filename = strings.TrimLeft(filename, "_") + "_factory.ocl.go"
 	filePath := path.Join(cwd(), filename)
 
 	err = ioutil.WriteFile(filePath, out, 0644)
