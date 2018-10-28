@@ -10,45 +10,54 @@ type Block interface {
 	TypeAware
 }
 
-// BlockFactory defines an interface about how to create blocks
+// BlockFactory defines an interface about how to create and evaluate blocks
 type BlockFactory interface {
-	CreateBlock(
-		ctx interface{},
+	TypeAware
+	CreateBlock(ctx interface{}) Block
+	EvalBlock(ctx interface{}, stage string, res interface{}) parsley.Error
+}
+
+// BlockPreInterpreter as an interface for running a pre-evaluation hook
+type BlockPreInterpreter interface {
+	PreEval(ctx interface{}, stage string) parsley.Error
+}
+
+// BlockPostInterpreter as an interface for running a post-evaluation hook
+type BlockPostInterpreter interface {
+	PostEval(ctx interface{}, stage string) parsley.Error
+}
+
+type BlockFactoryCreator interface {
+	CreateBlockFactory(
 		typeNode parsley.Node,
 		idNode parsley.Node,
 		paramNodes map[string]parsley.Node,
 		blockNodes []parsley.Node,
-	) (Block, parsley.Error)
+	) (BlockFactory, parsley.Error)
 }
 
-// BlockFactoryFunc defines a helper to implement the BlockFactory interface with functions
-type BlockFactoryFunc func(
-	ctx interface{},
+type BlockFactoryCreatorFunc func(
 	typeNode parsley.Node,
 	idNode parsley.Node,
 	paramNodes map[string]parsley.Node,
 	blockNodes []parsley.Node,
-) (Block, parsley.Error)
+) (BlockFactory, parsley.Error)
 
-// CreateBlock calls the function
-func (f BlockFactoryFunc) CreateBlock(
-	ctx interface{},
+func (f BlockFactoryCreatorFunc) CreateBlockFactory(
 	typeNode parsley.Node,
 	idNode parsley.Node,
 	paramNodes map[string]parsley.Node,
 	blockNodes []parsley.Node,
-) (Block, parsley.Error) {
-	return f(ctx, typeNode, idNode, paramNodes, blockNodes)
+) (BlockFactory, parsley.Error) {
+	return f(typeNode, idNode, paramNodes, blockNodes)
 }
 
-// BlockRegistry is an interface for a block registry
-//go:generate counterfeiter . BlockRegistry
-type BlockRegistry interface {
-	BlockFactory
-	BlockFactoryExists(blockType string) bool
-	RegisterBlockFactory(blockType string, factory BlockFactory)
-	BlockIDExists(string) bool
-	GenerateBlockID() string
+// BlockRegistry is a list of BlockFactory creator objects
+type BlockRegistry map[string]BlockFactoryCreator
+
+func (b BlockRegistry) TypeExists(blockType string) bool {
+	_, exists := b[blockType]
+	return exists
 }
 
 // BlockRegistryAware defines a function to access a block registry
