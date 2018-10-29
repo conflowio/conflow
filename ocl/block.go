@@ -12,7 +12,6 @@ type Block interface {
 
 // BlockFactory defines an interface about how to create and evaluate blocks
 type BlockFactory interface {
-	TypeAware
 	CreateBlock(ctx interface{}) Block
 	EvalBlock(ctx interface{}, stage string, res interface{}) parsley.Error
 }

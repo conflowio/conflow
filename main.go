@@ -7,7 +7,9 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/opsidian/ocl/block"
@@ -21,44 +23,24 @@ func main() {
 		return
 	}
 
+	dir := cwd()
 	cmd := args[0]
+
 	switch cmd {
 	case "generate":
-		generate(args[1:])
+		generate(dir, args[1:])
 	default:
 		fail("unknown command\n%s", usage)
 	}
 }
 
-func generate(args []string) {
+func generate(dir string, args []string) {
 	if len(args) == 0 {
 		fail("struct name is missing\n%s", usage)
 	}
 
 	name := args[0]
-	out, err := block.GenerateFactory(block.FactoryTemplateParams{
-		Package: os.Getenv("GOPACKAGE"),
-		Type:    "foo",
-		Name:    name,
-		Stages:  []string{"pre"},
-		Params: map[string][]block.Param{
-			"pre": []block.Param{
-				block.Param{
-					Name:      "f1",
-					FieldName: "field1",
-					Type:      "string",
-					Required:  true,
-				},
-			},
-			"default": []block.Param{
-				block.Param{
-					Name:      "f2",
-					FieldName: "field2",
-					Type:      "int64",
-				},
-			},
-		},
-	})
+	out, err := block.GenerateFactory(dir, name, os.Getenv("GOPACKAGE"))
 
 	if err != nil {
 		fail(fmt.Sprintf("failed to generate %s: %s", name, err.Error()))
@@ -85,15 +67,13 @@ func generate(args []string) {
 		fail("failed to write %s: %s", filePath, err.Error())
 	}
 
-	gofmtCmd := exec.Command("gofmt", filename)
-	out, err = gofmtCmd.CombinedOutput()
-	if err != nil {
-		fail("failed to run gofmt on %s: %s", filePath, err.Error())
-	}
-	err = ioutil.WriteFile(filePath, out, 0644)
-	if err != nil {
-		fail("failed to write %s: %s", filePath, err.Error())
-	}
+	fmt.Printf("Wrote `%sFactory` to `%s`\n", name, getRelativePath(filePath))
+}
+
+func getRelativePath(path string) string {
+	_, caller, _, _ := runtime.Caller(0)
+	basePath := filepath.Dir(caller)
+	return strings.Replace(path, basePath+"/", "", 1)
 }
 
 func cwd() string {
