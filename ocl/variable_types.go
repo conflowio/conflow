@@ -1,23 +1,47 @@
 package ocl
 
+import "errors"
+
 // Variable types
 const (
-	TypeInt          = "int64"
-	TypeFloat        = "float64"
-	TypeString       = "string"
-	TypeBool         = "bool"
-	TypeTimeDuration = "time.Duration"
 	TypeArray        = "[]interface{}"
+	TypeBool         = "bool"
+	TypeFloat        = "float64"
+	TypeInteger      = "int64"
 	TypeMap          = "map[string]interface{}"
+	TypeString       = "string"
+	TypeTimeDuration = "time.Duration"
 )
 
-// Valid variable types with descriptions
+// VariableTypes contains valid variable types with descriptions
 var VariableTypes = map[string]string{
-	TypeInt:          "integer",
-	TypeFloat:        "float",
-	TypeString:       "string",
-	TypeBool:         "boolean",
-	TypeTimeDuration: "time duration",
 	TypeArray:        "array",
+	TypeBool:         "boolean",
+	TypeFloat:        "float",
+	TypeInteger:      "integer",
 	TypeMap:          "map",
+	TypeString:       "string",
+	TypeTimeDuration: "time duration",
+}
+
+// Errors when expecting a certain variable type
+var (
+	ErrExpectingArray        = errors.New("was expecting array")
+	ErrExpectingBool         = errors.New("was expecting boolean")
+	ErrExpectingFloat        = errors.New("was expecting float")
+	ErrExpectingInteger      = errors.New("was expecting integer")
+	ErrExpectingMap          = errors.New("was expecting map")
+	ErrExpectingString       = errors.New("was expecting string")
+	ErrExpectingTimeDuration = errors.New("was expecting time duration")
+)
+
+// VariableTypeErrors contains the type errors for all variable types
+var VariableTypeErrors = map[string]error{
+	TypeArray:        ErrExpectingArray,
+	TypeBool:         ErrExpectingBool,
+	TypeFloat:        ErrExpectingFloat,
+	TypeInteger:      ErrExpectingInteger,
+	TypeMap:          ErrExpectingMap,
+	TypeString:       ErrExpectingString,
+	TypeTimeDuration: ErrExpectingTimeDuration,
 }
