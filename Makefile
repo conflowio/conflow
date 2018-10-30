@@ -9,5 +9,10 @@ help:
 test: ## Runs all tests
 	@./test.sh
 
-generate-mocks: ## Regenerates all mocks with mockery
+.PHONY: test
+generate: ## Regenerates all files
 	go generate ./...
+
+.PHONY: build
+build:
+	go build -o bin/ocl

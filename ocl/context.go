@@ -6,34 +6,85 @@
 
 package ocl
 
+// ContextAware returns a custom context
+type ContextAware interface {
+	Context(parentCtx interface{}) interface{}
+}
+
+// ContextConfig contains the parameters for a config
+type ContextConfig struct {
+	VariableProvider VariableProvider
+	FunctionRegistry FunctionRegistry
+	BlockRegistry    BlockRegistry
+	IDRegistry       IDRegistry
+}
+
 // Context is the evaluation context
 type Context struct {
 	variableProvider VariableProvider
 	functionRegistry FunctionRegistry
 	blockRegistry    BlockRegistry
+	idRegistry       IDRegistry
 }
 
 // NewContext creates a new context
 func NewContext(
-	variableProvider VariableProvider,
-	functionRegistry FunctionRegistry,
-	blockRegistry BlockRegistry,
+	parentCtx interface{},
+	config ContextConfig,
 ) *Context {
-	return &Context{
-		variableProvider: variableProvider,
-		functionRegistry: functionRegistry,
-		blockRegistry:    blockRegistry,
+	ctx := &Context{}
+
+	if config.VariableProvider != nil {
+		ctx.variableProvider = config.VariableProvider
+	} else if provider, ok := parentCtx.(VariableProviderAware); ok {
+		ctx.variableProvider = provider.GetVariableProvider()
+	} else {
+		panic("Variable provider must be set")
 	}
+
+	if config.FunctionRegistry != nil {
+		ctx.functionRegistry = config.FunctionRegistry
+	} else if provider, ok := parentCtx.(FunctionRegistryAware); ok {
+		ctx.functionRegistry = provider.GetFunctionRegistry()
+	} else {
+		panic("Function registry must be set")
+	}
+
+	if config.BlockRegistry != nil {
+		ctx.blockRegistry = config.BlockRegistry
+	} else if provider, ok := parentCtx.(BlockRegistryAware); ok {
+		ctx.blockRegistry = provider.GetBlockRegistry()
+	} else {
+		panic("Block registry must be set")
+	}
+
+	if config.IDRegistry != nil {
+		ctx.idRegistry = config.IDRegistry
+	} else if provider, ok := parentCtx.(IDRegistryAware); ok {
+		ctx.idRegistry = provider.GetIDRegistry()
+	} else {
+		panic("ID registry must be set")
+	}
+
+	return ctx
 }
 
+// GetVariableProvider returns with the variable provider
 func (c *Context) GetVariableProvider() VariableProvider {
 	return c.variableProvider
 }
 
+// GetFunctionRegistry returns with the function registry
 func (c *Context) GetFunctionRegistry() FunctionRegistry {
 	return c.functionRegistry
 }
 
+// GetBlockRegistry returns with the block registry
 func (c *Context) GetBlockRegistry() BlockRegistry {
 	return c.blockRegistry
+}
+
+// GetIDRegistry returns with the identifier registry
+func (c *Context) GetIDRegistry() IDRegistry {
+	return c.idRegistry
 }

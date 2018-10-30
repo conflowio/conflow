@@ -2,7 +2,7 @@ package test
 
 import "github.com/opsidian/ocl/ocl"
 
-var testVariableProvider = VariableProvider{map[string]interface{}{
+var testVariableProvider = variableProvider{map[string]interface{}{
 	"foo": "bar",
 	"testmap": map[string]interface{}{
 		"key1": "value1",
@@ -25,18 +25,15 @@ var testVariableProvider = VariableProvider{map[string]interface{}{
 	"intkey": int64(1),
 }}
 
-// VariableProvider is a test variable provider
-type VariableProvider struct {
+type variableProvider struct {
 	Vars map[string]interface{}
 }
 
-// GetVar returns with the given variable
-func (v VariableProvider) GetVar(name string) (interface{}, bool) {
+func (v variableProvider) GetVar(name string) (interface{}, bool) {
 	value, ok := v.Vars[name]
 	return value, ok
 }
 
-// LookupVar looks up the given variable with a function
-func (v VariableProvider) LookupVar(lookup ocl.VariableLookUp) (interface{}, error) {
+func (v variableProvider) LookupVar(lookup ocl.VariableLookUp) (interface{}, error) {
 	return lookup(v)
 }
