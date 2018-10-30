@@ -3,6 +3,8 @@ package test
 import (
 	"fmt"
 
+	"github.com/opsidian/ocl/block"
+
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/parsley/ast"
@@ -21,7 +23,17 @@ func parseCtx(input string) *parsley.Context {
 }
 
 func evalCtx() interface{} {
-	return ocl.NewContext(testVariableProvider, &FunctionRegistry{}, &BlockRegistry{})
+	return ocl.NewContext(
+		nil,
+		ocl.ContextConfig{
+			VariableProvider: testVariableProvider,
+			FunctionRegistry: &functionRegistry{},
+			BlockRegistry: block.Registry{
+				"testblock": ocl.BlockFactoryCreatorFunc(NewTestBlockFactory),
+			},
+			IDRegistry: newIDRegistry(),
+		},
+	)
 }
 
 func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
@@ -68,4 +80,42 @@ func ExpectParserToReturn(p parsley.Parser, input string, expected parsley.Node)
 	actual := node.Children()[0]
 
 	Expect(actual).To(BeEquivalentTo(expected))
+}
+
+func ExpectBlockToEvaluate(p parsley.Parser) func(string, *TestBlock) {
+	return func(input string, expected *TestBlock) {
+		evalCtx := evalCtx()
+		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx)
+		Expect(err).ToNot(HaveOccurred(), "eval failed, input: %s", input)
+
+		block, blockCtx, err := val.(ocl.BlockFactory).CreateBlock(evalCtx)
+		Expect(err).ToNot(HaveOccurred(), "create block failed, input: %s", input)
+
+		err = val.(ocl.BlockFactory).EvalBlock(blockCtx, "default", block)
+		Expect(err).ToNot(HaveOccurred(), "eval block failed, input: %s", input)
+
+		testBlock := block.(*TestBlock)
+
+		expectBlockToEqual(testBlock, expected, input)
+	}
+}
+
+func expectBlockToEqual(b1 *TestBlock, b2 *TestBlock, input string) {
+	Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input: %s", input)
+	Expect(b1.Value).To(Equal(b2.Value), "Value does not match, input: %s", input)
+	Expect(b1.FieldString).To(Equal(b2.FieldString), "FieldString does not match, input: %s", input)
+	Expect(b1.FieldInt).To(Equal(b2.FieldInt), "FieldInt does not match, input: %s", input)
+	Expect(b1.FieldFloat).To(Equal(b2.FieldFloat), "FieldFloat does not match, input: %s", input)
+	Expect(b1.FieldBool).To(Equal(b2.FieldBool), "FieldBool does not match, input: %s", input)
+	Expect(b1.FieldArray).To(Equal(b2.FieldArray), "FieldArray does not match, input: %s", input)
+	Expect(b1.FieldMap).To(Equal(b2.FieldMap), "FieldMap does not match, input: %s", input)
+	Expect(b1.FieldTimeDuration).To(Equal(b2.FieldTimeDuration), "FieldTimeDuration does not match, input: %s", input)
+	Expect(b1.FieldCustomName).To(Equal(b2.FieldCustomName), "FieldCustomName does not match, input: %s", input)
+
+	Expect(len(b1.Blocks)).To(Equal(len(b2.Blocks)), "child block count does not match, input: %s", input)
+
+	for i, block := range b1.Blocks {
+		expectBlockToEqual(block, b2.Blocks[i], input)
+	}
+
 }

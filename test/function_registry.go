@@ -8,16 +8,16 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-type FunctionRegistry struct{}
+type functionRegistry struct{}
 
-func (f *FunctionRegistry) RegisterFunction(name string, callable ocl.Callable) {
+func (f *functionRegistry) RegisterFunction(name string, callable ocl.Callable) {
 }
 
-func (f *FunctionRegistry) FunctionExists(name string) bool {
+func (f *functionRegistry) FunctionExists(name string) bool {
 	return name == "rand" || name == "upper" || name == "default"
 }
 
-func (f *FunctionRegistry) CallFunction(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error) {
+func (f *functionRegistry) CallFunction(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error) {
 	name, _ := function.Value(ctx)
 	switch name {
 	case "rand":
