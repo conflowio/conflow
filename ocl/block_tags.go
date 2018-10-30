@@ -4,6 +4,7 @@ package ocl
 const (
 	BlockTagBlock      = "block"
 	BlockTagDeprecated = "deprecated"
+	BlockTagFactory    = "factory"
 	BlockTagID         = "id"
 	BlockTagIgnore     = "ignore"
 	BlockTagName       = "name"
@@ -17,6 +18,7 @@ const (
 var BlockTags = map[string]string{
 	BlockTagBlock:      "marks an array field which should store child block factories",
 	BlockTagDeprecated: "marks the field as deprecated (for documentation purposes)",
+	BlockTagFactory:    "marks an array field which should store child blocks",
 	BlockTagID:         "marks the id field in the block",
 	BlockTagIgnore:     "the field is ignored when processing the block",
 	BlockTagName:       "overrides the parameter name, otherwise the field name will be converted to under_score",

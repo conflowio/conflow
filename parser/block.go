@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 
+	"github.com/opsidian/ocl/identifier"
 	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
@@ -79,66 +80,93 @@ func Block() *combinator.Sequence {
 
 func evalBlock(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
 	blockRegistry := ctx.(ocl.BlockRegistryAware).GetBlockRegistry()
+	idRegistry := ctx.(ocl.IDRegistryAware).GetIDRegistry()
 
 	blockIDNodes := nodes[0].(*ast.NonTerminalNode).Children()
 	typeNode := blockIDNodes[0]
-	var idNode *IDNode
+	var idNode *identifier.Node
 	if len(blockIDNodes) == 2 {
-		idNode = blockIDNodes[1].(*IDNode)
+		idNode = blockIDNodes[1].(*identifier.Node)
 	} else {
-		idNode = NewIDNode("", typeNode.ReaderPos(), typeNode.ReaderPos())
+		id := idRegistry.GenerateID()
+		idNode = identifier.NewNode(id, true, typeNode.ReaderPos(), typeNode.ReaderPos())
 	}
 
-	if len(nodes) == 1 {
-		return blockRegistry.CreateBlock(ctx, typeNode, idNode, nil, nil)
-	}
+	var paramNodes map[string]parsley.Node
+	var blockNodes []parsley.Node
+	var isShortFormat bool
 
-	blockValueNode := nodes[1]
+	if len(nodes) > 1 {
+		blockValueNode := nodes[1]
 
-	// We have an expression as the value of the block
-	if blockValueNode.Token() != "BLOCK_BODY" {
-		paramNodes := map[string]parsley.Node{
-			"value": blockValueNode,
-		}
-		return blockRegistry.CreateBlock(ctx, typeNode, idNode, paramNodes, nil)
-	}
+		if blockValueNode.Token() == "BLOCK_BODY" {
+			blockValueChildren := blockValueNode.(*ast.NonTerminalNode).Children()
 
-	blockValueChildren := blockValueNode.(*ast.NonTerminalNode).Children()
+			if len(blockValueChildren) > 2 {
+				blockChildren := blockValueChildren[1].(*ast.NonTerminalNode).Children()
 
-	// We have an empty block
-	if len(blockValueChildren) == 2 {
-		return blockRegistry.CreateBlock(ctx, typeNode, idNode, nil, nil)
-	}
+				paramCnt := 0
+				blockCnt := 0
+				for _, blockChild := range blockChildren {
+					if blockChild.Token() == "BLOCK" {
+						blockCnt++
+					} else {
+						paramCnt++
+					}
+				}
 
-	blockChildren := blockValueChildren[1].(*ast.NonTerminalNode).Children()
+				if paramCnt > 0 {
+					paramNodes = make(map[string]parsley.Node, paramCnt)
+				}
+				if blockCnt > 0 {
+					blockNodes = make([]parsley.Node, 0, blockCnt)
+				}
 
-	paramCnt := 0
-	blockCnt := 0
-	for _, blockChild := range blockChildren {
-		if blockChild.Token() == "BLOCK" {
-			blockCnt++
-		} else {
-			paramCnt++
-		}
-	}
-
-	paramNodes := make(map[string]parsley.Node, paramCnt)
-	blockNodes := make([]parsley.Node, blockCnt)
-
-	var blockIndex int
-	for _, blockChild := range blockChildren {
-		children := blockChild.(*ast.NonTerminalNode).Children()
-		if blockChild.Token() == "BLOCK" {
-			blockNodes[blockIndex] = blockChild
-			blockIndex++
-		} else {
-			paramName, _ := children[0].Value(ctx)
-			if _, alreadyExists := paramNodes[paramName.(string)]; alreadyExists {
-				return nil, parsley.NewError(children[0].Pos(), errors.New("parameter was already set"))
+				for _, blockChild := range blockChildren {
+					if blockChild.Token() == "BLOCK" {
+						blockNodes = append(blockNodes, blockChild)
+					} else {
+						children := blockChild.(*ast.NonTerminalNode).Children()
+						paramName, _ := children[0].Value(ctx)
+						if _, alreadyExists := paramNodes[paramName.(string)]; alreadyExists {
+							return nil, parsley.NewError(children[0].Pos(), errors.New("parameter was already defined"))
+						}
+						paramNodes[paramName.(string)] = children[2]
+					}
+				}
 			}
-			paramNodes[paramName.(string)] = children[2]
+		} else { // We have an expression as the value of the block
+			isShortFormat = true
+			paramNodes = map[string]parsley.Node{
+				"_value": blockValueNode,
+			}
 		}
 	}
 
-	return blockRegistry.CreateBlock(ctx, typeNode, idNode, paramNodes, blockNodes)
+	factory, err := blockRegistry.CreateBlockFactory(ctx, typeNode, idNode, paramNodes, blockNodes)
+	if err != nil {
+		return nil, err
+	}
+
+	if isShortFormat && !factory.HasShortFormat() {
+		parsley.NewError(typeNode.Pos(), errors.New("this block does not support short format"))
+	}
+
+	if !factory.HasForeignID() {
+		if !idNode.IsGenerated() {
+			id, err := idNode.Value(ctx)
+			if err != nil {
+				return nil, err
+			}
+			if err := idRegistry.RegisterID(id.(string)); err != nil {
+				return nil, parsley.NewError(idNode.Pos(), err)
+			}
+		}
+	} else {
+		if idNode.IsGenerated() {
+			return nil, parsley.NewError(idNode.Pos(), errors.New("identifier must be set"))
+		}
+	}
+
+	return factory, nil
 }
