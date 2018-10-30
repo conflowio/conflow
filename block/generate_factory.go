@@ -2,6 +2,7 @@ package block
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/format"
@@ -17,44 +18,39 @@ import (
 	"github.com/opsidian/ocl/util"
 )
 
-var validTags = []string{
-	"id",
-	"name",
-	"required",
-	"stage",
-	"ignore",
-}
-
 type Field struct {
-	Name      string
-	FieldName string
-	Type      string
-	TypeName  string
-	Required  bool
-	Stage     string
+	Name                   string
+	FieldName              string
+	Type                   string
+	Required               bool
+	Stage                  string
+	IsID                   bool
+	IsValue                bool
+	IsReference            bool
+	IsBlock                bool
+	NodeValueFunctionNames map[string]string
 }
 
 type FactoryTemplateParams struct {
-	Package string
-	Type    string
-	Name    string
-	Stages  []string
-	Fields  []Field
+	Package                string
+	Type                   string
+	Name                   string
+	HasForeignID           bool
+	Stages                 []string
+	BlockTypes             map[string]string
+	IDField                *Field
+	ValueField             *Field
+	Fields                 []*Field
+	NodeValueFunctionNames map[string]string
 }
 
 const paramTemplate = `
-		if valueNode, ok := s.paramNodes["{{.Name}}"]; ok {
-			val, err := valueNode.Value(ctx)
-			if err != nil {
+		if valueNode, ok := f.paramNodes["{{.Name}}"]; ok {
+			if block.{{.FieldName}}, err = util.{{index .NodeValueFunctionNames .Type}}(valueNode, ctx); err != nil {
 				return err
 			}
-			if val, ok := val.({{.Type}}); ok {
-				block.{{.FieldName}} = val
-			} else {
-				return parsley.NewError(valueNode.Pos(), errors.New("was expecting {{.TypeName}}"))
-			}
 		}{{ if .Required }} else {
-			return parsley.NewError(s.typeNode.Pos(), errors.New("{{.Name}} parameter is required"))
+			return parsley.NewError(f.typeNode.Pos(), errors.New("{{.Name}} parameter is required"))
 		}{{ end }}
 `
 
@@ -66,10 +62,12 @@ import (
 	"errors"
 
 	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/ocl/util"
 	"github.com/opsidian/parsley/parsley"
 )
 
 {{ $dot := .}}
+// New{{$dot.Name}}Factory creates a new {{$dot.Name}} block factory
 func New{{$dot.Name}}Factory(
 	typeNode parsley.Node,
 	idNode parsley.Node,
@@ -78,43 +76,125 @@ func New{{$dot.Name}}Factory(
 ) (ocl.BlockFactory, parsley.Error) {
 	return &{{.Name}}Factory{
 		typeNode:   typeNode,
-		id:         idNode,
+		idNode:     idNode,
 		paramNodes: paramNodes,
 		blockNodes: blockNodes,
 	}, nil
 }
 
+// {{$dot.Name}}Factory will create and evaluate a {{$dot.Name}} block
 type {{$dot.Name}}Factory struct {
 	typeNode   parsley.Node
-	id         parsley.Node
+	idNode     parsley.Node
 	paramNodes map[string]parsley.Node
 	blockNodes []parsley.Node
+	shortFormat bool
 }
 
-func (s *{{$dot.Name}}Factory) CreateBlock(ctx interface{}) ocl.Block {
-	return &{{$dot.Name}}{}
+// CreateBlock creates a new {{$dot.Name}} block
+func (f *{{$dot.Name}}Factory) CreateBlock(parentCtx interface{}) (ocl.Block, interface{}, parsley.Error) {
+	var err parsley.Error
+
+	block := &{{$dot.Name}}{}
+
+	if block.{{.IDField.FieldName}}, err = util.NodeStringValue(f.idNode, parentCtx); err != nil {
+		return nil, nil, err
+	}
+
+	{{ if .HasForeignID }}
+	idRegistry := parentCtx.(ocl.IDRegistryAware).GetIDRegistry()
+	if !idRegistry.IDExists(id) {
+		return nil, nil, parsley.NewErrorf(f.idNode.Pos(), "%q does not exist", id)
+	}
+	{{ end }}
+
+	ctx := block.Context(parentCtx)
+
+	{{ if .ValueField }}
+	if valueNode, ok := f.paramNodes["_value"]; ok {
+		f.shortFormat = true
+
+		if block.{{.ValueField.FieldName}}, err = util.{{index .NodeValueFunctionNames .ValueField.Type}}(valueNode, ctx); err != nil {
+			return nil, nil, err
+		}
+	}
+	{{ end }}
+
+	if len(f.blockNodes) > 0 {
+		var childBlockFactory interface{}
+		for _, childBlock := range f.blockNodes {
+			if childBlockFactory, err = childBlock.Value(ctx); err != nil {
+				return nil, nil, err
+			}
+			{{- if len .BlockTypes}}
+			switch b := childBlockFactory.(type) {
+			{{- range $type, $fieldName := .BlockTypes -}}
+			case {{$type}}:
+				block.{{$fieldName}} = append(block.{{$fieldName}}, b)
+			{{- end}}
+			default:
+				panic(fmt.Sprintf("block type %T is not supported in {{.Name}}, please open a bug ticket", childBlockFactory))
+			}
+			{{ else }}
+			panic(fmt.Sprintf("block type %T is not supported in {{.Name}}, please open a bug ticket", childBlockFactory))
+			{{- end }}
+		}
+	}
+
+	return block, ctx, nil
 }
 
-func (s *{{$dot.Name}}Factory) EvalBlock(ctx interface{}, stage string, res interface{}) parsley.Error {
+// EvalBlock evaluates all fields belonging to the given stage on a {{$dot.Name}} block
+func (f *{{$dot.Name}}Factory) EvalBlock(ctx interface{}, stage string, res ocl.Block) parsley.Error {
+	var err parsley.Error
+
 	block, ok := res.(*{{$dot.Name}})
 	if !ok {
 		panic("result must be a type of *{{$dot.Name}}")
 	}
 
-	switch stage {
-	{{range $stage := $dot.Stages -}}
-	case "{{$stage}}":
-		{{range $dot.Fields -}}
-		{{ if eq .Stage $stage }}{{- template "block_param" . -}}{{ end }}
-		{{- end -}}
-	{{- end}}
-	default:
-		{{range $dot.Fields -}}
-		{{ if eq .Stage "default" }}{{- template "block_param" . -}}{{ end }}
-		{{- end}}
+	if preInterpreter, ok := res.(ocl.BlockPreInterpreter); ok {
+		if err = preInterpreter.PreEval(ctx, stage); err != nil {
+			return err
+		}
+	}
+
+	if !f.shortFormat {
+		switch stage {
+		{{- range $stage := $dot.Stages}}
+		case "{{$stage}}":
+			{{- range $dot.Fields -}}
+			{{- if and (not .IsID) (not .IsBlock) -}}
+			{{- if eq .Stage $stage}}{{template "block_param" .}}{{end -}}
+			{{- end -}}
+			{{- end -}}
+		{{end -}}
+		default:
+			{{- range $dot.Fields -}}
+			{{- if and (not .IsID) (not .IsBlock) -}}
+			{{- if eq .Stage "default"}}{{template "block_param" .}}{{end -}}
+			{{- end -}}
+			{{- end -}}
+		}
+	}
+
+	if postInterpreter, ok := res.(ocl.BlockPostInterpreter); ok {
+		if err = postInterpreter.PostEval(ctx, stage); err != nil {
+			return err
+		}
 	}
 
 	return nil
+}
+
+// HasForeignID returns true if the block ID is referencing an other block id
+func (f *{{$dot.Name}}Factory) HasForeignID() bool {
+	return {{.HasForeignID}}
+}
+
+// HasShortFormat returns true if the block can be defined in the short block format
+func (f *{{$dot.Name}}Factory) HasShortFormat() bool {
+	return {{ if .ValueField }}true{{ else }}false{{ end }}
 }
 `
 
@@ -157,21 +237,38 @@ func generateTemplateParams(dir string, name string, pkgName string) (*FactoryTe
 	if err != nil {
 		return nil, err
 	}
+	var idField, valueField *Field
+	var hasForeignID bool
 
 	stages := []string{}
+	blockTypes := map[string]string{}
 	for _, field := range fields {
 		if field.Stage != "default" {
 			if !util.StringSliceContains(stages, field.Stage) {
 				stages = append(stages, field.Stage)
 			}
 		}
+		switch {
+		case field.IsID:
+			idField = field
+			hasForeignID = field.IsReference
+		case field.IsValue:
+			valueField = field
+		case field.IsBlock:
+			blockTypes[field.Type] = field.FieldName
+		}
 	}
 
 	return &FactoryTemplateParams{
-		Package: pkgName,
-		Name:    name,
-		Stages:  stages,
-		Fields:  fields,
+		Package:                pkgName,
+		Name:                   name,
+		Stages:                 stages,
+		BlockTypes:             blockTypes,
+		Fields:                 fields,
+		IDField:                idField,
+		ValueField:             valueField,
+		HasForeignID:           hasForeignID,
+		NodeValueFunctionNames: util.NodeValueFunctionNames,
 	}, nil
 }
 
@@ -211,10 +308,11 @@ func getStruct(pkg *ast.Package, name string) (*ast.StructType, *ast.File, error
 	return str, file, err
 }
 
-func getFields(str *ast.StructType, file *ast.File) ([]Field, error) {
-	fields := make([]Field, 0, len(str.Fields.List))
+func getFields(str *ast.StructType, file *ast.File) ([]*Field, error) {
+	fields := make([]*Field, 0, len(str.Fields.List))
 
 	var idField string
+	var valueField string
 	for _, field := range str.Fields.List {
 		var tag string
 		fieldName := field.Names[0].String()
@@ -230,50 +328,78 @@ func getFields(str *ast.StructType, file *ast.File) ([]Field, error) {
 		tags := util.ParseFieldTag(reflect.StructTag(tag), "ocl", fieldName)
 
 		for _, key := range tags.Keys() {
-			if !util.StringSliceContains(validTags, strings.ToLower(key)) {
+			if _, validTag := ocl.BlockTags[strings.ToLower(key)]; !validTag {
 				return nil, fmt.Errorf("invalid tag %s on %s", key, fieldName)
 			}
 		}
 
-		if tags.GetBool("ignore") {
+		if tags.GetBool(ocl.BlockTagIgnore) {
 			continue
 		}
 
-		if !valid {
+		isBLock := tags.GetBool(ocl.BlockTagBlock)
+		if isBLock {
+			ftype = strings.TrimPrefix(ftype, "[]")
+		}
+
+		if !valid && !isBLock {
 			return nil, fmt.Errorf("invalid field type: %s, use valid type or use ignore tag", fieldName)
 		}
 
-		if tags.GetBool("id") {
+		isID := tags.GetBool(ocl.BlockTagID)
+		if isID {
 			if idField != "" {
 				return nil, fmt.Errorf("multiple id fields were found: %s, %s", idField, fieldName)
 			}
 			idField = fieldName
 		}
 
-		name := tags.GetWithDefault("name", generateName(fieldName))
+		isReference := tags.GetBool(ocl.BlockTagReference)
+		if isReference && !isID {
+			return nil, errors.New("reference tag can only be set on the id field")
+		}
+
+		isValue := tags.GetBool(ocl.BlockTagValue)
+		if isValue {
+			if valueField != "" {
+				return nil, fmt.Errorf("multiple value fields were found: %s, %s", valueField, fieldName)
+			}
+			valueField = fieldName
+		}
+		if isValue && isID {
+			return nil, errors.New("the value field can not be the id field")
+		}
+
+		name := tags.GetWithDefault(ocl.BlockTagName, generateName(fieldName))
 		if name == "" {
 			return nil, fmt.Errorf("name can not be empty: %s", fieldName)
 		}
 
-		stage := tags.GetWithDefault("stage", "default")
+		stage := tags.GetWithDefault(ocl.BlockTagStage, "default")
 		if stage == "" {
 			return nil, fmt.Errorf("stage can not be empty: %s", fieldName)
 		}
 
-		typeName, _ := ocl.VariableTypes[ftype]
-
-		fields = append(fields, Field{
-			Name:      name,
-			FieldName: fieldName,
-			Required:  tags.GetBool("required"),
-			Type:      ftype,
-			TypeName:  typeName,
-			Stage:     stage,
+		fields = append(fields, &Field{
+			Name:                   name,
+			FieldName:              fieldName,
+			Required:               tags.GetBool(ocl.BlockTagRequired),
+			Type:                   ftype,
+			Stage:                  stage,
+			IsID:                   isID,
+			IsValue:                isValue,
+			IsReference:            isReference,
+			IsBlock:                isBLock,
+			NodeValueFunctionNames: util.NodeValueFunctionNames,
 		})
 	}
 
-	if idField == "" {
-		return nil, fmt.Errorf("id field is missing")
+	if valueField != "" {
+		for _, field := range fields {
+			if !field.IsValue && field.Required {
+				return nil, errors.New("when setting a value field then other fields can not be required")
+			}
+		}
 	}
 
 	return fields, nil
