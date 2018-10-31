@@ -22,23 +22,26 @@ func parseCtx(input string) *parsley.Context {
 	return ctx
 }
 
-func evalCtx() interface{} {
+func evalCtx(blockRegistry block.Registry) interface{} {
+	if blockRegistry == nil {
+		blockRegistry = block.Registry{
+			"testblock": ocl.BlockFactoryCreatorFunc(NewTestBlockFactory),
+		}
+	}
 	return ocl.NewContext(
 		nil,
 		ocl.ContextConfig{
 			VariableProvider: testVariableProvider,
 			FunctionRegistry: &functionRegistry{},
-			BlockRegistry: block.Registry{
-				"testblock": ocl.BlockFactoryCreatorFunc(NewTestBlockFactory),
-			},
-			IDRegistry: newIDRegistry(),
+			BlockRegistry:    blockRegistry,
+			IDRegistry:       newIDRegistry(),
 		},
 	)
 }
 
 func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
 	return func(input string, expected interface{}) {
-		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx())
+		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx(nil))
 
 		Expect(err).ToNot(HaveOccurred(), "input: %s", input)
 
@@ -62,7 +65,7 @@ func ExpectParserToHaveParseError(p parsley.Parser) func(string, error) {
 
 func ExpectParserToHaveEvalError(p parsley.Parser) func(string, error) {
 	return func(input string, expectedErr error) {
-		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx())
+		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx(nil))
 
 		Expect(err).To(HaveOccurred(), "input: %s", input)
 		Expect(err).To(MatchError(expectedErr), "input: %s", input)
@@ -82,9 +85,9 @@ func ExpectParserToReturn(p parsley.Parser, input string, expected parsley.Node)
 	Expect(actual).To(BeEquivalentTo(expected))
 }
 
-func ExpectBlockToEvaluate(p parsley.Parser) func(string, *TestBlock) {
-	return func(input string, expected *TestBlock) {
-		evalCtx := evalCtx()
+func ExpectBlockToEvaluate(p parsley.Parser, blockRegistry block.Registry) func(string, interface{}, func(interface{}, interface{}, string)) {
+	return func(input string, expected interface{}, compare func(interface{}, interface{}, string)) {
+		evalCtx := evalCtx(blockRegistry)
 		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx)
 		Expect(err).ToNot(HaveOccurred(), "eval failed, input: %s", input)
 
@@ -94,28 +97,6 @@ func ExpectBlockToEvaluate(p parsley.Parser) func(string, *TestBlock) {
 		err = val.(ocl.BlockFactory).EvalBlock(blockCtx, "default", block)
 		Expect(err).ToNot(HaveOccurred(), "eval block failed, input: %s", input)
 
-		testBlock := block.(*TestBlock)
-
-		expectBlockToEqual(testBlock, expected, input)
+		compare(block, expected, input)
 	}
-}
-
-func expectBlockToEqual(b1 *TestBlock, b2 *TestBlock, input string) {
-	Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input: %s", input)
-	Expect(b1.Value).To(Equal(b2.Value), "Value does not match, input: %s", input)
-	Expect(b1.FieldString).To(Equal(b2.FieldString), "FieldString does not match, input: %s", input)
-	Expect(b1.FieldInt).To(Equal(b2.FieldInt), "FieldInt does not match, input: %s", input)
-	Expect(b1.FieldFloat).To(Equal(b2.FieldFloat), "FieldFloat does not match, input: %s", input)
-	Expect(b1.FieldBool).To(Equal(b2.FieldBool), "FieldBool does not match, input: %s", input)
-	Expect(b1.FieldArray).To(Equal(b2.FieldArray), "FieldArray does not match, input: %s", input)
-	Expect(b1.FieldMap).To(Equal(b2.FieldMap), "FieldMap does not match, input: %s", input)
-	Expect(b1.FieldTimeDuration).To(Equal(b2.FieldTimeDuration), "FieldTimeDuration does not match, input: %s", input)
-	Expect(b1.FieldCustomName).To(Equal(b2.FieldCustomName), "FieldCustomName does not match, input: %s", input)
-
-	Expect(len(b1.Blocks)).To(Equal(len(b2.Blocks)), "child block count does not match, input: %s", input)
-
-	for i, block := range b1.Blocks {
-		expectBlockToEqual(block, b2.Blocks[i], input)
-	}
-
 }

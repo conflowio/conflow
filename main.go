@@ -3,14 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"os/exec"
-	"path"
-	"path/filepath"
-	"regexp"
-	"runtime"
-	"strings"
 
 	"github.com/opsidian/ocl/block"
 )
@@ -40,40 +33,10 @@ func generate(dir string, args []string) {
 	}
 
 	name := args[0]
-	out, err := block.GenerateFactory(dir, name, os.Getenv("GOPACKAGE"))
-
+	err := block.GenerateFactory(dir, name, os.Getenv("GOPACKAGE"))
 	if err != nil {
 		fail(fmt.Sprintf("failed to generate %s: %s", name, err.Error()))
 	}
-
-	filename := regexp.MustCompile("[A-Z][a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
-		return "_" + strings.ToLower(str)
-	})
-	filename = strings.TrimLeft(filename, "_") + "_factory.ocl.go"
-	filePath := path.Join(cwd(), filename)
-
-	err = ioutil.WriteFile(filePath, out, 0644)
-	if err != nil {
-		fail("failed to write %s: %s", filePath, err.Error())
-	}
-
-	goimportsCmd := exec.Command("goimports", filename)
-	out, err = goimportsCmd.CombinedOutput()
-	if err != nil {
-		fail("failed to run goimports on %s: %s", filePath, err.Error())
-	}
-	err = ioutil.WriteFile(filePath, out, 0644)
-	if err != nil {
-		fail("failed to write %s: %s", filePath, err.Error())
-	}
-
-	fmt.Printf("Wrote `%sFactory` to `%s`\n", name, getRelativePath(filePath))
-}
-
-func getRelativePath(path string) string {
-	_, caller, _, _ := runtime.Caller(0)
-	basePath := filepath.Dir(caller)
-	return strings.Replace(path, basePath+"/", "", 1)
 }
 
 func cwd() string {

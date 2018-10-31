@@ -76,15 +76,15 @@ func (f *TestBlockFactory) CreateBlock(parentCtx interface{}) (ocl.Block, interf
 func (f *TestBlockFactory) EvalBlock(ctx interface{}, stage string, res ocl.Block) parsley.Error {
 	var err parsley.Error
 
-	block, ok := res.(*TestBlock)
-	if !ok {
-		panic("result must be a type of *TestBlock")
-	}
-
 	if preInterpreter, ok := res.(ocl.BlockPreInterpreter); ok {
 		if err = preInterpreter.PreEval(ctx, stage); err != nil {
 			return err
 		}
+	}
+
+	block, ok := res.(*TestBlock)
+	if !ok {
+		panic("result must be a type of *TestBlock")
 	}
 
 	if !f.shortFormat {
@@ -164,7 +164,7 @@ func (f *TestBlockFactory) EvalBlock(ctx interface{}, stage string, res ocl.Bloc
 				case *TestBlock:
 					block.Blocks = append(block.Blocks, b)
 				default:
-					panic(fmt.Sprintf("block type %T is not supported in block_factories, please open a bug ticket", childBlock))
+					panic(fmt.Sprintf("block type %T is not supported in BlockFactories, please open a bug ticket", childBlock))
 				}
 
 			}

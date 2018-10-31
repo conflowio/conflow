@@ -6,9 +6,31 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/gomega"
 	"github.com/opsidian/ocl/parser"
 	"github.com/opsidian/ocl/test"
 )
+
+func compareTestBlocks(b1i interface{}, b2i interface{}, input string) {
+	b1 := b1i.(*test.TestBlock)
+	b2 := b2i.(*test.TestBlock)
+	Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input: %s", input)
+	Expect(b1.Value).To(Equal(b2.Value), "Value does not match, input: %s", input)
+	Expect(b1.FieldString).To(Equal(b2.FieldString), "FieldString does not match, input: %s", input)
+	Expect(b1.FieldInt).To(Equal(b2.FieldInt), "FieldInt does not match, input: %s", input)
+	Expect(b1.FieldFloat).To(Equal(b2.FieldFloat), "FieldFloat does not match, input: %s", input)
+	Expect(b1.FieldBool).To(Equal(b2.FieldBool), "FieldBool does not match, input: %s", input)
+	Expect(b1.FieldArray).To(Equal(b2.FieldArray), "FieldArray does not match, input: %s", input)
+	Expect(b1.FieldMap).To(Equal(b2.FieldMap), "FieldMap does not match, input: %s", input)
+	Expect(b1.FieldTimeDuration).To(Equal(b2.FieldTimeDuration), "FieldTimeDuration does not match, input: %s", input)
+	Expect(b1.FieldCustomName).To(Equal(b2.FieldCustomName), "FieldCustomName does not match, input: %s", input)
+
+	Expect(len(b1.Blocks)).To(Equal(len(b2.Blocks)), "child block count does not match, input: %s", input)
+
+	for i, block := range b1.Blocks {
+		compareTestBlocks(block, b2.Blocks[i], input)
+	}
+}
 
 var _ = Describe("Block", func() {
 
@@ -16,7 +38,7 @@ var _ = Describe("Block", func() {
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected *test.TestBlock) {
-			test.ExpectBlockToEvaluate(p)(input, expected)
+			test.ExpectBlockToEvaluate(p, nil)(input, expected, compareTestBlocks)
 		},
 		test.TableEntry(
 			`testblock`,
