@@ -50,7 +50,7 @@ func GenerateFactory(dir string, name string, pkgName string) error {
 	filename := regexp.MustCompile("[A-Z][a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
 		return "_" + strings.ToLower(str)
 	})
-	filename = strings.TrimLeft(filename, "_") + "_factory.ocl.go"
+	filename = strings.TrimLeft(filename, "_") + ".ocl.go"
 	filePath := path.Join(dir, filename)
 
 	err = ioutil.WriteFile(filePath, formatted, 0644)
