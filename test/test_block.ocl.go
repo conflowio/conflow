@@ -3,6 +3,7 @@ package test
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/ocl/util"
@@ -48,7 +49,7 @@ func (f *TestBlockFactory) CreateBlock(parentCtx interface{}) (ocl.Block, interf
 	if valueNode, ok := f.paramNodes["_value"]; ok {
 		f.shortFormat = true
 
-		if block.Value, err = util.NodeIntegerValue(valueNode, ctx); err != nil {
+		if block.Value, err = util.NodeAnyValue(valueNode, ctx); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -87,11 +88,32 @@ func (f *TestBlockFactory) EvalBlock(ctx interface{}, stage string, res ocl.Bloc
 		panic("result must be a type of *TestBlock")
 	}
 
+	validParamNames := map[string]struct{}{
+		"value":               struct{}{},
+		"field_string":        struct{}{},
+		"field_int":           struct{}{},
+		"field_float":         struct{}{},
+		"field_bool":          struct{}{},
+		"field_array":         struct{}{},
+		"field_map":           struct{}{},
+		"field_time_duration": struct{}{},
+		"custom_field":        struct{}{},
+		"block_factories":     struct{}{},
+	}
+
+	for paramName, paramNode := range f.paramNodes {
+		if !strings.HasPrefix(paramName, "_") {
+			if _, valid := validParamNames[paramName]; !valid {
+				return parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
+			}
+		}
+	}
+
 	if !f.shortFormat {
 		switch stage {
 		case "default":
 			if valueNode, ok := f.paramNodes["value"]; ok {
-				if block.Value, err = util.NodeIntegerValue(valueNode, ctx); err != nil {
+				if block.Value, err = util.NodeAnyValue(valueNode, ctx); err != nil {
 					return err
 				}
 			}

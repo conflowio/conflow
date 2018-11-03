@@ -12,6 +12,7 @@ type FactoryTemplateParams struct {
 	ValueField             *Field
 	Fields                 []*Field
 	NodeValueFunctionNames map[string]string
+	EvalFieldsCnt          int
 }
 
 const factoryTemplate = `
@@ -21,6 +22,7 @@ package {{.Package}}
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/ocl/util"
@@ -115,10 +117,24 @@ func (f *{{$root.Name}}Factory) EvalBlock(ctx interface{}, stage string, res ocl
 		}
 	}
 
-	{{ if gt (len .Fields) 1 }}
+	{{ if .EvalFieldsCnt }}
 	block, ok := res.(*{{$root.Name}})
 	if !ok {
 		panic("result must be a type of *{{$root.Name}}")
+	}
+
+	validParamNames := map[string]struct{}{
+		{{- range $root.Fields -}}{{- if and (not .IsID) (not .IsBlock)}}
+		"{{.ParamName}}": struct{}{},
+		{{- end -}}{{- end }}
+	}
+
+	for paramName, paramNode := range f.paramNodes {
+		if !strings.HasPrefix(paramName, "_") {
+			if _, valid := validParamNames[paramName]; !valid {
+				return parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
+			}
+		}
 	}
 
 	if !f.shortFormat {

@@ -2,7 +2,8 @@ package fixtures
 
 //go:generate ocl generate BlockSimple
 type BlockSimple struct {
-	IDField string `ocl:"id"`
+	IDField string      `ocl:"id"`
+	Value   interface{} `ocl:"value"`
 }
 
 func (b *BlockSimple) ID() string {

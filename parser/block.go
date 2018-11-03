@@ -3,6 +3,8 @@ package parser
 import (
 	"errors"
 
+	"github.com/opsidian/ocl/block"
+
 	"github.com/opsidian/ocl/identifier"
 	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/parsley/ast"
@@ -131,7 +133,7 @@ func evalBlock(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Erro
 						if _, alreadyExists := paramNodes[paramName.(string)]; alreadyExists {
 							return nil, parsley.NewError(children[0].Pos(), errors.New("parameter was already defined"))
 						}
-						paramNodes[paramName.(string)] = children[2]
+						paramNodes[paramName.(string)] = block.NewParamNode(children[0], children[2])
 					}
 				}
 			}

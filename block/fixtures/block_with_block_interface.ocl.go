@@ -3,6 +3,7 @@ package fixtures
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/opsidian/ocl/ocl"
 	"github.com/opsidian/ocl/util"
@@ -77,6 +78,18 @@ func (f *BlockWithBlockInterfaceFactory) EvalBlock(ctx interface{}, stage string
 	block, ok := res.(*BlockWithBlockInterface)
 	if !ok {
 		panic("result must be a type of *BlockWithBlockInterface")
+	}
+
+	validParamNames := map[string]struct{}{
+		"block_factories": struct{}{},
+	}
+
+	for paramName, paramNode := range f.paramNodes {
+		if !strings.HasPrefix(paramName, "_") {
+			if _, valid := validParamNames[paramName]; !valid {
+				return parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
+			}
+		}
 	}
 
 	if !f.shortFormat {

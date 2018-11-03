@@ -100,3 +100,38 @@ func ExpectBlockToEvaluate(p parsley.Parser, blockRegistry block.Registry) func(
 		compare(block, expected, input)
 	}
 }
+
+func ExpectBlockToHaveEvalError(p parsley.Parser, blockRegistry block.Registry) func(string, error) {
+	return func(input string, expectedErr error) {
+		ctx := parseCtx(input)
+		evalCtx := evalCtx(blockRegistry)
+		val, evalErr := parsley.Evaluate(ctx, combinator.Sentence(p), evalCtx)
+		Expect(evalErr).ToNot(HaveOccurred(), "eval failed, input: %s", input)
+
+		block, blockCtx, err := val.(ocl.BlockFactory).CreateBlock(evalCtx)
+		if err != nil {
+			errWithPos := ctx.FileSet().ErrorWithPosition(err)
+			Expect(errWithPos).To(MatchError(expectedErr), "input: %s", input)
+			return
+		}
+
+		err = val.(ocl.BlockFactory).EvalBlock(blockCtx, "default", block)
+		Expect(err).To(HaveOccurred(), "input: %s", input)
+		errWithPos := ctx.FileSet().ErrorWithPosition(err)
+		Expect(errWithPos).To(MatchError(expectedErr), "input: %s", input)
+	}
+}
+
+func ExpectBlockFactoryToEvaluate(p parsley.Parser, blockRegistry block.Registry, block ocl.Block, blockFactory ocl.BlockFactory) func(string, interface{}, func(interface{}, interface{}, string)) {
+	return func(input string, expected interface{}, compare func(interface{}, interface{}, string)) {
+		evalCtx := block.Context(evalCtx(blockRegistry))
+
+		block, blockCtx, err := blockFactory.CreateBlock(evalCtx)
+		Expect(err).ToNot(HaveOccurred(), "create block failed, input: %s", input)
+
+		err = blockFactory.EvalBlock(blockCtx, "default", block)
+		Expect(err).ToNot(HaveOccurred(), "eval block failed, input: %s", input)
+
+		compare(block, expected, input)
+	}
+}

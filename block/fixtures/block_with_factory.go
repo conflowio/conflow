@@ -3,7 +3,7 @@ package fixtures
 //go:generate ocl generate BlockWithFactory
 type BlockWithFactory struct {
 	IDField        string                `ocl:"id"`
-	BlockFactories []*BlockSimpleFactory `ocl:"factory"`
+	BlockFactories []*BlockSimpleFactory `ocl:"factory,stage=-"`
 }
 
 func (b *BlockWithFactory) ID() string {

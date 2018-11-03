@@ -9,6 +9,7 @@ import (
 
 // NodeValueFunctionNames contains the type parser functions for every variable type
 var NodeValueFunctionNames = map[string]string{
+	ocl.TypeAny:          "NodeAnyValue",
 	ocl.TypeArray:        "NodeArrayValue",
 	ocl.TypeBool:         "NodeBoolValue",
 	ocl.TypeFloat:        "NodeFloatValue",
@@ -18,11 +19,41 @@ var NodeValueFunctionNames = map[string]string{
 	ocl.TypeTimeDuration: "NodeTimeDurationValue",
 }
 
+// NodeAnyValue returns with the array value of a node
+func NodeAnyValue(node parsley.Node, ctx interface{}) (interface{}, parsley.Error) {
+	val, err := node.Value(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if val == nil {
+		return nil, nil
+	}
+
+	switch val.(type) {
+	case []interface{}:
+	case bool:
+	case float64:
+	case int64:
+	case map[string]interface{}:
+	case string:
+	case time.Duration:
+	default:
+		return nil, parsley.NewError(node.Pos(), ocl.ErrExpectingAny)
+	}
+
+	return val, nil
+}
+
 // NodeArrayValue returns with the array value of a node
 func NodeArrayValue(node parsley.Node, ctx interface{}) ([]interface{}, parsley.Error) {
 	val, err := node.Value(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if val == nil {
+		return nil, nil
 	}
 
 	if res, ok := val.([]interface{}); ok {
@@ -39,6 +70,10 @@ func NodeBoolValue(node parsley.Node, ctx interface{}) (bool, parsley.Error) {
 		return false, err
 	}
 
+	if val == nil {
+		return false, nil
+	}
+
 	if res, ok := val.(bool); ok {
 		return res, nil
 	}
@@ -51,6 +86,10 @@ func NodeFloatValue(node parsley.Node, ctx interface{}) (float64, parsley.Error)
 	val, err := node.Value(ctx)
 	if err != nil {
 		return 0.0, err
+	}
+
+	if val == nil {
+		return 0.0, nil
 	}
 
 	if res, ok := val.(float64); ok {
@@ -67,6 +106,10 @@ func NodeIntegerValue(node parsley.Node, ctx interface{}) (int64, parsley.Error)
 		return 0, err
 	}
 
+	if val == nil {
+		return 0, nil
+	}
+
 	if res, ok := val.(int64); ok {
 		return res, nil
 	}
@@ -79,6 +122,10 @@ func NodeMapValue(node parsley.Node, ctx interface{}) (map[string]interface{}, p
 	val, err := node.Value(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if val == nil {
+		return nil, nil
 	}
 
 	if res, ok := val.(map[string]interface{}); ok {
@@ -95,6 +142,10 @@ func NodeStringValue(node parsley.Node, ctx interface{}) (string, parsley.Error)
 		return "", err
 	}
 
+	if val == nil {
+		return "", nil
+	}
+
 	if res, ok := val.(string); ok {
 		return res, nil
 	}
@@ -107,6 +158,10 @@ func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, p
 	val, err := node.Value(ctx)
 	if err != nil {
 		return 0, err
+	}
+
+	if val == nil {
+		return 0, nil
 	}
 
 	if res, ok := val.(time.Duration); ok {

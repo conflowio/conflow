@@ -2,6 +2,7 @@
 package fixtures
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -10,14 +11,14 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-// NewBlockSimpleFactory creates a new BlockSimple block factory
-func NewBlockSimpleFactory(
+// NewBlockValueRequiredFactory creates a new BlockValueRequired block factory
+func NewBlockValueRequiredFactory(
 	typeNode parsley.Node,
 	idNode parsley.Node,
 	paramNodes map[string]parsley.Node,
 	blockNodes []parsley.Node,
 ) (ocl.BlockFactory, parsley.Error) {
-	return &BlockSimpleFactory{
+	return &BlockValueRequiredFactory{
 		typeNode:   typeNode,
 		idNode:     idNode,
 		paramNodes: paramNodes,
@@ -25,8 +26,8 @@ func NewBlockSimpleFactory(
 	}, nil
 }
 
-// BlockSimpleFactory will create and evaluate a BlockSimple block
-type BlockSimpleFactory struct {
+// BlockValueRequiredFactory will create and evaluate a BlockValueRequired block
+type BlockValueRequiredFactory struct {
 	typeNode    parsley.Node
 	idNode      parsley.Node
 	paramNodes  map[string]parsley.Node
@@ -34,11 +35,11 @@ type BlockSimpleFactory struct {
 	shortFormat bool
 }
 
-// CreateBlock creates a new BlockSimple block
-func (f *BlockSimpleFactory) CreateBlock(parentCtx interface{}) (ocl.Block, interface{}, parsley.Error) {
+// CreateBlock creates a new BlockValueRequired block
+func (f *BlockValueRequiredFactory) CreateBlock(parentCtx interface{}) (ocl.Block, interface{}, parsley.Error) {
 	var err parsley.Error
 
-	block := &BlockSimple{}
+	block := &BlockValueRequired{}
 
 	if block.IDField, err = util.NodeStringValue(f.idNode, parentCtx); err != nil {
 		return nil, nil, err
@@ -60,15 +61,15 @@ func (f *BlockSimpleFactory) CreateBlock(parentCtx interface{}) (ocl.Block, inte
 			if childBlockFactory, err = childBlock.Value(ctx); err != nil {
 				return nil, nil, err
 			}
-			panic(fmt.Sprintf("block type %T is not supported in BlockSimple, please open a bug ticket", childBlockFactory))
+			panic(fmt.Sprintf("block type %T is not supported in BlockValueRequired, please open a bug ticket", childBlockFactory))
 		}
 	}
 
 	return block, ctx, nil
 }
 
-// EvalBlock evaluates all fields belonging to the given stage on a BlockSimple block
-func (f *BlockSimpleFactory) EvalBlock(ctx interface{}, stage string, res ocl.Block) parsley.Error {
+// EvalBlock evaluates all fields belonging to the given stage on a BlockValueRequired block
+func (f *BlockValueRequiredFactory) EvalBlock(ctx interface{}, stage string, res ocl.Block) parsley.Error {
 	var err parsley.Error
 
 	if preInterpreter, ok := res.(ocl.BlockPreInterpreter); ok {
@@ -77,9 +78,9 @@ func (f *BlockSimpleFactory) EvalBlock(ctx interface{}, stage string, res ocl.Bl
 		}
 	}
 
-	block, ok := res.(*BlockSimple)
+	block, ok := res.(*BlockValueRequired)
 	if !ok {
-		panic("result must be a type of *BlockSimple")
+		panic("result must be a type of *BlockValueRequired")
 	}
 
 	validParamNames := map[string]struct{}{
@@ -101,6 +102,8 @@ func (f *BlockSimpleFactory) EvalBlock(ctx interface{}, stage string, res ocl.Bl
 				if block.Value, err = util.NodeAnyValue(valueNode, ctx); err != nil {
 					return err
 				}
+			} else {
+				return parsley.NewError(f.typeNode.Pos(), errors.New("value parameter is required"))
 			}
 		default:
 			panic(fmt.Sprintf("unknown stage: %s", stage))
@@ -123,11 +126,11 @@ func (f *BlockSimpleFactory) EvalBlock(ctx interface{}, stage string, res ocl.Bl
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
-func (f *BlockSimpleFactory) HasForeignID() bool {
+func (f *BlockValueRequiredFactory) HasForeignID() bool {
 	return false
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (f *BlockSimpleFactory) HasShortFormat() bool {
+func (f *BlockValueRequiredFactory) HasShortFormat() bool {
 	return true
 }

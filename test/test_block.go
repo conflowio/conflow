@@ -4,8 +4,8 @@ import "time"
 
 //go:generate ocl generate TestBlock
 type TestBlock struct {
-	IDField           string `ocl:"id"`
-	Value             int64  `ocl:"value"`
+	IDField           string      `ocl:"id"`
+	Value             interface{} `ocl:"value"`
 	FieldString       string
 	FieldInt          int64
 	FieldFloat        float64

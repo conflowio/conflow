@@ -15,7 +15,11 @@ func compareTestBlocks(b1i interface{}, b2i interface{}, input string) {
 	b1 := b1i.(*test.TestBlock)
 	b2 := b2i.(*test.TestBlock)
 	Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input: %s", input)
-	Expect(b1.Value).To(Equal(b2.Value), "Value does not match, input: %s", input)
+	if b2.Value != nil {
+		Expect(b1.Value).To(Equal(b2.Value), "Value does not match, input: %s", input)
+	} else {
+		Expect(b1.Value).To(BeNil(), "Value does not match, input: %s", input)
+	}
 	Expect(b1.FieldString).To(Equal(b2.FieldString), "FieldString does not match, input: %s", input)
 	Expect(b1.FieldInt).To(Equal(b2.FieldInt), "FieldInt does not match, input: %s", input)
 	Expect(b1.FieldFloat).To(Equal(b2.FieldFloat), "FieldFloat does not match, input: %s", input)
@@ -67,6 +71,12 @@ var _ = Describe("Block", func() {
 				value = 123
 			}`,
 			&test.TestBlock{IDField: "foo", Value: int64(123)},
+		),
+		test.TableEntry(
+			`testblock foo {
+				field_string = nil
+			}`,
+			&test.TestBlock{IDField: "foo"},
 		),
 		test.TableEntry(
 			`testblock foo {
@@ -125,42 +135,42 @@ var _ = Describe("Block", func() {
 			&test.TestBlock{IDField: "0", Value: int64(123)},
 		),
 		test.TableEntry(
-			`testblock foo 123`,
-			&test.TestBlock{IDField: "foo", Value: int64(123)},
+			`testblock foo "bar"`,
+			&test.TestBlock{IDField: "foo", Value: "bar"},
 		),
-		// test.TableEntry(
-		// 	`testblock foo 5`,
-		// 	test.NewTestBlock("foo", int64(5), map[string]*test.TestBlock{}),
-		// ),
-		// test.TableEntry(
-		// 	`testblock foo 5.6`,
-		// 	test.NewTestBlock("foo", 5.6, map[string]*test.TestBlock{}),
-		// ),
-		// test.TableEntry(
-		// 	`testblock foo true`,
-		// 	test.NewTestBlock("foo", true, map[string]*test.TestBlock{}),
-		// ),
-		// test.TableEntry(
-		// 	`testblock true`,
-		// 	test.NewTestBlock("0", true, map[string]*test.TestBlock{}),
-		// ),
-		// test.TableEntry(
-		// 	`testblock foo [1, 2]`,
-		// 	test.NewTestBlock("foo", []interface{}{int64(1), int64(2)}, map[string]*test.TestBlock{}),
-		// ),
-		// test.TableEntry(
-		// 	`testblock foo [
-		// 		1,
-		// 		2,
-		// 	]`,
-		// 	test.NewTestBlock("foo", []interface{}{int64(1), int64(2)}, map[string]*test.TestBlock{}),
-		// ),
-		// test.TableEntry(
-		// 	`testblock foo map{
-		// 		"a": "b",
-		// 	}`,
-		// 	test.NewTestBlock("foo", map[string]interface{}{"a": "b"}, map[string]*test.TestBlock{}),
-		// ),
+		test.TableEntry(
+			`testblock foo 5`,
+			&test.TestBlock{IDField: "foo", Value: int64(5)},
+		),
+		test.TableEntry(
+			`testblock foo 5.6`,
+			&test.TestBlock{IDField: "foo", Value: 5.6},
+		),
+		test.TableEntry(
+			`testblock foo true`,
+			&test.TestBlock{IDField: "foo", Value: true},
+		),
+		test.TableEntry(
+			`testblock true`,
+			&test.TestBlock{IDField: "0", Value: true},
+		),
+		test.TableEntry(
+			`testblock foo [1, 2]`,
+			&test.TestBlock{IDField: "foo", Value: []interface{}{int64(1), int64(2)}},
+		),
+		test.TableEntry(
+			`testblock foo [
+				1,
+				2,
+			]`,
+			&test.TestBlock{IDField: "foo", Value: []interface{}{int64(1), int64(2)}},
+		),
+		test.TableEntry(
+			`testblock foo map{
+				"a": "b",
+			}`,
+			&test.TestBlock{IDField: "foo", Value: map[string]interface{}{"a": "b"}},
+		),
 	)
 
 	DescribeTable("it returns a parse error",
@@ -206,13 +216,31 @@ var _ = Describe("Block", func() {
 			`unknownblock {}`,
 			errors.New("\"unknownblock\" type is invalid or not allowed here at testfile:1:1"),
 		),
-		// test.TableEntry(
-		// 	`testblock {
-		// 		testblock foo {}
-		// 		testblock foo {}
-		// 	}`,
-		// 	errors.New("duplicated id at testfile:3:15"),
-		// ),
+	)
+
+	DescribeTable("block returns an eval error",
+		func(input string, expectedErr error) {
+			test.ExpectBlockToHaveEvalError(p, nil)(input, expectedErr)
+		},
+		test.TableEntry(
+			`testblock {
+				unknownblock {}
+			}`,
+			errors.New("\"unknownblock\" type is invalid or not allowed here at testfile:2:5"),
+		),
+		test.TableEntry(
+			`testblock {
+				unknown = "foo"
+			}`,
+			errors.New("\"unknown\" parameter does not exist at testfile:2:5"),
+		),
+		/*test.TableEntry(
+			`testblock {
+				testblock foo {}
+				testblock foo {}
+			}`,
+			errors.New("duplicated id at testfile:3:15"),
+		),*/
 	)
 
 })

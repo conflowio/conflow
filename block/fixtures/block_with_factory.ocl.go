@@ -74,38 +74,6 @@ func (f *BlockWithFactoryFactory) EvalBlock(ctx interface{}, stage string, res o
 		}
 	}
 
-	block, ok := res.(*BlockWithFactory)
-	if !ok {
-		panic("result must be a type of *BlockWithFactory")
-	}
-
-	if !f.shortFormat {
-		switch stage {
-		case "default":
-		default:
-			panic(fmt.Sprintf("unknown stage: %s", stage))
-		}
-
-		switch stage {
-		case "default":
-			var childBlock ocl.Block
-			var childBlockCtx interface{}
-			for _, childBlockFactory := range block.BlockFactories {
-				if childBlock, childBlockCtx, err = childBlockFactory.CreateBlock(ctx); err != nil {
-					return err
-				}
-
-				if err = childBlockFactory.EvalBlock(childBlockCtx, stage, childBlock); err != nil {
-					return err
-				}
-
-				panic(fmt.Sprintf("block type %T is not supported in BlockFactories, please open a bug ticket", childBlock))
-			}
-		default:
-			panic(fmt.Sprintf("unknown stage: %s", stage))
-		}
-	}
-
 	if postInterpreter, ok := res.(ocl.BlockPostInterpreter); ok {
 		if err = postInterpreter.PostEval(ctx, stage); err != nil {
 			return err

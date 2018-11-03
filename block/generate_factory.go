@@ -100,9 +100,15 @@ func generateTemplateParams(dir string, name string, pkgName string) (*FactoryTe
 	stages := []string{}
 	blockTypes := map[string]string{}
 	factoryTypes := map[string]string{}
+	evalFieldsCnt := 0
 	for _, field := range fields {
-		if !util.StringSliceContains(stages, field.Stage) {
-			stages = append(stages, field.Stage)
+		if field.Stage != "-" {
+			if !util.StringSliceContains(stages, field.Stage) {
+				stages = append(stages, field.Stage)
+			}
+			if !field.IsID && !field.IsBlock {
+				evalFieldsCnt++
+			}
 		}
 		switch {
 		case field.IsID:
@@ -128,6 +134,7 @@ func generateTemplateParams(dir string, name string, pkgName string) (*FactoryTe
 		ValueField:             valueField,
 		HasForeignID:           hasForeignID,
 		NodeValueFunctionNames: util.NodeValueFunctionNames,
+		EvalFieldsCnt:          evalFieldsCnt,
 	}, nil
 }
 
