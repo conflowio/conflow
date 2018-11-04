@@ -1,6 +1,7 @@
 package test
 
 import (
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
@@ -11,7 +12,7 @@ import (
 // MapParser returns with a parser which will read the "MAP" string but the result will return a sample map
 func MapParser() parser.Func {
 	return func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
-		res, cp, err := terminal.Word("MAP", "MAP").Parse(ctx, leftRecCtx, pos)
+		res, cp, err := terminal.Word("MAP", "MAP", basil.TypeString).Parse(ctx, leftRecCtx, pos)
 		if err != nil {
 			return nil, cp, err
 		}
@@ -26,7 +27,7 @@ func MapParser() parser.Func {
 				"bar",
 			},
 		}
-		node := ast.NewTerminalNode("MAP", val, res.Pos(), res.ReaderPos())
+		node := ast.NewTerminalNode("MAP", val, basil.TypeMap, res.Pos(), res.ReaderPos())
 		return node, cp, nil
 	}
 }

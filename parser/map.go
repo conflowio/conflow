@@ -7,6 +7,7 @@
 package parser
 
 import (
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
@@ -29,13 +30,13 @@ func Map(p parsley.Parser) parser.Func {
 	).Name("key-value pair")
 
 	emptyMap := combinator.SeqOf(
-		terminal.Word("map", "map"),
+		terminal.Word("map", "map", basil.TypeString),
 		text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
 	).Bind(ast.InterpreterFunc(evalEmptyMap))
 
 	nonEmptyMap := combinator.SeqOf(
-		terminal.Word("map", "map"),
+		terminal.Word("map", "map", basil.TypeString),
 		text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
 		SepByComma(keyValue, text.WsSpacesForceNl).Bind(interpreter.Object()),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
