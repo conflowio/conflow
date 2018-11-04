@@ -49,7 +49,8 @@ func Variable(p parsley.Parser) *combinator.Sequence {
 	return combinator.Seq("VAR", lookup, lenCheck).Bind(ast.InterpreterFunc(evalVariable))
 }
 
-func evalVariable(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	value0, _ := nodes[0].Value(ctx)
 	name := value0.(string)
 	varIndex := make([]interface{}, 0, len(nodes)-1)

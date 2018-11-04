@@ -25,7 +25,8 @@ func And(p parsley.Parser) parser.Func {
 	)
 }
 
-func evalAnd(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalAnd(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	res := true
 	errorPos := nodes[0].Pos()
 	expectsOp := false

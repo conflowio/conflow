@@ -15,7 +15,7 @@ func EvalErrorParser() parser.Func {
 		if err != nil {
 			return nil, cp, err
 		}
-		node := ast.NewNonTerminalNode("ERR", []parsley.Node{res}, ast.InterpreterFunc(func(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+		node := ast.NewNonTerminalNode("ERR", []parsley.Node{res}, ast.InterpreterFunc(func(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 			return nil, parsley.NewErrorf(pos, "ERR")
 		}))
 		return node, cp, nil

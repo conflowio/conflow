@@ -32,7 +32,8 @@ func Sum(p parsley.Parser) parser.Func {
 	)
 }
 
-func evalSum(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalSum(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	var res interface{}
 	var op rune
 	var opPos parsley.Pos

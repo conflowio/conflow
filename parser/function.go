@@ -31,7 +31,8 @@ func Function(p parsley.Parser) *combinator.Sequence {
 	).Bind(ast.InterpreterFunc(evalFunction))
 }
 
-func evalFunction(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalFunction(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	registry := ctx.(basil.FunctionRegistryAware).GetFunctionRegistry()
 
 	functioNode := nodes[0]

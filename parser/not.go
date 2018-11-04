@@ -40,7 +40,8 @@ func Not(p parsley.Parser) parser.Func {
 	})
 }
 
-func evalNot(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalNot(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	v, err := nodes[1].Value(ctx)
 	if err != nil {
 		return nil, err

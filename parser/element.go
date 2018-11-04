@@ -48,7 +48,8 @@ func Element(p parsley.Parser, index parsley.Parser) parser.Func {
 	)
 }
 
-func evalElement(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalElement(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	res, err := nodes[0].Value(ctx)
 	if err != nil {
 		return nil, err

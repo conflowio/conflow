@@ -34,7 +34,8 @@ func ProdMod(p parsley.Parser) parser.Func {
 	)
 }
 
-func evalProdMod(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalProdMod(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	var res interface{}
 	var op rune
 	var opPos parsley.Pos

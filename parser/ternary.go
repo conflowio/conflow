@@ -44,7 +44,8 @@ func TernaryIf(p parsley.Parser) parser.Func {
 	)
 }
 
-func evalTernaryIf(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalTernaryIf(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	cond, err := nodes[0].Value(ctx)
 	if err != nil {
 		return nil, err

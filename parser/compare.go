@@ -41,7 +41,8 @@ func Compare(p parsley.Parser) parser.Func {
 	)
 }
 
-func evalCompare(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalCompare(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	var res interface{}
 	var op string
 	var opPos parsley.Pos

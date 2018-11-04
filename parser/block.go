@@ -80,7 +80,8 @@ func Block() *combinator.Sequence {
 	return &p
 }
 
-func evalBlock(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalBlock(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
 	blockRegistry := ctx.(basil.BlockRegistryAware).GetBlockRegistry()
 	idRegistry := ctx.(basil.IDRegistryAware).GetIDRegistry()
 

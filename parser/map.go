@@ -47,6 +47,6 @@ func Map(p parsley.Parser) parser.Func {
 	).Name("map")
 }
 
-func evalEmptyMap(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
+func evalEmptyMap(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	return map[string]interface{}{}, nil
 }
