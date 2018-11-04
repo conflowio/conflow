@@ -13,6 +13,7 @@ var NodeValueFunctionNames = map[string]string{
 	basil.TypeArray:        "NodeArrayValue",
 	basil.TypeBool:         "NodeBoolValue",
 	basil.TypeFloat:        "NodeFloatValue",
+	basil.TypeIdentifier:   "NodeIdentifierValue",
 	basil.TypeInteger:      "NodeIntegerValue",
 	basil.TypeMap:          "NodeMapValue",
 	basil.TypeString:       "NodeStringValue",
@@ -97,6 +98,24 @@ func NodeFloatValue(node parsley.Node, ctx interface{}) (float64, parsley.Error)
 	}
 
 	return 0.0, parsley.NewError(node.Pos(), basil.ErrExpectingFloat)
+}
+
+// NodeIdentifierValue returns with the identifier value of a node
+func NodeIdentifierValue(node parsley.Node, ctx interface{}) (basil.ID, parsley.Error) {
+	val, err := node.Value(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	if val == nil {
+		return "", nil
+	}
+
+	if res, ok := val.(basil.ID); ok {
+		return res, nil
+	}
+
+	return "", parsley.NewError(node.Pos(), basil.ErrExpectingIdentifier)
 }
 
 // NodeIntegerValue returns with the integer value of a node

@@ -1,5 +1,8 @@
 package basil
 
+// ID is the identifier type
+type ID string
+
 // Identifiable makes an object to have a string identifier
 type Identifiable interface {
 	ID() string

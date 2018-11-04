@@ -12,6 +12,7 @@ const (
 	TypeArray        = "[]interface{}"
 	TypeBool         = terminal.BoolType
 	TypeFloat        = terminal.FloatType
+	TypeIdentifier   = "basil.ID"
 	TypeInteger      = terminal.IntegerType
 	TypeMap          = "map[string]interface{}"
 	TypeString       = terminal.StringType
@@ -24,6 +25,7 @@ var VariableTypes = map[string]string{
 	TypeArray:        "array",
 	TypeBool:         "boolean",
 	TypeFloat:        "float",
+	TypeIdentifier:   "identifier",
 	TypeInteger:      "integer",
 	TypeMap:          "map",
 	TypeString:       "string",
@@ -36,6 +38,7 @@ var (
 	ErrExpectingArray        = errors.New("was expecting array")
 	ErrExpectingBool         = errors.New("was expecting boolean")
 	ErrExpectingFloat        = errors.New("was expecting float")
+	ErrExpectingIdentifier   = errors.New("was expecting identifier")
 	ErrExpectingInteger      = errors.New("was expecting integer")
 	ErrExpectingMap          = errors.New("was expecting map")
 	ErrExpectingString       = errors.New("was expecting string")
@@ -48,6 +51,7 @@ var VariableTypeErrors = map[string]error{
 	TypeArray:        ErrExpectingArray,
 	TypeBool:         ErrExpectingBool,
 	TypeFloat:        ErrExpectingFloat,
+	TypeIdentifier:   ErrExpectingIdentifier,
 	TypeInteger:      ErrExpectingInteger,
 	TypeMap:          ErrExpectingMap,
 	TypeString:       ErrExpectingString,
