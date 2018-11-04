@@ -3,7 +3,7 @@ package parser
 import (
 	"errors"
 
-	"github.com/opsidian/ocl/identifier"
+	"github.com/opsidian/basil/identifier"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"

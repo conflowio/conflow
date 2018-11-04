@@ -1,4 +1,4 @@
-package ocl
+package basil
 
 // Identifiable makes an object to have a string identifier
 type Identifiable interface {

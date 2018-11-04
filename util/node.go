@@ -3,20 +3,20 @@ package util
 import (
 	"time"
 
-	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
 
 // NodeValueFunctionNames contains the type parser functions for every variable type
 var NodeValueFunctionNames = map[string]string{
-	ocl.TypeAny:          "NodeAnyValue",
-	ocl.TypeArray:        "NodeArrayValue",
-	ocl.TypeBool:         "NodeBoolValue",
-	ocl.TypeFloat:        "NodeFloatValue",
-	ocl.TypeInteger:      "NodeIntegerValue",
-	ocl.TypeMap:          "NodeMapValue",
-	ocl.TypeString:       "NodeStringValue",
-	ocl.TypeTimeDuration: "NodeTimeDurationValue",
+	basil.TypeAny:          "NodeAnyValue",
+	basil.TypeArray:        "NodeArrayValue",
+	basil.TypeBool:         "NodeBoolValue",
+	basil.TypeFloat:        "NodeFloatValue",
+	basil.TypeInteger:      "NodeIntegerValue",
+	basil.TypeMap:          "NodeMapValue",
+	basil.TypeString:       "NodeStringValue",
+	basil.TypeTimeDuration: "NodeTimeDurationValue",
 }
 
 // NodeAnyValue returns with the array value of a node
@@ -39,7 +39,7 @@ func NodeAnyValue(node parsley.Node, ctx interface{}) (interface{}, parsley.Erro
 	case string:
 	case time.Duration:
 	default:
-		return nil, parsley.NewError(node.Pos(), ocl.ErrExpectingAny)
+		return nil, parsley.NewError(node.Pos(), basil.ErrExpectingAny)
 	}
 
 	return val, nil
@@ -60,7 +60,7 @@ func NodeArrayValue(node parsley.Node, ctx interface{}) ([]interface{}, parsley.
 		return res, nil
 	}
 
-	return nil, parsley.NewError(node.Pos(), ocl.ErrExpectingArray)
+	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingArray)
 }
 
 // NodeBoolValue returns with the boolean value of a node
@@ -78,7 +78,7 @@ func NodeBoolValue(node parsley.Node, ctx interface{}) (bool, parsley.Error) {
 		return res, nil
 	}
 
-	return false, parsley.NewError(node.Pos(), ocl.ErrExpectingBool)
+	return false, parsley.NewError(node.Pos(), basil.ErrExpectingBool)
 }
 
 // NodeFloatValue returns with the float value of a node
@@ -96,7 +96,7 @@ func NodeFloatValue(node parsley.Node, ctx interface{}) (float64, parsley.Error)
 		return res, nil
 	}
 
-	return 0.0, parsley.NewError(node.Pos(), ocl.ErrExpectingFloat)
+	return 0.0, parsley.NewError(node.Pos(), basil.ErrExpectingFloat)
 }
 
 // NodeIntegerValue returns with the integer value of a node
@@ -114,7 +114,7 @@ func NodeIntegerValue(node parsley.Node, ctx interface{}) (int64, parsley.Error)
 		return res, nil
 	}
 
-	return 0, parsley.NewError(node.Pos(), ocl.ErrExpectingInteger)
+	return 0, parsley.NewError(node.Pos(), basil.ErrExpectingInteger)
 }
 
 // NodeMapValue returns with the map value of a node
@@ -132,7 +132,7 @@ func NodeMapValue(node parsley.Node, ctx interface{}) (map[string]interface{}, p
 		return res, nil
 	}
 
-	return nil, parsley.NewError(node.Pos(), ocl.ErrExpectingMap)
+	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingMap)
 }
 
 // NodeStringValue returns with the string value of a node
@@ -150,7 +150,7 @@ func NodeStringValue(node parsley.Node, ctx interface{}) (string, parsley.Error)
 		return res, nil
 	}
 
-	return "", parsley.NewError(node.Pos(), ocl.ErrExpectingString)
+	return "", parsley.NewError(node.Pos(), basil.ErrExpectingString)
 }
 
 // NodeTimeDurationValue returns with the time duration value of a node
@@ -168,5 +168,5 @@ func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, p
 		return res, nil
 	}
 
-	return 0, parsley.NewError(node.Pos(), ocl.ErrExpectingTimeDuration)
+	return 0, parsley.NewError(node.Pos(), basil.ErrExpectingTimeDuration)
 }

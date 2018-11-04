@@ -3,10 +3,10 @@ package parser
 import (
 	"errors"
 
-	"github.com/opsidian/ocl/block"
+	"github.com/opsidian/basil/block"
 
-	"github.com/opsidian/ocl/identifier"
-	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/identifier"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
@@ -81,8 +81,8 @@ func Block() *combinator.Sequence {
 }
 
 func evalBlock(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Error) {
-	blockRegistry := ctx.(ocl.BlockRegistryAware).GetBlockRegistry()
-	idRegistry := ctx.(ocl.IDRegistryAware).GetIDRegistry()
+	blockRegistry := ctx.(basil.BlockRegistryAware).GetBlockRegistry()
+	idRegistry := ctx.(basil.IDRegistryAware).GetIDRegistry()
 
 	blockIDNodes := nodes[0].(*ast.NonTerminalNode).Children()
 	typeNode := blockIDNodes[0]

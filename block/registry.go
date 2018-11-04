@@ -5,14 +5,14 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/basil/basil"
 )
 
 // Registry is a list of BlockFactory creator objects
-type Registry map[string]ocl.BlockFactoryCreator
+type Registry map[string]basil.BlockFactoryCreator
 
 // AddBlockFactoryCreator registers a new block factory creator
-func (r Registry) AddBlockFactoryCreator(blockType string, creator ocl.BlockFactoryCreator) {
+func (r Registry) AddBlockFactoryCreator(blockType string, creator basil.BlockFactoryCreator) {
 	_, exists := r[blockType]
 	if exists {
 		panic(fmt.Sprintf("%s block factory creator was already registered", blockType))
@@ -33,7 +33,7 @@ func (r Registry) CreateBlockFactory(
 	idNode parsley.Node,
 	paramNodes map[string]parsley.Node,
 	blockNodes []parsley.Node,
-) (ocl.BlockFactory, parsley.Error) {
+) (basil.BlockFactory, parsley.Error) {
 	blockType, err := typeNode.Value(ctx)
 	if err != nil {
 		return nil, err

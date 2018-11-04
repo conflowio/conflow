@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opsidian/ocl/identifier"
-	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/identifier"
 )
 
 // Field contains a metadata for a block field
@@ -25,7 +25,7 @@ type Field struct {
 
 // Validate validates the field tags
 func (f *Field) Validate() error {
-	_, validType := ocl.VariableTypes[f.Type]
+	_, validType := basil.VariableTypes[f.Type]
 	if !validType && !f.IsBlock && !f.IsFactory {
 		return fmt.Errorf("invalid field type on field %q, use valid type or use ignore tag", f.Name)
 	}

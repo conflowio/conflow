@@ -1,15 +1,15 @@
 package fixtures
 
 import (
-	"github.com/opsidian/ocl/block"
-	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/block"
 )
 
-//go:generate ocl generate BlockWithBlock
+//go:generate basil generate BlockWithBlock
 type BlockWithBlock struct {
-	IDField        string                `ocl:"id"`
-	BlockFactories []*BlockSimpleFactory `ocl:"factory"`
-	Blocks         []*BlockSimple        `ocl:"block"`
+	IDField        string                `basil:"id"`
+	BlockFactories []*BlockSimpleFactory `basil:"factory"`
+	Blocks         []*BlockSimple        `basil:"block"`
 }
 
 func (b *BlockWithBlock) ID() string {
@@ -21,9 +21,9 @@ func (b *BlockWithBlock) Type() string {
 }
 
 func (b *BlockWithBlock) Context(ctx interface{}) interface{} {
-	return ocl.NewContext(ctx, ocl.ContextConfig{
+	return basil.NewContext(ctx, basil.ContextConfig{
 		BlockRegistry: block.Registry{
-			"block_simple": ocl.BlockFactoryCreatorFunc(NewBlockSimpleFactory),
+			"block_simple": basil.BlockFactoryCreatorFunc(NewBlockSimpleFactory),
 		},
 	})
 }

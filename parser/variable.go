@@ -9,7 +9,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
@@ -61,7 +61,7 @@ func evalVariable(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.E
 		varIndex = append(varIndex, val)
 	}
 
-	variableProvider := ctx.(ocl.VariableProviderAware).GetVariableProvider()
+	variableProvider := ctx.(basil.VariableProviderAware).GetVariableProvider()
 
 	res, err := variableProvider.LookupVar(lookup(name, varIndex, nodes))
 	if err != nil {
@@ -69,7 +69,7 @@ func evalVariable(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.E
 		for _, index := range varIndex {
 			varName = varName + "[" + fmt.Sprintf("%v", index) + "]"
 		}
-		if err == ocl.ErrVariableNotFound {
+		if err == basil.ErrVariableNotFound {
 			return nil, parsley.WrapError(
 				parsley.NewError(nodes[0].Pos(), err),
 				"variable '%s' does not exist", varName,
@@ -81,11 +81,11 @@ func evalVariable(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.E
 	return res, nil
 }
 
-func lookup(name string, varIndex []interface{}, nodes []parsley.Node) ocl.VariableLookUp {
-	return func(provider ocl.VariableProvider) (interface{}, error) {
+func lookup(name string, varIndex []interface{}, nodes []parsley.Node) basil.VariableLookUp {
+	return func(provider basil.VariableProvider) (interface{}, error) {
 		res, ok := provider.GetVar(name)
 		if !ok {
-			return nil, ocl.ErrVariableNotFound
+			return nil, basil.ErrVariableNotFound
 		}
 		for i, index := range varIndex {
 			switch rest := res.(type) {
@@ -107,7 +107,7 @@ func lookup(name string, varIndex []interface{}, nodes []parsley.Node) ocl.Varia
 				case string:
 					res, ok = rest[indext]
 					if !ok {
-						return nil, ocl.ErrVariableNotFound
+						return nil, basil.ErrVariableNotFound
 					}
 				default:
 					indexNode := nodes[i+1].(*ast.NonTerminalNode).Children()[1]

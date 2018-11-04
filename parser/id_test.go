@@ -5,8 +5,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/ocl/parser"
-	"github.com/opsidian/ocl/test"
+	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/test"
 )
 
 var _ = Describe("ID", func() {

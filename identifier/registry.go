@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/opsidian/ocl/util"
+	"github.com/opsidian/basil/util"
 )
 
 // Registry stores and generates identifiers

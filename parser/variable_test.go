@@ -5,8 +5,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/ocl/parser"
-	"github.com/opsidian/ocl/test"
+	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/text/terminal"
 )

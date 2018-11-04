@@ -5,7 +5,7 @@ import (
 	"go/parser"
 	"go/token"
 
-	"github.com/opsidian/ocl/block"
+	"github.com/opsidian/basil/block"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -32,7 +32,7 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `ocl:"id"` + q + `
+					id string ` + q + `basil:"id"` + q + `
 				}`
 		})
 
@@ -55,7 +55,7 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `ocl:"id"` + q + `
+					id string ` + q + `basil:"id"` + q + `
 					field_string string
 					field_integer int64
 					field_float float64
@@ -141,8 +141,8 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id1 string ` + q + `ocl:"id"` + q + `
-					id2 string ` + q + `ocl:"id"` + q + `
+					id1 string ` + q + `basil:"id"` + q + `
+					id2 string ` + q + `basil:"id"` + q + `
 				}`
 		})
 
@@ -156,9 +156,9 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `ocl:"id"` + q + `
-					value1 string ` + q + `ocl:"value"` + q + `
-					value2 string ` + q + `ocl:"value"` + q + `
+					id string ` + q + `basil:"id"` + q + `
+					value1 string ` + q + `basil:"value"` + q + `
+					value2 string ` + q + `basil:"value"` + q + `
 				}`
 		})
 
@@ -172,9 +172,9 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `ocl:"id"` + q + `
-					value string ` + q + `ocl:"value"` + q + `
-					foo string ` + q + `ocl:"required"` + q + `
+					id string ` + q + `basil:"id"` + q + `
+					value string ` + q + `basil:"value"` + q + `
+					foo string ` + q + `basil:"required"` + q + `
 				}`
 		})
 
@@ -188,8 +188,8 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `ocl:"id"` + q + `
-					foo string ` + q + `ocl:"nonexisting"` + q + `
+					id string ` + q + `basil:"id"` + q + `
+					foo string ` + q + `basil:"nonexisting"` + q + `
 				}`
 		})
 

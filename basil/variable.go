@@ -1,4 +1,4 @@
-package ocl
+package basil
 
 import "errors"
 

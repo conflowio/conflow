@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/ocl/block"
+	"github.com/opsidian/basil/block"
 )
 
 func main() {
@@ -54,5 +54,5 @@ func fail(s string, args ...interface{}) {
 
 var usage = `
 USAGE
-    ocl generate <struct name>
+    basil generate <struct name>
 `

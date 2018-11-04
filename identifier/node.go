@@ -3,7 +3,7 @@ package identifier
 import (
 	"fmt"
 
-	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -34,7 +34,7 @@ func (n *Node) Token() string {
 // Value returns with the value of the node
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
 	if n.value == "" {
-		idRegistry := ctx.(ocl.IDRegistryAware).GetIDRegistry()
+		idRegistry := ctx.(basil.IDRegistryAware).GetIDRegistry()
 		n.value = idRegistry.GenerateID()
 	}
 	return n.value, nil

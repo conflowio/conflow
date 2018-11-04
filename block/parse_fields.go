@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/opsidian/ocl/ocl"
-	"github.com/opsidian/ocl/util"
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/util"
 )
 
 // ParseFields parses all fields of a given go struct
@@ -74,29 +74,29 @@ func parseField(field *ast.Field) (*Field, error) {
 		}
 	}
 
-	tags := util.ParseFieldTag(reflect.StructTag(tag), "ocl", name)
+	tags := util.ParseFieldTag(reflect.StructTag(tag), "basil", name)
 
 	for _, key := range tags.Keys() {
-		if _, validTag := ocl.BlockTags[strings.ToLower(key)]; !validTag {
+		if _, validTag := basil.BlockTags[strings.ToLower(key)]; !validTag {
 			return nil, fmt.Errorf("invalid tag %q on field %q", key, name)
 		}
 	}
 
-	if tags.GetBool(ocl.BlockTagIgnore) {
+	if tags.GetBool(basil.BlockTagIgnore) {
 		return nil, nil
 	}
 
 	return &Field{
 		Name:        name,
-		ParamName:   tags.GetWithDefault(ocl.BlockTagName, generateParamName(name)),
-		Required:    tags.GetBool(ocl.BlockTagRequired),
+		ParamName:   tags.GetWithDefault(basil.BlockTagName, generateParamName(name)),
+		Required:    tags.GetBool(basil.BlockTagRequired),
 		Type:        getFieldType(field.Type),
-		Stage:       tags.GetWithDefault(ocl.BlockTagStage, "default"),
-		IsID:        tags.GetBool(ocl.BlockTagID),
-		IsValue:     tags.GetBool(ocl.BlockTagValue),
-		IsReference: tags.GetBool(ocl.BlockTagReference),
-		IsBlock:     tags.GetBool(ocl.BlockTagBlock),
-		IsFactory:   tags.GetBool(ocl.BlockTagFactory),
+		Stage:       tags.GetWithDefault(basil.BlockTagStage, "default"),
+		IsID:        tags.GetBool(basil.BlockTagID),
+		IsValue:     tags.GetBool(basil.BlockTagValue),
+		IsReference: tags.GetBool(basil.BlockTagReference),
+		IsBlock:     tags.GetBool(basil.BlockTagBlock),
+		IsFactory:   tags.GetBool(basil.BlockTagFactory),
 	}, nil
 }
 

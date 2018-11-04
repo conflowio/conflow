@@ -1,9 +1,9 @@
 package fixtures
 
-//go:generate ocl generate BlockSimple
+//go:generate basil generate BlockSimple
 type BlockSimple struct {
-	IDField string      `ocl:"id"`
-	Value   interface{} `ocl:"value"`
+	IDField string      `basil:"id"`
+	Value   interface{} `basil:"value"`
 }
 
 func (b *BlockSimple) ID() string {

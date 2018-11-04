@@ -1,9 +1,9 @@
 package fixtures
 
-//go:generate ocl generate BlockWithFactory
+//go:generate basil generate BlockWithFactory
 type BlockWithFactory struct {
-	IDField        string                `ocl:"id"`
-	BlockFactories []*BlockSimpleFactory `ocl:"factory,stage=-"`
+	IDField        string                `basil:"id"`
+	BlockFactories []*BlockSimpleFactory `basil:"factory,stage=-"`
 }
 
 func (b *BlockWithFactory) ID() string {

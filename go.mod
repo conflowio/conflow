@@ -1,4 +1,4 @@
-module github.com/opsidian/ocl
+module github.com/opsidian/basil
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

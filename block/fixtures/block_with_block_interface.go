@@ -1,17 +1,17 @@
 package fixtures
 
-import "github.com/opsidian/ocl/ocl"
+import "github.com/opsidian/basil/basil"
 
 type BlockInterface interface {
-	ocl.Block
+	basil.Block
 	Foo() string
 }
 
-//go:generate ocl generate BlockWithBlockInterface
+//go:generate basil generate BlockWithBlockInterface
 type BlockWithBlockInterface struct {
-	IDField        string             `ocl:"id"`
-	BlockFactories []ocl.BlockFactory `ocl:"factory"`
-	Blocks         []BlockInterface   `ocl:"block"`
+	IDField        string               `basil:"id"`
+	BlockFactories []basil.BlockFactory `basil:"factory"`
+	Blocks         []BlockInterface     `basil:"block"`
 }
 
 func (b *BlockWithBlockInterface) ID() string {

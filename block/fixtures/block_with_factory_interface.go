@@ -1,18 +1,18 @@
 package fixtures
 
 import (
-	"github.com/opsidian/ocl/ocl"
+	"github.com/opsidian/basil/basil"
 )
 
 type BlockFactoryInterface interface {
-	ocl.BlockFactory
+	basil.BlockFactory
 	Foo() string
 }
 
-//go:generate ocl generate BlockWithFactoryInterface
+//go:generate basil generate BlockWithFactoryInterface
 type BlockWithFactoryInterface struct {
-	IDField        string                  `ocl:"id"`
-	BlockFactories []BlockFactoryInterface `ocl:"factory"`
+	IDField        string                  `basil:"id"`
+	BlockFactories []BlockFactoryInterface `basil:"factory"`
 }
 
 func (b *BlockWithFactoryInterface) ID() string {

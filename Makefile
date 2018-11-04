@@ -15,4 +15,4 @@ generate: ## Regenerates all files
 
 .PHONY: build
 build:
-	go build -o bin/ocl
+	go build -o bin/basil

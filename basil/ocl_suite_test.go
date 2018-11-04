@@ -1,4 +1,4 @@
-package ocl_test
+package basil_test
 
 import (
 	"testing"

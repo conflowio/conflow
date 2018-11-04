@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.11
-    working_directory: /go/src/github.com/opsidian/ocl
+    working_directory: /go/src/github.com/opsidian/basil
     steps:
       - checkout
       - run: make test

@@ -6,21 +6,21 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/ocl/util"
+	"github.com/opsidian/basil/util"
 )
 
 var _ = Describe("GetTags", func() {
 
 	DescribeTable("it parser the valid tags correctly",
 		func(obj interface{}, expected util.StructTags) {
-			tags := util.GetTags(obj, "ocl")
+			tags := util.GetTags(obj, "basil")
 			Expect(tags).To(Equal(expected))
 		},
 		Entry("no fields", struct{}{}, nil),
 		Entry("one field, no tags", struct{ f string }{}, util.StructTags{"f": nil}),
 		Entry("key-value",
 			struct {
-				f string `ocl:"a=b"`
+				f string `basil:"a=b"`
 			}{},
 			util.StructTags{
 				"f": map[string]string{
@@ -30,7 +30,7 @@ var _ = Describe("GetTags", func() {
 		),
 		Entry("multiple key-values",
 			struct {
-				f string `ocl:"a=b,c=d"`
+				f string `basil:"a=b,c=d"`
 			}{},
 			util.StructTags{
 				"f": map[string]string{
@@ -41,8 +41,8 @@ var _ = Describe("GetTags", func() {
 		),
 		Entry("multiple fields",
 			struct {
-				f1 string `ocl:"a=b"`
-				f2 string `ocl:"c=d"`
+				f1 string `basil:"a=b"`
+				f2 string `basil:"c=d"`
 			}{},
 			util.StructTags{
 				"f1": map[string]string{
@@ -63,7 +63,7 @@ var _ = Describe("GetTags", func() {
 		),
 		Entry("empty tag",
 			struct {
-				f string `ocl:""`
+				f string `basil:""`
 			}{},
 			util.StructTags{
 				"f": nil,
@@ -71,7 +71,7 @@ var _ = Describe("GetTags", func() {
 		),
 		Entry("only whitespace in tag",
 			struct {
-				f string `ocl:" "`
+				f string `basil:" "`
 			}{},
 			util.StructTags{
 				"f": nil,
@@ -79,7 +79,7 @@ var _ = Describe("GetTags", func() {
 		),
 		Entry("strips whitespaces",
 			struct {
-				f string `ocl:" a = b , c = d "`
+				f string `basil:" a = b , c = d "`
 			}{},
 			util.StructTags{
 				"f": map[string]string{
@@ -90,7 +90,7 @@ var _ = Describe("GetTags", func() {
 		),
 		Entry("no value should set the tag with true",
 			struct {
-				f string `ocl:"foo"`
+				f string `basil:"foo"`
 			}{},
 			util.StructTags{
 				"f": map[string]string{
@@ -100,7 +100,7 @@ var _ = Describe("GetTags", func() {
 		),
 		Entry("extra comma should be ignored",
 			struct {
-				f string `ocl:",a=b,"`
+				f string `basil:",a=b,"`
 			}{},
 			util.StructTags{
 				"f": map[string]string{
@@ -110,7 +110,7 @@ var _ = Describe("GetTags", func() {
 		),
 		Entry("pointer",
 			&struct {
-				f string `ocl:"a=b"`
+				f string `basil:"a=b"`
 			}{},
 			util.StructTags{
 				"f": map[string]string{
@@ -123,16 +123,16 @@ var _ = Describe("GetTags", func() {
 	Describe("when input is not a struct", func() {
 		It("should panic", func() {
 			var obj = "this is not a struct"
-			Expect(func() { util.GetTags(obj, "ocl") }).To(Panic())
+			Expect(func() { util.GetTags(obj, "basil") }).To(Panic())
 		})
 	})
 
 	Describe("when tag key is empty", func() {
 		It("should panic", func() {
 			obj := struct {
-				f1 string `ocl:"=value"`
+				f1 string `basil:"=value"`
 			}{}
-			Expect(func() { util.GetTags(obj, "ocl") }).To(Panic())
+			Expect(func() { util.GetTags(obj, "basil") }).To(Panic())
 		})
 	})
 })
@@ -140,43 +140,43 @@ var _ = Describe("GetTags", func() {
 var _ = Describe("FilterFieldsByTags", func() {
 	var obj = struct {
 		f1 string
-		f2 string `ocl:"key=a"`
-		f3 string `ocl:"key=a,key2=b"`
-		f4 string `ocl:"key2=a"`
-		f5 string `ocl:"key=b"`
-		f6 string `ocl:"k`
+		f2 string `basil:"key=a"`
+		f3 string `basil:"key=a,key2=b"`
+		f4 string `basil:"key2=a"`
+		f5 string `basil:"key=b"`
+		f6 string `basil:"k`
 	}{}
 
 	It("should return fields with specific key-value pairs", func() {
-		tags := util.GetTags(obj, "ocl")
+		tags := util.GetTags(obj, "basil")
 		actual := util.FilterFieldsByTags(tags, "key", "a")
 		sort.Strings(actual)
 		Expect(actual).To(Equal([]string{"f2", "f3"}))
 	})
 
 	It("should return fields for all filtered key values", func() {
-		tags := util.GetTags(obj, "ocl")
+		tags := util.GetTags(obj, "basil")
 		actual := util.FilterFieldsByTags(tags, "key", "a", "b")
 		sort.Strings(actual)
 		Expect(actual).To(Equal([]string{"f2", "f3", "f5"}))
 	})
 
 	It("should return nil if no key matches", func() {
-		tags := util.GetTags(obj, "ocl")
+		tags := util.GetTags(obj, "basil")
 		actual := util.FilterFieldsByTags(tags, "x", "foo")
 		sort.Strings(actual)
 		Expect(actual).To(BeNil())
 	})
 
 	It("should return nil if no value matches", func() {
-		tags := util.GetTags(obj, "ocl")
+		tags := util.GetTags(obj, "basil")
 		actual := util.FilterFieldsByTags(tags, "key", "x")
 		sort.Strings(actual)
 		Expect(actual).To(BeNil())
 	})
 
 	It("should panic if no value was given", func() {
-		tags := util.GetTags(obj, "ocl")
+		tags := util.GetTags(obj, "basil")
 		Expect(func() { util.FilterFieldsByTags(tags, "key") }).To(Panic())
 	})
 })

@@ -3,21 +3,21 @@ package block_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/ocl/block"
-	"github.com/opsidian/ocl/block/fixtures"
-	"github.com/opsidian/ocl/ocl"
-	"github.com/opsidian/ocl/parser"
-	"github.com/opsidian/ocl/test"
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/block"
+	"github.com/opsidian/basil/block/fixtures"
+	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/test"
 )
 
 var _ = Describe("GenerateFactory", func() {
 
 	var blockRegistry = block.Registry{
-		"block_simple":               ocl.BlockFactoryCreatorFunc(fixtures.NewBlockSimpleFactory),
-		"block_value_required":       ocl.BlockFactoryCreatorFunc(fixtures.NewBlockValueRequiredFactory),
-		"block_with_block":           ocl.BlockFactoryCreatorFunc(fixtures.NewBlockWithBlockFactory),
-		"block_with_block_interface": ocl.BlockFactoryCreatorFunc(fixtures.NewBlockWithBlockInterfaceFactory),
-		"block_with_factory":         ocl.BlockFactoryCreatorFunc(fixtures.NewBlockWithFactoryFactory),
+		"block_simple":               basil.BlockFactoryCreatorFunc(fixtures.NewBlockSimpleFactory),
+		"block_value_required":       basil.BlockFactoryCreatorFunc(fixtures.NewBlockValueRequiredFactory),
+		"block_with_block":           basil.BlockFactoryCreatorFunc(fixtures.NewBlockWithBlockFactory),
+		"block_with_block_interface": basil.BlockFactoryCreatorFunc(fixtures.NewBlockWithBlockInterfaceFactory),
+		"block_with_factory":         basil.BlockFactoryCreatorFunc(fixtures.NewBlockWithFactoryFactory),
 	}
 
 	Context("fixtures/block_simple.go", func() {

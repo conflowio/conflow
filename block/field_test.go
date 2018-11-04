@@ -3,7 +3,7 @@ package block_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/ocl/block"
+	"github.com/opsidian/basil/block"
 )
 
 var _ = Describe("Field", func() {

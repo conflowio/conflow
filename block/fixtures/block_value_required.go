@@ -1,9 +1,9 @@
 package fixtures
 
-//go:generate ocl generate BlockValueRequired
+//go:generate basil generate BlockValueRequired
 type BlockValueRequired struct {
-	IDField string      `ocl:"id"`
-	Value   interface{} `ocl:"value,required"`
+	IDField string      `basil:"id"`
+	Value   interface{} `basil:"value,required"`
 }
 
 func (b *BlockValueRequired) ID() string {

@@ -2,10 +2,10 @@ package test
 
 import "time"
 
-//go:generate ocl generate TestBlock
+//go:generate basil generate TestBlock
 type TestBlock struct {
-	IDField           string      `ocl:"id"`
-	Value             interface{} `ocl:"value"`
+	IDField           string      `basil:"id"`
+	Value             interface{} `basil:"value"`
 	FieldString       string
 	FieldInt          int64
 	FieldFloat        float64
@@ -13,10 +13,10 @@ type TestBlock struct {
 	FieldArray        []interface{}
 	FieldMap          map[string]interface{}
 	FieldTimeDuration time.Duration
-	FieldCustomName   string `ocl:"name=custom_field"`
+	FieldCustomName   string `basil:"name=custom_field"`
 
-	BlockFactories []*TestBlockFactory `ocl:"factory"`
-	Blocks         []*TestBlock        `ocl:"block"`
+	BlockFactories []*TestBlockFactory `basil:"factory"`
+	Blocks         []*TestBlock        `basil:"block"`
 }
 
 func (t *TestBlock) ID() string {

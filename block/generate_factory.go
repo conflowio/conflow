@@ -16,7 +16,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/opsidian/ocl/util"
+	"github.com/opsidian/basil/util"
 	"github.com/pkg/errors"
 )
 
@@ -50,7 +50,7 @@ func GenerateFactory(dir string, name string, pkgName string) error {
 	filename := regexp.MustCompile("[A-Z][a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
 		return "_" + strings.ToLower(str)
 	})
-	filename = strings.TrimLeft(filename, "_") + ".ocl.go"
+	filename = strings.TrimLeft(filename, "_") + ".basil.go"
 	filePath := path.Join(dir, filename)
 
 	err = ioutil.WriteFile(filePath, formatted, 0644)

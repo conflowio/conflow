@@ -1,4 +1,4 @@
-package ocl
+package basil
 
 import "github.com/opsidian/parsley/parsley"
 

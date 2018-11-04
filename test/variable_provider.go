@@ -1,6 +1,6 @@
 package test
 
-import "github.com/opsidian/ocl/ocl"
+import "github.com/opsidian/basil/basil"
 
 var testVariableProvider = variableProvider{map[string]interface{}{
 	"foo": "bar",
@@ -34,6 +34,6 @@ func (v variableProvider) GetVar(name string) (interface{}, bool) {
 	return value, ok
 }
 
-func (v variableProvider) LookupVar(lookup ocl.VariableLookUp) (interface{}, error) {
+func (v variableProvider) LookupVar(lookup basil.VariableLookUp) (interface{}, error) {
 	return lookup(v)
 }
