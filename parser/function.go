@@ -41,7 +41,7 @@ func evalFunction(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.E
 		return nil, parsley.NewError(functioNode.Pos(), errors.New("function does not exist"))
 	}
 
-	paramsNode := nodes[2].(*ast.NonTerminalNode)
+	paramsNode := nodes[2].(parsley.NonTerminalNode)
 	var params []parsley.Node
 	children := paramsNode.Children()
 	childrenCount := len(children)

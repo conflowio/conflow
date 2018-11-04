@@ -95,11 +95,11 @@ func lookup(name string, varIndex []interface{}, nodes []parsley.Node) basil.Var
 					if indext >= 0 && indext < int64(len(rest)) {
 						res = rest[indext]
 					} else {
-						indexNode := nodes[i+1].(*ast.NonTerminalNode).Children()[1]
+						indexNode := nodes[i+1].(parsley.NonTerminalNode).Children()[1]
 						return nil, parsley.NewErrorf(indexNode.Pos(), "array index out of bounds: %d (0..%d)", indext, len(rest)-1)
 					}
 				default:
-					indexNode := nodes[i+1].(*ast.NonTerminalNode).Children()[1]
+					indexNode := nodes[i+1].(parsley.NonTerminalNode).Children()[1]
 					return nil, parsley.NewErrorf(indexNode.Pos(), "invalid non-integer index on array")
 				}
 			case map[string]interface{}:
@@ -110,11 +110,11 @@ func lookup(name string, varIndex []interface{}, nodes []parsley.Node) basil.Var
 						return nil, basil.ErrVariableNotFound
 					}
 				default:
-					indexNode := nodes[i+1].(*ast.NonTerminalNode).Children()[1]
+					indexNode := nodes[i+1].(parsley.NonTerminalNode).Children()[1]
 					return nil, parsley.NewErrorf(indexNode.Pos(), "invalid non-string index on map")
 				}
 			default:
-				indexNode := nodes[i+1].(*ast.NonTerminalNode).Children()[1]
+				indexNode := nodes[i+1].(parsley.NonTerminalNode).Children()[1]
 				return nil, parsley.NewErrorf(indexNode.Pos(), "can not get index on %s type", fmt.Sprintf("%T", res))
 			}
 		}

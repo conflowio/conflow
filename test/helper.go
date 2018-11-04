@@ -7,7 +7,6 @@ import (
 
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
@@ -78,7 +77,7 @@ func ExpectParserToReturn(p parsley.Parser, input string, expected parsley.Node)
 
 	Expect(err).ToNot(HaveOccurred())
 
-	node, ok := res.(*ast.NonTerminalNode)
+	node, ok := res.(parsley.NonTerminalNode)
 	Expect(ok).To(BeTrue())
 	actual := node.Children()[0]
 

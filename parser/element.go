@@ -66,11 +66,11 @@ func evalElement(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Er
 				if indext >= 0 && indext < int64(len(rest)) {
 					res = rest[indext]
 				} else {
-					indexNode := nodes[i].(*ast.NonTerminalNode).Children()[1]
+					indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
 					return nil, parsley.NewErrorf(indexNode.Pos(), "array index out of bounds: %d (0..%d)", indext, len(rest)-1)
 				}
 			default:
-				indexNode := nodes[i].(*ast.NonTerminalNode).Children()[1]
+				indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
 				return nil, parsley.NewErrorf(indexNode.Pos(), "invalid non-integer index on array")
 			}
 		case map[string]interface{}:
@@ -78,16 +78,16 @@ func evalElement(ctx interface{}, nodes []parsley.Node) (interface{}, parsley.Er
 			case string:
 				val, ok := rest[indext]
 				if !ok {
-					indexNode := nodes[i].(*ast.NonTerminalNode).Children()[1]
+					indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
 					return nil, parsley.NewErrorf(indexNode.Pos(), "index '%s' does not exist", indext)
 				}
 				res = val
 			default:
-				indexNode := nodes[i].(*ast.NonTerminalNode).Children()[1]
+				indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
 				return nil, parsley.NewErrorf(indexNode.Pos(), "invalid non-string index on map")
 			}
 		default:
-			indexNode := nodes[i].(*ast.NonTerminalNode).Children()[1]
+			indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
 			return nil, parsley.NewErrorf(indexNode.Pos(), "can not get index on %s type", fmt.Sprintf("%T", res))
 		}
 	}
