@@ -1,1 +1,1 @@
-# Opsidian Configuration Language (OCL)
+# Basil Configuration Language
