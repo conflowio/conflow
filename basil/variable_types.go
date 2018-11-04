@@ -1,17 +1,21 @@
 package basil
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/opsidian/parsley/text/terminal"
+)
 
 // Variable types
 const (
 	TypeAny          = "interface{}"
 	TypeArray        = "[]interface{}"
-	TypeBool         = "bool"
-	TypeFloat        = "float64"
-	TypeInteger      = "int64"
+	TypeBool         = terminal.BoolType
+	TypeFloat        = terminal.FloatType
+	TypeInteger      = terminal.IntegerType
 	TypeMap          = "map[string]interface{}"
-	TypeString       = "string"
-	TypeTimeDuration = "time.Duration"
+	TypeString       = terminal.StringType
+	TypeTimeDuration = terminal.TimeDurationType
 )
 
 // VariableTypes contains valid variable types with descriptions
