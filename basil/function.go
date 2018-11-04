@@ -20,8 +20,8 @@ func (f CallableFunc) CallFunction(ctx interface{}, function parsley.Node, nodes
 //go:generate counterfeiter . FunctionRegistry
 type FunctionRegistry interface {
 	Callable
-	FunctionExists(name string) bool
-	RegisterFunction(name string, callable Callable)
+	FunctionExists(name ID) bool
+	RegisterFunction(name ID, callable Callable)
 }
 
 // FunctionRegistryAware defines a function to access a function registry

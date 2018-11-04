@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/util"
 )
 
 // Registry stores and generates identifiers
 type Registry struct {
-	ids       map[string]struct{}
+	ids       map[basil.ID]struct{}
 	minLength int
 	maxLength int
 	lock      sync.RWMutex
@@ -18,14 +19,14 @@ type Registry struct {
 // NewRegistry creates a new id registry
 func NewRegistry(minLength int, maxLength int) *Registry {
 	return &Registry{
-		ids:       map[string]struct{}{},
+		ids:       map[basil.ID]struct{}{},
 		minLength: minLength,
 		maxLength: maxLength,
 	}
 }
 
 // IDExists returns true if the identifier already exists
-func (r *Registry) IDExists(id string) bool {
+func (r *Registry) IDExists(id basil.ID) bool {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
@@ -36,12 +37,12 @@ func (r *Registry) IDExists(id string) bool {
 // GenerateID generates and registers a new block id
 // If there are many block ids generated with the current minimum length and it's getting hard to generate unique ones
 // thenb the min length will be increased by one (up to the maximum length)
-func (r *Registry) GenerateID() string {
+func (r *Registry) GenerateID() basil.ID {
 	util.SeedMathRand()
 
 	tries := 0
 	for {
-		id := util.RandHexString(r.minLength, true)
+		id := basil.ID(util.RandHexString(r.minLength, true))
 		err := r.RegisterID(id)
 		if err == nil {
 			return id
@@ -55,13 +56,9 @@ func (r *Registry) GenerateID() string {
 }
 
 // RegisterID registers a new block id and returns an error if it is already taken
-func (r *Registry) RegisterID(id string) error {
+func (r *Registry) RegisterID(id basil.ID) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
-
-	if r.ids == nil {
-		r.ids = map[string]struct{}{}
-	}
 
 	_, exists := r.ids[id]
 	if exists {

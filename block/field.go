@@ -38,8 +38,8 @@ func (f *Field) Validate() error {
 		return fmt.Errorf("\"name\" tag is invalid on field %q, it must be a valid identifier", f.Name)
 	}
 
-	if f.IsID && f.Type != "string" {
-		return fmt.Errorf("field %q must be defined as string", f.Name)
+	if f.IsID && f.Type != basil.TypeIdentifier {
+		return fmt.Errorf("field %q must be defined as %s", f.Name, basil.TypeIdentifier)
 	}
 
 	if f.IsReference && !f.IsID {

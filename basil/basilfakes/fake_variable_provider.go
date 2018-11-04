@@ -8,10 +8,10 @@ import (
 )
 
 type FakeVariableProvider struct {
-	GetVarStub        func(name string) (interface{}, bool)
+	GetVarStub        func(name basil.ID) (interface{}, bool)
 	getVarMutex       sync.RWMutex
 	getVarArgsForCall []struct {
-		name string
+		name basil.ID
 	}
 	getVarReturns struct {
 		result1 interface{}
@@ -38,11 +38,11 @@ type FakeVariableProvider struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeVariableProvider) GetVar(name string) (interface{}, bool) {
+func (fake *FakeVariableProvider) GetVar(name basil.ID) (interface{}, bool) {
 	fake.getVarMutex.Lock()
 	ret, specificReturn := fake.getVarReturnsOnCall[len(fake.getVarArgsForCall)]
 	fake.getVarArgsForCall = append(fake.getVarArgsForCall, struct {
-		name string
+		name basil.ID
 	}{name})
 	fake.recordInvocation("GetVar", []interface{}{name})
 	fake.getVarMutex.Unlock()
@@ -61,7 +61,7 @@ func (fake *FakeVariableProvider) GetVarCallCount() int {
 	return len(fake.getVarArgsForCall)
 }
 
-func (fake *FakeVariableProvider) GetVarArgsForCall(i int) string {
+func (fake *FakeVariableProvider) GetVarArgsForCall(i int) basil.ID {
 	fake.getVarMutex.RLock()
 	defer fake.getVarMutex.RUnlock()
 	return fake.getVarArgsForCall[i].name

@@ -9,12 +9,12 @@ type BlockInterface interface {
 
 //go:generate basil generate BlockWithBlockInterface
 type BlockWithBlockInterface struct {
-	IDField        string               `basil:"id"`
+	IDField        basil.ID             `basil:"id"`
 	BlockFactories []basil.BlockFactory `basil:"factory"`
 	Blocks         []BlockInterface     `basil:"block"`
 }
 
-func (b *BlockWithBlockInterface) ID() string {
+func (b *BlockWithBlockInterface) ID() basil.ID {
 	return b.IDField
 }
 

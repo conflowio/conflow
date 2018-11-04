@@ -2,7 +2,7 @@ package test
 
 import "github.com/opsidian/basil/basil"
 
-var testVariableProvider = variableProvider{map[string]interface{}{
+var testVariableProvider = variableProvider{map[basil.ID]interface{}{
 	"foo": "bar",
 	"testmap": map[string]interface{}{
 		"key1": "value1",
@@ -26,10 +26,10 @@ var testVariableProvider = variableProvider{map[string]interface{}{
 }}
 
 type variableProvider struct {
-	Vars map[string]interface{}
+	Vars map[basil.ID]interface{}
 }
 
-func (v variableProvider) GetVar(name string) (interface{}, bool) {
+func (v variableProvider) GetVar(name basil.ID) (interface{}, bool) {
 	value, ok := v.Vars[name]
 	return value, ok
 }

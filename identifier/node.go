@@ -10,14 +10,14 @@ import (
 // Node represents an identifier
 // If it is initialised with an empty string it will generate a value using a block registry
 type Node struct {
-	value     string
+	value     basil.ID
 	pos       parsley.Pos
 	readerPos parsley.Pos
 	generated bool
 }
 
 // NewNode creates a new ID node
-func NewNode(value string, generated bool, pos parsley.Pos, readerPos parsley.Pos) *Node {
+func NewNode(value basil.ID, generated bool, pos parsley.Pos, readerPos parsley.Pos) *Node {
 	return &Node{
 		value:     value,
 		generated: generated,
@@ -28,6 +28,11 @@ func NewNode(value string, generated bool, pos parsley.Pos, readerPos parsley.Po
 
 // Token returns with the node token
 func (n *Node) Token() string {
+	return "ID"
+}
+
+// Type returns with the type of the node
+func (n *Node) Type() string {
 	return "ID"
 }
 

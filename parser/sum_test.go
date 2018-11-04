@@ -7,7 +7,6 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
-	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
@@ -72,7 +71,7 @@ var _ = Describe("Sum", func() {
 
 	Context("When there is only one node", func() {
 		It("should return the node", func() {
-			expectedNode := ast.NewTerminalNode("INT", int64(1), parsley.Pos(1), parsley.Pos(2))
+			expectedNode := terminal.NewIntegerNode(int64(1), parsley.Pos(1), parsley.Pos(2))
 			test.ExpectParserToReturn(p, "1", expectedNode)
 		})
 	})

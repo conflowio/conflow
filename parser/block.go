@@ -95,7 +95,7 @@ func evalBlock(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pars
 		idNode = identifier.NewNode(id, true, typeNode.ReaderPos(), typeNode.ReaderPos())
 	}
 
-	var paramNodes map[string]parsley.Node
+	var paramNodes map[basil.ID]parsley.Node
 	var blockNodes []parsley.Node
 	var isShortFormat bool
 
@@ -119,7 +119,7 @@ func evalBlock(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pars
 				}
 
 				if paramCnt > 0 {
-					paramNodes = make(map[string]parsley.Node, paramCnt)
+					paramNodes = make(map[basil.ID]parsley.Node, paramCnt)
 				}
 				if blockCnt > 0 {
 					blockNodes = make([]parsley.Node, 0, blockCnt)
@@ -131,16 +131,16 @@ func evalBlock(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pars
 					} else {
 						children := blockChild.(parsley.NonTerminalNode).Children()
 						paramName, _ := children[0].Value(ctx)
-						if _, alreadyExists := paramNodes[paramName.(string)]; alreadyExists {
+						if _, alreadyExists := paramNodes[paramName.(basil.ID)]; alreadyExists {
 							return nil, parsley.NewError(children[0].Pos(), errors.New("parameter was already defined"))
 						}
-						paramNodes[paramName.(string)] = block.NewParamNode(children[0], children[2])
+						paramNodes[paramName.(basil.ID)] = block.NewParamNode(children[0], children[2])
 					}
 				}
 			}
 		} else { // We have an expression as the value of the block
 			isShortFormat = true
-			paramNodes = map[string]parsley.Node{
+			paramNodes = map[basil.ID]parsley.Node{
 				"_value": blockValueNode,
 			}
 		}
@@ -161,7 +161,7 @@ func evalBlock(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pars
 			if err != nil {
 				return nil, err
 			}
-			if err := idRegistry.RegisterID(id.(string)); err != nil {
+			if err := idRegistry.RegisterID(id.(basil.ID)); err != nil {
 				return nil, parsley.NewError(idNode.Pos(), err)
 			}
 		}

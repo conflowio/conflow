@@ -7,12 +7,12 @@ import (
 
 //go:generate basil generate BlockWithBlock
 type BlockWithBlock struct {
-	IDField        string                `basil:"id"`
+	IDField        basil.ID              `basil:"id"`
 	BlockFactories []*BlockSimpleFactory `basil:"factory"`
 	Blocks         []*BlockSimple        `basil:"block"`
 }
 
-func (b *BlockWithBlock) ID() string {
+func (b *BlockWithBlock) ID() basil.ID {
 	return b.IDField
 }
 

@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/identifier"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
@@ -26,7 +27,7 @@ func ID() parser.Func {
 			if ctx.IsKeyword(id) {
 				return nil, data.EmptyIntSet, parsley.NewErrorf(pos, "%s is a reserved keyword", id)
 			}
-			return identifier.NewNode(id, false, pos, readerPos), data.EmptyIntSet, nil
+			return identifier.NewNode(basil.ID(id), false, pos, readerPos), data.EmptyIntSet, nil
 		}
 		return nil, data.EmptyIntSet, parsley.NewError(pos, notFoundErr)
 	})

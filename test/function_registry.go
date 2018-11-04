@@ -10,25 +10,25 @@ import (
 
 type functionRegistry struct{}
 
-func (f *functionRegistry) RegisterFunction(name string, callable basil.Callable) {
+func (f *functionRegistry) RegisterFunction(name basil.ID, callable basil.Callable) {
 }
 
-func (f *functionRegistry) FunctionExists(name string) bool {
-	return name == "rand" || name == "upper" || name == "default"
+func (f *functionRegistry) FunctionExists(name basil.ID) bool {
+	return name == basil.ID("rand") || name == basil.ID("upper") || name == basil.ID("default")
 }
 
 func (f *functionRegistry) CallFunction(ctx interface{}, function parsley.Node, params []parsley.Node) (interface{}, parsley.Error) {
 	name, _ := function.Value(ctx)
 	switch name {
-	case "rand":
+	case basil.ID("rand"):
 		return int64(123), nil
-	case "upper":
+	case basil.ID("upper"):
 		value, err := params[0].Value(ctx)
 		if err != nil {
 			return nil, err
 		}
 		return strings.ToUpper(value.(string)), nil
-	case "default":
+	case basil.ID("default"):
 		value1, err := params[0].Value(ctx)
 		if err != nil {
 			return nil, err

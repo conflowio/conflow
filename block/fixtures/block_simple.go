@@ -1,12 +1,14 @@
 package fixtures
 
+import "github.com/opsidian/basil/basil"
+
 //go:generate basil generate BlockSimple
 type BlockSimple struct {
-	IDField string      `basil:"id"`
+	IDField basil.ID    `basil:"id"`
 	Value   interface{} `basil:"value"`
 }
 
-func (b *BlockSimple) ID() string {
+func (b *BlockSimple) ID() basil.ID {
 	return b.IDField
 }
 

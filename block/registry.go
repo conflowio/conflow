@@ -9,10 +9,10 @@ import (
 )
 
 // Registry is a list of BlockFactory creator objects
-type Registry map[string]basil.BlockFactoryCreator
+type Registry map[basil.ID]basil.BlockFactoryCreator
 
 // AddBlockFactoryCreator registers a new block factory creator
-func (r Registry) AddBlockFactoryCreator(blockType string, creator basil.BlockFactoryCreator) {
+func (r Registry) AddBlockFactoryCreator(blockType basil.ID, creator basil.BlockFactoryCreator) {
 	_, exists := r[blockType]
 	if exists {
 		panic(fmt.Sprintf("%s block factory creator was already registered", blockType))
@@ -21,7 +21,7 @@ func (r Registry) AddBlockFactoryCreator(blockType string, creator basil.BlockFa
 }
 
 // BlockTypeExists returns true if the registry has a factory creator for the given type
-func (r Registry) BlockTypeExists(blockType string) bool {
+func (r Registry) BlockTypeExists(blockType basil.ID) bool {
 	_, exists := r[blockType]
 	return exists
 }
@@ -31,7 +31,7 @@ func (r Registry) CreateBlockFactory(
 	ctx interface{},
 	typeNode parsley.Node,
 	idNode parsley.Node,
-	paramNodes map[string]parsley.Node,
+	paramNodes map[basil.ID]parsley.Node,
 	blockNodes []parsley.Node,
 ) (basil.BlockFactory, parsley.Error) {
 	blockType, err := typeNode.Value(ctx)
@@ -39,7 +39,7 @@ func (r Registry) CreateBlockFactory(
 		return nil, err
 	}
 
-	creator, exists := r[blockType.(string)]
+	creator, exists := r[blockType.(basil.ID)]
 	if !exists {
 		return nil, parsley.NewErrorf(typeNode.Pos(), "%q type is invalid or not allowed here", blockType)
 	}

@@ -14,7 +14,7 @@ import (
 func NewTestBlockFactory(
 	typeNode parsley.Node,
 	idNode parsley.Node,
-	paramNodes map[string]parsley.Node,
+	paramNodes map[basil.ID]parsley.Node,
 	blockNodes []parsley.Node,
 ) (basil.BlockFactory, parsley.Error) {
 	return &TestBlockFactory{
@@ -29,7 +29,7 @@ func NewTestBlockFactory(
 type TestBlockFactory struct {
 	typeNode    parsley.Node
 	idNode      parsley.Node
-	paramNodes  map[string]parsley.Node
+	paramNodes  map[basil.ID]parsley.Node
 	blockNodes  []parsley.Node
 	shortFormat bool
 }
@@ -40,7 +40,7 @@ func (f *TestBlockFactory) CreateBlock(parentCtx interface{}) (basil.Block, inte
 
 	block := &TestBlock{}
 
-	if block.IDField, err = util.NodeStringValue(f.idNode, parentCtx); err != nil {
+	if block.IDField, err = util.NodeIdentifierValue(f.idNode, parentCtx); err != nil {
 		return nil, nil, err
 	}
 
@@ -88,7 +88,7 @@ func (f *TestBlockFactory) EvalBlock(ctx interface{}, stage string, res basil.Bl
 		panic("result must be a type of *TestBlock")
 	}
 
-	validParamNames := map[string]struct{}{
+	validParamNames := map[basil.ID]struct{}{
 		"value":               struct{}{},
 		"field_string":        struct{}{},
 		"field_int":           struct{}{},
@@ -102,7 +102,7 @@ func (f *TestBlockFactory) EvalBlock(ctx interface{}, stage string, res basil.Bl
 	}
 
 	for paramName, paramNode := range f.paramNodes {
-		if !strings.HasPrefix(paramName, "_") {
+		if !strings.HasPrefix(string(paramName), "_") {
 			if _, valid := validParamNames[paramName]; !valid {
 				return parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
 			}

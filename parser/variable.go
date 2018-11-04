@@ -52,7 +52,7 @@ func Variable(p parsley.Parser) *combinator.Sequence {
 func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
 	value0, _ := nodes[0].Value(ctx)
-	name := value0.(string)
+	name := value0.(basil.ID)
 	varIndex := make([]interface{}, 0, len(nodes)-1)
 	for i := 1; i < len(nodes); i++ {
 		val, err := nodes[i].Value(ctx)
@@ -66,9 +66,9 @@ func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, p
 
 	res, err := variableProvider.LookupVar(lookup(name, varIndex, nodes))
 	if err != nil {
-		varName := name
+		varName := string(name)
 		for _, index := range varIndex {
-			varName = varName + "[" + fmt.Sprintf("%v", index) + "]"
+			varName = fmt.Sprintf("%s[%v]", varName, index)
 		}
 		if err == basil.ErrVariableNotFound {
 			return nil, parsley.WrapError(
@@ -82,7 +82,7 @@ func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, p
 	return res, nil
 }
 
-func lookup(name string, varIndex []interface{}, nodes []parsley.Node) basil.VariableLookUp {
+func lookup(name basil.ID, varIndex []interface{}, nodes []parsley.Node) basil.VariableLookUp {
 	return func(provider basil.VariableProvider) (interface{}, error) {
 		res, ok := provider.GetVar(name)
 		if !ok {
@@ -105,6 +105,11 @@ func lookup(name string, varIndex []interface{}, nodes []parsley.Node) basil.Var
 				}
 			case map[string]interface{}:
 				switch indext := index.(type) {
+				case basil.ID:
+					res, ok = rest[string(indext)]
+					if !ok {
+						return nil, basil.ErrVariableNotFound
+					}
 				case string:
 					res, ok = rest[indext]
 					if !ok {

@@ -15,7 +15,7 @@ type BlockFactoryCreator interface {
 	CreateBlockFactory(
 		typeNode parsley.Node,
 		idNode parsley.Node,
-		paramNodes map[string]parsley.Node,
+		paramNodes map[ID]parsley.Node,
 		blockNodes []parsley.Node,
 	) (BlockFactory, parsley.Error)
 }
@@ -24,7 +24,7 @@ type BlockFactoryCreator interface {
 type BlockFactoryCreatorFunc func(
 	typeNode parsley.Node,
 	idNode parsley.Node,
-	paramNodes map[string]parsley.Node,
+	paramNodes map[ID]parsley.Node,
 	blockNodes []parsley.Node,
 ) (BlockFactory, parsley.Error)
 
@@ -32,7 +32,7 @@ type BlockFactoryCreatorFunc func(
 func (f BlockFactoryCreatorFunc) CreateBlockFactory(
 	typeNode parsley.Node,
 	idNode parsley.Node,
-	paramNodes map[string]parsley.Node,
+	paramNodes map[ID]parsley.Node,
 	blockNodes []parsley.Node,
 ) (BlockFactory, parsley.Error) {
 	return f(typeNode, idNode, paramNodes, blockNodes)

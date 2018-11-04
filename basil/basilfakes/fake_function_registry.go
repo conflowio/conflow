@@ -24,10 +24,10 @@ type FakeFunctionRegistry struct {
 		result1 interface{}
 		result2 parsley.Error
 	}
-	FunctionExistsStub        func(name string) bool
+	FunctionExistsStub        func(name basil.ID) bool
 	functionExistsMutex       sync.RWMutex
 	functionExistsArgsForCall []struct {
-		name string
+		name basil.ID
 	}
 	functionExistsReturns struct {
 		result1 bool
@@ -35,10 +35,10 @@ type FakeFunctionRegistry struct {
 	functionExistsReturnsOnCall map[int]struct {
 		result1 bool
 	}
-	RegisterFunctionStub        func(name string, callable basil.Callable)
+	RegisterFunctionStub        func(name basil.ID, callable basil.Callable)
 	registerFunctionMutex       sync.RWMutex
 	registerFunctionArgsForCall []struct {
-		name     string
+		name     basil.ID
 		callable basil.Callable
 	}
 	invocations      map[string][][]interface{}
@@ -103,11 +103,11 @@ func (fake *FakeFunctionRegistry) CallFunctionReturnsOnCall(i int, result1 inter
 	}{result1, result2}
 }
 
-func (fake *FakeFunctionRegistry) FunctionExists(name string) bool {
+func (fake *FakeFunctionRegistry) FunctionExists(name basil.ID) bool {
 	fake.functionExistsMutex.Lock()
 	ret, specificReturn := fake.functionExistsReturnsOnCall[len(fake.functionExistsArgsForCall)]
 	fake.functionExistsArgsForCall = append(fake.functionExistsArgsForCall, struct {
-		name string
+		name basil.ID
 	}{name})
 	fake.recordInvocation("FunctionExists", []interface{}{name})
 	fake.functionExistsMutex.Unlock()
@@ -126,7 +126,7 @@ func (fake *FakeFunctionRegistry) FunctionExistsCallCount() int {
 	return len(fake.functionExistsArgsForCall)
 }
 
-func (fake *FakeFunctionRegistry) FunctionExistsArgsForCall(i int) string {
+func (fake *FakeFunctionRegistry) FunctionExistsArgsForCall(i int) basil.ID {
 	fake.functionExistsMutex.RLock()
 	defer fake.functionExistsMutex.RUnlock()
 	return fake.functionExistsArgsForCall[i].name
@@ -151,10 +151,10 @@ func (fake *FakeFunctionRegistry) FunctionExistsReturnsOnCall(i int, result1 boo
 	}{result1}
 }
 
-func (fake *FakeFunctionRegistry) RegisterFunction(name string, callable basil.Callable) {
+func (fake *FakeFunctionRegistry) RegisterFunction(name basil.ID, callable basil.Callable) {
 	fake.registerFunctionMutex.Lock()
 	fake.registerFunctionArgsForCall = append(fake.registerFunctionArgsForCall, struct {
-		name     string
+		name     basil.ID
 		callable basil.Callable
 	}{name, callable})
 	fake.recordInvocation("RegisterFunction", []interface{}{name, callable})
@@ -170,7 +170,7 @@ func (fake *FakeFunctionRegistry) RegisterFunctionCallCount() int {
 	return len(fake.registerFunctionArgsForCall)
 }
 
-func (fake *FakeFunctionRegistry) RegisterFunctionArgsForCall(i int) (string, basil.Callable) {
+func (fake *FakeFunctionRegistry) RegisterFunctionArgsForCall(i int) (basil.ID, basil.Callable) {
 	fake.registerFunctionMutex.RLock()
 	defer fake.registerFunctionMutex.RUnlock()
 	return fake.registerFunctionArgsForCall[i].name, fake.registerFunctionArgsForCall[i].callable

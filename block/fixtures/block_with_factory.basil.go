@@ -13,7 +13,7 @@ import (
 func NewBlockWithFactoryFactory(
 	typeNode parsley.Node,
 	idNode parsley.Node,
-	paramNodes map[string]parsley.Node,
+	paramNodes map[basil.ID]parsley.Node,
 	blockNodes []parsley.Node,
 ) (basil.BlockFactory, parsley.Error) {
 	return &BlockWithFactoryFactory{
@@ -28,7 +28,7 @@ func NewBlockWithFactoryFactory(
 type BlockWithFactoryFactory struct {
 	typeNode    parsley.Node
 	idNode      parsley.Node
-	paramNodes  map[string]parsley.Node
+	paramNodes  map[basil.ID]parsley.Node
 	blockNodes  []parsley.Node
 	shortFormat bool
 }
@@ -39,7 +39,7 @@ func (f *BlockWithFactoryFactory) CreateBlock(parentCtx interface{}) (basil.Bloc
 
 	block := &BlockWithFactory{}
 
-	if block.IDField, err = util.NodeStringValue(f.idNode, parentCtx); err != nil {
+	if block.IDField, err = util.NodeIdentifierValue(f.idNode, parentCtx); err != nil {
 		return nil, nil, err
 	}
 

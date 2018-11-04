@@ -32,7 +32,7 @@ func Not(p parsley.Parser) parser.Func {
 			return nil, cp, err
 		}
 		nodes := res.(parsley.NonTerminalNode).Children()
-		if _, ok := nodes[0].(ast.NilNode); ok {
+		if _, ok := nodes[0].(ast.EmptyNode); ok {
 			return nodes[1], cp, err
 		}
 

@@ -38,7 +38,7 @@ func evalFunction(ctx interface{}, node parsley.NonTerminalNode) (interface{}, p
 	functioNode := nodes[0]
 	name, _ := functioNode.Value(ctx)
 
-	if !registry.FunctionExists(name.(string)) {
+	if !registry.FunctionExists(name.(basil.ID)) {
 		return nil, parsley.NewError(functioNode.Pos(), errors.New("function does not exist"))
 	}
 

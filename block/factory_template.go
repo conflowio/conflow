@@ -34,7 +34,7 @@ import (
 func New{{$root.Name}}Factory(
 	typeNode parsley.Node,
 	idNode parsley.Node,
-	paramNodes map[string]parsley.Node,
+	paramNodes map[basil.ID]parsley.Node,
 	blockNodes []parsley.Node,
 ) (basil.BlockFactory, parsley.Error) {
 	return &{{.Name}}Factory{
@@ -49,7 +49,7 @@ func New{{$root.Name}}Factory(
 type {{$root.Name}}Factory struct {
 	typeNode   parsley.Node
 	idNode     parsley.Node
-	paramNodes map[string]parsley.Node
+	paramNodes map[basil.ID]parsley.Node
 	blockNodes []parsley.Node
 	shortFormat bool
 }
@@ -60,7 +60,7 @@ func (f *{{$root.Name}}Factory) CreateBlock(parentCtx interface{}) (basil.Block,
 
 	block := &{{$root.Name}}{}
 
-	if block.{{.IDField.Name}}, err = util.NodeStringValue(f.idNode, parentCtx); err != nil {
+	if block.{{.IDField.Name}}, err = util.NodeIdentifierValue(f.idNode, parentCtx); err != nil {
 		return nil, nil, err
 	}
 
@@ -123,14 +123,14 @@ func (f *{{$root.Name}}Factory) EvalBlock(ctx interface{}, stage string, res bas
 		panic("result must be a type of *{{$root.Name}}")
 	}
 
-	validParamNames := map[string]struct{}{
+	validParamNames := map[basil.ID]struct{}{
 		{{- range $root.Fields -}}{{- if and (not .IsID) (not .IsBlock)}}
 		"{{.ParamName}}": struct{}{},
 		{{- end -}}{{- end }}
 	}
 
 	for paramName, paramNode := range f.paramNodes {
-		if !strings.HasPrefix(paramName, "_") {
+		if !strings.HasPrefix(string(paramName), "_") {
 			if _, valid := validParamNames[paramName]; !valid {
 				return parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
 			}

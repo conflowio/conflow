@@ -1,12 +1,14 @@
 package fixtures
 
+import "github.com/opsidian/basil/basil"
+
 //go:generate basil generate BlockWithFactory
 type BlockWithFactory struct {
-	IDField        string                `basil:"id"`
+	IDField        basil.ID              `basil:"id"`
 	BlockFactories []*BlockSimpleFactory `basil:"factory,stage=-"`
 }
 
-func (b *BlockWithFactory) ID() string {
+func (b *BlockWithFactory) ID() basil.ID {
 	return b.IDField
 }
 

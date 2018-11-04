@@ -3,6 +3,7 @@ package block_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/block"
 )
 
@@ -33,6 +34,7 @@ var _ = Describe("Field", func() {
 		It("allows the reference tag on an id field", func() {
 			f.IsID = true
 			f.IsReference = true
+			f.Type = basil.TypeIdentifier
 			Expect(f.Validate()).To(BeNil())
 		})
 
@@ -93,7 +95,7 @@ var _ = Describe("Field", func() {
 		It("returns an error for a non-string id field", func() {
 			f.IsID = true
 			f.Type = "int64"
-			Expect(f.Validate()).To(MatchError("field \"foo\" must be defined as string"))
+			Expect(f.Validate()).To(MatchError("field \"foo\" must be defined as basil.ID"))
 		})
 
 	})
