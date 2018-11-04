@@ -26,6 +26,22 @@ func (p *ParamNode) Token() string {
 	return "BLOCK_PARAM"
 }
 
+// Type returns with the value node's type
+func (p *ParamNode) Type() string {
+	return p.valueNode.Type()
+}
+
+// StaticCheck runs a static analysis on the value node
+func (p *ParamNode) StaticCheck(ctx interface{}) parsley.Error {
+	switch n := p.valueNode.(type) {
+	case parsley.StaticCheckable:
+		if err := n.StaticCheck(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Value returns with the value of the node
 func (p *ParamNode) Value(ctx interface{}) (interface{}, parsley.Error) {
 	return p.valueNode.Value(ctx)
