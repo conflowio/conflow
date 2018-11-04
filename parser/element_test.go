@@ -21,7 +21,7 @@ var _ = Describe("Element", func() {
 	q = combinator.Choice(
 		terminal.String(false),
 		terminal.Integer(),
-		terminal.Word("nil", nil),
+		terminal.Nil("nil"),
 		parser.Array(&q, text.WsSpaces),
 		test.EvalErrorParser(),
 		test.MapParser(),

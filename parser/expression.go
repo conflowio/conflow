@@ -35,7 +35,7 @@ func Expression() parser.Func {
 		terminal.Integer(),
 		terminal.String(true),
 		terminal.Bool("true", "false"),
-		terminal.Word("nil", nil),
+		terminal.Nil("nil"),
 		valueWithIndex,
 		combinator.SeqOf(terminal.Rune('('), &p, terminal.Rune(')')).Bind(interpreter.Select(1)),
 	).Name("value")

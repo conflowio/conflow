@@ -26,7 +26,7 @@ var _ = Describe("Compare", func() {
 		terminal.Integer(),
 		terminal.Bool("true", "false"),
 		parser.Array(&q, text.WsSpaces),
-		terminal.Word("nil", nil),
+		terminal.Nil("nil"),
 		test.EvalErrorParser(),
 	).Name("value")
 

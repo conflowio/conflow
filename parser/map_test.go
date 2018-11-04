@@ -16,7 +16,7 @@ var _ = Describe("Map", func() {
 	q := combinator.Choice(
 		terminal.String(false),
 		terminal.Integer(),
-		terminal.Word("nil", nil),
+		terminal.Nil("nil"),
 		test.EvalErrorParser(),
 	).Name("value")
 

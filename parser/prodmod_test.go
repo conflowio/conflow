@@ -19,7 +19,7 @@ var _ = Describe("ProdMod", func() {
 		terminal.String(false),
 		terminal.Float(),
 		terminal.Integer(),
-		terminal.Word("nil", nil),
+		terminal.Nil("nil"),
 		test.EvalErrorParser(),
 	).Name("value")
 

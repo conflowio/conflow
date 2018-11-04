@@ -18,7 +18,7 @@ var _ = Describe("And", func() {
 	q := combinator.Choice(
 		terminal.Bool("true", "false"),
 		terminal.Integer(),
-		terminal.Word("nil", nil),
+		terminal.Nil("nil"),
 		test.EvalErrorParser(),
 	).Name("value")
 

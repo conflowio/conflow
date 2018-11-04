@@ -17,7 +17,7 @@ var _ = Describe("Function", func() {
 
 	q := combinator.Choice(
 		terminal.String(false),
-		terminal.Word("nil", nil),
+		terminal.Nil("nil"),
 		parser.Variable(p),
 		test.EvalErrorParser(),
 	).Name("value")
