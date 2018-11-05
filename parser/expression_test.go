@@ -199,7 +199,7 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`true && "a"`, errors.New("was expecting boolean at testfile:1:9")),
 
 		// Or
-		test.TableEntry(`true || "a"`, errors.New("unsupported || operation on string at testfile:1:6")),
+		test.TableEntry(`true || "a"`, errors.New("was expecting boolean at testfile:1:9")),
 
 		// Ternary
 		test.TableEntry("1 ? 2 : 3", errors.New("expecting bool, got int64 at testfile:1:1")),
