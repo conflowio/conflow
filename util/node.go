@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -188,4 +189,21 @@ func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, p
 	}
 
 	return 0, parsley.NewError(node.Pos(), basil.ErrExpectingTimeDuration)
+}
+
+// CheckNodeType checks the type of the node
+func CheckNodeType(node parsley.Node, valueType string) parsley.Error {
+	if node.Type() == "" || node.Type() == basil.TypeAny {
+		return nil
+	}
+
+	if node.Type() != valueType {
+		typeErr, ok := basil.VariableTypeErrors[valueType]
+		if !ok {
+			panic(fmt.Sprintf("Unknown type: %s", valueType))
+		}
+		return parsley.NewError(node.Pos(), typeErr)
+	}
+
+	return nil
 }

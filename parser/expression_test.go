@@ -196,7 +196,7 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`1 <= "a"`, errors.New("unsupported <= operation on int64 and string at testfile:1:3")),
 
 		// And
-		test.TableEntry(`true && "a"`, errors.New("unsupported && operation on string at testfile:1:6")),
+		test.TableEntry(`true && "a"`, errors.New("was expecting boolean at testfile:1:9")),
 
 		// Or
 		test.TableEntry(`true || "a"`, errors.New("unsupported || operation on string at testfile:1:6")),

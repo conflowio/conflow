@@ -47,9 +47,9 @@ var _ = Describe("And", func() {
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
 		},
-		test.TableEntry("1 && 2", errors.New("unsupported && operation on int64 at testfile:1:1")),
-		test.TableEntry("nil && true", errors.New("unsupported && operation on <nil> at testfile:1:1")),
-		test.TableEntry("true && 1", errors.New("unsupported && operation on int64 at testfile:1:6")),
+		test.TableEntry("1 && 2", errors.New("was expecting boolean at testfile:1:1")),
+		test.TableEntry("nil && true", errors.New("was expecting boolean at testfile:1:1")),
+		test.TableEntry("true && 1", errors.New("was expecting boolean at testfile:1:9")),
 		test.TableEntry("ERR", errors.New("ERR at testfile:1:1")),
 		test.TableEntry("true && ERR", errors.New("ERR at testfile:1:9")),
 	)

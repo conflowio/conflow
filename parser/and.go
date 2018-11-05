@@ -7,7 +7,8 @@
 package parser
 
 import (
-	"github.com/opsidian/parsley/ast"
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
@@ -21,31 +22,37 @@ func And(p parsley.Parser) parser.Func {
 		SepByOp(
 			p,
 			terminal.Op("&&"),
-		).Bind(ast.InterpreterFunc(evalAnd)),
+		).Bind(andInterpreter{}),
 	)
 }
 
-func evalAnd(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+type andInterpreter struct{}
+
+func (a andInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (string, parsley.Error) {
+	nodes := node.Children()
+	for i := 0; i < len(nodes); i += 2 {
+		if err := util.CheckNodeType(nodes[i], basil.TypeBool); err != nil {
+			return "", err
+		}
+	}
+
+	return basil.TypeBool, nil
+}
+
+func (a andInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
 	res := true
-	errorPos := nodes[0].Pos()
-	expectsOp := false
-	for _, node := range nodes {
-		v, err := node.Value(ctx)
+	for i := 0; i < len(nodes); i += 2 {
+		v, err := nodes[i].Value(ctx)
 		if err != nil {
 			return nil, err
 		}
-		if expectsOp {
-			errorPos = node.Pos()
-		} else {
-			switch vt := v.(type) {
-			case bool:
-				res = res && vt
-			default:
-				return nil, parsley.NewErrorf(errorPos, "unsupported && operation on %T", v)
-			}
+		switch vt := v.(type) {
+		case bool:
+			res = res && vt
+		default:
+			return nil, parsley.NewError(nodes[i].Pos(), basil.ErrExpectingBool)
 		}
-		expectsOp = !expectsOp
 	}
 	return res, nil
 }
