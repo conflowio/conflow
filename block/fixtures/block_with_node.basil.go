@@ -9,9 +9,9 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-type BlockWithFactoryInterpreter struct{}
+type BlockWithNodeInterpreter struct{}
 
-func (i BlockWithFactoryInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
+func (i BlockWithNodeInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
 	validParamNames := map[basil.ID]struct{}{
 		"block_nodes": struct{}{},
 	}
@@ -30,12 +30,12 @@ func (i BlockWithFactoryInterpreter) StaticCheck(ctx interface{}, node basil.Blo
 		}
 	}
 
-	return "*BlockWithFactory", nil
+	return "*BlockWithNode", nil
 }
 
-// CreateBlock creates a new BlockWithFactory block
-func (i BlockWithFactoryInterpreter) Eval(parentCtx interface{}, node basil.BlockNode) (basil.Block, parsley.Error) {
-	block := &BlockWithFactory{
+// CreateBlock creates a new BlockWithNode block
+func (i BlockWithNodeInterpreter) Eval(parentCtx interface{}, node basil.BlockNode) (basil.Block, parsley.Error) {
+	block := &BlockWithNode{
 		IDField: node.ID(),
 	}
 
@@ -55,8 +55,8 @@ func (i BlockWithFactoryInterpreter) Eval(parentCtx interface{}, node basil.Bloc
 	return block, nil
 }
 
-// EvalBlock evaluates all fields belonging to the given stage on a BlockWithFactory block
-func (i BlockWithFactoryInterpreter) EvalBlock(ctx interface{}, node basil.BlockNode, stage string, res basil.Block) parsley.Error {
+// EvalBlock evaluates all fields belonging to the given stage on a BlockWithNode block
+func (i BlockWithNodeInterpreter) EvalBlock(ctx interface{}, node basil.BlockNode, stage string, res basil.Block) parsley.Error {
 	var err parsley.Error
 
 	if preInterpreter, ok := res.(basil.BlockPreInterpreter); ok {
@@ -75,17 +75,17 @@ func (i BlockWithFactoryInterpreter) EvalBlock(ctx interface{}, node basil.Block
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
-func (i BlockWithFactoryInterpreter) HasForeignID() bool {
+func (i BlockWithNodeInterpreter) HasForeignID() bool {
 	return false
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i BlockWithFactoryInterpreter) ValueParamName() basil.ID {
+func (i BlockWithNodeInterpreter) ValueParamName() basil.ID {
 	return ""
 }
 
-func (i BlockWithFactoryInterpreter) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
-	var block basil.Block = &BlockWithFactory{}
+func (i BlockWithNodeInterpreter) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+	var block basil.Block = &BlockWithNode{}
 	if b, ok := block.(basilblock.RegistryAware); ok {
 		return b.Registry().NodeTransformer(name)
 	}

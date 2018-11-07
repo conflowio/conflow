@@ -32,7 +32,7 @@ func GenerateInterpreter(dir string, name string, pkgName string) error {
 		return err
 	}
 
-	tmpl := template.New("block_factory")
+	tmpl := template.New("block_interpreter")
 	tmpl.Funcs(map[string]interface{}{
 		"trimPrefix": func(s string, prefix string) string {
 			return strings.TrimPrefix(s, prefix)
@@ -68,7 +68,7 @@ func GenerateInterpreter(dir string, name string, pkgName string) error {
 		return errors.Wrapf(err, "failed to write %s", filePath)
 	}
 
-	fmt.Printf("Wrote `%sFactory` to `%s`\n", name, getRelativePath(filePath))
+	fmt.Printf("Wrote `%sInterpreter` to `%s`\n", name, getRelativePath(filePath))
 
 	return nil
 }

@@ -9,14 +9,14 @@ import (
 	"github.com/opsidian/basil/test"
 )
 
-var _ = Describe("GenerateFactory", func() {
+var _ = Describe("GenerateInterpreter", func() {
 
 	var registry = block.Registry{
 		"block_simple":               fixtures.BlockSimpleInterpreter{},
 		"block_value_required":       fixtures.BlockValueRequiredInterpreter{},
 		"block_with_block":           fixtures.BlockWithBlockInterpreter{},
 		"block_with_block_interface": fixtures.BlockWithBlockInterfaceInterpreter{},
-		"block_with_factory":         fixtures.BlockWithFactoryInterpreter{},
+		"block_with_node":            fixtures.BlockWithNodeInterpreter{},
 	}
 
 	Context("fixtures/block_simple.go", func() {
@@ -115,16 +115,16 @@ var _ = Describe("GenerateFactory", func() {
 		})
 	})
 
-	Context("fixtures/block_with_factory.go", func() {
+	Context("fixtures/block_with_node.go", func() {
 		It("should parse the input", func() {
 			test.ExpectBlockToEvaluate(parser.Block(), registry)(
-				`block_with_factory foo {
+				`block_with_node foo {
 					block_simple bar
 				}`,
-				&fixtures.BlockWithFactory{IDField: "foo"},
+				&fixtures.BlockWithNode{IDField: "foo"},
 				func(b1i interface{}, b2i interface{}, input string) {
-					b1 := b1i.(*fixtures.BlockWithFactory)
-					b2 := b2i.(*fixtures.BlockWithFactory)
+					b1 := b1i.(*fixtures.BlockWithNode)
+					b2 := b2i.(*fixtures.BlockWithNode)
 					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
 					test.ExpectBlockNodeToEvaluate(parser.Block(), registry, b1, b1.BlockNodes[0])(
 						input,
