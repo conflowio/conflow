@@ -1,6 +1,8 @@
 package block_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/block"
@@ -17,6 +19,7 @@ var _ = Describe("GenerateInterpreter", func() {
 		"block_with_block":           fixtures.BlockWithBlockInterpreter{},
 		"block_with_block_interface": fixtures.BlockWithBlockInterfaceInterpreter{},
 		"block_with_node":            fixtures.BlockWithNodeInterpreter{},
+		"block_with_reference":       fixtures.BlockWithReferenceInterpreter{},
 	}
 
 	Context("fixtures/block_simple.go", func() {
@@ -136,6 +139,15 @@ var _ = Describe("GenerateInterpreter", func() {
 						},
 					)
 				},
+			)
+		})
+	})
+
+	Context("fixtures/block_with_reference.go", func() {
+		It("should parse the input", func() {
+			test.ExpectBlockToHaveEvalError(parser.Block(), registry)(
+				`block_with_reference foo {}`,
+				errors.New("\"foo\" is referencing a non-existing block at testfile:1:22"),
 			)
 		})
 	})

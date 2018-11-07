@@ -91,6 +91,13 @@ func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
 		n.idNode = identifier.NewNode(id, n.typeNode.ReaderPos(), n.typeNode.ReaderPos())
 	}
 
+	if n.interpreter.HasForeignID() {
+		idRegistry := ctx.(basil.IDRegistryAware).GetIDRegistry()
+		if !idRegistry.IDExists(n.ID()) {
+			return nil, parsley.NewErrorf(n.idNode.Pos(), "%q is referencing a non-existing block", n.ID())
+		}
+	}
+
 	return n.interpreter.Eval(ctx, n)
 }
 
