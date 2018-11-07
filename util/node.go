@@ -192,15 +192,15 @@ func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, p
 }
 
 // CheckNodeType checks the type of the node
-func CheckNodeType(node parsley.Node, valueType string) parsley.Error {
-	if node.Type() == "" || node.Type() == basil.TypeAny {
+func CheckNodeType(node parsley.Node, expectedType string) parsley.Error {
+	if node.Type() == "" || node.Type() == basil.TypeAny || expectedType == basil.TypeAny {
 		return nil
 	}
 
-	if node.Type() != valueType {
-		typeErr, ok := basil.VariableTypeErrors[valueType]
+	if node.Type() != expectedType {
+		typeErr, ok := basil.VariableTypeErrors[expectedType]
 		if !ok {
-			panic(fmt.Sprintf("Unknown type: %s", valueType))
+			panic(fmt.Sprintf("Unknown type: %s", expectedType))
 		}
 		return parsley.NewError(node.Pos(), typeErr)
 	}

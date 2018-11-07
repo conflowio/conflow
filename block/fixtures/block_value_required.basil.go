@@ -23,6 +23,12 @@ func (i BlockValueRequiredInterpreter) StaticCheck(ctx interface{}, node basil.B
 		}
 	}
 
+	if paramNode, ok := node.ParamNodes()["value"]; ok {
+		if err := util.CheckNodeType(paramNode, "interface{}"); err != nil {
+			return "", err
+		}
+	}
+
 	requiredParamNames := []basil.ID{
 		"value",
 	}

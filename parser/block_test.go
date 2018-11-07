@@ -240,10 +240,16 @@ var _ = Describe("Block parser", func() {
 		),
 	)
 
-	DescribeTable("block returns an eval error",
+	DescribeTable("block returns an static check error",
 		func(input string, expectedErr error) {
 			test.ExpectBlockToHaveCheckError(p, registry)(input, expectedErr)
 		},
+		test.TableEntry(
+			`testblock {
+				field_string = 1
+			}`,
+			errors.New("was expecting string at testfile:2:5"),
+		),
 		test.TableEntry(
 			`testblock {
 				unknown = "foo"

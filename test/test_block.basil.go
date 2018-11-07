@@ -32,6 +32,60 @@ func (i TestBlockInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode)
 		}
 	}
 
+	if paramNode, ok := node.ParamNodes()["value"]; ok {
+		if err := util.CheckNodeType(paramNode, "interface{}"); err != nil {
+			return "", err
+		}
+	}
+
+	if paramNode, ok := node.ParamNodes()["field_string"]; ok {
+		if err := util.CheckNodeType(paramNode, "string"); err != nil {
+			return "", err
+		}
+	}
+
+	if paramNode, ok := node.ParamNodes()["field_int"]; ok {
+		if err := util.CheckNodeType(paramNode, "int64"); err != nil {
+			return "", err
+		}
+	}
+
+	if paramNode, ok := node.ParamNodes()["field_float"]; ok {
+		if err := util.CheckNodeType(paramNode, "float64"); err != nil {
+			return "", err
+		}
+	}
+
+	if paramNode, ok := node.ParamNodes()["field_bool"]; ok {
+		if err := util.CheckNodeType(paramNode, "bool"); err != nil {
+			return "", err
+		}
+	}
+
+	if paramNode, ok := node.ParamNodes()["field_array"]; ok {
+		if err := util.CheckNodeType(paramNode, "[]interface{}"); err != nil {
+			return "", err
+		}
+	}
+
+	if paramNode, ok := node.ParamNodes()["field_map"]; ok {
+		if err := util.CheckNodeType(paramNode, "map[string]interface{}"); err != nil {
+			return "", err
+		}
+	}
+
+	if paramNode, ok := node.ParamNodes()["field_time_duration"]; ok {
+		if err := util.CheckNodeType(paramNode, "time.Duration"); err != nil {
+			return "", err
+		}
+	}
+
+	if paramNode, ok := node.ParamNodes()["custom_field"]; ok {
+		if err := util.CheckNodeType(paramNode, "string"); err != nil {
+			return "", err
+		}
+	}
+
 	requiredParamNames := []basil.ID{}
 
 	for _, paramName := range requiredParamNames {

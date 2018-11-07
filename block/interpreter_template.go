@@ -47,6 +47,14 @@ func (i {{$root.Name}}Interpreter) StaticCheck(ctx interface{}, node basil.Block
 		}
 	}
 
+	{{ range $root.Fields }}{{ if and (not .IsID) (not .IsNode) (not .IsBlock) }}
+	if paramNode, ok := node.ParamNodes()["{{.ParamName}}"]; ok {
+		if err := util.CheckNodeType(paramNode, "{{.Type}}"); err != nil {
+			return "", err
+		}
+	}
+	{{ end }}{{ end }}
+
 	requiredParamNames := []basil.ID{
 		{{- range $root.Fields -}}{{- if and (.Required) (not .IsID) (not .IsNode) (not .IsBlock)}}
 		"{{.ParamName}}",
