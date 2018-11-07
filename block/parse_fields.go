@@ -96,7 +96,7 @@ func parseField(field *ast.Field) (*Field, error) {
 		IsValue:     tags.GetBool(basil.BlockTagValue),
 		IsReference: tags.GetBool(basil.BlockTagReference),
 		IsBlock:     tags.GetBool(basil.BlockTagBlock),
-		IsFactory:   tags.GetBool(basil.BlockTagFactory),
+		IsNode:      tags.GetBool(basil.BlockTagNode),
 	}, nil
 }
 

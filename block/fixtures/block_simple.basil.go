@@ -3,72 +3,54 @@ package fixtures
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/opsidian/basil/basil"
+	basilblock "github.com/opsidian/basil/block"
 	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
 )
 
-// NewBlockSimpleFactory creates a new BlockSimple block factory
-func NewBlockSimpleFactory(
-	typeNode parsley.Node,
-	idNode parsley.Node,
-	paramNodes map[basil.ID]parsley.Node,
-	blockNodes []parsley.Node,
-) (basil.BlockFactory, parsley.Error) {
-	return &BlockSimpleFactory{
-		typeNode:   typeNode,
-		idNode:     idNode,
-		paramNodes: paramNodes,
-		blockNodes: blockNodes,
-	}, nil
-}
+type BlockSimpleInterpreter struct{}
 
-// BlockSimpleFactory will create and evaluate a BlockSimple block
-type BlockSimpleFactory struct {
-	typeNode    parsley.Node
-	idNode      parsley.Node
-	paramNodes  map[basil.ID]parsley.Node
-	blockNodes  []parsley.Node
-	shortFormat bool
+func (i BlockSimpleInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
+	validParamNames := map[basil.ID]struct{}{
+		"value": struct{}{},
+	}
+
+	for paramName, paramNode := range node.ParamNodes() {
+		if _, valid := validParamNames[paramName]; !valid {
+			return "", parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
+		}
+	}
+
+	requiredParamNames := []basil.ID{}
+
+	for _, paramName := range requiredParamNames {
+		if _, set := node.ParamNodes()[paramName]; !set {
+			return "", parsley.NewError(node.Pos(), fmt.Errorf("%s parameter is required", paramName))
+		}
+	}
+
+	return "*BlockSimple", nil
 }
 
 // CreateBlock creates a new BlockSimple block
-func (f *BlockSimpleFactory) CreateBlock(parentCtx interface{}) (basil.Block, interface{}, parsley.Error) {
-	var err parsley.Error
-
-	block := &BlockSimple{}
-
-	if block.IDField, err = util.NodeIdentifierValue(f.idNode, parentCtx); err != nil {
-		return nil, nil, err
+func (i BlockSimpleInterpreter) Eval(parentCtx interface{}, node basil.BlockNode) (basil.Block, parsley.Error) {
+	block := &BlockSimple{
+		IDField: node.ID(),
 	}
 
 	ctx := block.Context(parentCtx)
 
-	if valueNode, ok := f.paramNodes["_value"]; ok {
-		f.shortFormat = true
-
-		if block.Value, err = util.NodeAnyValue(valueNode, ctx); err != nil {
-			return nil, nil, err
-		}
+	if err := i.EvalBlock(ctx, node, "default", block); err != nil {
+		return nil, err
 	}
 
-	if len(f.blockNodes) > 0 {
-		var childBlockFactory interface{}
-		for _, childBlock := range f.blockNodes {
-			if childBlockFactory, err = childBlock.Value(ctx); err != nil {
-				return nil, nil, err
-			}
-			panic(fmt.Sprintf("block type %T is not supported in BlockSimple, please open a bug ticket", childBlockFactory))
-		}
-	}
-
-	return block, ctx, nil
+	return block, nil
 }
 
 // EvalBlock evaluates all fields belonging to the given stage on a BlockSimple block
-func (f *BlockSimpleFactory) EvalBlock(ctx interface{}, stage string, res basil.Block) parsley.Error {
+func (i BlockSimpleInterpreter) EvalBlock(ctx interface{}, node basil.BlockNode, stage string, res basil.Block) parsley.Error {
 	var err parsley.Error
 
 	if preInterpreter, ok := res.(basil.BlockPreInterpreter); ok {
@@ -82,35 +64,21 @@ func (f *BlockSimpleFactory) EvalBlock(ctx interface{}, stage string, res basil.
 		panic("result must be a type of *BlockSimple")
 	}
 
-	validParamNames := map[basil.ID]struct{}{
-		"value": struct{}{},
-	}
-
-	for paramName, paramNode := range f.paramNodes {
-		if !strings.HasPrefix(string(paramName), "_") {
-			if _, valid := validParamNames[paramName]; !valid {
-				return parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
+	switch stage {
+	case "default":
+		if valueNode, ok := node.ParamNodes()["value"]; ok {
+			if block.Value, err = util.NodeAnyValue(valueNode, ctx); err != nil {
+				return err
 			}
 		}
+	default:
+		panic(fmt.Sprintf("unknown stage: %s", stage))
 	}
 
-	if !f.shortFormat {
-		switch stage {
-		case "default":
-			if valueNode, ok := f.paramNodes["value"]; ok {
-				if block.Value, err = util.NodeAnyValue(valueNode, ctx); err != nil {
-					return err
-				}
-			}
-		default:
-			panic(fmt.Sprintf("unknown stage: %s", stage))
-		}
-
-		switch stage {
-		case "default":
-		default:
-			panic(fmt.Sprintf("unknown stage: %s", stage))
-		}
+	switch stage {
+	case "default":
+	default:
+		panic(fmt.Sprintf("unknown stage: %s", stage))
 	}
 
 	if postInterpreter, ok := res.(basil.BlockPostInterpreter); ok {
@@ -123,11 +91,20 @@ func (f *BlockSimpleFactory) EvalBlock(ctx interface{}, stage string, res basil.
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
-func (f *BlockSimpleFactory) HasForeignID() bool {
+func (i BlockSimpleInterpreter) HasForeignID() bool {
 	return false
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (f *BlockSimpleFactory) HasShortFormat() bool {
-	return true
+func (i BlockSimpleInterpreter) ValueParamName() basil.ID {
+	return basil.ID("value")
+}
+
+func (i BlockSimpleInterpreter) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+	var block basil.Block = &BlockSimple{}
+	if b, ok := block.(basilblock.RegistryAware); ok {
+		return b.Registry().NodeTransformer(name)
+	}
+
+	return nil, false
 }

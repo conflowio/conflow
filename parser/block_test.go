@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+	"github.com/opsidian/basil/block"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
 )
@@ -36,13 +37,17 @@ func compareTestBlocks(b1i interface{}, b2i interface{}, input string) {
 	}
 }
 
-var _ = Describe("Block", func() {
+var _ = Describe("Block parser", func() {
 
 	p := parser.Block()
 
+	var registry = block.Registry{
+		"testblock": test.TestBlockInterpreter{},
+	}
+
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected *test.TestBlock) {
-			test.ExpectBlockToEvaluate(p, nil)(input, expected, compareTestBlocks)
+			test.ExpectBlockToEvaluate(p, registry)(input, expected, compareTestBlocks)
 		},
 		test.TableEntry(
 			`testblock`,
@@ -120,6 +125,9 @@ var _ = Describe("Block", func() {
 				testblock {
 					value = 345
 				}
+				testblock {
+					value = 456
+				}
 			}`,
 			&test.TestBlock{
 				IDField: "a",
@@ -127,6 +135,7 @@ var _ = Describe("Block", func() {
 				Blocks: []*test.TestBlock{
 					&test.TestBlock{IDField: "b", Value: int64(234)},
 					&test.TestBlock{IDField: "0", Value: int64(345)},
+					&test.TestBlock{IDField: "1", Value: int64(456)},
 				},
 			},
 		),
@@ -208,20 +217,14 @@ var _ = Describe("Block", func() {
 		),
 	)
 
-	DescribeTable("it returns an eval error",
+	DescribeTable("it returns an parse error",
 		func(input string, expectedErr error) {
-			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
+			test.ExpectBlockToHaveParseError(p, registry)(input, expectedErr)
 		},
 		test.TableEntry(
 			`unknownblock {}`,
 			errors.New("\"unknownblock\" type is invalid or not allowed here at testfile:1:1"),
 		),
-	)
-
-	DescribeTable("block returns an eval error",
-		func(input string, expectedErr error) {
-			test.ExpectBlockToHaveEvalError(p, nil)(input, expectedErr)
-		},
 		test.TableEntry(
 			`testblock {
 				unknownblock {}
@@ -230,17 +233,30 @@ var _ = Describe("Block", func() {
 		),
 		test.TableEntry(
 			`testblock {
+				param1 = "bar"
+				param1 = "foo"
+			}`,
+			errors.New("\"param1\" parameter was defined multiple times at testfile:3:5"),
+		),
+	)
+
+	DescribeTable("block returns an eval error",
+		func(input string, expectedErr error) {
+			test.ExpectBlockToHaveCheckError(p, registry)(input, expectedErr)
+		},
+		test.TableEntry(
+			`testblock {
 				unknown = "foo"
 			}`,
 			errors.New("\"unknown\" parameter does not exist at testfile:2:5"),
 		),
-		/*test.TableEntry(
+		test.TableEntry(
 			`testblock {
 				testblock foo {}
 				testblock foo {}
 			}`,
-			errors.New("duplicated id at testfile:3:15"),
-		),*/
+			errors.New("\"testblock.foo\" was defined multiple times at testfile:3:5"),
+		),
 	)
 
 })

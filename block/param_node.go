@@ -73,3 +73,13 @@ func (p *ParamNode) Walk(f func(n parsley.Node) bool) bool {
 
 	return false
 }
+
+// KeyNode returns with the key node
+func (p *ParamNode) KeyNode() parsley.Node {
+	return p.keyNode
+}
+
+// ValueNode returns with the value node
+func (p *ParamNode) ValueNode() parsley.Node {
+	return p.valueNode
+}

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
-	"go/format"
 	"go/parser"
 	"go/token"
 	"io/ioutil"
@@ -20,7 +19,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-func GenerateFactory(dir string, name string, pkgName string) error {
+// GenerateInterpreter generates an interpreter for the given block
+func GenerateInterpreter(dir string, name string, pkgName string) error {
+	filename := regexp.MustCompile("[A-Z][a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
+		return "_" + strings.ToLower(str)
+	})
+	filename = strings.TrimLeft(filename, "_") + ".basil.go"
+	filePath := path.Join(dir, filename)
+
 	params, err := generateTemplateParams(dir, name, pkgName)
 	if err != nil {
 		return err
@@ -32,7 +38,7 @@ func GenerateFactory(dir string, name string, pkgName string) error {
 			return strings.TrimPrefix(s, prefix)
 		},
 	})
-	if _, err := tmpl.Parse(factoryTemplate); err != nil {
+	if _, err := tmpl.Parse(interpreterTemplate); err != nil {
 		return err
 	}
 
@@ -42,18 +48,12 @@ func GenerateFactory(dir string, name string, pkgName string) error {
 		return err
 	}
 
-	formatted, err := format.Source(res.Bytes())
-	if err != nil {
-		return err
-	}
+	// formatted, err := format.Source(res.Bytes())
+	// if err != nil {
+	// 	return err
+	// }
 
-	filename := regexp.MustCompile("[A-Z][a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
-		return "_" + strings.ToLower(str)
-	})
-	filename = strings.TrimLeft(filename, "_") + ".basil.go"
-	filePath := path.Join(dir, filename)
-
-	err = ioutil.WriteFile(filePath, formatted, 0644)
+	err = ioutil.WriteFile(filePath, res.Bytes(), 0644)
 	if err != nil {
 		return errors.Wrapf(err, "failed to write %s", filePath)
 	}
@@ -79,7 +79,7 @@ func getRelativePath(path string) string {
 	return strings.Replace(path, basePath+"/", "", 1)
 }
 
-func generateTemplateParams(dir string, name string, pkgName string) (*FactoryTemplateParams, error) {
+func generateTemplateParams(dir string, name string, pkgName string) (*InterpreterTemplateParams, error) {
 	packages, err := loadPackages(dir)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func generateTemplateParams(dir string, name string, pkgName string) (*FactoryTe
 
 	stages := []string{}
 	blockTypes := map[string]string{}
-	factoryTypes := map[string]string{}
+	ndoeTypes := map[string]string{}
 	evalFieldsCnt := 0
 	for _, field := range fields {
 		if field.Stage != "-" {
@@ -116,19 +116,19 @@ func generateTemplateParams(dir string, name string, pkgName string) (*FactoryTe
 			hasForeignID = field.IsReference
 		case field.IsValue:
 			valueField = field
-		case field.IsFactory:
-			factoryTypes[field.Type] = field.Name
+		case field.IsNode:
+			ndoeTypes[field.Type] = field.Name
 		case field.IsBlock:
 			blockTypes[field.Type] = field.Name
 		}
 	}
 
-	return &FactoryTemplateParams{
+	return &InterpreterTemplateParams{
 		Package:                pkgName,
 		Name:                   name,
 		Stages:                 stages,
 		BlockTypes:             blockTypes,
-		FactoryTypes:           factoryTypes,
+		NodeTypes:              ndoeTypes,
 		Fields:                 fields,
 		IDField:                idField,
 		ValueField:             valueField,

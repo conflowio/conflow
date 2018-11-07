@@ -5,6 +5,7 @@ import (
 )
 
 // Block is an interface for a block object
+//go:generate counterfeiter . Block
 type Block interface {
 	Identifiable
 	TypeAware

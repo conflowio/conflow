@@ -13,14 +13,12 @@ type Node struct {
 	value     basil.ID
 	pos       parsley.Pos
 	readerPos parsley.Pos
-	generated bool
 }
 
 // NewNode creates a new ID node
-func NewNode(value basil.ID, generated bool, pos parsley.Pos, readerPos parsley.Pos) *Node {
+func NewNode(value basil.ID, pos parsley.Pos, readerPos parsley.Pos) *Node {
 	return &Node{
 		value:     value,
-		generated: generated,
 		pos:       pos,
 		readerPos: readerPos,
 	}
@@ -63,9 +61,4 @@ func (n *Node) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 // String returns with a string representation of the node
 func (n *Node) String() string {
 	return fmt.Sprintf("ID{%v, %d..%d}", n.value, n.pos, n.readerPos)
-}
-
-// IsGenerated returns true if the identifier was generated
-func (n *Node) IsGenerated() bool {
-	return n.generated
 }

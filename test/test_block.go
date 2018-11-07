@@ -3,6 +3,8 @@ package test
 import (
 	"time"
 
+	"github.com/opsidian/basil/block"
+
 	"github.com/opsidian/basil/basil"
 )
 
@@ -19,8 +21,8 @@ type TestBlock struct {
 	FieldTimeDuration time.Duration
 	FieldCustomName   string `basil:"name=custom_field"`
 
-	BlockFactories []*TestBlockFactory `basil:"factory"`
-	Blocks         []*TestBlock        `basil:"block"`
+	BlockNodes []basil.BlockNode `basil:"node"`
+	Blocks     []*TestBlock      `basil:"block"`
 }
 
 func (t *TestBlock) ID() basil.ID {
@@ -33,4 +35,10 @@ func (t *TestBlock) Type() string {
 
 func (t *TestBlock) Context(ctx interface{}) interface{} {
 	return ctx
+}
+
+func (t *TestBlock) Registry() block.Registry {
+	return block.Registry{
+		"testblock": TestBlockInterpreter{},
+	}
 }

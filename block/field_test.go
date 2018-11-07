@@ -21,7 +21,7 @@ var _ = Describe("Field", func() {
 			IsValue:     false,
 			IsReference: false,
 			IsBlock:     false,
-			IsFactory:   false,
+			IsNode:      false,
 		}
 	})
 
@@ -44,22 +44,22 @@ var _ = Describe("Field", func() {
 			Expect(f.Validate()).To(BeNil())
 		})
 
-		It("allows an array type with factory", func() {
-			f.IsFactory = true
-			f.Type = "[]SomeFactory"
+		It("allows an array type with node", func() {
+			f.IsNode = true
+			f.Type = "[]SomeNode"
 			Expect(f.Validate()).To(BeNil())
 		})
 
 		It("returns error if id and value are both set", func() {
 			f.IsID = true
 			f.IsValue = true
-			Expect(f.Validate()).To(MatchError("field \"foo\" must only have one tag of: id, value, block or factory"))
+			Expect(f.Validate()).To(MatchError("field \"foo\" must only have one tag of: id, value, block or node"))
 		})
 
-		It("returns error if block and factory are both set", func() {
+		It("returns error if block and node are both set", func() {
 			f.IsBlock = true
-			f.IsFactory = true
-			Expect(f.Validate()).To(MatchError("field \"foo\" must only have one tag of: id, value, block or factory"))
+			f.IsNode = true
+			Expect(f.Validate()).To(MatchError("field \"foo\" must only have one tag of: id, value, block or node"))
 		})
 
 		It("returns error if reference is on a non-id field", func() {
@@ -77,8 +77,8 @@ var _ = Describe("Field", func() {
 			Expect(f.Validate()).To(MatchError("field \"foo\" must be an array"))
 		})
 
-		It("returns error if factory is not on an array field", func() {
-			f.IsFactory = true
+		It("returns error if node is not on an array field", func() {
+			f.IsNode = true
 			Expect(f.Validate()).To(MatchError("field \"foo\" must be an array"))
 		})
 

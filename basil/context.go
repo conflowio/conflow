@@ -15,7 +15,6 @@ type ContextAware interface {
 type ContextConfig struct {
 	VariableProvider VariableProvider
 	FunctionRegistry FunctionRegistry
-	BlockRegistry    BlockRegistry
 	IDRegistry       IDRegistry
 }
 
@@ -23,7 +22,6 @@ type ContextConfig struct {
 type Context struct {
 	variableProvider VariableProvider
 	functionRegistry FunctionRegistry
-	blockRegistry    BlockRegistry
 	idRegistry       IDRegistry
 }
 
@@ -50,14 +48,6 @@ func NewContext(
 		panic("Function registry must be set")
 	}
 
-	if config.BlockRegistry != nil {
-		ctx.blockRegistry = config.BlockRegistry
-	} else if provider, ok := parentCtx.(BlockRegistryAware); ok {
-		ctx.blockRegistry = provider.GetBlockRegistry()
-	} else {
-		panic("Block registry must be set")
-	}
-
 	if config.IDRegistry != nil {
 		ctx.idRegistry = config.IDRegistry
 	} else if provider, ok := parentCtx.(IDRegistryAware); ok {
@@ -77,11 +67,6 @@ func (c *Context) GetVariableProvider() VariableProvider {
 // GetFunctionRegistry returns with the function registry
 func (c *Context) GetFunctionRegistry() FunctionRegistry {
 	return c.functionRegistry
-}
-
-// GetBlockRegistry returns with the block registry
-func (c *Context) GetBlockRegistry() BlockRegistry {
-	return c.blockRegistry
 }
 
 // GetIDRegistry returns with the identifier registry

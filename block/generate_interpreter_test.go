@@ -3,7 +3,6 @@ package block_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/block"
 	"github.com/opsidian/basil/block/fixtures"
 	"github.com/opsidian/basil/parser"
@@ -12,17 +11,17 @@ import (
 
 var _ = Describe("GenerateFactory", func() {
 
-	var blockRegistry = block.Registry{
-		"block_simple":               basil.BlockFactoryCreatorFunc(fixtures.NewBlockSimpleFactory),
-		"block_value_required":       basil.BlockFactoryCreatorFunc(fixtures.NewBlockValueRequiredFactory),
-		"block_with_block":           basil.BlockFactoryCreatorFunc(fixtures.NewBlockWithBlockFactory),
-		"block_with_block_interface": basil.BlockFactoryCreatorFunc(fixtures.NewBlockWithBlockInterfaceFactory),
-		"block_with_factory":         basil.BlockFactoryCreatorFunc(fixtures.NewBlockWithFactoryFactory),
+	var registry = block.Registry{
+		"block_simple":               fixtures.BlockSimpleInterpreter{},
+		"block_value_required":       fixtures.BlockValueRequiredInterpreter{},
+		"block_with_block":           fixtures.BlockWithBlockInterpreter{},
+		"block_with_block_interface": fixtures.BlockWithBlockInterfaceInterpreter{},
+		"block_with_factory":         fixtures.BlockWithFactoryInterpreter{},
 	}
 
 	Context("fixtures/block_simple.go", func() {
 		It("should parse the input", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), blockRegistry)(
+			test.ExpectBlockToEvaluate(parser.Block(), registry)(
 				`block_simple foo`,
 				&fixtures.BlockSimple{IDField: "foo"},
 				func(b1i interface{}, b2i interface{}, input string) {
@@ -32,7 +31,7 @@ var _ = Describe("GenerateFactory", func() {
 		})
 
 		It("should parse the input in short format", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), blockRegistry)(
+			test.ExpectBlockToEvaluate(parser.Block(), registry)(
 				`block_simple foo "bar"`,
 				&fixtures.BlockSimple{IDField: "foo", Value: "bar"},
 				func(b1i interface{}, b2i interface{}, input string) {
@@ -42,7 +41,7 @@ var _ = Describe("GenerateFactory", func() {
 		})
 
 		It("should not parse fields with nil values", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), blockRegistry)(
+			test.ExpectBlockToEvaluate(parser.Block(), registry)(
 				`block_simple foo {
 					value = nil
 				}`,
@@ -56,7 +55,7 @@ var _ = Describe("GenerateFactory", func() {
 
 	Context("fixtures/block_value_required.go", func() {
 		It("should parse the input in short format", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), blockRegistry)(
+			test.ExpectBlockToEvaluate(parser.Block(), registry)(
 				`block_value_required foo "bar"`,
 				&fixtures.BlockValueRequired{IDField: "foo", Value: "bar"},
 				func(b1i interface{}, b2i interface{}, input string) {
@@ -66,7 +65,7 @@ var _ = Describe("GenerateFactory", func() {
 		})
 
 		It("should parse the input in short f", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), blockRegistry)(
+			test.ExpectBlockToEvaluate(parser.Block(), registry)(
 				`block_value_required foo {
 					value = "bar"
 				}`,
@@ -80,7 +79,7 @@ var _ = Describe("GenerateFactory", func() {
 
 	Context("fixtures/block_with_block.go", func() {
 		It("should parse the input", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), blockRegistry)(
+			test.ExpectBlockToEvaluate(parser.Block(), registry)(
 				`block_with_block foo {
 					block_simple bar
 				}`,
@@ -99,7 +98,7 @@ var _ = Describe("GenerateFactory", func() {
 
 	Context("fixtures/block_with_block_interface.go", func() {
 		It("should parse the input", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), blockRegistry)(
+			test.ExpectBlockToEvaluate(parser.Block(), registry)(
 				`block_with_block_interface foo {
 					block_simple bar
 				}`,
@@ -118,7 +117,7 @@ var _ = Describe("GenerateFactory", func() {
 
 	Context("fixtures/block_with_factory.go", func() {
 		It("should parse the input", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), blockRegistry)(
+			test.ExpectBlockToEvaluate(parser.Block(), registry)(
 				`block_with_factory foo {
 					block_simple bar
 				}`,
@@ -127,7 +126,7 @@ var _ = Describe("GenerateFactory", func() {
 					b1 := b1i.(*fixtures.BlockWithFactory)
 					b2 := b2i.(*fixtures.BlockWithFactory)
 					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
-					test.ExpectBlockFactoryToEvaluate(parser.Block(), blockRegistry, b1, b1.BlockFactories[0])(
+					test.ExpectBlockNodeToEvaluate(parser.Block(), registry, b1, b1.BlockNodes[0])(
 						input,
 						&fixtures.BlockSimple{IDField: "bar"},
 						func(b1i interface{}, b2i interface{}, input string) {

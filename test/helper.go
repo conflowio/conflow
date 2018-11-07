@@ -12,27 +12,24 @@ import (
 	"github.com/opsidian/parsley/text"
 )
 
-func parseCtx(input string) *parsley.Context {
+func parseCtx(input string, registry block.Registry) *parsley.Context {
 	f := text.NewFile("testfile", []byte(input))
 	fs := parsley.NewFileSet(f)
 	r := text.NewReader(f)
 	ctx := parsley.NewContext(fs, r)
+	if registry != nil {
+		ctx.SetNodeTransformer(block.TransformNode(registry))
+	}
 	ctx.RegisterKeywords("true", "false", "nil", "map", "testkeyword")
 	return ctx
 }
 
-func evalCtx(blockRegistry block.Registry) interface{} {
-	if blockRegistry == nil {
-		blockRegistry = block.Registry{
-			"testblock": basil.BlockFactoryCreatorFunc(NewTestBlockFactory),
-		}
-	}
+func evalCtx() interface{} {
 	return basil.NewContext(
 		nil,
 		basil.ContextConfig{
 			VariableProvider: testVariableProvider,
 			FunctionRegistry: &functionRegistry{},
-			BlockRegistry:    blockRegistry,
 			IDRegistry:       newIDRegistry(),
 		},
 	)
@@ -40,7 +37,7 @@ func evalCtx(blockRegistry block.Registry) interface{} {
 
 func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
 	return func(input string, expected interface{}) {
-		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx(nil))
+		val, err := parsley.Evaluate(parseCtx(input, nil), combinator.Sentence(p), evalCtx())
 
 		Expect(err).ToNot(HaveOccurred(), "input: %s", input)
 
@@ -54,7 +51,7 @@ func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
 
 func ExpectParserToHaveParseError(p parsley.Parser) func(string, error) {
 	return func(input string, expectedErr error) {
-		res, err := parsley.Parse(parseCtx(input), combinator.Sentence(p))
+		res, err := parsley.Parse(parseCtx(input, nil), combinator.Sentence(p))
 
 		Expect(err).To(HaveOccurred(), "input: %s", input)
 		Expect(err).To(MatchError(fmt.Errorf("failed to parse the input: %s", expectedErr)), "input: %s", input)
@@ -64,7 +61,7 @@ func ExpectParserToHaveParseError(p parsley.Parser) func(string, error) {
 
 func ExpectParserToHaveEvalError(p parsley.Parser) func(string, error) {
 	return func(input string, expectedErr error) {
-		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx(nil))
+		val, err := parsley.Evaluate(parseCtx(input, nil), combinator.Sentence(p), evalCtx())
 
 		Expect(err).To(HaveOccurred(), "input: %s", input)
 		Expect(err).To(MatchError(expectedErr), "input: %s", input)
@@ -73,7 +70,7 @@ func ExpectParserToHaveEvalError(p parsley.Parser) func(string, error) {
 }
 
 func ExpectParserToReturn(p parsley.Parser, input string, expected parsley.Node) {
-	res, err := parsley.Parse(parseCtx(input), combinator.Sentence(p))
+	res, err := parsley.Parse(parseCtx(input, nil), combinator.Sentence(p))
 
 	Expect(err).ToNot(HaveOccurred())
 
@@ -84,52 +81,49 @@ func ExpectParserToReturn(p parsley.Parser, input string, expected parsley.Node)
 	Expect(actual).To(BeEquivalentTo(expected))
 }
 
-func ExpectBlockToEvaluate(p parsley.Parser, blockRegistry block.Registry) func(string, interface{}, func(interface{}, interface{}, string)) {
+func ExpectBlockToEvaluate(p parsley.Parser, registry block.Registry) func(string, interface{}, func(interface{}, interface{}, string)) {
 	return func(input string, expected interface{}, compare func(interface{}, interface{}, string)) {
-		evalCtx := evalCtx(blockRegistry)
-		val, err := parsley.Evaluate(parseCtx(input), combinator.Sentence(p), evalCtx)
+		block, err := parsley.Evaluate(parseCtx(input, registry), combinator.Sentence(p), evalCtx())
 		Expect(err).ToNot(HaveOccurred(), "eval failed, input: %s", input)
-
-		block, blockCtx, err := val.(basil.BlockFactory).CreateBlock(evalCtx)
-		Expect(err).ToNot(HaveOccurred(), "create block failed, input: %s", input)
-
-		err = val.(basil.BlockFactory).EvalBlock(blockCtx, "default", block)
-		Expect(err).ToNot(HaveOccurred(), "eval block failed, input: %s", input)
 
 		compare(block, expected, input)
 	}
 }
 
-func ExpectBlockToHaveEvalError(p parsley.Parser, blockRegistry block.Registry) func(string, error) {
+func ExpectBlockToHaveParseError(p parsley.Parser, registry block.Registry) func(string, error) {
 	return func(input string, expectedErr error) {
-		ctx := parseCtx(input)
-		evalCtx := evalCtx(blockRegistry)
-		val, evalErr := parsley.Evaluate(ctx, combinator.Sentence(p), evalCtx)
-		Expect(evalErr).ToNot(HaveOccurred(), "eval failed, input: %s", input)
-
-		block, blockCtx, err := val.(basil.BlockFactory).CreateBlock(evalCtx)
-		if err != nil {
-			errWithPos := ctx.FileSet().ErrorWithPosition(err)
-			Expect(errWithPos).To(MatchError(expectedErr), "input: %s", input)
-			return
-		}
-
-		err = val.(basil.BlockFactory).EvalBlock(blockCtx, "default", block)
+		res, err := parsley.Parse(parseCtx(input, registry), combinator.Sentence(p))
 		Expect(err).To(HaveOccurred(), "input: %s", input)
-		errWithPos := ctx.FileSet().ErrorWithPosition(err)
-		Expect(errWithPos).To(MatchError(expectedErr), "input: %s", input)
+		Expect(err).To(MatchError(fmt.Errorf("failed to process the input: %s", expectedErr)), "input: %s", input)
+		Expect(res).To(BeNil(), "input: %s", input)
 	}
 }
 
-func ExpectBlockFactoryToEvaluate(p parsley.Parser, blockRegistry block.Registry, block basil.Block, blockFactory basil.BlockFactory) func(string, interface{}, func(interface{}, interface{}, string)) {
+func ExpectBlockToHaveCheckError(p parsley.Parser, registry block.Registry) func(string, error) {
+	return func(input string, expectedErr error) {
+		parseCtx := parseCtx(input, registry)
+		res, err := parsley.Parse(parseCtx, combinator.Sentence(p))
+		Expect(err).ToNot(HaveOccurred(), "input: %s", input)
+
+		err = parsley.StaticCheck(parseCtx, res, evalCtx())
+		Expect(err).To(HaveOccurred(), "input: %s", input)
+		Expect(err).To(MatchError(expectedErr), "input: %s", input)
+	}
+}
+
+func ExpectBlockToHaveEvalError(p parsley.Parser, registry block.Registry) func(string, error) {
+	return func(input string, expectedErr error) {
+		_, err := parsley.Evaluate(parseCtx(input, registry), combinator.Sentence(p), evalCtx())
+		Expect(err).To(MatchError(expectedErr), "input: %s", input)
+	}
+}
+
+func ExpectBlockNodeToEvaluate(p parsley.Parser, registry block.Registry, block basil.Block, node basil.BlockNode) func(string, interface{}, func(interface{}, interface{}, string)) {
 	return func(input string, expected interface{}, compare func(interface{}, interface{}, string)) {
-		evalCtx := block.Context(evalCtx(blockRegistry))
+		evalCtx := block.Context(evalCtx())
 
-		block, blockCtx, err := blockFactory.CreateBlock(evalCtx)
+		block, err := node.Value(evalCtx)
 		Expect(err).ToNot(HaveOccurred(), "create block failed, input: %s", input)
-
-		err = blockFactory.EvalBlock(blockCtx, "default", block)
-		Expect(err).ToNot(HaveOccurred(), "eval block failed, input: %s", input)
 
 		compare(block, expected, input)
 	}

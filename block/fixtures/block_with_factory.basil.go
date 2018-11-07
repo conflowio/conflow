@@ -5,67 +5,58 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
+	basilblock "github.com/opsidian/basil/block"
 	"github.com/opsidian/parsley/parsley"
 )
 
-// NewBlockWithFactoryFactory creates a new BlockWithFactory block factory
-func NewBlockWithFactoryFactory(
-	typeNode parsley.Node,
-	idNode parsley.Node,
-	paramNodes map[basil.ID]parsley.Node,
-	blockNodes []parsley.Node,
-) (basil.BlockFactory, parsley.Error) {
-	return &BlockWithFactoryFactory{
-		typeNode:   typeNode,
-		idNode:     idNode,
-		paramNodes: paramNodes,
-		blockNodes: blockNodes,
-	}, nil
-}
+type BlockWithFactoryInterpreter struct{}
 
-// BlockWithFactoryFactory will create and evaluate a BlockWithFactory block
-type BlockWithFactoryFactory struct {
-	typeNode    parsley.Node
-	idNode      parsley.Node
-	paramNodes  map[basil.ID]parsley.Node
-	blockNodes  []parsley.Node
-	shortFormat bool
+func (i BlockWithFactoryInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
+	validParamNames := map[basil.ID]struct{}{
+		"block_nodes": struct{}{},
+	}
+
+	for paramName, paramNode := range node.ParamNodes() {
+		if _, valid := validParamNames[paramName]; !valid {
+			return "", parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
+		}
+	}
+
+	requiredParamNames := []basil.ID{}
+
+	for _, paramName := range requiredParamNames {
+		if _, set := node.ParamNodes()[paramName]; !set {
+			return "", parsley.NewError(node.Pos(), fmt.Errorf("%s parameter is required", paramName))
+		}
+	}
+
+	return "*BlockWithFactory", nil
 }
 
 // CreateBlock creates a new BlockWithFactory block
-func (f *BlockWithFactoryFactory) CreateBlock(parentCtx interface{}) (basil.Block, interface{}, parsley.Error) {
-	var err parsley.Error
-
-	block := &BlockWithFactory{}
-
-	if block.IDField, err = util.NodeIdentifierValue(f.idNode, parentCtx); err != nil {
-		return nil, nil, err
+func (i BlockWithFactoryInterpreter) Eval(parentCtx interface{}, node basil.BlockNode) (basil.Block, parsley.Error) {
+	block := &BlockWithFactory{
+		IDField: node.ID(),
 	}
 
 	ctx := block.Context(parentCtx)
 
-	if len(f.blockNodes) > 0 {
-		var childBlockFactory interface{}
-		for _, childBlock := range f.blockNodes {
-			if childBlockFactory, err = childBlock.Value(ctx); err != nil {
-				return nil, nil, err
-			}
-			switch b := childBlockFactory.(type) {
-			case *BlockSimpleFactory:
-				block.BlockFactories = append(block.BlockFactories, b)
-			default:
-				panic(fmt.Sprintf("block type %T is not supported in BlockWithFactory, please open a bug ticket", childBlockFactory))
-			}
-
+	for _, blockNode := range node.BlockNodes() {
+		switch b := blockNode.(type) {
+		case basil.BlockNode:
+			block.BlockNodes = append(block.BlockNodes, b)
 		}
 	}
 
-	return block, ctx, nil
+	if err := i.EvalBlock(ctx, node, "default", block); err != nil {
+		return nil, err
+	}
+
+	return block, nil
 }
 
 // EvalBlock evaluates all fields belonging to the given stage on a BlockWithFactory block
-func (f *BlockWithFactoryFactory) EvalBlock(ctx interface{}, stage string, res basil.Block) parsley.Error {
+func (i BlockWithFactoryInterpreter) EvalBlock(ctx interface{}, node basil.BlockNode, stage string, res basil.Block) parsley.Error {
 	var err parsley.Error
 
 	if preInterpreter, ok := res.(basil.BlockPreInterpreter); ok {
@@ -84,11 +75,20 @@ func (f *BlockWithFactoryFactory) EvalBlock(ctx interface{}, stage string, res b
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
-func (f *BlockWithFactoryFactory) HasForeignID() bool {
+func (i BlockWithFactoryInterpreter) HasForeignID() bool {
 	return false
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (f *BlockWithFactoryFactory) HasShortFormat() bool {
-	return false
+func (i BlockWithFactoryInterpreter) ValueParamName() basil.ID {
+	return ""
+}
+
+func (i BlockWithFactoryInterpreter) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+	var block basil.Block = &BlockWithFactory{}
+	if b, ok := block.(basilblock.RegistryAware); ok {
+		return b.Registry().NodeTransformer(name)
+	}
+
+	return nil, false
 }

@@ -33,7 +33,7 @@ func generate(dir string, args []string) {
 	}
 
 	name := args[0]
-	err := block.GenerateFactory(dir, name, os.Getenv("GOPACKAGE"))
+	err := block.GenerateInterpreter(dir, name, os.Getenv("GOPACKAGE"))
 	if err != nil {
 		fail(fmt.Sprintf("failed to generate %s: %s", name, err.Error()))
 	}

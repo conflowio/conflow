@@ -20,18 +20,18 @@ type Field struct {
 	IsValue     bool
 	IsReference bool
 	IsBlock     bool
-	IsFactory   bool
+	IsNode      bool
 }
 
 // Validate validates the field tags
 func (f *Field) Validate() error {
 	_, validType := basil.VariableTypes[f.Type]
-	if !validType && !f.IsBlock && !f.IsFactory {
+	if !validType && !f.IsBlock && !f.IsNode {
 		return fmt.Errorf("invalid field type on field %q, use valid type or use ignore tag", f.Name)
 	}
 
 	if f.hasMultipleKinds() {
-		return fmt.Errorf("field %q must only have one tag of: id, value, block or factory", f.Name)
+		return fmt.Errorf("field %q must only have one tag of: id, value, block or node", f.Name)
 	}
 
 	if !identifier.RegExp.MatchString(f.ParamName) {
@@ -46,7 +46,7 @@ func (f *Field) Validate() error {
 		return errors.New("the \"reference\" tag can only be set on the id field")
 	}
 
-	if f.IsBlock || f.IsFactory {
+	if f.IsBlock || f.IsNode {
 		if !strings.HasPrefix(f.Type, "[]") {
 			return fmt.Errorf("field %q must be an array", f.Name)
 		}
@@ -70,7 +70,7 @@ func (f *Field) hasMultipleKinds() bool {
 	if f.IsBlock {
 		typeCnt++
 	}
-	if f.IsFactory {
+	if f.IsNode {
 		typeCnt++
 	}
 	return typeCnt > 1

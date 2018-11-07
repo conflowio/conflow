@@ -27,7 +27,7 @@ func ID() parser.Func {
 			if ctx.IsKeyword(id) {
 				return nil, data.EmptyIntSet, parsley.NewErrorf(pos, "%s is a reserved keyword", id)
 			}
-			return identifier.NewNode(basil.ID(id), false, pos, readerPos), data.EmptyIntSet, nil
+			return identifier.NewNode(basil.ID(id), pos, readerPos), data.EmptyIntSet, nil
 		}
 		return nil, data.EmptyIntSet, parsley.NewError(pos, notFoundErr)
 	})
