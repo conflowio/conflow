@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	basilblock "github.com/opsidian/basil/block"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -84,11 +83,11 @@ func (i BlockWithNodeInterpreter) ValueParamName() basil.ID {
 	return ""
 }
 
-func (i BlockWithNodeInterpreter) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+func (i BlockWithNodeInterpreter) BlockRegistry() parsley.NodeTransformerRegistry {
 	var block basil.Block = &BlockWithNode{}
-	if b, ok := block.(basilblock.RegistryAware); ok {
-		return b.Registry().NodeTransformer(name)
+	if b, ok := block.(basil.BlockRegistryAware); ok {
+		return b.BlockRegistry()
 	}
 
-	return nil, false
+	return nil
 }

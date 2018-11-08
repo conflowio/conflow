@@ -37,7 +37,7 @@ func (n *Node) Type() string {
 // Value returns with the value of the node
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
 	if n.value == "" {
-		idRegistry := ctx.(basil.IDRegistryAware).GetIDRegistry()
+		idRegistry := ctx.(basil.IDRegistryAware).IDRegistry()
 		n.value = idRegistry.GenerateID()
 	}
 	return n.value, nil

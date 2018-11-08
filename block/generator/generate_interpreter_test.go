@@ -1,4 +1,4 @@
-package block_test
+package generator_test
 
 import (
 	"errors"

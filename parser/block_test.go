@@ -238,12 +238,6 @@ var _ = Describe("Block parser", func() {
 			}`,
 			errors.New("\"param1\" parameter was defined multiple times at testfile:3:5"),
 		),
-	)
-
-	DescribeTable("block returns an static check error",
-		func(input string, expectedErr error) {
-			test.ExpectBlockToHaveCheckError(p, registry)(input, expectedErr)
-		},
 		test.TableEntry(
 			`testblock {
 				field_string = 1

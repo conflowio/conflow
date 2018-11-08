@@ -1,17 +1,17 @@
-package block_test
+package generator_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/block"
+	"github.com/opsidian/basil/block/generator"
 )
 
 var _ = Describe("Field", func() {
-	var f *block.Field
+	var f *generator.Field
 
 	BeforeEach(func() {
-		f = &block.Field{
+		f = &generator.Field{
 			Name:        "foo",
 			ParamName:   "param_foo",
 			Type:        "string",

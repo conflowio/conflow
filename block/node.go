@@ -49,9 +49,11 @@ func (n *Node) Type() string {
 
 // StaticCheck runs static analysis on the node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
+	registry := ctx.(basil.BlockRegistryAware).BlockRegistry()
+
 	if !n.interpreter.HasForeignID() {
 		if n.idNode != nil {
-			idRegistry := ctx.(basil.IDRegistryAware).GetIDRegistry()
+			idRegistry := ctx.(basil.IDRegistryAware).IDRegistry()
 			if err := idRegistry.RegisterID(n.ID()); err != nil {
 				return parsley.NewError(n.idNode.Pos(), err)
 			}
@@ -63,7 +65,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	}
 	uniqueBlockIDs := map[string]struct{}{}
 	for _, blockNode := range n.blockNodes {
-		if _, exists := n.interpreter.NodeTransformer(blockNode.Type()); !exists {
+		if _, exists := registry.NodeTransformer(blockNode.Type()); !exists {
 			return parsley.NewErrorf(n.idNode.Pos(), "%q block type is invalid", blockNode.Type())
 		}
 		if blockNode.ID() != "" {
@@ -86,13 +88,13 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 // Value creates a new block
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
 	if n.idNode == nil {
-		idRegistry := ctx.(basil.IDRegistryAware).GetIDRegistry()
+		idRegistry := ctx.(basil.IDRegistryAware).IDRegistry()
 		id := idRegistry.GenerateID()
 		n.idNode = identifier.NewNode(id, n.typeNode.ReaderPos(), n.typeNode.ReaderPos())
 	}
 
 	if n.interpreter.HasForeignID() {
-		idRegistry := ctx.(basil.IDRegistryAware).GetIDRegistry()
+		idRegistry := ctx.(basil.IDRegistryAware).IDRegistry()
 		if !idRegistry.IDExists(n.ID()) {
 			return nil, parsley.NewErrorf(n.idNode.Pos(), "%q is referencing a non-existing block", n.ID())
 		}
@@ -129,4 +131,31 @@ func (n *Node) ParamNodes() map[basil.ID]basil.BlockParamNode {
 // BlockNodes returns with the child block nodes
 func (n *Node) BlockNodes() []basil.BlockNode {
 	return n.blockNodes
+}
+
+// Walk runs the given function on all child nodes
+func (n *Node) Walk(f func(n parsley.Node) bool) bool {
+	if parsley.Walk(n.typeNode, f) {
+		return true
+	}
+
+	if n.idNode != nil {
+		if parsley.Walk(n.idNode, f) {
+			return true
+		}
+	}
+
+	for _, node := range n.paramNodes {
+		if parsley.Walk(node, f) {
+			return true
+		}
+	}
+
+	for _, node := range n.blockNodes {
+		if parsley.Walk(node, f) {
+			return true
+		}
+	}
+
+	return false
 }

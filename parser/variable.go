@@ -62,7 +62,7 @@ func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, p
 		varIndex = append(varIndex, val)
 	}
 
-	variableProvider := ctx.(basil.VariableProviderAware).GetVariableProvider()
+	variableProvider := ctx.(basil.VariableProviderAware).VariableProvider()
 
 	res, err := variableProvider.LookupVar(lookup(name, varIndex, nodes))
 	if err != nil {

@@ -7,58 +7,35 @@
 package block
 
 import (
-	"fmt"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/identifier"
 	"github.com/opsidian/parsley/parsley"
 )
 
-// NodeTransformerRegistry contains named node transformers
-type NodeTransformerRegistry interface {
-	NodeTransformer(name string) (parsley.NodeTransformer, bool)
-}
+// Registry contains a list of block interpreters and behaves as a node transformer registry
+type Registry map[string]Interpreter
 
-// TransformNode returns with a node transformer function for a block
-func TransformNode(registry NodeTransformerRegistry) parsley.NodeTransformFunc {
-	var f parsley.NodeTransformFunc
-	f = parsley.NodeTransformFunc(func(node parsley.Node) (parsley.Node, parsley.Error) {
-		var err parsley.Error
-		switch n := node.(type) {
-		case parsley.NonTerminalNode:
-			if node.Token() == "BLOCK" {
-				nodes := node.(parsley.NonTerminalNode).Children()
-				blockIDNodes := nodes[0].(parsley.NonTerminalNode).Children()
-				typeNode := blockIDNodes[0]
-				blockType, _ := typeNode.Value(nil)
+// NodeTransformer returns with the named node transformer
+func (r Registry) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+	interpreter, exists := r[name]
+	if !exists {
+		return nil, false
+	}
 
-				transformer, exists := registry.NodeTransformer(string(blockType.(basil.ID)))
-				if !exists {
-					return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf("%q type is invalid or not allowed here", blockType))
-				}
-
-				return transformer.TransformNode(node)
-			}
-
-			children := n.Children()
-			for i, childNode := range children {
-				if children[i], err = f(childNode); err != nil {
-					return nil, err
-				}
-			}
-			return n, nil
-		}
-
-		return node, nil
-	})
-
-	return f
+	return parsley.NodeTransformFunc(func(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
+		return transformNode(userCtx, node, interpreter)
+	}), true
 }
 
 func transformNode(
+	userCtx interface{},
 	node parsley.Node,
 	interpreter Interpreter,
 ) (parsley.Node, parsley.Error) {
+	if interpreter.BlockRegistry() != nil {
+		userCtx = interpreter
+	}
+
 	nodes := node.(parsley.NonTerminalNode).Children()
 	blockIDNodes := nodes[0].(parsley.NonTerminalNode).Children()
 	typeNode := blockIDNodes[0].(*identifier.Node)
@@ -98,7 +75,7 @@ func transformNode(
 
 				for _, blockChild := range blockChildren {
 					if blockChild.Token() == "BLOCK" {
-						childBlock, err := TransformNode(interpreter)(blockChild)
+						childBlock, err := blockChild.(parsley.Transformable).Transform(userCtx)
 						if err != nil {
 							return nil, err
 						}

@@ -16,7 +16,7 @@ type VariableProvider interface {
 
 // VariableProviderAware defines a function to access a variable provider
 type VariableProviderAware interface {
-	GetVariableProvider() VariableProvider
+	VariableProvider() VariableProvider
 }
 
 // VariableLookUp is a variable lookup function

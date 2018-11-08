@@ -18,5 +18,5 @@ type Interpreter interface {
 	EvalBlock(ctx interface{}, node basil.BlockNode, stage string, block basil.Block) parsley.Error
 	ValueParamName() basil.ID
 	HasForeignID() bool
-	NodeTransformerRegistry
+	basil.BlockRegistryAware
 }

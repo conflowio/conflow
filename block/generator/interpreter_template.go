@@ -1,4 +1,4 @@
-package block
+package generator
 
 type InterpreterTemplateParams struct {
 	Package                string
@@ -176,12 +176,12 @@ func (i {{$root.Name}}Interpreter) ValueParamName() basil.ID {
 	return {{ if .ValueField }}basil.ID("{{.ValueField.ParamName}}"){{ else }}""{{ end }}
 }
 
-func (i {{$root.Name}}Interpreter) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+func (i {{$root.Name}}Interpreter) BlockRegistry() parsley.NodeTransformerRegistry {
 	var block basil.Block = &{{$root.Name}}{}
-	if b, ok := block.(basilblock.RegistryAware); ok {
-		return b.Registry().NodeTransformer(name)
+	if b, ok := block.(basil.BlockRegistryAware); ok {
+		return b.BlockRegistry()
 	}
 
-	return nil, false
+	return nil
 }
 `

@@ -1,11 +1,11 @@
-package block_test
+package generator_test
 
 import (
 	"go/ast"
 	"go/parser"
 	"go/token"
 
-	"github.com/opsidian/basil/block"
+	"github.com/opsidian/basil/block/generator"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -16,7 +16,7 @@ const q = "`"
 var _ = Describe("ParseFields", func() {
 
 	var source string
-	var fields []*block.Field
+	var fields []*generator.Field
 	var parseErr error
 
 	JustBeforeEach(func() {
@@ -24,7 +24,7 @@ var _ = Describe("ParseFields", func() {
 		Expect(err).ToNot(HaveOccurred())
 
 		str := file.Decls[0].(*ast.GenDecl).Specs[0].(*ast.TypeSpec).Type.(*ast.StructType)
-		fields, parseErr = block.ParseFields(str, file)
+		fields, parseErr = generator.ParseFields(str, file)
 	})
 
 	Context("when the tags are valid", func() {
@@ -38,7 +38,7 @@ var _ = Describe("ParseFields", func() {
 
 		It("should return with the parsed fields", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
-			Expect(fields).To(Equal([]*block.Field{
+			Expect(fields).To(Equal([]*generator.Field{
 				{
 					Name:      "id",
 					ParamName: "id",
@@ -68,7 +68,7 @@ var _ = Describe("ParseFields", func() {
 
 		It("should return with the parsed fields", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
-			Expect(fields).To(Equal([]*block.Field{
+			Expect(fields).To(Equal([]*generator.Field{
 				{
 					Name:      "id",
 					ParamName: "id",

@@ -37,7 +37,7 @@ func (t *TestBlock) Context(ctx interface{}) interface{} {
 	return ctx
 }
 
-func (t *TestBlock) Registry() block.Registry {
+func (t *TestBlock) BlockRegistry() block.Registry {
 	return block.Registry{
 		"testblock": TestBlockInterpreter{},
 	}

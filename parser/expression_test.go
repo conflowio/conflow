@@ -47,7 +47,7 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`1h30m`, time.Hour+30*time.Minute),
 
 		// Function
-		test.TableEntry(`upper(upper("fOO"))`, "FOO"),
+		test.TableEntry(`test_func1(test_func1("fOO"))`, "FOO"),
 
 		// Boolean not
 		test.TableEntry("!true", !true),
@@ -212,7 +212,7 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`testmap[1]`, errors.New("invalid non-string index on map at testfile:1:9")),
 
 		// Functions
-		test.TableEntry(`non_existing()`, errors.New("function does not exist at testfile:1:1")),
+		test.TableEntry(`non_existing()`, errors.New("\"non_existing\" function does not exist at testfile:1:1")),
 	)
 
 	Context("When there is only one node", func() {

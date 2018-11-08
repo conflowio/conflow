@@ -3,7 +3,6 @@ package block
 import (
 	"fmt"
 
-	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -64,10 +63,10 @@ func (p *ParamNode) String() string {
 
 // Walk runs the given function on all child nodes
 func (p *ParamNode) Walk(f func(n parsley.Node) bool) bool {
-	if ast.WalkNode(p.keyNode, f) {
+	if parsley.Walk(p.keyNode, f) {
 		return true
 	}
-	if ast.WalkNode(p.valueNode, f) {
+	if parsley.Walk(p.valueNode, f) {
 		return true
 	}
 

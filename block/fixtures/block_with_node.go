@@ -23,7 +23,7 @@ func (b *BlockWithNode) Context(ctx interface{}) interface{} {
 	return ctx
 }
 
-func (b *BlockWithNode) Registry() block.Registry {
+func (b *BlockWithNode) BlockRegistry() block.Registry {
 	return block.Registry{
 		"block_simple": BlockSimpleInterpreter{},
 	}

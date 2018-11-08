@@ -7,10 +7,9 @@
 package parser
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
@@ -28,29 +27,26 @@ func Function(p parsley.Parser) *combinator.Sequence {
 		terminal.Rune('('),
 		text.LeftTrim(SepByComma(p, text.WsSpaces), text.WsSpaces),
 		text.LeftTrim(terminal.Rune(')'), text.WsSpaces),
-	).Bind(ast.InterpreterFunc(evalFunction))
+	).Token("FUNC").Name("function").Bind(functionInterpreter{})
 }
 
-func evalFunction(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
-	nodes := node.Children()
-	registry := ctx.(basil.FunctionRegistryAware).GetFunctionRegistry()
+type functionInterpreter struct{}
 
-	functioNode := nodes[0]
-	name, _ := functioNode.Value(ctx)
+func (f functionInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	panic("Eval should not be called on a raw function node")
+}
 
-	if !registry.FunctionExists(name.(basil.ID)) {
-		return nil, parsley.NewError(functioNode.Pos(), errors.New("function does not exist"))
+func (f functionInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
+	registry := userCtx.(basil.FunctionRegistryAware).FunctionRegistry()
+
+	nodes := node.(parsley.NonTerminalNode).Children()
+	nameNode := nodes[0]
+	name, _ := nameNode.Value(nil)
+
+	transformer, exists := registry.NodeTransformer(string(name.(basil.ID)))
+	if !exists {
+		return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q function does not exist", name))
 	}
 
-	paramsNode := nodes[2].(parsley.NonTerminalNode)
-	var params []parsley.Node
-	children := paramsNode.Children()
-	childrenCount := len(children)
-	if childrenCount > 0 {
-		params = make([]parsley.Node, childrenCount/2+1)
-		for i := 0; i < childrenCount; i += 2 {
-			params[i/2] = children[i]
-		}
-	}
-	return registry.CallFunction(ctx, nodes[0], params)
+	return transformer.TransformNode(userCtx, node)
 }

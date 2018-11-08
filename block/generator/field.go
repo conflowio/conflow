@@ -1,4 +1,4 @@
-package block
+package generator
 
 import (
 	"errors"

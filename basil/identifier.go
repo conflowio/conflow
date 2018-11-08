@@ -17,5 +17,5 @@ type IDRegistry interface {
 
 // IDRegistryAware defines an interface to retrieve an identifer registry
 type IDRegistryAware interface {
-	GetIDRegistry() IDRegistry
+	IDRegistry() IDRegistry
 }

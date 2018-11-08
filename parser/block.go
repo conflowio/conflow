@@ -7,7 +7,11 @@
 package parser
 
 import (
+	"fmt"
+
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/combinator"
+	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 )
@@ -73,7 +77,29 @@ func Block() *combinator.Sequence {
 	p = *combinator.SeqTry(
 		combinator.SeqTry(ID(), text.LeftTrim(ID(), text.WsSpaces)),
 		text.LeftTrim(blockValue, text.WsSpaces),
-	).Name("block definition").Token("BLOCK")
+	).Name("block definition").Token("BLOCK").Bind(blockInterpreter{})
 
 	return &p
+}
+
+type blockInterpreter struct{}
+
+func (b blockInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	panic("Eval should not be called on a raw block node")
+}
+
+func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
+	registry := userCtx.(basil.BlockRegistryAware).BlockRegistry()
+
+	nodes := node.(parsley.NonTerminalNode).Children()
+	blockIDNodes := nodes[0].(parsley.NonTerminalNode).Children()
+	typeNode := blockIDNodes[0]
+	blockType, _ := typeNode.Value(nil)
+
+	transformer, exists := registry.NodeTransformer(string(blockType.(basil.ID)))
+	if !exists {
+		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf("%q type is invalid or not allowed here", blockType))
+	}
+
+	return transformer.TransformNode(userCtx, node)
 }

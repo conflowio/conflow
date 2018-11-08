@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/basil/block"
+	"github.com/opsidian/basil/generator"
 )
 
 func main() {
@@ -33,7 +33,7 @@ func generate(dir string, args []string) {
 	}
 
 	name := args[0]
-	err := block.GenerateInterpreter(dir, name, os.Getenv("GOPACKAGE"))
+	err := generator.Generate(dir, os.Getenv("GOPACKAGE"), name)
 	if err != nil {
 		fail(fmt.Sprintf("failed to generate %s: %s", name, err.Error()))
 	}
