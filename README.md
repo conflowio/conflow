@@ -1,1 +1,1 @@
-# Basil Configuration Language
+# Basil - DSL generator and parser
