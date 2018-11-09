@@ -180,6 +180,20 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.TestBlock{IDField: "foo", Value: map[string]interface{}{"a": "b"}},
 		),
+		test.TableEntry(
+			`testblock foo {
+				field_string = test_func2("foo", "bar")
+
+				testblock foo {
+					field_string = test_func2("bar", "baz")
+				}
+			}`,
+			&test.TestBlock{
+				IDField:     "foo",
+				FieldString: "foobar",
+				Blocks:      []*test.TestBlock{{IDField: "foo", FieldString: "barbaz"}},
+			},
+		),
 	)
 
 	DescribeTable("it returns a parse error",

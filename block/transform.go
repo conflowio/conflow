@@ -33,7 +33,10 @@ func transformNode(
 	interpreter Interpreter,
 ) (parsley.Node, parsley.Error) {
 	if interpreter.BlockRegistry() != nil {
-		userCtx = interpreter
+		parentCtx := userCtx.(*basil.Context)
+		userCtx = basil.NewContext(parentCtx, basil.ContextConfig{
+			BlockRegistry: interpreter.BlockRegistry(),
+		})
 	}
 
 	nodes := node.(parsley.NonTerminalNode).Children()
@@ -82,11 +85,17 @@ func transformNode(
 						blockNodes = append(blockNodes, childBlock.(*Node))
 					} else {
 						children := blockChild.(parsley.NonTerminalNode).Children()
-						paramName, _ := children[0].Value(nil)
+						paramNode := children[0]
+						paramName, _ := paramNode.Value(nil)
 						if _, alreadyExists := paramNodes[paramName.(basil.ID)]; alreadyExists {
 							return nil, parsley.NewErrorf(children[0].Pos(), "%q parameter was defined multiple times", paramName)
 						}
-						paramNodes[paramName.(basil.ID)] = NewParamNode(children[0], children[2])
+						valueNode, err := parsley.Transform(userCtx, children[2])
+						if err != nil {
+							return nil, err
+						}
+
+						paramNodes[paramName.(basil.ID)] = NewParamNode(paramNode, valueNode)
 					}
 				}
 			}
