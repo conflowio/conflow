@@ -15,11 +15,10 @@ const interpreterTemplate = `
 package {{.Package}}
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/function"
 	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -66,13 +65,16 @@ func (i {{.Name}}Interpreter) Eval(ctx interface{}, node basil.FunctionNode) (in
 		{{ end -}}
 	), nil
 	{{ else }}
-	res, err := {{.FuncName}}(
+	res, resErr := {{.FuncName}}(
 		{{- range $i, $arg := .Arguments -}}
 		arg{{$i}},
 		{{- end -}}
 	)
-	if err != nil {
-		return nil, parsley.NewError(node.Pos(), err)
+	if resErr != nil {
+		if funcErr, ok := resErr.(*function.Error); ok {
+			return nil, parsley.NewError(arguments[funcErr.ArgIndex].Pos(), funcErr.Err)
+		}
+		return nil, parsley.NewError(node.Pos(), resErr)
 	}
 
 	return res, nil
