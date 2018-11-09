@@ -19,6 +19,7 @@ var NodeValueFunctionNames = map[string]string{
 	basil.TypeMap:          "NodeMapValue",
 	basil.TypeNumber:       "NodeNumberValue",
 	basil.TypeString:       "NodeStringValue",
+	basil.TypeStringArray:  "NodeStringArrayValue",
 	basil.TypeTimeDuration: "NodeTimeDurationValue",
 }
 
@@ -195,6 +196,34 @@ func NodeStringValue(node parsley.Node, ctx interface{}) (string, parsley.Error)
 	return "", parsley.NewError(node.Pos(), basil.ErrExpectingString)
 }
 
+// NodeStringArrayValue returns with the string array value of a node
+func NodeStringArrayValue(node parsley.Node, ctx interface{}) ([]string, parsley.Error) {
+	val, err := node.Value(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if val == nil {
+		return nil, nil
+	}
+
+	switch v := val.(type) {
+	case []string:
+		return v, nil
+	case []interface{}:
+		var ok bool
+		res := make([]string, len(v))
+		for i := range v {
+			if res[i], ok = v[i].(string); !ok {
+				return nil, parsley.NewError(node.Pos(), basil.ErrExpectingStringArray)
+			}
+		}
+		return res, nil
+	}
+
+	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingString)
+}
+
 // NodeTimeDurationValue returns with the time duration value of a node
 func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, parsley.Error) {
 	val, err := node.Value(ctx)
@@ -215,11 +244,24 @@ func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, p
 
 // CheckNodeType checks the type of the node
 func CheckNodeType(node parsley.Node, expectedType string) parsley.Error {
-	if node.Type() == "" || node.Type() == basil.TypeAny || expectedType == basil.TypeAny {
+	if node.Type() == basil.TypeUnknown || node.Type() == basil.TypeAny || expectedType == basil.TypeAny {
 		return nil
 	}
 
 	if expectedType == basil.TypeNumber && (node.Type() == basil.TypeInteger || node.Type() == basil.TypeFloat) {
+		return nil
+	}
+
+	if expectedType == basil.TypeArray && node.Type() == basil.TypeStringArray {
+		return nil
+	}
+
+	if expectedType == basil.TypeStringArray && node.Type() == basil.TypeArray {
+		for _, child := range node.(parsley.NonTerminalNode).Children() {
+			if err := CheckNodeType(child, basil.TypeString); err != nil {
+				return err
+			}
+		}
 		return nil
 	}
 

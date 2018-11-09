@@ -2,6 +2,7 @@ package basil
 
 import (
 	"errors"
+	"time"
 
 	"github.com/opsidian/parsley/text/terminal"
 )
@@ -20,7 +21,9 @@ const (
 	TypeMap          = "map[string]interface{}"
 	TypeNumber       = "basil.Number"
 	TypeString       = terminal.StringType
+	TypeStringArray  = "[]string"
 	TypeTimeDuration = terminal.TimeDurationType
+	TypeUnknown      = ""
 )
 
 // VariableTypes contains valid variable types with descriptions
@@ -34,6 +37,7 @@ var VariableTypes = map[string]string{
 	TypeMap:          "map",
 	TypeNumber:       "number",
 	TypeString:       "string",
+	TypeStringArray:  "string array",
 	TypeTimeDuration: "time duration",
 }
 
@@ -48,6 +52,7 @@ var (
 	ErrExpectingMap          = errors.New("was expecting map")
 	ErrExpectingNumber       = errors.New("was expecting number")
 	ErrExpectingString       = errors.New("was expecting string")
+	ErrExpectingStringArray  = errors.New("was expecting string array")
 	ErrExpectingTimeDuration = errors.New("was expecting time duration")
 )
 
@@ -62,5 +67,34 @@ var VariableTypeErrors = map[string]error{
 	TypeMap:          ErrExpectingMap,
 	TypeNumber:       ErrExpectingNumber,
 	TypeString:       ErrExpectingString,
+	TypeStringArray:  ErrExpectingStringArray,
 	TypeTimeDuration: ErrExpectingTimeDuration,
+}
+
+// GetValueType returns with the type of the given value
+func GetValueType(value interface{}) string {
+	switch value.(type) {
+	case []interface{}:
+		return TypeArray
+	case bool:
+		return TypeBool
+	case float64:
+		return TypeFloat
+	case ID:
+		return TypeIdentifier
+	case int64:
+		return TypeInteger
+	case map[string]interface{}:
+		return TypeMap
+	case Number:
+		return TypeNumber
+	case string:
+		return TypeString
+	case []string:
+		return TypeStringArray
+	case time.Duration:
+		return TypeTimeDuration
+	default:
+		return TypeUnknown
+	}
 }
