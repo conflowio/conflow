@@ -52,7 +52,17 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value returns with the result of the function
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
-	return n.interpreter.Eval(ctx, n)
+	val, err := n.interpreter.Eval(ctx, n)
+	if err != nil {
+		return nil, err
+	}
+
+	switch v := val.(type) {
+	case variable.Union:
+		return v.Value(), nil
+	default:
+		return v, nil
+	}
 }
 
 // Pos returns with the node's position

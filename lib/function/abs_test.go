@@ -22,8 +22,7 @@ var _ = Describe("Abs", func() {
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
-			res := variable.NewNumber(expected)
-			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, res)
+			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, expected)
 		},
 		test.TableEntry("abs(0)", int64(0)),
 		test.TableEntry("abs(1)", int64(1)),
@@ -31,6 +30,8 @@ var _ = Describe("Abs", func() {
 		test.TableEntry("abs(0.0)", 0.0),
 		test.TableEntry("abs(1.0)", 1.0),
 		test.TableEntry("abs(-1.0)", 1.0),
+		test.TableEntry("abs(1) + 2", int64(3)),
+		test.TableEntry("abs(1.1) + 2.2", 3.3),
 	)
 
 	DescribeTable("it will have a parse error",

@@ -140,7 +140,12 @@ func ExpectFunctionToEvaluate(p parsley.Parser, registry function.Registry) func
 	return func(input string, expected interface{}) {
 		res, err := parsley.Evaluate(parseCtx(input, nil, registry), combinator.Sentence(p))
 		Expect(err).ToNot(HaveOccurred(), "eval failed, input: %s", input)
-		Expect(res).To(Equal(expected))
+		switch expected.(type) {
+		case int64, float64:
+			Expect(res).To(BeNumerically("~", expected))
+		default:
+			Expect(res).To(Equal(expected))
+		}
 	}
 }
 
