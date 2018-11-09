@@ -105,10 +105,14 @@ func transformNode(
 				blockType, _ := typeNode.Value(nil)
 				return nil, parsley.NewErrorf(typeNode.Pos(), "%q block does not support short format", blockType)
 			}
+			valueNode, err := parsley.Transform(userCtx, blockValueNode)
+			if err != nil {
+				return nil, err
+			}
 			paramNodes = map[basil.ID]basil.BlockParamNode{
 				valueParamName: NewParamNode(
 					identifier.NewNode(valueParamName, blockValueNode.Pos(), blockValueNode.Pos()),
-					blockValueNode,
+					valueNode,
 				),
 			}
 		}
