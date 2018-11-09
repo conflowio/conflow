@@ -9,7 +9,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
@@ -48,7 +48,7 @@ func (a arrayInterpreter) TransformNode(userCtx interface{}, node parsley.Node) 
 		items:     items,
 		pos:       node.Pos(),
 		readerPos: node.ReaderPos(),
-		arrayType: basil.TypeArray,
+		arrayType: variable.TypeArray,
 	}, nil
 }
 
@@ -76,7 +76,7 @@ func (a *arrayNode) StaticCheck(ctx interface{}) parsley.Error {
 	}
 
 	arrayType := a.items[0].Type()
-	if arrayType != basil.TypeString {
+	if arrayType != variable.TypeString {
 		return nil
 	}
 

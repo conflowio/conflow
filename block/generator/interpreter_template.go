@@ -27,6 +27,7 @@ import (
 	"github.com/opsidian/basil/basil"
 	basilblock "github.com/opsidian/basil/block"
 	"github.com/opsidian/basil/util"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -35,7 +36,7 @@ import (
 type {{$root.Name}}Interpreter struct {}
 
 func (i {{$root.Name}}Interpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[basil.ID]struct{}{
+	validParamNames := map[variable.ID]struct{}{
 		{{- range $root.Fields -}}{{- if and (not .IsID) (not .IsBlock)}}
 		"{{.ParamName}}": struct{}{},
 		{{- end -}}{{- end }}
@@ -49,13 +50,13 @@ func (i {{$root.Name}}Interpreter) StaticCheck(ctx interface{}, node basil.Block
 
 	{{ range $root.Fields }}{{ if and (not .IsID) (not .IsNode) (not .IsBlock) }}
 	if paramNode, ok := node.ParamNodes()["{{.ParamName}}"]; ok {
-		if err := util.CheckNodeType(paramNode, "{{.Type}}"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "{{.Type}}"); err != nil {
 			return "", err
 		}
 	}
 	{{ end }}{{ end }}
 
-	requiredParamNames := []basil.ID{
+	requiredParamNames := []variable.ID{
 		{{- range $root.Fields -}}{{- if and (.Required) (not .IsID) (not .IsNode) (not .IsBlock)}}
 		"{{.ParamName}}",
 		{{- end -}}{{- end }}
@@ -117,7 +118,7 @@ func (i {{$root.Name}}Interpreter) EvalBlock(ctx interface{}, node basil.BlockNo
 	case "{{$stage}}":
 		{{- range $root.Fields -}}{{- if and (eq .Stage $stage) (not .IsID) (not .IsNode) (not .IsBlock)}}
 		if valueNode, ok := node.ParamNodes()["{{.ParamName}}"]; ok {
-			if block.{{.Name}}, err = util.{{index $root.NodeValueFunctionNames .Type}}(valueNode, ctx); err != nil {
+			if block.{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(valueNode, ctx); err != nil {
 				return err
 			}
 		}
@@ -172,8 +173,8 @@ func (i {{$root.Name}}Interpreter) HasForeignID() bool {
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i {{$root.Name}}Interpreter) ValueParamName() basil.ID {
-	return {{ if .ValueField }}basil.ID("{{.ValueField.ParamName}}"){{ else }}""{{ end }}
+func (i {{$root.Name}}Interpreter) ValueParamName() variable.ID {
+	return {{ if .ValueField }}variable.ID("{{.ValueField.ParamName}}"){{ else }}""{{ end }}
 }
 
 func (i {{$root.Name}}Interpreter) BlockRegistry() parsley.NodeTransformerRegistry {

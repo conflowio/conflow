@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
 type TestBlockInterpreter struct{}
 
 func (i TestBlockInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[basil.ID]struct{}{
+	validParamNames := map[variable.ID]struct{}{
 		"value":               struct{}{},
 		"field_string":        struct{}{},
 		"field_int":           struct{}{},
@@ -32,60 +32,60 @@ func (i TestBlockInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode)
 	}
 
 	if paramNode, ok := node.ParamNodes()["value"]; ok {
-		if err := util.CheckNodeType(paramNode, "interface{}"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "interface{}"); err != nil {
 			return "", err
 		}
 	}
 
 	if paramNode, ok := node.ParamNodes()["field_string"]; ok {
-		if err := util.CheckNodeType(paramNode, "string"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "string"); err != nil {
 			return "", err
 		}
 	}
 
 	if paramNode, ok := node.ParamNodes()["field_int"]; ok {
-		if err := util.CheckNodeType(paramNode, "int64"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "int64"); err != nil {
 			return "", err
 		}
 	}
 
 	if paramNode, ok := node.ParamNodes()["field_float"]; ok {
-		if err := util.CheckNodeType(paramNode, "float64"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "float64"); err != nil {
 			return "", err
 		}
 	}
 
 	if paramNode, ok := node.ParamNodes()["field_bool"]; ok {
-		if err := util.CheckNodeType(paramNode, "bool"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "bool"); err != nil {
 			return "", err
 		}
 	}
 
 	if paramNode, ok := node.ParamNodes()["field_array"]; ok {
-		if err := util.CheckNodeType(paramNode, "[]interface{}"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "[]interface{}"); err != nil {
 			return "", err
 		}
 	}
 
 	if paramNode, ok := node.ParamNodes()["field_map"]; ok {
-		if err := util.CheckNodeType(paramNode, "map[string]interface{}"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "map[string]interface{}"); err != nil {
 			return "", err
 		}
 	}
 
 	if paramNode, ok := node.ParamNodes()["field_time_duration"]; ok {
-		if err := util.CheckNodeType(paramNode, "time.Duration"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "time.Duration"); err != nil {
 			return "", err
 		}
 	}
 
 	if paramNode, ok := node.ParamNodes()["custom_field"]; ok {
-		if err := util.CheckNodeType(paramNode, "string"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "string"); err != nil {
 			return "", err
 		}
 	}
 
-	requiredParamNames := []basil.ID{}
+	requiredParamNames := []variable.ID{}
 
 	for _, paramName := range requiredParamNames {
 		if _, set := node.ParamNodes()[paramName]; !set {
@@ -136,55 +136,55 @@ func (i TestBlockInterpreter) EvalBlock(ctx interface{}, node basil.BlockNode, s
 	switch stage {
 	case "default":
 		if valueNode, ok := node.ParamNodes()["value"]; ok {
-			if block.Value, err = util.NodeAnyValue(valueNode, ctx); err != nil {
+			if block.Value, err = variable.NodeAnyValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
 
 		if valueNode, ok := node.ParamNodes()["field_string"]; ok {
-			if block.FieldString, err = util.NodeStringValue(valueNode, ctx); err != nil {
+			if block.FieldString, err = variable.NodeStringValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
 
 		if valueNode, ok := node.ParamNodes()["field_int"]; ok {
-			if block.FieldInt, err = util.NodeIntegerValue(valueNode, ctx); err != nil {
+			if block.FieldInt, err = variable.NodeIntegerValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
 
 		if valueNode, ok := node.ParamNodes()["field_float"]; ok {
-			if block.FieldFloat, err = util.NodeFloatValue(valueNode, ctx); err != nil {
+			if block.FieldFloat, err = variable.NodeFloatValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
 
 		if valueNode, ok := node.ParamNodes()["field_bool"]; ok {
-			if block.FieldBool, err = util.NodeBoolValue(valueNode, ctx); err != nil {
+			if block.FieldBool, err = variable.NodeBoolValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
 
 		if valueNode, ok := node.ParamNodes()["field_array"]; ok {
-			if block.FieldArray, err = util.NodeArrayValue(valueNode, ctx); err != nil {
+			if block.FieldArray, err = variable.NodeArrayValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
 
 		if valueNode, ok := node.ParamNodes()["field_map"]; ok {
-			if block.FieldMap, err = util.NodeMapValue(valueNode, ctx); err != nil {
+			if block.FieldMap, err = variable.NodeMapValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
 
 		if valueNode, ok := node.ParamNodes()["field_time_duration"]; ok {
-			if block.FieldTimeDuration, err = util.NodeTimeDurationValue(valueNode, ctx); err != nil {
+			if block.FieldTimeDuration, err = variable.NodeTimeDurationValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
 
 		if valueNode, ok := node.ParamNodes()["custom_field"]; ok {
-			if block.FieldCustomName, err = util.NodeStringValue(valueNode, ctx); err != nil {
+			if block.FieldCustomName, err = variable.NodeStringValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
@@ -227,8 +227,8 @@ func (i TestBlockInterpreter) HasForeignID() bool {
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i TestBlockInterpreter) ValueParamName() basil.ID {
-	return basil.ID("value")
+func (i TestBlockInterpreter) ValueParamName() variable.ID {
+	return variable.ID("value")
 }
 
 func (i TestBlockInterpreter) BlockRegistry() parsley.NodeTransformerRegistry {

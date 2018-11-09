@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
 type BlockSimpleInterpreter struct{}
 
 func (i BlockSimpleInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[basil.ID]struct{}{
+	validParamNames := map[variable.ID]struct{}{
 		"value": struct{}{},
 	}
 
@@ -23,12 +23,12 @@ func (i BlockSimpleInterpreter) StaticCheck(ctx interface{}, node basil.BlockNod
 	}
 
 	if paramNode, ok := node.ParamNodes()["value"]; ok {
-		if err := util.CheckNodeType(paramNode, "interface{}"); err != nil {
+		if err := variable.CheckNodeType(paramNode, "interface{}"); err != nil {
 			return "", err
 		}
 	}
 
-	requiredParamNames := []basil.ID{}
+	requiredParamNames := []variable.ID{}
 
 	for _, paramName := range requiredParamNames {
 		if _, set := node.ParamNodes()[paramName]; !set {
@@ -72,7 +72,7 @@ func (i BlockSimpleInterpreter) EvalBlock(ctx interface{}, node basil.BlockNode,
 	switch stage {
 	case "default":
 		if valueNode, ok := node.ParamNodes()["value"]; ok {
-			if block.Value, err = util.NodeAnyValue(valueNode, ctx); err != nil {
+			if block.Value, err = variable.NodeAnyValue(valueNode, ctx); err != nil {
 				return err
 			}
 		}
@@ -101,8 +101,8 @@ func (i BlockSimpleInterpreter) HasForeignID() bool {
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i BlockSimpleInterpreter) ValueParamName() basil.ID {
-	return basil.ID("value")
+func (i BlockSimpleInterpreter) ValueParamName() variable.ID {
+	return variable.ID("value")
 }
 
 func (i BlockSimpleInterpreter) BlockRegistry() parsley.NodeTransformerRegistry {

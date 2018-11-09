@@ -152,3 +152,13 @@ func ExpectFunctionToHaveParseError(p parsley.Parser, registry function.Registry
 		Expect(res).To(BeNil(), "input: %s", input)
 	}
 }
+
+func ExpectFunctionNode(p parsley.Parser, registry function.Registry) func(string, func(interface{}, parsley.Node)) {
+	return func(input string, test func(interface{}, parsley.Node)) {
+		ctx := parseCtx(input, nil, registry)
+		node, err := parsley.Parse(ctx, combinator.Sentence(p))
+		Expect(err).ToNot(HaveOccurred(), "input: %s", input)
+
+		test(ctx.UserContext(), node)
+	}
+}

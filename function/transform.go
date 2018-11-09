@@ -9,7 +9,7 @@ package function
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -35,7 +35,7 @@ func TransformNode(registry parsley.NodeTransformerRegistry) parsley.NodeTransfo
 		nameNode := nodes[0]
 		name, _ := nameNode.Value(nil)
 
-		transformer, exists := registry.NodeTransformer(string(name.(basil.ID)))
+		transformer, exists := registry.NodeTransformer(string(name.(variable.ID)))
 		if !exists {
 			return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q function does not exist", name))
 		}

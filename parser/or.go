@@ -7,8 +7,7 @@
 package parser
 
 import (
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
@@ -31,12 +30,12 @@ type orInterpreter struct{}
 func (o orInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (string, parsley.Error) {
 	nodes := node.Children()
 	for i := 0; i < len(nodes); i += 2 {
-		if err := util.CheckNodeType(nodes[i], basil.TypeBool); err != nil {
+		if err := variable.CheckNodeType(nodes[i], variable.TypeBool); err != nil {
 			return "", err
 		}
 	}
 
-	return basil.TypeBool, nil
+	return variable.TypeBool, nil
 }
 
 func (o orInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
@@ -51,7 +50,7 @@ func (o orInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (inte
 		case bool:
 			res = res || vt
 		default:
-			return nil, parsley.NewError(nodes[i].Pos(), basil.ErrExpectingBool)
+			return nil, parsley.NewError(nodes[i].Pos(), variable.ErrExpectingBool)
 		}
 	}
 	return res, nil

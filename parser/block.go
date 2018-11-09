@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
@@ -96,7 +97,7 @@ func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) 
 	typeNode := blockIDNodes[0]
 	blockType, _ := typeNode.Value(nil)
 
-	transformer, exists := registry.NodeTransformer(string(blockType.(basil.ID)))
+	transformer, exists := registry.NodeTransformer(string(blockType.(variable.ID)))
 	if !exists {
 		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf("%q type is invalid or not allowed here", blockType))
 	}

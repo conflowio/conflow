@@ -7,6 +7,7 @@ type InterpreterTemplateParams struct {
 	Arguments              []*Argument
 	Results                []*Argument
 	ResultType             string
+	ReturnNodeType         bool
 	NodeValueFunctionNames map[string]string
 }
 
@@ -37,13 +38,17 @@ func (i {{.Name}}Interpreter) StaticCheck(ctx interface{}, node basil.FunctionNo
 	{{ if .Arguments }}
 	arguments := node.ArgumentNodes()
 	{{ range $i, $arg := .Arguments }}
-	if err := util.CheckNodeType(arguments[{{$i}}], "{{.Type}}"); err != nil {
+	if err := variable.CheckNodeType(arguments[{{$i}}], "{{.Type}}"); err != nil {
 		return "", err
 	}
 	{{ end }}
 
 	{{ end -}}
+	{{ if .ReturnNodeType }}
+	return arguments[0].Type(), nil
+	{{ else }}
 	return "{{.ResultType}}", nil
+	{{ end }}
 }
 
 // Eval returns with the result of the function
@@ -51,7 +56,7 @@ func (i {{.Name}}Interpreter) Eval(ctx interface{}, node basil.FunctionNode) (in
 	{{- if .Arguments }}
 	arguments := node.ArgumentNodes()
 	{{ range $i, $arg := .Arguments }}
-	arg{{$i}}, err := util.{{index $root.NodeValueFunctionNames .Type}}(arguments[{{$i}}], ctx)
+	arg{{$i}}, err := variable.{{index $root.NodeValueFunctionNames .Type}}(arguments[{{$i}}], ctx)
 	if err != nil {
 		return nil, err
 	}

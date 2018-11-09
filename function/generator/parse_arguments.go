@@ -8,7 +8,7 @@ import (
 	"go/format"
 	"go/token"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 )
 
 // Argument contains metadata for a function argument
@@ -28,7 +28,7 @@ func ParseArguments(fun *ast.FuncType, file *ast.File) ([]*Argument, error) {
 		}
 
 		for _, arg := range parsedArguments {
-			if _, validType := basil.VariableTypes[arg.Type]; !validType {
+			if _, validType := variable.Types[arg.Type]; !validType {
 				return nil, fmt.Errorf("invalid argument type for argument %q", arg.Name)
 			}
 		}
@@ -58,7 +58,7 @@ func ParseResults(fun *ast.FuncType, file *ast.File) ([]*Argument, error) {
 		return nil, fmt.Errorf("the function must return a non-error value")
 	}
 
-	if _, validType := basil.VariableTypes[arguments[0].Type]; !validType {
+	if _, validType := variable.Types[arguments[0].Type]; !validType {
 		return nil, errors.New("the first return value must be a valid type")
 	}
 

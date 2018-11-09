@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/identifier"
+	"github.com/opsidian/basil/variable"
 )
 
 // Field contains a metadata for a block field
@@ -25,7 +25,7 @@ type Field struct {
 
 // Validate validates the field tags
 func (f *Field) Validate() error {
-	_, validType := basil.VariableTypes[f.Type]
+	_, validType := variable.Types[f.Type]
 	if !validType && !f.IsBlock && !f.IsNode {
 		return fmt.Errorf("invalid field type on field %q, use valid type or use ignore tag", f.Name)
 	}
@@ -38,8 +38,8 @@ func (f *Field) Validate() error {
 		return fmt.Errorf("\"name\" tag is invalid on field %q, it must be a valid identifier", f.Name)
 	}
 
-	if f.IsID && f.Type != basil.TypeIdentifier {
-		return fmt.Errorf("field %q must be defined as %s", f.Name, basil.TypeIdentifier)
+	if f.IsID && f.Type != variable.TypeIdentifier {
+		return fmt.Errorf("field %q must be defined as %s", f.Name, variable.TypeIdentifier)
 	}
 
 	if f.IsReference && !f.IsID {

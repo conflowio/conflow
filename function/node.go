@@ -7,7 +7,9 @@
 package function
 
 import (
-	"github.com/opsidian/basil/basil"
+	"fmt"
+
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -21,9 +23,9 @@ type Node struct {
 }
 
 // Name returns with the function name
-func (n *Node) Name() basil.ID {
+func (n *Node) Name() variable.ID {
 	name, _ := n.nameNode.Value(nil)
-	return name.(basil.ID)
+	return name.(variable.ID)
 }
 
 // Token returns with the node's token
@@ -38,10 +40,12 @@ func (n *Node) Type() string {
 
 // StaticCheck runs static analysis on the node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
-	_, err := n.interpreter.StaticCheck(ctx, n)
+	resultType, err := n.interpreter.StaticCheck(ctx, n)
 	if err != nil {
 		return err
 	}
+
+	n.resultType = resultType
 
 	return nil
 }
@@ -74,4 +78,11 @@ func (n *Node) ArgumentNodes() []parsley.Node {
 // Children returns with the argument nodes
 func (n *Node) Children() []parsley.Node {
 	return n.argumentNodes
+}
+
+func (n *Node) String() string {
+	if n.resultType == "" {
+		return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.Name(), n.argumentNodes, n.Pos(), n.ReaderPos())
+	}
+	return fmt.Sprintf("%s{<%s> %s, %s, %d..%d}", n.Token(), n.resultType, n.Name(), n.argumentNodes, n.Pos(), n.ReaderPos())
 }

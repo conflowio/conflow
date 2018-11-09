@@ -3,6 +3,7 @@ package fixtures
 import (
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/block"
+	"github.com/opsidian/basil/variable"
 )
 
 type BlockInterface interface {
@@ -12,12 +13,12 @@ type BlockInterface interface {
 
 //go:generate basil generate BlockWithBlockInterface
 type BlockWithBlockInterface struct {
-	IDField    basil.ID          `basil:"id"`
+	IDField    variable.ID       `basil:"id"`
 	BlockNodes []basil.BlockNode `basil:"node"`
 	Blocks     []BlockInterface  `basil:"block"`
 }
 
-func (b *BlockWithBlockInterface) ID() basil.ID {
+func (b *BlockWithBlockInterface) ID() variable.ID {
 	return b.IDField
 }
 

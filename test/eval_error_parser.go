@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
@@ -12,7 +12,7 @@ import (
 // EvalErrorParser returns with a parser which will read the "ERR" string but the result node evaluation will throw an error
 func EvalErrorParser() parser.Func {
 	return func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
-		res, cp, err := terminal.Word("ERR", "ERR", basil.TypeString).Parse(ctx, leftRecCtx, pos)
+		res, cp, err := terminal.Word("ERR", "ERR", variable.TypeString).Parse(ctx, leftRecCtx, pos)
 		if err != nil {
 			return nil, cp, err
 		}

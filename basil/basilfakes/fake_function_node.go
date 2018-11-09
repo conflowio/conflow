@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -69,14 +70,14 @@ type FakeFunctionNode struct {
 	staticCheckReturnsOnCall map[int]struct {
 		result1 parsley.Error
 	}
-	NameStub        func() basil.ID
+	NameStub        func() variable.ID
 	nameMutex       sync.RWMutex
 	nameArgsForCall []struct{}
 	nameReturns     struct {
-		result1 basil.ID
+		result1 variable.ID
 	}
 	nameReturnsOnCall map[int]struct {
-		result1 basil.ID
+		result1 variable.ID
 	}
 	ArgumentNodesStub        func() []parsley.Node
 	argumentNodesMutex       sync.RWMutex
@@ -350,7 +351,7 @@ func (fake *FakeFunctionNode) StaticCheckReturnsOnCall(i int, result1 parsley.Er
 	}{result1}
 }
 
-func (fake *FakeFunctionNode) Name() basil.ID {
+func (fake *FakeFunctionNode) Name() variable.ID {
 	fake.nameMutex.Lock()
 	ret, specificReturn := fake.nameReturnsOnCall[len(fake.nameArgsForCall)]
 	fake.nameArgsForCall = append(fake.nameArgsForCall, struct{}{})
@@ -371,22 +372,22 @@ func (fake *FakeFunctionNode) NameCallCount() int {
 	return len(fake.nameArgsForCall)
 }
 
-func (fake *FakeFunctionNode) NameReturns(result1 basil.ID) {
+func (fake *FakeFunctionNode) NameReturns(result1 variable.ID) {
 	fake.NameStub = nil
 	fake.nameReturns = struct {
-		result1 basil.ID
+		result1 variable.ID
 	}{result1}
 }
 
-func (fake *FakeFunctionNode) NameReturnsOnCall(i int, result1 basil.ID) {
+func (fake *FakeFunctionNode) NameReturnsOnCall(i int, result1 variable.ID) {
 	fake.NameStub = nil
 	if fake.nameReturnsOnCall == nil {
 		fake.nameReturnsOnCall = make(map[int]struct {
-			result1 basil.ID
+			result1 variable.ID
 		})
 	}
 	fake.nameReturnsOnCall[i] = struct {
-		result1 basil.ID
+		result1 variable.ID
 	}{result1}
 }
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -20,27 +20,28 @@ func (i TestFunc2Interpreter) StaticCheck(ctx interface{}, node basil.FunctionNo
 
 	arguments := node.ArgumentNodes()
 
-	if err := util.CheckNodeType(arguments[0], "string"); err != nil {
+	if err := variable.CheckNodeType(arguments[0], "string"); err != nil {
 		return "", err
 	}
 
-	if err := util.CheckNodeType(arguments[1], "string"); err != nil {
+	if err := variable.CheckNodeType(arguments[1], "string"); err != nil {
 		return "", err
 	}
 
 	return "string", nil
+
 }
 
 // Eval returns with the result of the function
 func (i TestFunc2Interpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := util.NodeStringValue(arguments[0], ctx)
+	arg0, err := variable.NodeStringValue(arguments[0], ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	arg1, err := util.NodeStringValue(arguments[1], ctx)
+	arg1, err := variable.NodeStringValue(arguments[1], ctx)
 	if err != nil {
 		return nil, err
 	}

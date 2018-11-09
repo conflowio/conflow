@@ -8,6 +8,7 @@ package block
 
 import (
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -16,7 +17,7 @@ type Interpreter interface {
 	StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error)
 	Eval(ctx interface{}, node basil.BlockNode) (block basil.Block, err parsley.Error)
 	EvalBlock(ctx interface{}, node basil.BlockNode, stage string, block basil.Block) parsley.Error
-	ValueParamName() basil.ID
+	ValueParamName() variable.ID
 	HasForeignID() bool
 	basil.BlockRegistryAware
 }

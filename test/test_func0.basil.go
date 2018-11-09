@@ -18,6 +18,7 @@ func (i TestFunc0Interpreter) StaticCheck(ctx interface{}, node basil.FunctionNo
 	}
 
 	return "string", nil
+
 }
 
 // Eval returns with the result of the function

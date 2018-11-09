@@ -12,6 +12,7 @@ import (
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/identifier"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -19,7 +20,7 @@ import (
 type Node struct {
 	typeNode    *identifier.Node
 	idNode      *identifier.Node
-	paramNodes  map[basil.ID]basil.BlockParamNode
+	paramNodes  map[variable.ID]basil.BlockParamNode
 	blockNodes  []basil.BlockNode
 	readerPos   parsley.Pos
 	interpreter Interpreter
@@ -27,13 +28,13 @@ type Node struct {
 }
 
 // ID returns with the id of the block
-func (n *Node) ID() basil.ID {
+func (n *Node) ID() variable.ID {
 	if n.idNode == nil {
 		return ""
 	}
 
 	id, _ := n.idNode.Value(nil)
-	return id.(basil.ID)
+	return id.(variable.ID)
 }
 
 // Token returns with the node's token
@@ -44,7 +45,7 @@ func (n *Node) Token() string {
 // Type returns with the node's type
 func (n *Node) Type() string {
 	nodeType, _ := n.typeNode.Value(nil)
-	return string(nodeType.(basil.ID))
+	return string(nodeType.(variable.ID))
 }
 
 // StaticCheck runs static analysis on the node
@@ -124,7 +125,7 @@ func (n *Node) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 }
 
 // ParamNodes returns with the parameter nodes
-func (n *Node) ParamNodes() map[basil.ID]basil.BlockParamNode {
+func (n *Node) ParamNodes() map[variable.ID]basil.BlockParamNode {
 	return n.paramNodes
 }
 
@@ -158,4 +159,11 @@ func (n *Node) Walk(f func(n parsley.Node) bool) bool {
 	}
 
 	return false
+}
+
+func (n *Node) String() string {
+	if n.blockType == "" {
+		return fmt.Sprintf("%s{%s, %s, %s, %s, %d..%d}", n.Token(), n.typeNode, n.idNode, n.paramNodes, n.blockNodes, n.Pos(), n.ReaderPos())
+	}
+	return fmt.Sprintf("%s{<%s> %s, %s, %s, %s, %d..%d}", n.Token(), n.typeNode, n.idNode, n.blockType, n.paramNodes, n.blockNodes, n.Pos(), n.ReaderPos())
 }

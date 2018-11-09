@@ -5,9 +5,9 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
+	"github.com/opsidian/basil/variable"
 )
 
 var _ = Describe("ID", func() {
@@ -18,9 +18,9 @@ var _ = Describe("ID", func() {
 		func(input string, expected interface{}) {
 			test.ExpectParserToEvaluate(p)(input, expected)
 		},
-		test.TableEntry(`a`, basil.ID("a")),
-		test.TableEntry(`a_b`, basil.ID("a_b")),
-		test.TableEntry(`abcdefghijklmnopqrstuvwxyz_0123456789`, basil.ID("abcdefghijklmnopqrstuvwxyz_0123456789")),
+		test.TableEntry(`a`, variable.ID("a")),
+		test.TableEntry(`a_b`, variable.ID("a_b")),
+		test.TableEntry(`abcdefghijklmnopqrstuvwxyz_0123456789`, variable.ID("abcdefghijklmnopqrstuvwxyz_0123456789")),
 	)
 
 	DescribeTable("it returns a parse error",

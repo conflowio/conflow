@@ -1,14 +1,14 @@
 package fixtures
 
-import "github.com/opsidian/basil/basil"
+import "github.com/opsidian/basil/variable"
 
 //go:generate basil generate BlockValueRequired
 type BlockValueRequired struct {
-	IDField basil.ID    `basil:"id"`
+	IDField variable.ID `basil:"id"`
 	Value   interface{} `basil:"value,required"`
 }
 
-func (b *BlockValueRequired) ID() basil.ID {
+func (b *BlockValueRequired) ID() variable.ID {
 	return b.IDField
 }
 

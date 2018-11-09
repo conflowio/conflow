@@ -7,6 +7,7 @@ import (
 	"text/template"
 
 	"github.com/opsidian/basil/util"
+	"github.com/opsidian/basil/variable"
 )
 
 // GenerateInterpreter generates an interpreter for the given block
@@ -79,7 +80,7 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 		IDField:                idField,
 		ValueField:             valueField,
 		HasForeignID:           hasForeignID,
-		NodeValueFunctionNames: util.NodeValueFunctionNames,
+		NodeValueFunctionNames: variable.NodeValueFunctionNames,
 		EvalFieldsCnt:          evalFieldsCnt,
 	}, nil
 }

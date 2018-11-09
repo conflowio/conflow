@@ -9,7 +9,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
@@ -52,7 +52,7 @@ func Variable(p parsley.Parser) *combinator.Sequence {
 func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
 	value0, _ := nodes[0].Value(ctx)
-	name := value0.(basil.ID)
+	name := value0.(variable.ID)
 	varIndex := make([]interface{}, 0, len(nodes)-1)
 	for i := 1; i < len(nodes); i++ {
 		val, err := nodes[i].Value(ctx)
@@ -62,7 +62,7 @@ func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, p
 		varIndex = append(varIndex, val)
 	}
 
-	variableProvider := ctx.(basil.VariableProviderAware).VariableProvider()
+	variableProvider := ctx.(variable.ProviderAware).VariableProvider()
 
 	res, err := variableProvider.LookupVar(lookup(name, varIndex, nodes))
 	if err != nil {
@@ -70,7 +70,7 @@ func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, p
 		for _, index := range varIndex {
 			varName = fmt.Sprintf("%s[%v]", varName, index)
 		}
-		if err == basil.ErrVariableNotFound {
+		if err == variable.ErrNotDefined {
 			return nil, parsley.WrapError(
 				parsley.NewError(nodes[0].Pos(), err),
 				"variable '%s' does not exist", varName,
@@ -82,11 +82,11 @@ func evalVariable(ctx interface{}, node parsley.NonTerminalNode) (interface{}, p
 	return res, nil
 }
 
-func lookup(name basil.ID, varIndex []interface{}, nodes []parsley.Node) basil.VariableLookUp {
-	return func(provider basil.VariableProvider) (interface{}, error) {
+func lookup(name variable.ID, varIndex []interface{}, nodes []parsley.Node) variable.LookUp {
+	return func(provider variable.Provider) (interface{}, error) {
 		res, ok := provider.GetVar(name)
 		if !ok {
-			return nil, basil.ErrVariableNotFound
+			return nil, variable.ErrNotDefined
 		}
 		for i, index := range varIndex {
 			switch rest := res.(type) {
@@ -105,15 +105,15 @@ func lookup(name basil.ID, varIndex []interface{}, nodes []parsley.Node) basil.V
 				}
 			case map[string]interface{}:
 				switch indext := index.(type) {
-				case basil.ID:
+				case variable.ID:
 					res, ok = rest[string(indext)]
 					if !ok {
-						return nil, basil.ErrVariableNotFound
+						return nil, variable.ErrNotDefined
 					}
 				case string:
 					res, ok = rest[indext]
 					if !ok {
-						return nil, basil.ErrVariableNotFound
+						return nil, variable.ErrNotDefined
 					}
 				default:
 					indexNode := nodes[i+1].(parsley.NonTerminalNode).Children()[1]

@@ -7,6 +7,7 @@
 package basil
 
 import (
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -17,7 +18,7 @@ type ContextAware interface {
 
 // ContextConfig contains the parameters for a config
 type ContextConfig struct {
-	VariableProvider VariableProvider
+	VariableProvider variable.Provider
 	IDRegistry       IDRegistry
 	BlockRegistry    parsley.NodeTransformerRegistry
 	FunctionRegistry parsley.NodeTransformerRegistry
@@ -25,7 +26,7 @@ type ContextConfig struct {
 
 // Context is the evaluation context
 type Context struct {
-	variableProvider VariableProvider
+	variableProvider variable.Provider
 	idRegistry       IDRegistry
 	blockRegistry    parsley.NodeTransformerRegistry
 	functionRegistry parsley.NodeTransformerRegistry
@@ -40,7 +41,7 @@ func NewContext(
 
 	if config.VariableProvider != nil {
 		ctx.variableProvider = config.VariableProvider
-	} else if provider, ok := parentCtx.(VariableProviderAware); ok {
+	} else if provider, ok := parentCtx.(variable.ProviderAware); ok {
 		ctx.variableProvider = provider.VariableProvider()
 	} else {
 		panic("Variable provider must be set")
@@ -74,7 +75,7 @@ func NewContext(
 }
 
 // VariableProvider returns with the variable provider
-func (c *Context) VariableProvider() VariableProvider {
+func (c *Context) VariableProvider() variable.Provider {
 	return c.variableProvider
 }
 

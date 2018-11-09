@@ -1,29 +1,28 @@
-package util
+package variable
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
 
 // NodeValueFunctionNames contains the type parser functions for every variable type
 var NodeValueFunctionNames = map[string]string{
-	basil.TypeAny:          "NodeAnyValue",
-	basil.TypeArray:        "NodeArrayValue",
-	basil.TypeBool:         "NodeBoolValue",
-	basil.TypeFloat:        "NodeFloatValue",
-	basil.TypeIdentifier:   "NodeIdentifierValue",
-	basil.TypeInteger:      "NodeIntegerValue",
-	basil.TypeMap:          "NodeMapValue",
-	basil.TypeNumber:       "NodeNumberValue",
-	basil.TypeString:       "NodeStringValue",
-	basil.TypeStringArray:  "NodeStringArrayValue",
-	basil.TypeTimeDuration: "NodeTimeDurationValue",
+	TypeAny:          "NodeAnyValue",
+	TypeArray:        "NodeArrayValue",
+	TypeBasic:        "NodeBasicValue",
+	TypeBool:         "NodeBoolValue",
+	TypeFloat:        "NodeFloatValue",
+	TypeIdentifier:   "NodeIdentifierValue",
+	TypeInteger:      "NodeIntegerValue",
+	TypeMap:          "NodeMapValue",
+	TypeNumber:       "NodeNumberValue",
+	TypeString:       "NodeStringValue",
+	TypeStringArray:  "NodeStringArrayValue",
+	TypeTimeDuration: "NodeTimeDurationValue",
 }
 
-// NodeAnyValue returns with the array value of a node
+// NodeAnyValue returns with any valid value
 func NodeAnyValue(node parsley.Node, ctx interface{}) (interface{}, parsley.Error) {
 	val, err := node.Value(ctx)
 	if err != nil {
@@ -43,7 +42,7 @@ func NodeAnyValue(node parsley.Node, ctx interface{}) (interface{}, parsley.Erro
 	case string:
 	case time.Duration:
 	default:
-		return nil, parsley.NewError(node.Pos(), basil.ErrExpectingAny)
+		return nil, parsley.NewError(node.Pos(), ErrExpectingAny)
 	}
 
 	return val, nil
@@ -64,7 +63,25 @@ func NodeArrayValue(node parsley.Node, ctx interface{}) ([]interface{}, parsley.
 		return res, nil
 	}
 
-	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingArray)
+	return nil, parsley.NewError(node.Pos(), ErrExpectingArray)
+}
+
+// NodeBasicValue returns with a basic value
+func NodeBasicValue(node parsley.Node, ctx interface{}) (*Basic, parsley.Error) {
+	val, err := node.Value(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if val == nil {
+		return nil, nil
+	}
+
+	if !IsBasicType(val) {
+		return nil, parsley.NewError(node.Pos(), ErrExpectingBasic)
+	}
+
+	return NewBasic(val), nil
 }
 
 // NodeBoolValue returns with the boolean value of a node
@@ -82,7 +99,7 @@ func NodeBoolValue(node parsley.Node, ctx interface{}) (bool, parsley.Error) {
 		return res, nil
 	}
 
-	return false, parsley.NewError(node.Pos(), basil.ErrExpectingBool)
+	return false, parsley.NewError(node.Pos(), ErrExpectingBool)
 }
 
 // NodeFloatValue returns with the float value of a node
@@ -100,11 +117,11 @@ func NodeFloatValue(node parsley.Node, ctx interface{}) (float64, parsley.Error)
 		return res, nil
 	}
 
-	return 0.0, parsley.NewError(node.Pos(), basil.ErrExpectingFloat)
+	return 0.0, parsley.NewError(node.Pos(), ErrExpectingFloat)
 }
 
 // NodeIdentifierValue returns with the identifier value of a node
-func NodeIdentifierValue(node parsley.Node, ctx interface{}) (basil.ID, parsley.Error) {
+func NodeIdentifierValue(node parsley.Node, ctx interface{}) (ID, parsley.Error) {
 	val, err := node.Value(ctx)
 	if err != nil {
 		return "", err
@@ -114,11 +131,11 @@ func NodeIdentifierValue(node parsley.Node, ctx interface{}) (basil.ID, parsley.
 		return "", nil
 	}
 
-	if res, ok := val.(basil.ID); ok {
+	if res, ok := val.(ID); ok {
 		return res, nil
 	}
 
-	return "", parsley.NewError(node.Pos(), basil.ErrExpectingIdentifier)
+	return "", parsley.NewError(node.Pos(), ErrExpectingIdentifier)
 }
 
 // NodeIntegerValue returns with the integer value of a node
@@ -136,7 +153,7 @@ func NodeIntegerValue(node parsley.Node, ctx interface{}) (int64, parsley.Error)
 		return res, nil
 	}
 
-	return 0, parsley.NewError(node.Pos(), basil.ErrExpectingInteger)
+	return 0, parsley.NewError(node.Pos(), ErrExpectingInteger)
 }
 
 // NodeMapValue returns with the map value of a node
@@ -154,28 +171,25 @@ func NodeMapValue(node parsley.Node, ctx interface{}) (map[string]interface{}, p
 		return res, nil
 	}
 
-	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingMap)
+	return nil, parsley.NewError(node.Pos(), ErrExpectingMap)
 }
 
 // NodeNumberValue returns with the number value of a node
-func NodeNumberValue(node parsley.Node, ctx interface{}) (basil.Number, parsley.Error) {
+func NodeNumberValue(node parsley.Node, ctx interface{}) (*Number, parsley.Error) {
 	val, err := node.Value(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	if val == nil {
-		return 0, nil
+		return nil, nil
 	}
 
-	switch res := val.(type) {
-	case int64:
-		return res, nil
-	case float64:
-		return res, nil
+	if !IsNumberType(val) {
+		return nil, parsley.NewError(node.Pos(), ErrExpectingNumber)
 	}
 
-	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingNumber)
+	return NewNumber(val), nil
 }
 
 // NodeStringValue returns with the string value of a node
@@ -193,7 +207,7 @@ func NodeStringValue(node parsley.Node, ctx interface{}) (string, parsley.Error)
 		return res, nil
 	}
 
-	return "", parsley.NewError(node.Pos(), basil.ErrExpectingString)
+	return "", parsley.NewError(node.Pos(), ErrExpectingString)
 }
 
 // NodeStringArrayValue returns with the string array value of a node
@@ -215,13 +229,13 @@ func NodeStringArrayValue(node parsley.Node, ctx interface{}) ([]string, parsley
 		res := make([]string, len(v))
 		for i := range v {
 			if res[i], ok = v[i].(string); !ok {
-				return nil, parsley.NewError(node.Pos(), basil.ErrExpectingStringArray)
+				return nil, parsley.NewError(node.Pos(), ErrExpectingStringArray)
 			}
 		}
 		return res, nil
 	}
 
-	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingString)
+	return nil, parsley.NewError(node.Pos(), ErrExpectingString)
 }
 
 // NodeTimeDurationValue returns with the time duration value of a node
@@ -239,39 +253,5 @@ func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, p
 		return res, nil
 	}
 
-	return 0, parsley.NewError(node.Pos(), basil.ErrExpectingTimeDuration)
-}
-
-// CheckNodeType checks the type of the node
-func CheckNodeType(node parsley.Node, expectedType string) parsley.Error {
-	if node.Type() == basil.TypeUnknown || node.Type() == basil.TypeAny || expectedType == basil.TypeAny {
-		return nil
-	}
-
-	if expectedType == basil.TypeNumber && (node.Type() == basil.TypeInteger || node.Type() == basil.TypeFloat) {
-		return nil
-	}
-
-	if expectedType == basil.TypeArray && node.Type() == basil.TypeStringArray {
-		return nil
-	}
-
-	if expectedType == basil.TypeStringArray && node.Type() == basil.TypeArray {
-		for _, child := range node.(parsley.NonTerminalNode).Children() {
-			if err := CheckNodeType(child, basil.TypeString); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
-	if node.Type() != expectedType {
-		typeErr, ok := basil.VariableTypeErrors[expectedType]
-		if !ok {
-			panic(fmt.Sprintf("Unknown type: %s", expectedType))
-		}
-		return parsley.NewError(node.Pos(), typeErr)
-	}
-
-	return nil
+	return 0, parsley.NewError(node.Pos(), ErrExpectingTimeDuration)
 }

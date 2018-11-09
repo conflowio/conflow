@@ -1,8 +1,10 @@
 package test
 
-import "github.com/opsidian/basil/basil"
+import (
+	"github.com/opsidian/basil/variable"
+)
 
-var testVariableProvider = variableProvider{map[basil.ID]interface{}{
+var testVariableProvider = variableProvider{map[variable.ID]interface{}{
 	"foo": "bar",
 	"testmap": map[string]interface{}{
 		"key1": "value1",
@@ -26,14 +28,14 @@ var testVariableProvider = variableProvider{map[basil.ID]interface{}{
 }}
 
 type variableProvider struct {
-	Vars map[basil.ID]interface{}
+	Vars map[variable.ID]interface{}
 }
 
-func (v variableProvider) GetVar(name basil.ID) (interface{}, bool) {
+func (v variableProvider) GetVar(name variable.ID) (interface{}, bool) {
 	value, ok := v.Vars[name]
 	return value, ok
 }
 
-func (v variableProvider) LookupVar(lookup basil.VariableLookUp) (interface{}, error) {
+func (v variableProvider) LookupVar(lookup variable.LookUp) (interface{}, error) {
 	return lookup(v)
 }

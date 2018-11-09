@@ -1,6 +1,9 @@
 package basil
 
-import "github.com/opsidian/parsley/parsley"
+import (
+	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/parsley/parsley"
+)
 
 // BlockNode is the AST node for a block
 //go:generate counterfeiter . BlockNode
@@ -9,7 +12,7 @@ type BlockNode interface {
 	parsley.StaticCheckable
 	Eval(ctx interface{}, stage string, block Block) parsley.Error
 	Identifiable
-	ParamNodes() map[ID]BlockParamNode
+	ParamNodes() map[variable.ID]BlockParamNode
 	BlockNodes() []BlockNode
 }
 
