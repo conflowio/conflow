@@ -70,3 +70,8 @@ func (n *Node) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 func (n *Node) ArgumentNodes() []parsley.Node {
 	return n.argumentNodes
 }
+
+// Children returns with the argument nodes
+func (n *Node) Children() []parsley.Node {
+	return n.argumentNodes
+}
