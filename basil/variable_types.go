@@ -6,6 +6,9 @@ import (
 	"github.com/opsidian/parsley/text/terminal"
 )
 
+// Number is an integer or float number
+type Number interface{}
+
 // Variable types
 const (
 	TypeAny          = "interface{}"
@@ -15,6 +18,7 @@ const (
 	TypeIdentifier   = "basil.ID"
 	TypeInteger      = terminal.IntegerType
 	TypeMap          = "map[string]interface{}"
+	TypeNumber       = "basil.Number"
 	TypeString       = terminal.StringType
 	TypeTimeDuration = terminal.TimeDurationType
 )
@@ -28,6 +32,7 @@ var VariableTypes = map[string]string{
 	TypeIdentifier:   "identifier",
 	TypeInteger:      "integer",
 	TypeMap:          "map",
+	TypeNumber:       "number",
 	TypeString:       "string",
 	TypeTimeDuration: "time duration",
 }
@@ -41,6 +46,7 @@ var (
 	ErrExpectingIdentifier   = errors.New("was expecting identifier")
 	ErrExpectingInteger      = errors.New("was expecting integer")
 	ErrExpectingMap          = errors.New("was expecting map")
+	ErrExpectingNumber       = errors.New("was expecting number")
 	ErrExpectingString       = errors.New("was expecting string")
 	ErrExpectingTimeDuration = errors.New("was expecting time duration")
 )
@@ -54,6 +60,7 @@ var VariableTypeErrors = map[string]error{
 	TypeIdentifier:   ErrExpectingIdentifier,
 	TypeInteger:      ErrExpectingInteger,
 	TypeMap:          ErrExpectingMap,
+	TypeNumber:       ErrExpectingNumber,
 	TypeString:       ErrExpectingString,
 	TypeTimeDuration: ErrExpectingTimeDuration,
 }

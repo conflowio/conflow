@@ -17,6 +17,7 @@ var NodeValueFunctionNames = map[string]string{
 	basil.TypeIdentifier:   "NodeIdentifierValue",
 	basil.TypeInteger:      "NodeIntegerValue",
 	basil.TypeMap:          "NodeMapValue",
+	basil.TypeNumber:       "NodeNumberValue",
 	basil.TypeString:       "NodeStringValue",
 	basil.TypeTimeDuration: "NodeTimeDurationValue",
 }
@@ -155,6 +156,27 @@ func NodeMapValue(node parsley.Node, ctx interface{}) (map[string]interface{}, p
 	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingMap)
 }
 
+// NodeNumberValue returns with the number value of a node
+func NodeNumberValue(node parsley.Node, ctx interface{}) (basil.Number, parsley.Error) {
+	val, err := node.Value(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if val == nil {
+		return 0, nil
+	}
+
+	switch res := val.(type) {
+	case int64:
+		return res, nil
+	case float64:
+		return res, nil
+	}
+
+	return nil, parsley.NewError(node.Pos(), basil.ErrExpectingNumber)
+}
+
 // NodeStringValue returns with the string value of a node
 func NodeStringValue(node parsley.Node, ctx interface{}) (string, parsley.Error) {
 	val, err := node.Value(ctx)
@@ -194,6 +216,10 @@ func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, p
 // CheckNodeType checks the type of the node
 func CheckNodeType(node parsley.Node, expectedType string) parsley.Error {
 	if node.Type() == "" || node.Type() == basil.TypeAny || expectedType == basil.TypeAny {
+		return nil
+	}
+
+	if expectedType == basil.TypeNumber && (node.Type() == basil.TypeInteger || node.Type() == basil.TypeFloat) {
 		return nil
 	}
 
