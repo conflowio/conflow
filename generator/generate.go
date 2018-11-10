@@ -18,7 +18,7 @@ func Generate(dir string, packageName string, name string) error {
 		return err
 	}
 
-	filename := regexp.MustCompile("[A-Z][a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
+	filename := regexp.MustCompile("[A-Z]+[a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
 		return "_" + strings.ToLower(str)
 	})
 	filename = strings.TrimLeft(filename, "_") + ".basil.go"
