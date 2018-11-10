@@ -143,6 +143,8 @@ func ExpectFunctionToEvaluate(p parsley.Parser, registry function.Registry) func
 		switch expected.(type) {
 		case int64, float64:
 			Expect(res).To(BeNumerically("~", expected))
+		case nil:
+			Expect(res).To(BeNil())
 		default:
 			Expect(res).To(Equal(expected))
 		}
@@ -155,6 +157,15 @@ func ExpectFunctionToHaveParseError(p parsley.Parser, registry function.Registry
 		Expect(err).To(HaveOccurred(), "input: %s", input)
 		Expect(err).To(MatchError(expectedErr), "input: %s", input)
 		Expect(res).To(BeNil(), "input: %s", input)
+	}
+}
+
+func ExpectFunctionToHaveEvalError(p parsley.Parser, registry function.Registry) func(string, error) {
+	return func(input string, expectedErr error) {
+		val, err := parsley.Evaluate(parseCtx(input, nil, registry), combinator.Sentence(p))
+		Expect(err).To(HaveOccurred(), "input: %s", input)
+		Expect(err).To(MatchError(expectedErr), "input: %s", input)
+		Expect(val).To(BeNil(), "input: %s", input)
 	}
 }
 
