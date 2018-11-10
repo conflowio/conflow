@@ -14,24 +14,22 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-var _ = Describe("Abs", func() {
+var _ = Describe("String", func() {
 
 	registry := basilfunction.Registry{
-		"test": function.AbsInterpreter{},
+		"test": function.StringInterpreter{},
 	}
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
 			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, expected)
 		},
-		test.TableEntry("test(0)", int64(0)),
-		test.TableEntry("test(1)", int64(1)),
-		test.TableEntry("test(-1)", int64(1)),
-		test.TableEntry("test(0.0)", 0.0),
-		test.TableEntry("test(1.0)", 1.0),
-		test.TableEntry("test(-1.0)", 1.0),
-		test.TableEntry("test(1) + 2", int64(3)),
-		test.TableEntry("test(1.1) + 2.2", 3.3),
+		test.TableEntry(`test(1)`, "1"),
+		test.TableEntry(`test(1.1)`, "1.1"),
+		test.TableEntry(`test(false)`, "false"),
+		test.TableEntry(`test(true)`, "true"),
+		test.TableEntry(`test("foo")`, "foo"),
+		test.TableEntry(`test(1m30s)`, "1m30s"),
 	)
 
 	DescribeTable("it will have a parse error",
@@ -40,20 +38,16 @@ var _ = Describe("Abs", func() {
 		},
 		test.TableEntry(`test()`, errors.New("test expects 1 arguments at testfile:1:1")),
 		test.TableEntry(`test(1, 2)`, errors.New("test expects 1 arguments at testfile:1:1")),
-		test.TableEntry(`test("foo")`, errors.New("was expecting number at testfile:1:6")),
+		test.TableEntry(`test([])`, errors.New("was expecting any basic type at testfile:1:6")),
 	)
 
-	DescribeTable("it should keep the type of the first argument",
-		func(input string, expectedType string) {
-			test.ExpectFunctionNode(parser.Expression(), registry)(
-				input,
-				func(userCtx interface{}, node parsley.Node) {
-					Expect(node.Type()).To(Equal(expectedType))
-				},
-			)
-		},
-		test.TableEntry(`test(1)`, variable.TypeInteger),
-		test.TableEntry(`test(1.1)`, variable.TypeFloat),
-	)
+	It("should return with string type", func() {
+		test.ExpectFunctionNode(parser.Expression(), registry)(
+			"test(1)",
+			func(userCtx interface{}, node parsley.Node) {
+				Expect(node.Type()).To(Equal(variable.TypeString))
+			},
+		)
+	})
 
 })

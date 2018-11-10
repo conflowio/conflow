@@ -26,6 +26,7 @@ func (i AbsInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (s
 	}
 
 	return arguments[0].Type(), nil
+
 }
 
 // Eval returns with the result of the function

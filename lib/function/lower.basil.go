@@ -9,35 +9,35 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-// FloorInterpreter is an AST node interpreter for the Floor function
-type FloorInterpreter struct{}
+// LowerInterpreter is an AST node interpreter for the Lower function
+type LowerInterpreter struct{}
 
 // StaticCheck runs a static analysis on the function parameters
-func (i FloorInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
+func (i LowerInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
 	if len(node.ArgumentNodes()) != 1 {
 		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 1 arguments", node.Name()))
 	}
 
 	arguments := node.ArgumentNodes()
 
-	if err := variable.CheckNodeType(arguments[0], "*variable.Number"); err != nil {
+	if err := variable.CheckNodeType(arguments[0], "string"); err != nil {
 		return "", err
 	}
 
-	return "int64", nil
+	return "string", nil
 
 }
 
 // Eval returns with the result of the function
-func (i FloorInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
+func (i LowerInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := variable.NodeNumberValue(arguments[0], ctx)
+	arg0, err := variable.NodeStringValue(arguments[0], ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return Floor(
+	return Lower(
 		arg0,
 	), nil
 

@@ -20,7 +20,7 @@ func (i CeilInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (
 
 	arguments := node.ArgumentNodes()
 
-	if err := variable.CheckNodeType(arguments[0], "float64"); err != nil {
+	if err := variable.CheckNodeType(arguments[0], "*variable.Number"); err != nil {
 		return "", err
 	}
 
@@ -32,7 +32,7 @@ func (i CeilInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (
 func (i CeilInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := variable.NodeFloatValue(arguments[0], ctx)
+	arg0, err := variable.NodeNumberValue(arguments[0], ctx)
 	if err != nil {
 		return nil, err
 	}
