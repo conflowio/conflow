@@ -8,7 +8,7 @@ import (
 )
 
 // Floor returns the greatest integer value less than or equal to x.
-//go:generate basil generate Floor
+//go:generate basil generate
 func Floor(number *variable.Number) int64 {
 	switch v := number.Value().(type) {
 	case int64:

@@ -11,7 +11,7 @@ type BlockInterface interface {
 	Foo() string
 }
 
-//go:generate basil generate BlockWithBlockInterface
+//go:generate basil generate
 type BlockWithBlockInterface struct {
 	IDField    variable.ID       `basil:"id"`
 	BlockNodes []basil.BlockNode `basil:"node"`

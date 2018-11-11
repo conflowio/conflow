@@ -6,7 +6,7 @@ import (
 	"github.com/opsidian/basil/variable"
 )
 
-//go:generate basil generate BlockWithBlock
+//go:generate basil generate
 type BlockWithBlock struct {
 	IDField    variable.ID       `basil:"id"`
 	BlockNodes []basil.BlockNode `basil:"node"`

@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-//go:generate basil generate testFunc1
+//go:generate basil generate
 func testFunc1(str string) string {
 	return strings.ToUpper(str)
 }

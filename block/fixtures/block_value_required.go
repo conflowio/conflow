@@ -2,7 +2,7 @@ package fixtures
 
 import "github.com/opsidian/basil/variable"
 
-//go:generate basil generate BlockValueRequired
+//go:generate basil generate
 type BlockValueRequired struct {
 	IDField variable.ID `basil:"id"`
 	Value   interface{} `basil:"value,required"`

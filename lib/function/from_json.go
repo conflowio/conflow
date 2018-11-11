@@ -14,7 +14,7 @@ import (
 )
 
 // FromJSON converts the given json string to a data structure
-//go:generate basil generate FromJSON
+//go:generate basil generate
 func FromJSON(jsonStr string) (interface{}, error) {
 	var val interface{}
 	dec := json.NewDecoder(strings.NewReader(jsonStr))

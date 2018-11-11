@@ -13,7 +13,7 @@ import (
 )
 
 // ToJSON converts the given value to a json string
-//go:generate basil generate ToJSON
+//go:generate basil generate
 func ToJSON(value interface{}) (string, error) {
 	b, err := json.Marshal(value)
 	if err != nil {

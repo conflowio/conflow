@@ -9,7 +9,7 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate TestBlock
+//go:generate basil generate
 type TestBlock struct {
 	IDField           variable.ID `basil:"id"`
 	Value             interface{} `basil:"value"`

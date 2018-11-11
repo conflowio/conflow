@@ -2,7 +2,7 @@ package fixtures
 
 import "github.com/opsidian/basil/variable"
 
-//go:generate basil generate BlockSimple
+//go:generate basil generate
 type BlockSimple struct {
 	IDField variable.ID `basil:"id"`
 	Value   interface{} `basil:"value"`

@@ -8,7 +8,7 @@ import (
 )
 
 // Ceil returns the least integer value greater than or equal to x.
-//go:generate basil generate Ceil
+//go:generate basil generate
 func Ceil(number *variable.Number) int64 {
 	switch v := number.Value().(type) {
 	case int64:

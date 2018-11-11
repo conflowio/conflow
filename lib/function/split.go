@@ -12,7 +12,7 @@ import (
 //
 // If sep is empty, Split splits after each UTF-8 sequence. If both s
 // and sep are empty, Split returns an empty slice.
-//go:generate basil generate Split
+//go:generate basil generate
 func Split(s string, sep string) []interface{} {
 	res := strings.Split(s, sep)
 	ret := make([]interface{}, len(res))

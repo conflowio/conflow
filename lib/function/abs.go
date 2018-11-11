@@ -7,7 +7,7 @@ import (
 )
 
 // Abs returns the absolute value of the given number
-//go:generate basil generate Abs
+//go:generate basil generate
 func Abs(value *variable.Number) (*variable.Number, error) {
 	switch n := value.Value().(type) {
 	case int64:

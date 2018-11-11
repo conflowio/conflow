@@ -2,7 +2,7 @@ package fixtures
 
 import "github.com/opsidian/basil/variable"
 
-//go:generate basil generate BlockWithReference
+//go:generate basil generate
 type BlockWithReference struct {
 	IDField variable.ID `basil:"id,reference"`
 }
