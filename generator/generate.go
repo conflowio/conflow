@@ -12,8 +12,8 @@ import (
 )
 
 // Generate generates code for the given types
-func Generate(dir string, packageName string, name string) error {
-	astNode, astFile, err := getType(dir, packageName, name)
+func Generate(dir string, packageName string, file string, line int) error {
+	astFile, astNode, name, err := getType(file, line)
 	if err != nil {
 		return err
 	}

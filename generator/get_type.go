@@ -5,57 +5,43 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
 )
 
-func getType(dir string, packageName string, name string) (ast.Expr, *ast.File, error) {
-	var err error
-
-	packages, err := loadPackages(dir)
+func getType(filename string, line int) (*ast.File, ast.Node, string, error) {
+	fi, err := os.Stat(filename)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, "", err
 	}
 
-	pkg := packages[packageName]
-	var file *ast.File
-	var res ast.Expr
+	fs := token.NewFileSet()
+	fs.AddFile(filename, fs.Base(), int(fi.Size()))
 
-	for _, f := range pkg.Files {
-		ast.Inspect(f, func(node ast.Node) bool {
-			switch n := node.(type) {
-			case *ast.TypeSpec:
-				if n.Name.Name == name {
-					file = f
-					var isStruct bool
-					res, isStruct = n.Type.(*ast.StructType)
-					if !isStruct {
-						err = fmt.Errorf("'%s' does not refer to a struct", name)
+	var res ast.Node
+	var name string
+
+	file, err := parser.ParseFile(fs, filename, nil, parser.AllErrors)
+	ast.Inspect(file, func(node ast.Node) bool {
+		if node != nil && node.Pos().IsValid() {
+			if fs.Position(node.Pos()).Line == line+1 {
+				switch n := node.(type) {
+				case *ast.TypeSpec:
+					if str, isStruct := n.Type.(*ast.StructType); isStruct {
+						res = str
+						name = n.Name.Name
 					}
-					return true
-				}
-			case *ast.FuncDecl:
-				if n.Name.Name == name {
-					file = f
+				case *ast.FuncDecl:
 					res = n.Type
-					return true
+					name = n.Name.Name
 				}
-			default:
-				return true
 			}
-			return false
-		})
-
-		if res != nil {
-			break
 		}
-	}
+		return true
+	})
 
 	if res == nil {
-		return nil, nil, fmt.Errorf("'%s' does not refer to a struct or function", name)
+		return nil, nil, "", fmt.Errorf("'%s' does not refer to a struct or function", name)
 	}
 
-	return res, file, err
-}
-
-func loadPackages(dir string) (map[string]*ast.Package, error) {
-	return parser.ParseDir(token.NewFileSet(), dir, nil, parser.AllErrors)
+	return file, res, name, nil
 }

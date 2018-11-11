@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/opsidian/basil/generator"
 )
@@ -28,14 +29,12 @@ func main() {
 }
 
 func generate(dir string, args []string) {
-	if len(args) == 0 {
-		fail("struct name is missing\n%s", usage)
-	}
-
-	name := args[0]
-	err := generator.Generate(dir, os.Getenv("GOPACKAGE"), name)
+	packageName := os.Getenv("GOPACKAGE")
+	filename := os.Getenv("GOFILE")
+	line, _ := strconv.Atoi(os.Getenv("GOLINE"))
+	err := generator.Generate(dir, packageName, filename, line)
 	if err != nil {
-		fail(fmt.Sprintf("failed to generate %s: %s", name, err.Error()))
+		fail(fmt.Sprintf("failed to run generate on %s: %s", filename, err.Error()))
 	}
 }
 
