@@ -9,11 +9,11 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-// TrimInterpreter is an AST node interpreter for the Trim function
-type TrimInterpreter struct{}
+// TrimSpaceInterpreter is an AST node interpreter for the TrimSpace function
+type TrimSpaceInterpreter struct{}
 
 // StaticCheck runs a static analysis on the function parameters
-func (i TrimInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
+func (i TrimSpaceInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
 	if len(node.ArgumentNodes()) != 1 {
 		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 1 arguments", node.Name()))
 	}
@@ -29,7 +29,7 @@ func (i TrimInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (
 }
 
 // Eval returns with the result of the function
-func (i TrimInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
+func (i TrimSpaceInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
 	arg0, err := variable.NodeStringValue(arguments[0], ctx)
@@ -37,7 +37,7 @@ func (i TrimInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interfa
 		return nil, err
 	}
 
-	return Trim(
+	return TrimSpace(
 		arg0,
 	), nil
 
