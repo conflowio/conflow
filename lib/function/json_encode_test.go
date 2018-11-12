@@ -17,7 +17,7 @@ import (
 var _ = Describe("ToJSON", func() {
 
 	registry := basilfunction.Registry{
-		"test": function.ToJSONInterpreter{},
+		"test": function.JSONEncodeInterpreter{},
 	}
 
 	DescribeTable("it evaluates the input correctly",
