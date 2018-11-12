@@ -17,7 +17,7 @@ import (
 var _ = Describe("Trim", func() {
 
 	registry := basilfunction.Registry{
-		"test": function.TrimInterpreter{},
+		"test": function.TrimSpaceInterpreter{},
 	}
 
 	DescribeTable("it evaluates the input correctly",
