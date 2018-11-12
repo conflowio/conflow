@@ -18,10 +18,10 @@ func Generate(dir string, packageName string, file string, line int) error {
 		return err
 	}
 
-	filename := regexp.MustCompile("[A-Z]+[a-z0-9_]*").ReplaceAllStringFunc(name, func(str string) string {
+	filename := regexp.MustCompile("[A-Z][a-z0-9_]+").ReplaceAllStringFunc(name, func(str string) string {
 		return "_" + strings.ToLower(str)
 	})
-	filename = strings.TrimLeft(filename, "_") + ".basil.go"
+	filename = strings.ToLower(strings.TrimLeft(filename, "_")) + ".basil.go"
 	filePath := path.Join(dir, filename)
 
 	var res []byte
