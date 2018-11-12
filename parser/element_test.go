@@ -52,8 +52,6 @@ var _ = Describe("Element", func() {
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveParseError(p)(input, expectedErr)
 		},
-		test.TableEntry(`MAP.`, errors.New("was expecting identifier at testfile:1:5")),
-		test.TableEntry(`MAP.key1.`, errors.New("was expecting identifier at testfile:1:10")),
 		test.TableEntry(`MAP[`, errors.New("was expecting value at testfile:1:5")),
 		test.TableEntry(`MAP["key1"`, errors.New("was expecting \"]\" at testfile:1:11")),
 		test.TableEntry(`MAP[]`, errors.New("was expecting value at testfile:1:5")),

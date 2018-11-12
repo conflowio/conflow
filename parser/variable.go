@@ -24,10 +24,6 @@ import (
 //   VAR_INDEX -> "." ID
 //             -> "[" P "]"
 func Variable(p parsley.Parser) *combinator.Sequence {
-	variableIndex := combinator.SeqOf(
-		terminal.Rune('.'),
-		ID(),
-	).Bind(interpreter.Select(1))
 	arrayIndex := combinator.SeqOf(
 		terminal.Rune('['),
 		text.LeftTrim(p, text.WsSpaces),
@@ -35,13 +31,12 @@ func Variable(p parsley.Parser) *combinator.Sequence {
 	).Bind(interpreter.Select(1))
 
 	id := ID()
-	arrayOrVariableIndex := combinator.Choice(arrayIndex, variableIndex)
 
 	lookup := func(i int) parsley.Parser {
 		if i == 0 {
 			return id
 		}
-		return arrayOrVariableIndex
+		return arrayIndex
 	}
 	lenCheck := func(len int) bool {
 		return len > 0
