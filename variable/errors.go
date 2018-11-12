@@ -19,6 +19,7 @@ var (
 	ErrExpectingString       = errors.New("was expecting string")
 	ErrExpectingStringArray  = errors.New("was expecting string array")
 	ErrExpectingTimeDuration = errors.New("was expecting time duration")
+	ErrExpectingWithLength   = errors.New("was expecting string, array or map")
 )
 
 // TypeErrors contains the type errors for all variable types
@@ -35,4 +36,5 @@ var TypeErrors = map[string]error{
 	TypeString:       ErrExpectingString,
 	TypeStringArray:  ErrExpectingStringArray,
 	TypeTimeDuration: ErrExpectingTimeDuration,
+	TypeWithLength:   ErrExpectingWithLength,
 }

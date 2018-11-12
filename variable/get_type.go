@@ -27,6 +27,8 @@ func GetType(value interface{}) string {
 		return TypeStringArray
 	case time.Duration:
 		return TypeTimeDuration
+	case *WithLength:
+		return TypeWithLength
 	default:
 		return TypeUnknown
 	}

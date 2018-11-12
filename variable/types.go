@@ -16,6 +16,7 @@ const (
 	TypeString       = terminal.StringType
 	TypeStringArray  = "[]string"
 	TypeTimeDuration = terminal.TimeDurationType
+	TypeWithLength   = "*variable.WithLength"
 	TypeUnknown      = ""
 )
 
@@ -33,11 +34,13 @@ var Types = map[string]string{
 	TypeString:       "string",
 	TypeStringArray:  "string array",
 	TypeTimeDuration: "time duration",
+	TypeWithLength:   "string, array or map",
 }
 
 // UnionTypes contains all union variable types
 var UnionTypes = map[string][]string{
-	TypeBasic:  []string{TypeBool, TypeFloat, TypeIdentifier, TypeInteger, TypeNumber, TypeString, TypeTimeDuration},
-	TypeNumber: []string{TypeFloat, TypeInteger},
-	TypeArray:  []string{TypeStringArray},
+	TypeArray:      []string{TypeStringArray},
+	TypeBasic:      []string{TypeBool, TypeFloat, TypeIdentifier, TypeInteger, TypeNumber, TypeString, TypeTimeDuration},
+	TypeNumber:     []string{TypeFloat, TypeInteger},
+	TypeWithLength: []string{TypeArray, TypeIdentifier, TypeString, TypeStringArray, TypeMap},
 }

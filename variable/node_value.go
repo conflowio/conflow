@@ -20,6 +20,7 @@ var NodeValueFunctionNames = map[string]string{
 	TypeString:       "NodeStringValue",
 	TypeStringArray:  "NodeStringArrayValue",
 	TypeTimeDuration: "NodeTimeDurationValue",
+	TypeWithLength:   "NodeWithLengthValue",
 }
 
 // NodeAnyValue returns with any valid value
@@ -254,4 +255,22 @@ func NodeTimeDurationValue(node parsley.Node, ctx interface{}) (time.Duration, p
 	}
 
 	return 0, parsley.NewError(node.Pos(), ErrExpectingTimeDuration)
+}
+
+// NodeWithLengthValue returns with a value which has a length
+func NodeWithLengthValue(node parsley.Node, ctx interface{}) (*WithLength, parsley.Error) {
+	val, err := node.Value(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if val == nil {
+		return nil, nil
+	}
+
+	if !IsWithLengthType(val) {
+		return nil, parsley.NewError(node.Pos(), ErrExpectingWithLength)
+	}
+
+	return NewWithLength(val), nil
 }
