@@ -12,9 +12,9 @@ import (
 	"github.com/opsidian/basil/function"
 )
 
-// ToJSON converts the given value to a json string
+// JSONEncode converts the given value to a json string
 //go:generate basil generate
-func ToJSON(value interface{}) (string, error) {
+func JSONEncode(value interface{}) (string, error) {
 	b, err := json.Marshal(value)
 	if err != nil {
 		return "", function.NewErrorf(0, "encoding JSON failed: %s", err)

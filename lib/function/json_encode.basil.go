@@ -10,11 +10,11 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-// ToJSONInterpreter is an AST node interpreter for the ToJSON function
-type ToJSONInterpreter struct{}
+// JSONEncodeInterpreter is an AST node interpreter for the JSONEncode function
+type JSONEncodeInterpreter struct{}
 
 // StaticCheck runs a static analysis on the function parameters
-func (i ToJSONInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
+func (i JSONEncodeInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
 	if len(node.ArgumentNodes()) != 1 {
 		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 1 arguments", node.Name()))
 	}
@@ -30,7 +30,7 @@ func (i ToJSONInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode)
 }
 
 // Eval returns with the result of the function
-func (i ToJSONInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
+func (i JSONEncodeInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
 	arg0, err := variable.NodeAnyValue(arguments[0], ctx)
@@ -38,7 +38,7 @@ func (i ToJSONInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (inter
 		return nil, err
 	}
 
-	res, resErr := ToJSON(arg0)
+	res, resErr := JSONEncode(arg0)
 	if resErr != nil {
 		if funcErr, ok := resErr.(*function.Error); ok {
 			return nil, parsley.NewError(arguments[funcErr.ArgIndex].Pos(), funcErr.Err)

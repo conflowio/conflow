@@ -13,9 +13,9 @@ import (
 	"github.com/opsidian/basil/function"
 )
 
-// FromJSON converts the given json string to a data structure
+// JSONDecode converts the given json string to a data structure
 //go:generate basil generate
-func FromJSON(jsonStr string) (interface{}, error) {
+func JSONDecode(jsonStr string) (interface{}, error) {
 	var val interface{}
 	dec := json.NewDecoder(strings.NewReader(jsonStr))
 	dec.UseNumber()
