@@ -1,6 +1,10 @@
 package variable
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/opsidian/basil/basil"
+)
 
 // WithLength represents variables which have a length
 type WithLength struct {
@@ -27,7 +31,7 @@ func (w *WithLength) Type() string {
 	switch w.value.(type) {
 	case string:
 		return TypeString
-	case ID:
+	case basil.ID:
 		return TypeIdentifier
 	case []interface{}:
 		return TypeArray
@@ -43,7 +47,7 @@ func (w *WithLength) Type() string {
 // IsWithLengthType returns true if the given value is a type with a length
 func IsWithLengthType(val interface{}) bool {
 	switch val.(type) {
-	case string, ID, []interface{}, []string, map[string]interface{}:
+	case string, basil.ID, []interface{}, []string, map[string]interface{}:
 		return true
 	default:
 		return false

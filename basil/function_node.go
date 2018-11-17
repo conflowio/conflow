@@ -1,7 +1,6 @@
 package basil
 
 import (
-	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -10,7 +9,7 @@ import (
 type FunctionNode interface {
 	parsley.Node
 	parsley.StaticCheckable
-	Name() variable.ID
+	Name() ID
 	ArgumentNodes() []parsley.Node
 }
 

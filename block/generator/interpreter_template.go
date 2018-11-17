@@ -36,7 +36,7 @@ import (
 type {{$root.Name}}Interpreter struct {}
 
 func (i {{$root.Name}}Interpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[variable.ID]struct{}{
+	validParamNames := map[basil.ID]struct{}{
 		{{- range $root.Fields -}}{{- if and (not .IsID) (not .IsBlock)}}
 		"{{.ParamName}}": struct{}{},
 		{{- end -}}{{- end }}
@@ -56,7 +56,7 @@ func (i {{$root.Name}}Interpreter) StaticCheck(ctx interface{}, node basil.Block
 	}
 	{{ end }}{{ end }}
 
-	requiredParamNames := []variable.ID{
+	requiredParamNames := []basil.ID{
 		{{- range $root.Fields -}}{{- if and (.Required) (not .IsID) (not .IsNode) (not .IsBlock)}}
 		"{{.ParamName}}",
 		{{- end -}}{{- end }}
@@ -173,8 +173,8 @@ func (i {{$root.Name}}Interpreter) HasForeignID() bool {
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i {{$root.Name}}Interpreter) ValueParamName() variable.ID {
-	return {{ if .ValueField }}variable.ID("{{.ValueField.ParamName}}"){{ else }}""{{ end }}
+func (i {{$root.Name}}Interpreter) ValueParamName() basil.ID {
+	return {{ if .ValueField }}basil.ID("{{.ValueField.ParamName}}"){{ else }}""{{ end }}
 }
 
 func (i {{$root.Name}}Interpreter) BlockRegistry() parsley.NodeTransformerRegistry {

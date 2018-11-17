@@ -95,7 +95,7 @@ var _ = Describe("Field", func() {
 		It("returns an error for a non-string id field", func() {
 			f.IsID = true
 			f.Type = "int64"
-			Expect(f.Validate()).To(MatchError("field \"foo\" must be defined as variable.ID"))
+			Expect(f.Validate()).To(MatchError("field \"foo\" must be defined as basil.ID"))
 		})
 
 	})

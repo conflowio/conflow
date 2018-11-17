@@ -5,18 +5,17 @@ import (
 	"sync"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/variable"
 )
 
 type FakeBlock struct {
-	IDStub        func() variable.ID
+	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
 	iDArgsForCall []struct{}
 	iDReturns     struct {
-		result1 variable.ID
+		result1 basil.ID
 	}
 	iDReturnsOnCall map[int]struct {
-		result1 variable.ID
+		result1 basil.ID
 	}
 	TypeStub        func() string
 	typeMutex       sync.RWMutex
@@ -42,7 +41,7 @@ type FakeBlock struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlock) ID() variable.ID {
+func (fake *FakeBlock) ID() basil.ID {
 	fake.iDMutex.Lock()
 	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
 	fake.iDArgsForCall = append(fake.iDArgsForCall, struct{}{})
@@ -63,22 +62,22 @@ func (fake *FakeBlock) IDCallCount() int {
 	return len(fake.iDArgsForCall)
 }
 
-func (fake *FakeBlock) IDReturns(result1 variable.ID) {
+func (fake *FakeBlock) IDReturns(result1 basil.ID) {
 	fake.IDStub = nil
 	fake.iDReturns = struct {
-		result1 variable.ID
+		result1 basil.ID
 	}{result1}
 }
 
-func (fake *FakeBlock) IDReturnsOnCall(i int, result1 variable.ID) {
+func (fake *FakeBlock) IDReturnsOnCall(i int, result1 basil.ID) {
 	fake.IDStub = nil
 	if fake.iDReturnsOnCall == nil {
 		fake.iDReturnsOnCall = make(map[int]struct {
-			result1 variable.ID
+			result1 basil.ID
 		})
 	}
 	fake.iDReturnsOnCall[i] = struct {
-		result1 variable.ID
+		result1 basil.ID
 	}{result1}
 }
 

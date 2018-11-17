@@ -12,7 +12,7 @@ import (
 type TestBlockInterpreter struct{}
 
 func (i TestBlockInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[variable.ID]struct{}{
+	validParamNames := map[basil.ID]struct{}{
 		"value":               struct{}{},
 		"field_string":        struct{}{},
 		"field_int":           struct{}{},
@@ -85,7 +85,7 @@ func (i TestBlockInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode)
 		}
 	}
 
-	requiredParamNames := []variable.ID{}
+	requiredParamNames := []basil.ID{}
 
 	for _, paramName := range requiredParamNames {
 		if _, set := node.ParamNodes()[paramName]; !set {
@@ -227,8 +227,8 @@ func (i TestBlockInterpreter) HasForeignID() bool {
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i TestBlockInterpreter) ValueParamName() variable.ID {
-	return variable.ID("value")
+func (i TestBlockInterpreter) ValueParamName() basil.ID {
+	return basil.ID("value")
 }
 
 func (i TestBlockInterpreter) BlockRegistry() parsley.NodeTransformerRegistry {

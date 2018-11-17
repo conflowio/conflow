@@ -3,6 +3,7 @@ package variable
 import (
 	"time"
 
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -122,7 +123,7 @@ func NodeFloatValue(node parsley.Node, ctx interface{}) (float64, parsley.Error)
 }
 
 // NodeIdentifierValue returns with the identifier value of a node
-func NodeIdentifierValue(node parsley.Node, ctx interface{}) (ID, parsley.Error) {
+func NodeIdentifierValue(node parsley.Node, ctx interface{}) (basil.ID, parsley.Error) {
 	val, err := node.Value(ctx)
 	if err != nil {
 		return "", err
@@ -132,7 +133,7 @@ func NodeIdentifierValue(node parsley.Node, ctx interface{}) (ID, parsley.Error)
 		return "", nil
 	}
 
-	if res, ok := val.(ID); ok {
+	if res, ok := val.(basil.ID); ok {
 		return res, nil
 	}
 

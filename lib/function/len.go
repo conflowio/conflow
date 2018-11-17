@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"unicode/utf8"
 
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/variable"
 )
 
@@ -15,7 +16,7 @@ func Len(value *variable.WithLength) int64 {
 	switch v := value.Value().(type) {
 	case string:
 		return int64(utf8.RuneCountInString(v))
-	case variable.ID:
+	case basil.ID:
 		return int64(utf8.RuneCountInString(string(v)))
 	case []interface{}:
 		return int64(len(v))

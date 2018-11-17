@@ -3,6 +3,8 @@ package variable
 import (
 	"fmt"
 	"time"
+
+	"github.com/opsidian/basil/basil"
 )
 
 // Basic represents all the basic types
@@ -32,7 +34,7 @@ func (b *Basic) Type() string {
 		return TypeBool
 	case float64:
 		return TypeFloat
-	case ID:
+	case basil.ID:
 		return TypeIdentifier
 	case int64:
 		return TypeInteger
@@ -50,7 +52,7 @@ func (b *Basic) Type() string {
 // IsBasicType returns true if the given value is a number type
 func IsBasicType(val interface{}) bool {
 	switch val.(type) {
-	case bool, float64, ID, int64, Number, string, time.Duration:
+	case bool, float64, basil.ID, int64, Number, string, time.Duration:
 		return true
 	default:
 		return false

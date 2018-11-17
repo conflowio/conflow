@@ -4,20 +4,19 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
 // Node represents an identifier
 // If it is initialised with an empty string it will generate a value using a block registry
 type Node struct {
-	value     variable.ID
+	value     basil.ID
 	pos       parsley.Pos
 	readerPos parsley.Pos
 }
 
 // NewNode creates a new ID node
-func NewNode(value variable.ID, pos parsley.Pos, readerPos parsley.Pos) *Node {
+func NewNode(value basil.ID, pos parsley.Pos, readerPos parsley.Pos) *Node {
 	return &Node{
 		value:     value,
 		pos:       pos,

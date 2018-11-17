@@ -9,7 +9,7 @@ const (
 	TypeBasic        = "*variable.Basic"
 	TypeBool         = terminal.BoolType
 	TypeFloat        = terminal.FloatType
-	TypeIdentifier   = "variable.ID"
+	TypeIdentifier   = "basil.ID"
 	TypeInteger      = terminal.IntegerType
 	TypeMap          = "map[string]interface{}"
 	TypeNumber       = "*variable.Number"

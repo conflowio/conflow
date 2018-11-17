@@ -9,7 +9,6 @@ package block
 import (
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/identifier"
-	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -48,7 +47,7 @@ func transformNode(
 		idNode = blockIDNodes[1].(*identifier.Node)
 	}
 
-	var paramNodes map[variable.ID]basil.BlockParamNode
+	var paramNodes map[basil.ID]basil.BlockParamNode
 	var blockNodes []basil.BlockNode
 
 	if len(nodes) > 1 {
@@ -71,7 +70,7 @@ func transformNode(
 				}
 
 				if paramCnt > 0 {
-					paramNodes = make(map[variable.ID]basil.BlockParamNode, paramCnt)
+					paramNodes = make(map[basil.ID]basil.BlockParamNode, paramCnt)
 				}
 				if blockCnt > 0 {
 					blockNodes = make([]basil.BlockNode, 0, blockCnt)
@@ -88,7 +87,7 @@ func transformNode(
 						children := blockChild.(parsley.NonTerminalNode).Children()
 						paramNode := children[0]
 						paramName, _ := paramNode.Value(nil)
-						if _, alreadyExists := paramNodes[paramName.(variable.ID)]; alreadyExists {
+						if _, alreadyExists := paramNodes[paramName.(basil.ID)]; alreadyExists {
 							return nil, parsley.NewErrorf(children[0].Pos(), "%q parameter was defined multiple times", paramName)
 						}
 						valueNode, err := parsley.Transform(userCtx, children[2])
@@ -96,7 +95,7 @@ func transformNode(
 							return nil, err
 						}
 
-						paramNodes[paramName.(variable.ID)] = NewParamNode(paramNode, valueNode)
+						paramNodes[paramName.(basil.ID)] = NewParamNode(paramNode, valueNode)
 					}
 				}
 			}
@@ -110,7 +109,7 @@ func transformNode(
 			if err != nil {
 				return nil, err
 			}
-			paramNodes = map[variable.ID]basil.BlockParamNode{
+			paramNodes = map[basil.ID]basil.BlockParamNode{
 				valueParamName: NewParamNode(
 					identifier.NewNode(valueParamName, blockValueNode.Pos(), blockValueNode.Pos()),
 					valueNode,

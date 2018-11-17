@@ -9,6 +9,7 @@ package function
 import (
 	"fmt"
 
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -23,9 +24,9 @@ type Node struct {
 }
 
 // Name returns with the function name
-func (n *Node) Name() variable.ID {
+func (n *Node) Name() basil.ID {
 	name, _ := n.nameNode.Value(nil)
-	return name.(variable.ID)
+	return name.(basil.ID)
 }
 
 // Token returns with the node's token

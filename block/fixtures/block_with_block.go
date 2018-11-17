@@ -3,17 +3,16 @@ package fixtures
 import (
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/block"
-	"github.com/opsidian/basil/variable"
 )
 
 //go:generate basil generate
 type BlockWithBlock struct {
-	IDField    variable.ID       `basil:"id"`
+	IDField    basil.ID          `basil:"id"`
 	BlockNodes []basil.BlockNode `basil:"node"`
 	Blocks     []*BlockSimple    `basil:"block"`
 }
 
-func (b *BlockWithBlock) ID() variable.ID {
+func (b *BlockWithBlock) ID() basil.ID {
 	return b.IDField
 }
 

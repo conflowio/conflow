@@ -1,7 +1,6 @@
 package basil
 
 import (
-	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -12,7 +11,7 @@ type BlockNode interface {
 	parsley.StaticCheckable
 	Eval(ctx interface{}, stage string, block Block) parsley.Error
 	Identifiable
-	ParamNodes() map[variable.ID]BlockParamNode
+	ParamNodes() map[ID]BlockParamNode
 	BlockNodes() []BlockNode
 }
 

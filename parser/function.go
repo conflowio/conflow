@@ -44,7 +44,7 @@ func (f functionInterpreter) TransformNode(userCtx interface{}, node parsley.Nod
 	nameNode := nodes[0]
 	name, _ := nameNode.Value(nil)
 
-	transformer, exists := registry.NodeTransformer(string(name.(variable.ID)))
+	transformer, exists := registry.NodeTransformer(string(name.(basil.ID)))
 	if !exists {
 		return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q function does not exist", name))
 	}

@@ -5,14 +5,13 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
 type BlockWithReferenceInterpreter struct{}
 
 func (i BlockWithReferenceInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[variable.ID]struct{}{}
+	validParamNames := map[basil.ID]struct{}{}
 
 	for paramName, paramNode := range node.ParamNodes() {
 		if _, valid := validParamNames[paramName]; !valid {
@@ -20,7 +19,7 @@ func (i BlockWithReferenceInterpreter) StaticCheck(ctx interface{}, node basil.B
 		}
 	}
 
-	requiredParamNames := []variable.ID{}
+	requiredParamNames := []basil.ID{}
 
 	for _, paramName := range requiredParamNames {
 		if _, set := node.ParamNodes()[paramName]; !set {
@@ -71,7 +70,7 @@ func (i BlockWithReferenceInterpreter) HasForeignID() bool {
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i BlockWithReferenceInterpreter) ValueParamName() variable.ID {
+func (i BlockWithReferenceInterpreter) ValueParamName() basil.ID {
 	return ""
 }
 

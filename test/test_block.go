@@ -4,14 +4,13 @@ import (
 	"time"
 
 	"github.com/opsidian/basil/block"
-	"github.com/opsidian/basil/variable"
 
 	"github.com/opsidian/basil/basil"
 )
 
 //go:generate basil generate
 type TestBlock struct {
-	IDField           variable.ID `basil:"id"`
+	IDField           basil.ID    `basil:"id"`
 	Value             interface{} `basil:"value"`
 	FieldString       string
 	FieldInt          int64
@@ -26,7 +25,7 @@ type TestBlock struct {
 	Blocks     []*TestBlock      `basil:"block"`
 }
 
-func (t *TestBlock) ID() variable.ID {
+func (t *TestBlock) ID() basil.ID {
 	return t.IDField
 }
 

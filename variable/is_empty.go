@@ -3,6 +3,8 @@ package variable
 import (
 	"fmt"
 	"time"
+
+	"github.com/opsidian/basil/basil"
 )
 
 // IsEmpty returns true if the given value has an empty value
@@ -18,7 +20,7 @@ func IsEmpty(value interface{}) bool {
 		return v == false
 	case float64:
 		return v == 0.0
-	case ID:
+	case basil.ID:
 		return string(v) == ""
 	case int64:
 		return v == int64(0)

@@ -1,6 +1,10 @@
 package variable
 
-import "time"
+import (
+	"time"
+
+	"github.com/opsidian/basil/basil"
+)
 
 // GetType returns with the type of the given value
 func GetType(value interface{}) string {
@@ -13,7 +17,7 @@ func GetType(value interface{}) string {
 		return TypeBool
 	case float64:
 		return TypeFloat
-	case ID:
+	case basil.ID:
 		return TypeIdentifier
 	case int64:
 		return TypeInteger

@@ -1,13 +1,13 @@
 package fixtures
 
-import "github.com/opsidian/basil/variable"
+import "github.com/opsidian/basil/basil"
 
 //go:generate basil generate
 type BlockWithReference struct {
-	IDField variable.ID `basil:"id,reference"`
+	IDField basil.ID `basil:"id,reference"`
 }
 
-func (b *BlockWithReference) ID() variable.ID {
+func (b *BlockWithReference) ID() basil.ID {
 	return b.IDField
 }
 

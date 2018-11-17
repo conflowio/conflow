@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -83,23 +82,23 @@ type FakeBlockNode struct {
 	evalReturnsOnCall map[int]struct {
 		result1 parsley.Error
 	}
-	IDStub        func() variable.ID
+	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
 	iDArgsForCall []struct{}
 	iDReturns     struct {
-		result1 variable.ID
+		result1 basil.ID
 	}
 	iDReturnsOnCall map[int]struct {
-		result1 variable.ID
+		result1 basil.ID
 	}
-	ParamNodesStub        func() map[variable.ID]basil.BlockParamNode
+	ParamNodesStub        func() map[basil.ID]basil.BlockParamNode
 	paramNodesMutex       sync.RWMutex
 	paramNodesArgsForCall []struct{}
 	paramNodesReturns     struct {
-		result1 map[variable.ID]basil.BlockParamNode
+		result1 map[basil.ID]basil.BlockParamNode
 	}
 	paramNodesReturnsOnCall map[int]struct {
-		result1 map[variable.ID]basil.BlockParamNode
+		result1 map[basil.ID]basil.BlockParamNode
 	}
 	BlockNodesStub        func() []basil.BlockNode
 	blockNodesMutex       sync.RWMutex
@@ -423,7 +422,7 @@ func (fake *FakeBlockNode) EvalReturnsOnCall(i int, result1 parsley.Error) {
 	}{result1}
 }
 
-func (fake *FakeBlockNode) ID() variable.ID {
+func (fake *FakeBlockNode) ID() basil.ID {
 	fake.iDMutex.Lock()
 	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
 	fake.iDArgsForCall = append(fake.iDArgsForCall, struct{}{})
@@ -444,26 +443,26 @@ func (fake *FakeBlockNode) IDCallCount() int {
 	return len(fake.iDArgsForCall)
 }
 
-func (fake *FakeBlockNode) IDReturns(result1 variable.ID) {
+func (fake *FakeBlockNode) IDReturns(result1 basil.ID) {
 	fake.IDStub = nil
 	fake.iDReturns = struct {
-		result1 variable.ID
+		result1 basil.ID
 	}{result1}
 }
 
-func (fake *FakeBlockNode) IDReturnsOnCall(i int, result1 variable.ID) {
+func (fake *FakeBlockNode) IDReturnsOnCall(i int, result1 basil.ID) {
 	fake.IDStub = nil
 	if fake.iDReturnsOnCall == nil {
 		fake.iDReturnsOnCall = make(map[int]struct {
-			result1 variable.ID
+			result1 basil.ID
 		})
 	}
 	fake.iDReturnsOnCall[i] = struct {
-		result1 variable.ID
+		result1 basil.ID
 	}{result1}
 }
 
-func (fake *FakeBlockNode) ParamNodes() map[variable.ID]basil.BlockParamNode {
+func (fake *FakeBlockNode) ParamNodes() map[basil.ID]basil.BlockParamNode {
 	fake.paramNodesMutex.Lock()
 	ret, specificReturn := fake.paramNodesReturnsOnCall[len(fake.paramNodesArgsForCall)]
 	fake.paramNodesArgsForCall = append(fake.paramNodesArgsForCall, struct{}{})
@@ -484,22 +483,22 @@ func (fake *FakeBlockNode) ParamNodesCallCount() int {
 	return len(fake.paramNodesArgsForCall)
 }
 
-func (fake *FakeBlockNode) ParamNodesReturns(result1 map[variable.ID]basil.BlockParamNode) {
+func (fake *FakeBlockNode) ParamNodesReturns(result1 map[basil.ID]basil.BlockParamNode) {
 	fake.ParamNodesStub = nil
 	fake.paramNodesReturns = struct {
-		result1 map[variable.ID]basil.BlockParamNode
+		result1 map[basil.ID]basil.BlockParamNode
 	}{result1}
 }
 
-func (fake *FakeBlockNode) ParamNodesReturnsOnCall(i int, result1 map[variable.ID]basil.BlockParamNode) {
+func (fake *FakeBlockNode) ParamNodesReturnsOnCall(i int, result1 map[basil.ID]basil.BlockParamNode) {
 	fake.ParamNodesStub = nil
 	if fake.paramNodesReturnsOnCall == nil {
 		fake.paramNodesReturnsOnCall = make(map[int]struct {
-			result1 map[variable.ID]basil.BlockParamNode
+			result1 map[basil.ID]basil.BlockParamNode
 		})
 	}
 	fake.paramNodesReturnsOnCall[i] = struct {
-		result1 map[variable.ID]basil.BlockParamNode
+		result1 map[basil.ID]basil.BlockParamNode
 	}{result1}
 }
 
