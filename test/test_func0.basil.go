@@ -14,7 +14,7 @@ type TestFunc0Interpreter struct{}
 // StaticCheck runs a static analysis on the function parameters
 func (i TestFunc0Interpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
 	if len(node.ArgumentNodes()) != 0 {
-		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 0 arguments", node.Name()))
+		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 0 arguments", node.ID()))
 	}
 
 	return "string", nil

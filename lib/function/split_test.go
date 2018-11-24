@@ -13,7 +13,7 @@ import (
 
 var _ = Describe("Split", func() {
 
-	registry := basilfunction.Registry{
+	registry := basilfunction.InterpreterRegistry{
 		"test": function.SplitInterpreter{},
 	}
 

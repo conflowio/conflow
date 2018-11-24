@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("Title", func() {
 
-	registry := basilfunction.Registry{
+	registry := basilfunction.InterpreterRegistry{
 		"test": function.TitleInterpreter{},
 	}
 

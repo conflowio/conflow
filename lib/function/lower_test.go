@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("Lower", func() {
 
-	registry := basilfunction.Registry{
+	registry := basilfunction.InterpreterRegistry{
 		"test": function.LowerInterpreter{},
 	}
 

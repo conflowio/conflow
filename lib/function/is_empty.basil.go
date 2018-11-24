@@ -15,7 +15,7 @@ type IsEmptyInterpreter struct{}
 // StaticCheck runs a static analysis on the function parameters
 func (i IsEmptyInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
 	if len(node.ArgumentNodes()) != 1 {
-		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 1 arguments", node.Name()))
+		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 1 arguments", node.ID()))
 	}
 
 	arguments := node.ArgumentNodes()

@@ -69,13 +69,13 @@ type FakeFunctionNode struct {
 	staticCheckReturnsOnCall map[int]struct {
 		result1 parsley.Error
 	}
-	NameStub        func() basil.ID
-	nameMutex       sync.RWMutex
-	nameArgsForCall []struct{}
-	nameReturns     struct {
+	IDStub        func() basil.ID
+	iDMutex       sync.RWMutex
+	iDArgsForCall []struct{}
+	iDReturns     struct {
 		result1 basil.ID
 	}
-	nameReturnsOnCall map[int]struct {
+	iDReturnsOnCall map[int]struct {
 		result1 basil.ID
 	}
 	ArgumentNodesStub        func() []parsley.Node
@@ -350,42 +350,42 @@ func (fake *FakeFunctionNode) StaticCheckReturnsOnCall(i int, result1 parsley.Er
 	}{result1}
 }
 
-func (fake *FakeFunctionNode) Name() basil.ID {
-	fake.nameMutex.Lock()
-	ret, specificReturn := fake.nameReturnsOnCall[len(fake.nameArgsForCall)]
-	fake.nameArgsForCall = append(fake.nameArgsForCall, struct{}{})
-	fake.recordInvocation("Name", []interface{}{})
-	fake.nameMutex.Unlock()
-	if fake.NameStub != nil {
-		return fake.NameStub()
+func (fake *FakeFunctionNode) ID() basil.ID {
+	fake.iDMutex.Lock()
+	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
+	fake.iDArgsForCall = append(fake.iDArgsForCall, struct{}{})
+	fake.recordInvocation("ID", []interface{}{})
+	fake.iDMutex.Unlock()
+	if fake.IDStub != nil {
+		return fake.IDStub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.nameReturns.result1
+	return fake.iDReturns.result1
 }
 
-func (fake *FakeFunctionNode) NameCallCount() int {
-	fake.nameMutex.RLock()
-	defer fake.nameMutex.RUnlock()
-	return len(fake.nameArgsForCall)
+func (fake *FakeFunctionNode) IDCallCount() int {
+	fake.iDMutex.RLock()
+	defer fake.iDMutex.RUnlock()
+	return len(fake.iDArgsForCall)
 }
 
-func (fake *FakeFunctionNode) NameReturns(result1 basil.ID) {
-	fake.NameStub = nil
-	fake.nameReturns = struct {
+func (fake *FakeFunctionNode) IDReturns(result1 basil.ID) {
+	fake.IDStub = nil
+	fake.iDReturns = struct {
 		result1 basil.ID
 	}{result1}
 }
 
-func (fake *FakeFunctionNode) NameReturnsOnCall(i int, result1 basil.ID) {
-	fake.NameStub = nil
-	if fake.nameReturnsOnCall == nil {
-		fake.nameReturnsOnCall = make(map[int]struct {
+func (fake *FakeFunctionNode) IDReturnsOnCall(i int, result1 basil.ID) {
+	fake.IDStub = nil
+	if fake.iDReturnsOnCall == nil {
+		fake.iDReturnsOnCall = make(map[int]struct {
 			result1 basil.ID
 		})
 	}
-	fake.nameReturnsOnCall[i] = struct {
+	fake.iDReturnsOnCall[i] = struct {
 		result1 basil.ID
 	}{result1}
 }
@@ -445,8 +445,8 @@ func (fake *FakeFunctionNode) Invocations() map[string][][]interface{} {
 	defer fake.readerPosMutex.RUnlock()
 	fake.staticCheckMutex.RLock()
 	defer fake.staticCheckMutex.RUnlock()
-	fake.nameMutex.RLock()
-	defer fake.nameMutex.RUnlock()
+	fake.iDMutex.RLock()
+	defer fake.iDMutex.RUnlock()
 	fake.argumentNodesMutex.RLock()
 	defer fake.argumentNodesMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

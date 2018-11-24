@@ -15,7 +15,7 @@ type StringContainsInterpreter struct{}
 // StaticCheck runs a static analysis on the function parameters
 func (i StringContainsInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
 	if len(node.ArgumentNodes()) != 2 {
-		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 2 arguments", node.Name()))
+		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects 2 arguments", node.ID()))
 	}
 
 	arguments := node.ArgumentNodes()

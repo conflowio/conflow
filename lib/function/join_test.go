@@ -13,7 +13,7 @@ import (
 
 var _ = Describe("Join", func() {
 
-	registry := basilfunction.Registry{
+	registry := basilfunction.InterpreterRegistry{
 		"test": function.JoinInterpreter{},
 	}
 

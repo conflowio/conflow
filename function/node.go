@@ -23,8 +23,8 @@ type Node struct {
 	resultType    string
 }
 
-// Name returns with the function name
-func (n *Node) Name() basil.ID {
+// ID returns with the function name
+func (n *Node) ID() basil.ID {
 	name, _ := n.nameNode.Value(nil)
 	return name.(basil.ID)
 }
@@ -93,7 +93,7 @@ func (n *Node) Children() []parsley.Node {
 
 func (n *Node) String() string {
 	if n.resultType == "" {
-		return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.Name(), n.argumentNodes, n.Pos(), n.ReaderPos())
+		return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
 	}
-	return fmt.Sprintf("%s{<%s> %s, %s, %d..%d}", n.Token(), n.resultType, n.Name(), n.argumentNodes, n.Pos(), n.ReaderPos())
+	return fmt.Sprintf("%s{<%s> %s, %s, %d..%d}", n.Token(), n.resultType, n.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
 }

@@ -9,11 +9,11 @@ import (
 type FunctionNode interface {
 	parsley.Node
 	parsley.StaticCheckable
-	Name() ID
+	Identifiable
 	ArgumentNodes() []parsley.Node
 }
 
-// FunctionRegistryAware is an interface to get a function node transformer registry
-type FunctionRegistryAware interface {
-	FunctionRegistry() parsley.NodeTransformerRegistry
+// FunctionTransformerRegistryAware is an interface to get a function node transformer registry
+type FunctionTransformerRegistryAware interface {
+	FunctionTransformerRegistry() parsley.NodeTransformerRegistry
 }

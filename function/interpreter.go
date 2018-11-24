@@ -16,3 +16,18 @@ type Interpreter interface {
 	StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error)
 	Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error)
 }
+
+// InterpreterRegistry contains a list of function interpreters and behaves as a node transformer registry
+type InterpreterRegistry map[string]Interpreter
+
+// NodeTransformer returns with the named node transformer
+func (i InterpreterRegistry) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+	interpreter, exists := i[name]
+	if !exists {
+		return nil, false
+	}
+
+	return parsley.NodeTransformFunc(func(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
+		return transformNode(userCtx, node, interpreter)
+	}), true
+}

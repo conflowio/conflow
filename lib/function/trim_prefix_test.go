@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("TrimPrefix", func() {
 
-	registry := basilfunction.Registry{
+	registry := basilfunction.InterpreterRegistry{
 		"test": function.TrimPrefixInterpreter{},
 	}
 

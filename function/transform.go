@@ -7,42 +7,8 @@
 package function
 
 import (
-	"fmt"
-
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
-
-// Registry contains a list of function interpreters and behaves as a node transformer registry
-type Registry map[string]Interpreter
-
-// NodeTransformer returns with the named node transformer
-func (r Registry) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
-	interpreter, exists := r[name]
-	if !exists {
-		return nil, false
-	}
-
-	return parsley.NodeTransformFunc(func(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-		return transformNode(userCtx, node, interpreter)
-	}), true
-}
-
-// TransformNode returns with a node transformer function for a function
-func TransformNode(registry parsley.NodeTransformerRegistry) parsley.NodeTransformFunc {
-	return parsley.NodeTransformFunc(func(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-		nodes := node.(parsley.NonTerminalNode).Children()
-		nameNode := nodes[0]
-		name, _ := nameNode.Value(nil)
-
-		transformer, exists := registry.NodeTransformer(string(name.(basil.ID)))
-		if !exists {
-			return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q function does not exist", name))
-		}
-
-		return transformer.TransformNode(userCtx, node)
-	})
-}
 
 func transformNode(
 	userCtx interface{},

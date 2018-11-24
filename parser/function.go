@@ -10,7 +10,6 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
@@ -38,7 +37,7 @@ func (f functionInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalN
 }
 
 func (f functionInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	registry := userCtx.(basil.FunctionRegistryAware).FunctionRegistry()
+	registry := userCtx.(basil.FunctionTransformerRegistryAware).FunctionTransformerRegistry()
 
 	nodes := node.(parsley.NonTerminalNode).Children()
 	nameNode := nodes[0]

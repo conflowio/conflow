@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("Upper", func() {
 
-	registry := basilfunction.Registry{
+	registry := basilfunction.InterpreterRegistry{
 		"test": function.UpperInterpreter{},
 	}
 

@@ -14,9 +14,9 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-var _ = Describe("FromJSON", func() {
+var _ = Describe("JSONDecode", func() {
 
-	registry := basilfunction.Registry{
+	registry := basilfunction.InterpreterRegistry{
 		"test": function.JSONDecodeInterpreter{},
 	}
 

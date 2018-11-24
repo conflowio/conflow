@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("HasPrefix", func() {
 
-	registry := basilfunction.Registry{
+	registry := basilfunction.InterpreterRegistry{
 		"test": function.HasPrefixInterpreter{},
 	}
 
