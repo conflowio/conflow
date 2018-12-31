@@ -10,97 +10,24 @@ import (
 
 type BlockWithBlockInterpreter struct{}
 
-func (i BlockWithBlockInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[basil.ID]struct{}{
-		"block_nodes": struct{}{},
-	}
-
-	for paramName, paramNode := range node.ParamNodes() {
-		if _, valid := validParamNames[paramName]; !valid {
-			return "", parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
-		}
-	}
-
-	requiredParamNames := []basil.ID{}
-
-	for _, paramName := range requiredParamNames {
-		if _, set := node.ParamNodes()[paramName]; !set {
-			return "", parsley.NewError(node.Pos(), fmt.Errorf("%s parameter is required", paramName))
-		}
-	}
-
-	return "*BlockWithBlock", nil
-}
-
-// CreateBlock creates a new BlockWithBlock block
-func (i BlockWithBlockInterpreter) Eval(parentCtx interface{}, node basil.BlockNode) (basil.Block, parsley.Error) {
-	block := &BlockWithBlock{
+// Create creates a new BlockWithBlock block
+func (i BlockWithBlockInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+	return &BlockWithBlock{
 		IDField: node.ID(),
 	}
-
-	ctx := block.Context(parentCtx)
-
-	for _, blockNode := range node.BlockNodes() {
-		switch b := blockNode.(type) {
-		case basil.BlockNode:
-			block.BlockNodes = append(block.BlockNodes, b)
-		}
-	}
-
-	if err := i.EvalBlock(ctx, node, "default", block); err != nil {
-		return nil, err
-	}
-
-	return block, nil
 }
 
-// EvalBlock evaluates all fields belonging to the given stage on a BlockWithBlock block
-func (i BlockWithBlockInterpreter) EvalBlock(ctx interface{}, node basil.BlockNode, stage string, res basil.Block) parsley.Error {
-	var err parsley.Error
+func (i BlockWithBlockInterpreter) Update(ctx *basil.EvalContext, target basil.Block, blockType basil.ID, n parsley.Node) parsley.Error {
+	panic(fmt.Errorf("unexpected parameter or block %q in BlockWithBlockInterpreter", blockType))
+}
 
-	if preInterpreter, ok := res.(basil.BlockPreInterpreter); ok {
-		if err = preInterpreter.PreEval(ctx, stage); err != nil {
-			return err
-		}
-	}
+// Params returns with the list of valid parameters
+func (i BlockWithBlockInterpreter) Params() map[basil.ID]string {
+	return nil
+}
 
-	block, ok := res.(*BlockWithBlock)
-	if !ok {
-		panic("result must be a type of *BlockWithBlock")
-	}
-
-	switch stage {
-	case "default":
-	default:
-		panic(fmt.Sprintf("unknown stage: %s", stage))
-	}
-
-	switch stage {
-	case "default":
-		var childBlock interface{}
-		for _, childBlockNode := range node.BlockNodes() {
-			if childBlock, err = childBlockNode.Value(ctx); err != nil {
-				return err
-			}
-
-			switch b := childBlock.(type) {
-			case *BlockSimple:
-				block.Blocks = append(block.Blocks, b)
-			default:
-				panic(fmt.Sprintf("block type %T is not supported in BlockWithBlock, please open a bug ticket", childBlock))
-			}
-
-		}
-	default:
-		panic(fmt.Sprintf("unknown stage: %s", stage))
-	}
-
-	if postInterpreter, ok := res.(basil.BlockPostInterpreter); ok {
-		if err = postInterpreter.PostEval(ctx, stage); err != nil {
-			return err
-		}
-	}
-
+// RequiredParams returns with the list of required parameters
+func (i BlockWithBlockInterpreter) RequiredParams() map[basil.ID]bool {
 	return nil
 }
 
@@ -114,11 +41,22 @@ func (i BlockWithBlockInterpreter) ValueParamName() basil.ID {
 	return ""
 }
 
-func (i BlockWithBlockInterpreter) BlockRegistry() parsley.NodeTransformerRegistry {
-	var block basil.Block = &BlockWithBlock{}
-	if b, ok := block.(basil.BlockRegistryAware); ok {
-		return b.BlockRegistry()
+// ParseContext returns with the parse context for the block
+func (i BlockWithBlockInterpreter) ParseContext(parentCtx *basil.ParseContext) *basil.ParseContext {
+	var nilBlock *BlockWithBlock
+	if b, ok := basil.Block(nilBlock).(basil.ParseContextAware); ok {
+		return b.ParseContext(parentCtx)
 	}
 
-	return nil
+	return parentCtx
+}
+
+func (i BlockWithBlockInterpreter) Param(target basil.Block, paramName basil.ID) interface{} {
+	b := target.(*BlockWithBlock)
+	switch paramName {
+	case "id":
+		return b.IDField
+	default:
+		panic(fmt.Errorf("unexpected parameter %q in BlockWithBlockInterpreter", paramName))
+	}
 }

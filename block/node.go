@@ -7,33 +7,38 @@
 package block
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/identifier"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
 // Node is a block node
 type Node struct {
-	typeNode    *identifier.Node
-	idNode      *identifier.Node
-	paramNodes  map[basil.ID]basil.BlockParamNode
-	blockNodes  []basil.BlockNode
-	readerPos   parsley.Pos
-	interpreter Interpreter
-	blockType   string
+	typeNode     parsley.Node
+	idNode       parsley.Node
+	children     []parsley.Node
+	dependencies []parsley.Node
+	readerPos    parsley.Pos
+	interpreter  Interpreter
+	evalStage    basil.EvalStage
 }
 
 // ID returns with the id of the block
 func (n *Node) ID() basil.ID {
-	if n.idNode == nil {
-		return ""
-	}
-
 	id, _ := n.idNode.Value(nil)
 	return id.(basil.ID)
+}
+
+// IDNode returns with the id node
+func (n *Node) IDNode() parsley.Node {
+	return n.idNode
+}
+
+// TypeNode returns with the type node
+func (n *Node) TypeNode() parsley.Node {
+	return n.typeNode
 }
 
 // Token returns with the node's token
@@ -47,65 +52,125 @@ func (n *Node) Type() string {
 	return string(nodeType.(basil.ID))
 }
 
+// EvalStage returns with the evaluation stage
+func (n *Node) EvalStage() basil.EvalStage {
+	return n.evalStage
+}
+
 // StaticCheck runs static analysis on the node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
-	registry := ctx.(basil.BlockRegistryAware).BlockRegistry()
-
-	if !n.interpreter.HasForeignID() {
-		if n.idNode != nil {
-			idRegistry := ctx.(basil.IDRegistryAware).IDRegistry()
-			if err := idRegistry.RegisterID(n.ID()); err != nil {
-				return parsley.NewError(n.idNode.Pos(), err)
-			}
-		}
-	} else {
-		if n.idNode == nil {
-			return parsley.NewError(n.idNode.Pos(), errors.New("identifier must be set"))
-		}
-	}
-	uniqueBlockIDs := map[string]struct{}{}
-	for _, blockNode := range n.blockNodes {
-		if _, exists := registry.NodeTransformer(blockNode.Type()); !exists {
-			return parsley.NewErrorf(n.idNode.Pos(), "%q block type is invalid", blockNode.Type())
-		}
-		if blockNode.ID() != "" {
-			blockID := fmt.Sprintf("%s.%s", blockNode.Type(), blockNode.ID())
-			if _, exists := uniqueBlockIDs[blockID]; exists {
-				return parsley.NewErrorf(blockNode.Pos(), "%q was defined multiple times", blockID)
-			}
-			uniqueBlockIDs[blockID] = struct{}{}
+	if n.interpreter.HasForeignID() {
+		blockNodeRegistry := ctx.(basil.BlockNodeRegistryAware).BlockNodeRegistry()
+		if _, exists := blockNodeRegistry.BlockNode(n.ID()); !exists {
+			return parsley.NewErrorf(n.idNode.Pos(), "%q is referencing a non-existing block", n.ID())
 		}
 	}
 
-	_, err := n.interpreter.StaticCheck(ctx, n)
-	if err != nil {
-		return err
+	params := n.interpreter.Params()
+	requiredParams := n.interpreter.RequiredParams()
+
+	for _, child := range n.Children() {
+		switch c := child.(type) {
+		case *Node:
+			if _, exists := params[c.ID()]; exists {
+				return parsley.NewError(c.idNode.Pos(), fmt.Errorf("%q block can not have the same name as a block parameter", c.ID()))
+			}
+		case *ParamNode:
+			paramType, exists := params[c.ID()]
+			if !exists {
+				return parsley.NewError(c.Pos(), fmt.Errorf("%q parameter does not exist", c.ID()))
+			}
+			if err := variable.CheckNodeType(c, paramType); err != nil {
+				return err
+			}
+			if _, required := requiredParams[c.ID()]; required {
+				requiredParams[c.ID()] = true
+			}
+		}
+	}
+
+	for paramName, isSet := range requiredParams {
+		if !isSet {
+			return parsley.NewError(n.Pos(), fmt.Errorf("%s parameter is required", paramName))
+		}
 	}
 
 	return nil
 }
 
 // Value creates a new block
-func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
-	if n.idNode == nil {
-		idRegistry := ctx.(basil.IDRegistryAware).IDRegistry()
-		id := idRegistry.GenerateID()
-		n.idNode = identifier.NewNode(id, n.typeNode.ReaderPos(), n.typeNode.ReaderPos())
+func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
+	blockContainerRegistry := userCtx.(basil.BlockContainerRegistryAware).BlockContainerRegistry()
+
+	evalCtx := userCtx.(*basil.EvalContext)
+
+	block := n.interpreter.Create(evalCtx, n)
+	container := NewContainer(block, n.interpreter)
+	blockContainerRegistry.AddBlockContainer(container)
+
+	if b, ok := block.(basil.EvalContextAware); ok {
+		evalCtx = b.EvalContext(evalCtx)
 	}
 
-	if n.interpreter.HasForeignID() {
-		idRegistry := ctx.(basil.IDRegistryAware).IDRegistry()
-		if !idRegistry.IDExists(n.ID()) {
-			return nil, parsley.NewErrorf(n.idNode.Pos(), "%q is referencing a non-existing block", n.ID())
+	if err := n.eval(evalCtx, basil.EvalStagePre, container); err != nil {
+		return nil, err
+	}
+
+	start := true
+	if b, ok := block.(basil.BlockInitialiser); ok {
+		var err error
+		if start, err = b.Init(evalCtx); err != nil {
+			return nil, parsley.NewError(n.Pos(), err)
 		}
 	}
 
-	return n.interpreter.Eval(ctx, n)
+	if !start {
+		return nil, nil
+	}
+
+	if err := n.eval(evalCtx, basil.EvalStageDefault, container); err != nil {
+		return nil, err
+	}
+
+	if b, ok := block.(basil.BlockRunner); ok {
+		if err := b.Run(evalCtx); err != nil {
+			return nil, parsley.NewError(n.Pos(), err)
+		}
+	}
+
+	if err := n.eval(evalCtx, basil.EvalStagePost, container); err != nil {
+		return nil, err
+	}
+
+	if b, ok := basil.Block(block).(basil.BlockFinisher); ok {
+		if err := b.Finish(evalCtx); err != nil {
+			return nil, parsley.NewError(n.Pos(), err)
+		}
+	}
+
+	return block, nil
 }
 
-// Eval evaluates the given stage on an existing block
-func (n *Node) Eval(ctx interface{}, stage string, block basil.Block) parsley.Error {
-	return n.interpreter.EvalBlock(ctx, n, stage, block)
+func (n *Node) eval(ctx *basil.EvalContext, stage basil.EvalStage, container *Container) parsley.Error {
+	for _, child := range n.children {
+		switch c := child.(type) {
+		case *ParamNode:
+			if c.EvalStage() == stage {
+				if err := container.SetParam(ctx, c.ID(), c.ValueNode()); err != nil {
+					return err
+				}
+			}
+		case *Node:
+			if c.EvalStage() == stage {
+				blockType, _ := c.TypeNode().Value(ctx)
+				if err := n.interpreter.Update(ctx, container.Block(), blockType.(basil.ID), c); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 // Pos returns with the node's position
@@ -123,14 +188,33 @@ func (n *Node) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 	n.readerPos = f(n.readerPos)
 }
 
-// ParamNodes returns with the parameter nodes
-func (n *Node) ParamNodes() map[basil.ID]basil.BlockParamNode {
-	return n.paramNodes
+// Children returns with the parameter and child block nodes
+func (n *Node) Children() []parsley.Node {
+	return n.children
 }
 
-// BlockNodes returns with the child block nodes
-func (n *Node) BlockNodes() []basil.BlockNode {
-	return n.blockNodes
+// Dependencies returns the blocks/parameters this block depends on
+func (n *Node) Dependencies() []parsley.Node {
+	return n.dependencies
+}
+
+// ParamType returns with the given parameter's type if it exists, otherwise it returns false
+func (n *Node) ParamType(name basil.ID) (string, bool) {
+	for _, child := range n.children {
+		if paramNode, ok := child.(*ParamNode); ok {
+			if paramNode.ID() == name {
+				return paramNode.Type(), true
+			}
+		}
+	}
+
+	for paramName, paramType := range n.interpreter.Params() {
+		if name == paramName {
+			return paramType, true
+		}
+	}
+
+	return "", false
 }
 
 // Walk runs the given function on all child nodes
@@ -145,13 +229,7 @@ func (n *Node) Walk(f func(n parsley.Node) bool) bool {
 		}
 	}
 
-	for _, node := range n.paramNodes {
-		if parsley.Walk(node, f) {
-			return true
-		}
-	}
-
-	for _, node := range n.blockNodes {
+	for _, node := range n.children {
 		if parsley.Walk(node, f) {
 			return true
 		}
@@ -161,8 +239,5 @@ func (n *Node) Walk(f func(n parsley.Node) bool) bool {
 }
 
 func (n *Node) String() string {
-	if n.blockType == "" {
-		return fmt.Sprintf("%s{%s, %s, %s, %s, %d..%d}", n.Token(), n.typeNode, n.idNode, n.paramNodes, n.blockNodes, n.Pos(), n.ReaderPos())
-	}
-	return fmt.Sprintf("%s{<%s> %s, %s, %s, %s, %d..%d}", n.Token(), n.typeNode, n.idNode, n.blockType, n.paramNodes, n.blockNodes, n.Pos(), n.ReaderPos())
+	return fmt.Sprintf("%s{%s, %s, %s, %d..%d}", n.Token(), n.typeNode, n.idNode, n.children, n.Pos(), n.ReaderPos())
 }

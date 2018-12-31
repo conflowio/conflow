@@ -19,7 +19,7 @@ var _ = Describe("Function", func() {
 		terminal.String(false),
 		terminal.Integer(),
 		terminal.Nil("nil"),
-		parser.Variable(p),
+		parser.Variable(),
 		test.EvalErrorParser(),
 	).Name("value")
 

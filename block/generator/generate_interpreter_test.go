@@ -13,12 +13,11 @@ import (
 
 var _ = Describe("GenerateInterpreter", func() {
 
-	var registry = block.Registry{
+	var registry = block.InterpreterRegistry{
 		"block_simple":               fixtures.BlockSimpleInterpreter{},
 		"block_value_required":       fixtures.BlockValueRequiredInterpreter{},
 		"block_with_block":           fixtures.BlockWithBlockInterpreter{},
 		"block_with_block_interface": fixtures.BlockWithBlockInterfaceInterpreter{},
-		"block_with_node":            fixtures.BlockWithNodeInterpreter{},
 		"block_with_reference":       fixtures.BlockWithReferenceInterpreter{},
 	}
 
@@ -113,31 +112,6 @@ var _ = Describe("GenerateInterpreter", func() {
 					b2 := b2i.(*fixtures.BlockWithBlockInterface)
 					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
 					Expect(b1.Blocks).To(Equal(b2.Blocks), "Blocks does not match, input was %s", input)
-				},
-			)
-		})
-	})
-
-	Context("fixtures/block_with_node.go", func() {
-		It("should parse the input", func() {
-			test.ExpectBlockToEvaluate(parser.Block(), registry)(
-				`block_with_node foo {
-					block_simple bar
-				}`,
-				&fixtures.BlockWithNode{IDField: "foo"},
-				func(b1i interface{}, b2i interface{}, input string) {
-					b1 := b1i.(*fixtures.BlockWithNode)
-					b2 := b2i.(*fixtures.BlockWithNode)
-					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
-					test.ExpectBlockNodeToEvaluate(parser.Block(), registry, b1, b1.BlockNodes[0])(
-						input,
-						&fixtures.BlockSimple{IDField: "bar"},
-						func(b1i interface{}, b2i interface{}, input string) {
-							b1 := b1i.(*fixtures.BlockSimple)
-							b2 := b2i.(*fixtures.BlockSimple)
-							Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
-						},
-					)
 				},
 			)
 		})

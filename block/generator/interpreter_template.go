@@ -6,6 +6,7 @@ type InterpreterTemplateParams struct {
 	Name                   string
 	HasForeignID           bool
 	Stages                 []string
+	ParamTypes             map[string]string
 	BlockTypes             map[string]string
 	NodeTypes              map[string]string
 	IDField                *Field
@@ -13,6 +14,7 @@ type InterpreterTemplateParams struct {
 	Fields                 []*Field
 	NodeValueFunctionNames map[string]string
 	EvalFieldsCnt          int
+	RequiredFieldsCnt      int
 }
 
 const interpreterTemplate = `
@@ -20,12 +22,9 @@ const interpreterTemplate = `
 package {{.Package}}
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/opsidian/basil/basil"
-	basilblock "github.com/opsidian/basil/block"
 	"github.com/opsidian/basil/util"
 	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
@@ -35,136 +34,65 @@ import (
 
 type {{$root.Name}}Interpreter struct {}
 
-func (i {{$root.Name}}Interpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[basil.ID]struct{}{
-		{{- range $root.Fields -}}{{- if and (not .IsID) (not .IsBlock)}}
-		"{{.ParamName}}": struct{}{},
-		{{- end -}}{{- end }}
-	}
-
-	for paramName, paramNode := range node.ParamNodes() {
-		if _, valid := validParamNames[paramName]; !valid {
-			return "", parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
-		}
-	}
-
-	{{ range $root.Fields }}{{ if and (not .IsID) (not .IsNode) (not .IsBlock) }}
-	if paramNode, ok := node.ParamNodes()["{{.ParamName}}"]; ok {
-		if err := variable.CheckNodeType(paramNode, "{{.Type}}"); err != nil {
-			return "", err
-		}
-	}
-	{{ end }}{{ end }}
-
-	requiredParamNames := []basil.ID{
-		{{- range $root.Fields -}}{{- if and (.Required) (not .IsID) (not .IsNode) (not .IsBlock)}}
-		"{{.ParamName}}",
-		{{- end -}}{{- end }}
-	}
-
-	for _, paramName := range requiredParamNames {
-		if _, set := node.ParamNodes()[paramName]; !set {
-			return "", parsley.NewError(node.Pos(), fmt.Errorf("%s parameter is required", paramName))
-		}
-	}
-
-	return "*{{$root.Name}}", nil
-}
-
-// CreateBlock creates a new {{$root.Name}} block
-func (i {{$root.Name}}Interpreter) Eval(parentCtx interface{}, node basil.BlockNode) (basil.Block, parsley.Error) {
-	block := &{{$root.Name}}{
+// Create creates a new {{$root.Name}} block
+func (i {{$root.Name}}Interpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+	return &{{$root.Name}}{
 		{{.IDField.Name}}: node.ID(),
 	}
-
-	ctx := block.Context(parentCtx)
-
-	{{ if len .NodeTypes }}
-	for _, blockNode := range node.BlockNodes() {
-		switch b := blockNode.(type) {
-		{{- range $type, $fieldName := .NodeTypes -}}
-		case {{trimPrefix $type "[]" }}:
-			block.{{$fieldName}} = append(block.{{$fieldName}}, b)
-		{{- end}}
-		}
-	}
-	{{ end}}
-
-	if err := i.EvalBlock(ctx, node, "default", block); err != nil {
-		return nil, err
-	}
-
-	return block, nil
 }
 
-// EvalBlock evaluates all fields belonging to the given stage on a {{$root.Name}} block
-func (i {{$root.Name}}Interpreter) EvalBlock(ctx interface{}, node basil.BlockNode, stage string, res basil.Block) parsley.Error {
-	var err parsley.Error
-
-	if preInterpreter, ok := res.(basil.BlockPreInterpreter); ok {
-		if err = preInterpreter.PreEval(ctx, stage); err != nil {
-			return err
-		}
-	}
-
+func (i {{$root.Name}}Interpreter) Update(ctx *basil.EvalContext, target basil.Block, blockType basil.ID, n parsley.Node) parsley.Error {
 	{{ if .EvalFieldsCnt -}}
-	block, ok := res.(*{{$root.Name}})
-	if !ok {
-		panic("result must be a type of *{{$root.Name}}")
-	}
+	b := target.(*{{$root.Name}})
 
-	switch stage {
-	{{- range $stage := $root.Stages}}
-	case "{{$stage}}":
-		{{- range $root.Fields -}}{{- if and (eq .Stage $stage) (not .IsID) (not .IsNode) (not .IsBlock)}}
-		if valueNode, ok := node.ParamNodes()["{{.ParamName}}"]; ok {
-			if block.{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(valueNode, ctx); err != nil {
-				return err
-			}
-		}
-		{{ end }}{{ end -}}
-	{{end -}}
-	default:
-		panic(fmt.Sprintf("unknown stage: %s", stage))
-	}
-
-	switch stage {
-	{{- range $stage := $root.Stages}}
-	case "{{$stage}}":
-		{{- range $root.Fields }}{{ if and (eq .Stage $stage) .IsNode}}
-		var childBlock interface{}
-		for _, childBlockNode := range node.BlockNodes() {
-			{{ if $root.BlockTypes -}}
-			if childBlock, err = childBlockNode.Value(ctx); err != nil {
-				return err
-			}
-
-			switch b := childBlock.(type) {
-			{{- range $type, $fieldName := $root.BlockTypes -}}
-			case {{trimPrefix $type "[]" }}:
-				block.{{$fieldName}} = append(block.{{$fieldName}}, b)
-			{{- end}}
-			default:
-				panic(fmt.Sprintf("block type %T is not supported in {{$root.Name}}, please open a bug ticket", childBlock))
-			}
-			{{ else }}
-			panic(fmt.Sprintf("block type %T is not supported in {{$root.Name}}, please open a bug ticket", childBlock))
-			{{- end }}
-		}
-		{{ end }}{{ end -}}
-	{{- end -}}
-	default:
-		panic(fmt.Sprintf("unknown stage: %s", stage))
-	}
-	{{- end }}
-
-	if postInterpreter, ok := res.(basil.BlockPostInterpreter); ok {
-		if err = postInterpreter.PostEval(ctx, stage); err != nil {
+	switch blockType {
+	{{ range $root.Fields -}}
+	{{ if .IsParam -}}
+	case "{{.ParamName}}":
+		var err parsley.Error
+		b.{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(n, ctx)
+		return err
+	{{ end -}}
+	{{ if .IsBlock -}}
+	case "{{.ParamName}}":
+		block, err := n.Value(ctx)
+		if err != nil {
 			return err
 		}
+		b.{{.Name}} = append(b.{{.Name}}, block.({{trimPrefix .Type "[]" }}))
+		return nil
+	{{ end -}}
+	{{ end -}}
 	}
+	{{ end -}}
 
+	panic(fmt.Errorf("unexpected parameter or block %q in {{$root.Name}}Interpreter", blockType))
+}
+
+// Params returns with the list of valid parameters
+func (i {{$root.Name}}Interpreter) Params() map[basil.ID]string {
+	{{ if .ParamTypes -}}
+	return map[basil.ID]string{
+		{{ range $paramName, $paramType := $root.ParamTypes -}}
+		"{{$paramName}}": "{{$paramType}}",
+		{{ end -}}
+	}
+	{{ else -}}
 	return nil
+	{{ end -}}
+}
+
+// RequiredParams returns with the list of required parameters
+func (i {{$root.Name}}Interpreter) RequiredParams() map[basil.ID]bool {
+	{{ if .RequiredFieldsCnt -}}
+	return map[basil.ID]bool{
+		{{ range $root.Fields -}}{{ if and (.Required) (not .IsID) (not .IsNode) (not .IsBlock) -}}
+		"{{.ParamName}}": false,
+		{{ end }}{{ end -}}
+	}
+	{{ else -}}
+	return nil
+	{{ end -}}
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
@@ -174,15 +102,29 @@ func (i {{$root.Name}}Interpreter) HasForeignID() bool {
 
 // HasShortFormat returns true if the block can be defined in the short block format
 func (i {{$root.Name}}Interpreter) ValueParamName() basil.ID {
-	return {{ if .ValueField }}basil.ID("{{.ValueField.ParamName}}"){{ else }}""{{ end }}
+	return {{ if .ValueField }}"{{.ValueField.ParamName}}"{{ else }}""{{ end }}
 }
 
-func (i {{$root.Name}}Interpreter) BlockRegistry() parsley.NodeTransformerRegistry {
-	var block basil.Block = &{{$root.Name}}{}
-	if b, ok := block.(basil.BlockRegistryAware); ok {
-		return b.BlockRegistry()
+// ParseContext returns with the parse context for the block
+func (i {{$root.Name}}Interpreter) ParseContext(parentCtx *basil.ParseContext) *basil.ParseContext {
+	var nilBlock *{{$root.Name}}
+	if b, ok := basil.Block(nilBlock).(basil.ParseContextAware); ok {
+		return b.ParseContext(parentCtx)
 	}
 
-	return nil
+	return parentCtx
 }
+
+func (i {{$root.Name}}Interpreter) Param(target basil.Block, paramName basil.ID) interface{} {
+	b := target.(*{{$root.Name}})
+	switch paramName {
+	{{ range $root.Fields }}{{ if or .IsParam .IsID -}}
+	case "{{.ParamName}}":
+		return b.{{.Name}}
+	{{ end }}{{ end -}}
+	default:
+		panic(fmt.Errorf("unexpected parameter %q in {{$root.Name}}Interpreter", paramName))
+	}
+}
+
 `

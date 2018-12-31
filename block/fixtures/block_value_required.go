@@ -11,11 +11,3 @@ type BlockValueRequired struct {
 func (b *BlockValueRequired) ID() basil.ID {
 	return b.IDField
 }
-
-func (b *BlockValueRequired) Type() string {
-	return "block_value_required"
-}
-
-func (b *BlockValueRequired) Context(ctx interface{}) interface{} {
-	return ctx
-}

@@ -12,25 +12,18 @@ type BlockInterface interface {
 
 //go:generate basil generate
 type BlockWithBlockInterface struct {
-	IDField    basil.ID          `basil:"id"`
-	BlockNodes []basil.BlockNode `basil:"node"`
-	Blocks     []BlockInterface  `basil:"block"`
+	IDField basil.ID         `basil:"id"`
+	Blocks  []BlockInterface `basil:"block=block_simple"`
 }
 
 func (b *BlockWithBlockInterface) ID() basil.ID {
 	return b.IDField
 }
 
-func (b *BlockWithBlockInterface) Type() string {
-	return "block_with_block_interface"
-}
-
-func (b *BlockWithBlockInterface) Context(ctx interface{}) interface{} {
-	return ctx
-}
-
-func (b *BlockWithBlockInterface) BlockRegistry() block.Registry {
-	return block.Registry{
-		"block_simple": BlockSimpleInterpreter{},
-	}
+func (b *BlockWithBlockInterface) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+	return ctx.New(basil.ParseContextConfig{
+		BlockTransformerRegistry: block.InterpreterRegistry{
+			"block_simple": BlockSimpleInterpreter{},
+		},
+	})
 }

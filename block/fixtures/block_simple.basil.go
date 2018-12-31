@@ -11,87 +11,34 @@ import (
 
 type BlockSimpleInterpreter struct{}
 
-func (i BlockSimpleInterpreter) StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error) {
-	validParamNames := map[basil.ID]struct{}{
-		"value": struct{}{},
-	}
-
-	for paramName, paramNode := range node.ParamNodes() {
-		if _, valid := validParamNames[paramName]; !valid {
-			return "", parsley.NewError(paramNode.Pos(), fmt.Errorf("%q parameter does not exist", paramName))
-		}
-	}
-
-	if paramNode, ok := node.ParamNodes()["value"]; ok {
-		if err := variable.CheckNodeType(paramNode, "interface{}"); err != nil {
-			return "", err
-		}
-	}
-
-	requiredParamNames := []basil.ID{}
-
-	for _, paramName := range requiredParamNames {
-		if _, set := node.ParamNodes()[paramName]; !set {
-			return "", parsley.NewError(node.Pos(), fmt.Errorf("%s parameter is required", paramName))
-		}
-	}
-
-	return "*BlockSimple", nil
-}
-
-// CreateBlock creates a new BlockSimple block
-func (i BlockSimpleInterpreter) Eval(parentCtx interface{}, node basil.BlockNode) (basil.Block, parsley.Error) {
-	block := &BlockSimple{
+// Create creates a new BlockSimple block
+func (i BlockSimpleInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+	return &BlockSimple{
 		IDField: node.ID(),
 	}
-
-	ctx := block.Context(parentCtx)
-
-	if err := i.EvalBlock(ctx, node, "default", block); err != nil {
-		return nil, err
-	}
-
-	return block, nil
 }
 
-// EvalBlock evaluates all fields belonging to the given stage on a BlockSimple block
-func (i BlockSimpleInterpreter) EvalBlock(ctx interface{}, node basil.BlockNode, stage string, res basil.Block) parsley.Error {
-	var err parsley.Error
+func (i BlockSimpleInterpreter) Update(ctx *basil.EvalContext, target basil.Block, blockType basil.ID, n parsley.Node) parsley.Error {
+	b := target.(*BlockSimple)
 
-	if preInterpreter, ok := res.(basil.BlockPreInterpreter); ok {
-		if err = preInterpreter.PreEval(ctx, stage); err != nil {
-			return err
-		}
+	switch blockType {
+	case "value":
+		var err parsley.Error
+		b.Value, err = variable.NodeAnyValue(n, ctx)
+		return err
 	}
+	panic(fmt.Errorf("unexpected parameter or block %q in BlockSimpleInterpreter", blockType))
+}
 
-	block, ok := res.(*BlockSimple)
-	if !ok {
-		panic("result must be a type of *BlockSimple")
+// Params returns with the list of valid parameters
+func (i BlockSimpleInterpreter) Params() map[basil.ID]string {
+	return map[basil.ID]string{
+		"value": "interface{}",
 	}
+}
 
-	switch stage {
-	case "default":
-		if valueNode, ok := node.ParamNodes()["value"]; ok {
-			if block.Value, err = variable.NodeAnyValue(valueNode, ctx); err != nil {
-				return err
-			}
-		}
-	default:
-		panic(fmt.Sprintf("unknown stage: %s", stage))
-	}
-
-	switch stage {
-	case "default":
-	default:
-		panic(fmt.Sprintf("unknown stage: %s", stage))
-	}
-
-	if postInterpreter, ok := res.(basil.BlockPostInterpreter); ok {
-		if err = postInterpreter.PostEval(ctx, stage); err != nil {
-			return err
-		}
-	}
-
+// RequiredParams returns with the list of required parameters
+func (i BlockSimpleInterpreter) RequiredParams() map[basil.ID]bool {
 	return nil
 }
 
@@ -102,14 +49,27 @@ func (i BlockSimpleInterpreter) HasForeignID() bool {
 
 // HasShortFormat returns true if the block can be defined in the short block format
 func (i BlockSimpleInterpreter) ValueParamName() basil.ID {
-	return basil.ID("value")
+	return "value"
 }
 
-func (i BlockSimpleInterpreter) BlockRegistry() parsley.NodeTransformerRegistry {
-	var block basil.Block = &BlockSimple{}
-	if b, ok := block.(basil.BlockRegistryAware); ok {
-		return b.BlockRegistry()
+// ParseContext returns with the parse context for the block
+func (i BlockSimpleInterpreter) ParseContext(parentCtx *basil.ParseContext) *basil.ParseContext {
+	var nilBlock *BlockSimple
+	if b, ok := basil.Block(nilBlock).(basil.ParseContextAware); ok {
+		return b.ParseContext(parentCtx)
 	}
 
-	return nil
+	return parentCtx
+}
+
+func (i BlockSimpleInterpreter) Param(target basil.Block, paramName basil.ID) interface{} {
+	b := target.(*BlockSimple)
+	switch paramName {
+	case "id":
+		return b.IDField
+	case "value":
+		return b.Value
+	default:
+		panic(fmt.Errorf("unexpected parameter %q in BlockSimpleInterpreter", paramName))
+	}
 }

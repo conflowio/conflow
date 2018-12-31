@@ -17,12 +17,12 @@ import (
 )
 
 // Block return a parser for parsing blocks
-//   S -> ID ID? {
-//          (ATTR|S)*
-//        }
-//     -> ID ID? VALUE
-//   ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-//   ATTR -> ID "=" P
+//   S     -> ID ID? {
+//              (ATTR|S)*
+//            }
+//         -> ID ID? VALUE
+//   ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//   ATTR  -> ID ("="|":=") P
 //   VALUE -> STRING
 //         -> INT
 //         -> FLOAT
@@ -39,7 +39,7 @@ func Block() *combinator.Sequence {
 	)
 	parameter := combinator.SeqOf(
 		ID(),
-		text.LeftTrim(terminal.Rune('='), text.WsSpaces),
+		text.LeftTrim(combinator.Choice(terminal.Rune('='), terminal.Op(":=")), text.WsSpaces),
 		text.LeftTrim(parameterValue, text.WsSpaces),
 	).Token("PARAMETER")
 
@@ -89,7 +89,7 @@ func (b blockInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode
 }
 
 func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	registry := userCtx.(basil.BlockRegistryAware).BlockRegistry()
+	registry := userCtx.(basil.BlockTransformerRegistryAware).BlockTransformerRegistry()
 
 	nodes := node.(parsley.NonTerminalNode).Children()
 	blockIDNodes := nodes[0].(parsley.NonTerminalNode).Children()

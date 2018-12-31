@@ -62,8 +62,8 @@ var _ = Describe("Element", func() {
 			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
 		},
 		test.TableEntry(`MAP[1]`, errors.New("invalid non-string index on map at testfile:1:5")),
-		test.TableEntry(`MAP["non-existing"]`, errors.New("index 'non-existing' does not exist at testfile:1:5")),
-		test.TableEntry(`[1, 2, 3]["string"]`, errors.New("invalid non-integer index on array at testfile:1:11")),
+		test.TableEntry(`MAP["non-existing"]`, errors.New("key \"non-existing\" does not exist on map at testfile:1:5")),
+		test.TableEntry(`[1, 2, 3]["string"]`, errors.New("non-integer index on array at testfile:1:11")),
 		test.TableEntry(`"string"[0]`, errors.New("can not get index on string type at testfile:1:10")),
 		test.TableEntry(`nil[0]`, errors.New("can not get index on <nil> type at testfile:1:5")),
 		test.TableEntry(`[1, 2, 3][ERR]`, errors.New("ERR at testfile:1:11")),

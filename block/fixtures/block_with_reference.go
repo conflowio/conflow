@@ -10,11 +10,3 @@ type BlockWithReference struct {
 func (b *BlockWithReference) ID() basil.ID {
 	return b.IDField
 }
-
-func (b *BlockWithReference) Type() string {
-	return "block_value_required"
-}
-
-func (b *BlockWithReference) Context(ctx interface{}) interface{} {
-	return ctx
-}

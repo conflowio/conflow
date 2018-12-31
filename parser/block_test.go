@@ -41,7 +41,7 @@ var _ = Describe("Block parser", func() {
 
 	p := parser.Block()
 
-	var registry = block.Registry{
+	var registry = block.InterpreterRegistry{
 		"testblock": test.TestBlockInterpreter{},
 	}
 
@@ -70,6 +70,12 @@ var _ = Describe("Block parser", func() {
 				value = 123
 			}`,
 			&test.TestBlock{IDField: "0", Value: int64(123)},
+		),
+		test.TableEntry(
+			`testblock {
+				extra_value := 123
+			}`,
+			&test.TestBlock{IDField: "0"},
 		),
 		test.TableEntry(
 			`testblock foo {

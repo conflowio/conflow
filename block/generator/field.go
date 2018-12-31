@@ -16,6 +16,7 @@ type Field struct {
 	Type        string
 	Required    bool
 	Stage       string
+	IsParam     bool
 	IsID        bool
 	IsValue     bool
 	IsReference bool

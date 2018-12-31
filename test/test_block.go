@@ -21,24 +21,17 @@ type TestBlock struct {
 	FieldTimeDuration time.Duration
 	FieldCustomName   string `basil:"name=custom_field"`
 
-	BlockNodes []basil.BlockNode `basil:"node"`
-	Blocks     []*TestBlock      `basil:"block"`
+	Blocks []*TestBlock `basil:"block=testblock"`
 }
 
 func (t *TestBlock) ID() basil.ID {
 	return t.IDField
 }
 
-func (t *TestBlock) Type() string {
-	return "testblock"
-}
-
-func (t *TestBlock) Context(ctx interface{}) interface{} {
-	return ctx
-}
-
-func (t *TestBlock) BlockRegistry() block.Registry {
-	return block.Registry{
-		"testblock": TestBlockInterpreter{},
-	}
+func (t *TestBlock) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+	return ctx.New(basil.ParseContextConfig{
+		BlockTransformerRegistry: block.InterpreterRegistry{
+			"testblock": TestBlockInterpreter{},
+		},
+	})
 }

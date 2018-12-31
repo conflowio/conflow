@@ -12,11 +12,29 @@ import (
 )
 
 // Interpreter defines an interpreter for blocks
+//go:generate counterfeiter . Interpreter
 type Interpreter interface {
-	StaticCheck(ctx interface{}, node basil.BlockNode) (string, parsley.Error)
-	Eval(ctx interface{}, node basil.BlockNode) (block basil.Block, err parsley.Error)
-	EvalBlock(ctx interface{}, node basil.BlockNode, stage string, block basil.Block) parsley.Error
+	Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block
+	Update(ctx *basil.EvalContext, b basil.Block, name basil.ID, node parsley.Node) parsley.Error
+	Params() map[basil.ID]string
+	RequiredParams() map[basil.ID]bool
 	ValueParamName() basil.ID
 	HasForeignID() bool
-	basil.BlockRegistryAware
+	Param(basil.Block, basil.ID) interface{}
+	basil.ParseContextAware
+}
+
+// InterpreterRegistry contains a list of block interpreters and behaves as a node transformer registry
+type InterpreterRegistry map[string]Interpreter
+
+// NodeTransformer returns with the named node transformer
+func (i InterpreterRegistry) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+	interpreter, exists := i[name]
+	if !exists {
+		return nil, false
+	}
+
+	return parsley.NodeTransformFunc(func(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
+		return transformNode(userCtx, node, interpreter)
+	}), true
 }

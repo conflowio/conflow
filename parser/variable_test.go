@@ -1,62 +1,170 @@
 package parser_test
 
 import (
-	"errors"
+	"context"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/basilfakes"
+	"github.com/opsidian/basil/block"
+	"github.com/opsidian/basil/block/blockfakes"
+	"github.com/opsidian/basil/function"
+	"github.com/opsidian/basil/identifier"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/text/terminal"
+	"github.com/opsidian/parsley/parsley"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"github.com/opsidian/basil/parser"
 )
 
 var _ = Describe("Variable", func() {
 
-	q := combinator.Choice(
-		terminal.String(false),
-		terminal.Integer(),
-		terminal.Nil("nil"),
-		test.EvalErrorParser(),
-	).Name("value")
+	var p = parser.Variable()
+	var parseCtx *parsley.Context
+	var evalCtx interface{}
+	var res parsley.Node
+	var parseErr, evalErr error
+	var value interface{}
+	var input string
+	var blockNodeRegistry *basilfakes.FakeBlockNodeRegistry
+	var blockContainerRegistry block.ContainerRegistry
 
-	p := parser.Variable(q)
+	BeforeEach(func() {
+		parseCtx = nil
+		evalCtx = nil
+		res = nil
+		parseErr = nil
+		evalErr = nil
+		value = nil
+		blockNodeRegistry = &basilfakes.FakeBlockNodeRegistry{}
+		blockContainerRegistry = block.NewContainerRegistry()
+	})
 
-	DescribeTable("it evaluates the input correctly",
-		func(input string, expected interface{}) {
-			test.ExpectParserToEvaluate(p)(input, expected)
-		},
-		test.TableEntry(`foo`, "bar"),
-		test.TableEntry(`testmap["key1"]`, "value1"),
-		test.TableEntry(`testmap["key2"]["key3"]`, "value3"),
-		test.TableEntry(`arr[0]`, "value1"),
-		test.TableEntry(`arr[1][0]`, "value2"),
-		test.TableEntry(`arr[2]["key1"]`, "value3"),
-	)
+	JustBeforeEach(func() {
+		parseCtx = test.ParseCtx(input, nil, nil)
+		parseCtx.SetUserContext(basil.NewParseContext(
+			block.InterpreterRegistry{},
+			function.InterpreterRegistry{},
+			identifier.NewRegistry(8, 16),
+			blockNodeRegistry,
+		))
+		evalCtx = basil.NewEvalContext(context.Background(), nil, blockContainerRegistry)
+		res, parseErr = parsley.Parse(parseCtx, combinator.Sentence(p))
 
-	DescribeTable("it returns a parse error",
-		func(input string, expectedErr error) {
-			test.ExpectParserToHaveParseError(p)(input, expectedErr)
-		},
-		test.TableEntry(`testmap[`, errors.New("was expecting value at testfile:1:9")),
-		test.TableEntry(`testmap["key1"`, errors.New("was expecting \"]\" at testfile:1:15")),
-		test.TableEntry(`testmap[]`, errors.New("was expecting value at testfile:1:9")),
-		test.TableEntry(`testkeyword`, errors.New("testkeyword is a reserved keyword at testfile:1:1")),
-	)
+		if parseErr == nil {
+			value, evalErr = res.Value(evalCtx)
+		}
+	})
 
-	DescribeTable("it returns an eval error",
-		func(input string, expectedErr error) {
-			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
-		},
-		test.TableEntry(`nonexisting`, errors.New("variable 'nonexisting' does not exist at testfile:1:1")),
-		test.TableEntry(`nonexisting["key"]`, errors.New("variable 'nonexisting[key]' does not exist at testfile:1:1")),
-		test.TableEntry(`arr[3]`, errors.New("array index out of bounds: 3 (0..2) at testfile:1:5")),
-		test.TableEntry(`arr[-1]`, errors.New("array index out of bounds: -1 (0..2) at testfile:1:5")),
-		test.TableEntry(`testmap["key1"]["key2"]`, errors.New("can not get index on string type at testfile:1:17")),
-		test.TableEntry(`testmap["key2"][0]`, errors.New("invalid non-string index on map at testfile:1:17")),
-		test.TableEntry(`arr["string"]`, errors.New("invalid non-integer index on array at testfile:1:5")),
-		test.TableEntry(`arr[ERR]`, errors.New("ERR at testfile:1:5")),
-		test.TableEntry(`testmap[ERR]`, errors.New("ERR at testfile:1:9")),
-	)
+	Context("when referencing a root block", func() {
+		var rootNode *basilfakes.FakeBlockNode
+		var rootBlock *basilfakes.FakeBlock
+		var rootBlockInterpreter *blockfakes.FakeInterpreter
+
+		BeforeEach(func() {
+			rootNode = &basilfakes.FakeBlockNode{}
+			blockNodeRegistry.BlockNodeReturnsOnCall(0, rootNode, true)
+
+			rootBlock = &basilfakes.FakeBlock{}
+			rootBlock.IDReturns("root")
+			rootBlockInterpreter = &blockfakes.FakeInterpreter{}
+			rootBlockInterpreter.ParamReturnsOnCall(0, "bar")
+
+			rootBlockContainer := block.NewContainer(rootBlock, rootBlockInterpreter)
+			blockContainerRegistry.AddBlockContainer(rootBlockContainer)
+
+		})
+
+		Context("with an existing parameter", func() {
+			BeforeEach(func() {
+				input = "param1"
+				rootNode.ParamTypeReturnsOnCall(0, "string", true)
+			})
+
+			It("should evaluate successfully", func() {
+				Expect(parseErr).ToNot(HaveOccurred())
+				Expect(evalErr).ToNot(HaveOccurred())
+				Expect(value).To(Equal("bar"))
+
+				Expect(blockNodeRegistry.BlockNodeArgsForCall(0)).To(Equal(basil.ID("root")))
+				Expect(rootNode.ParamTypeArgsForCall(0)).To(Equal(basil.ID("param1")))
+				passedBlock, passedParam := rootBlockInterpreter.ParamArgsForCall(0)
+				Expect(passedBlock).To(Equal(rootBlock))
+				Expect(passedParam).To(Equal(basil.ID("param1")))
+			})
+		})
+
+		Context("with a nonexisting parameter", func() {
+			BeforeEach(func() {
+				input = "param1"
+				rootNode.ParamTypeReturnsOnCall(0, "", false)
+			})
+
+			It("should return a parse error", func() {
+				Expect(parseErr).To(MatchError("parameter \"param1\" does not exist at testfile:1:1"))
+			})
+		})
+	})
+
+	Context("when referencing a block module parameter", func() {
+		var blockNode *basilfakes.FakeBlockNode
+		var fooBlock *basilfakes.FakeBlock
+		var fooBlockInterpreter *blockfakes.FakeInterpreter
+
+		BeforeEach(func() {
+			blockNode = &basilfakes.FakeBlockNode{}
+			blockNodeRegistry.BlockNodeReturnsOnCall(0, blockNode, true)
+
+			fooBlock = &basilfakes.FakeBlock{}
+			fooBlock.IDReturns("foo")
+			fooBlockInterpreter = &blockfakes.FakeInterpreter{}
+			fooBlockInterpreter.ParamReturnsOnCall(0, "bar")
+
+			blockContainer := block.NewContainer(fooBlock, fooBlockInterpreter)
+			blockContainerRegistry.AddBlockContainer(blockContainer)
+		})
+
+		Context("with an existing parameter", func() {
+			BeforeEach(func() {
+				input = "foo.param1"
+				blockNode.ParamTypeReturnsOnCall(0, "string", true)
+			})
+
+			It("should evaluate successfully", func() {
+				Expect(parseErr).ToNot(HaveOccurred())
+				Expect(evalErr).ToNot(HaveOccurred())
+				Expect(value).To(Equal("bar"))
+
+				Expect(blockNodeRegistry.BlockNodeArgsForCall(0)).To(Equal(basil.ID("foo")))
+				Expect(blockNode.ParamTypeArgsForCall(0)).To(Equal(basil.ID("param1")))
+				passedBlock, passedParam := fooBlockInterpreter.ParamArgsForCall(0)
+				Expect(passedBlock).To(Equal(fooBlock))
+				Expect(passedParam).To(Equal(basil.ID("param1")))
+			})
+		})
+
+		Context("with a nonexisting parameter", func() {
+			BeforeEach(func() {
+				input = "foo.param1"
+				blockNode.ParamTypeReturnsOnCall(0, "", false)
+			})
+
+			It("should return a parse error", func() {
+				Expect(parseErr).To(MatchError("parameter \"param1\" does not exist at testfile:1:5"))
+			})
+		})
+	})
+
+	Context("when referencing a non-existing block", func() {
+		BeforeEach(func() {
+			blockNodeRegistry.BlockNodeReturnsOnCall(0, nil, false)
+			input = "foo.param1"
+		})
+
+		It("should return a parse error", func() {
+			Expect(parseErr).To(MatchError("block \"foo\" does not exist at testfile:1:1"))
+		})
+	})
 
 })

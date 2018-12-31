@@ -7,25 +7,18 @@ import (
 
 //go:generate basil generate
 type BlockWithBlock struct {
-	IDField    basil.ID          `basil:"id"`
-	BlockNodes []basil.BlockNode `basil:"node"`
-	Blocks     []*BlockSimple    `basil:"block"`
+	IDField basil.ID       `basil:"id"`
+	Blocks  []*BlockSimple `basil:"block=block_simple"`
 }
 
 func (b *BlockWithBlock) ID() basil.ID {
 	return b.IDField
 }
 
-func (b *BlockWithBlock) Type() string {
-	return "block_with_block"
-}
-
-func (b *BlockWithBlock) Context(ctx interface{}) interface{} {
-	return ctx
-}
-
-func (b *BlockWithBlock) BlockRegistry() block.Registry {
-	return block.Registry{
-		"block_simple": BlockSimpleInterpreter{},
-	}
+func (b *BlockWithBlock) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+	return ctx.New(basil.ParseContextConfig{
+		BlockTransformerRegistry: block.InterpreterRegistry{
+			"block_simple": BlockSimpleInterpreter{},
+		},
+	})
 }

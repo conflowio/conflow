@@ -202,10 +202,10 @@ var _ = Describe("Expression", func() {
 		test.TableEntry("1 ? 2 : 3", errors.New("expecting bool, got int64 at testfile:1:1")),
 
 		// Variable
-		test.TableEntry(`a`, errors.New("variable 'a' does not exist at testfile:1:1")),
+		test.TableEntry(`a`, errors.New("variable \"a\" is not defined at testfile:1:1")),
 		test.TableEntry(`arr[3]`, errors.New("array index out of bounds: 3 (0..2) at testfile:1:5")),
-		test.TableEntry(`arr["key"]`, errors.New("invalid non-integer index on array at testfile:1:5")),
-		test.TableEntry(`testmap["nooo"]`, errors.New("variable 'testmap[nooo]' does not exist at testfile:1:1")),
+		test.TableEntry(`arr["key"]`, errors.New("non-integer index on array at testfile:1:5")),
+		test.TableEntry(`testmap["nooo"]`, errors.New("key \"nooo\" does not exist on map at testfile:1:9")),
 		test.TableEntry(`testmap[1]`, errors.New("invalid non-string index on map at testfile:1:9")),
 
 		// Functions

@@ -68,7 +68,7 @@ func evalElement(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pa
 				}
 			default:
 				indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
-				return nil, parsley.NewErrorf(indexNode.Pos(), "invalid non-integer index on array")
+				return nil, parsley.NewErrorf(indexNode.Pos(), "non-integer index on array")
 			}
 		case map[string]interface{}:
 			switch indext := index.(type) {
@@ -76,7 +76,7 @@ func evalElement(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pa
 				val, ok := rest[indext]
 				if !ok {
 					indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
-					return nil, parsley.NewErrorf(indexNode.Pos(), "index '%s' does not exist", indext)
+					return nil, parsley.NewErrorf(indexNode.Pos(), "key %q does not exist on map", indext)
 				}
 				res = val
 			default:

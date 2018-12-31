@@ -14,7 +14,7 @@ func Expression() parser.Func {
 
 	function := Function(&p)
 	array := Array(&p, text.WsSpaces)
-	variable := Variable(&p)
+	variable := Variable()
 
 	arrayIndex := combinator.Choice(
 		terminal.Integer(),

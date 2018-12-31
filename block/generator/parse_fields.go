@@ -63,12 +63,12 @@ func ParseFields(str *ast.StructType, file *ast.File) ([]*Field, error) {
 	return fields, nil
 }
 
-func parseField(field *ast.Field) (*Field, error) {
+func parseField(astField *ast.Field) (*Field, error) {
 	var tag string
-	name := field.Names[0].String()
-	if field.Tag != nil {
+	name := astField.Names[0].String()
+	if astField.Tag != nil {
 		var err error
-		tag, err = strconv.Unquote(field.Tag.Value)
+		tag, err = strconv.Unquote(astField.Tag.Value)
 		if err != nil {
 			return nil, fmt.Errorf("tag is invalid for %s", name)
 		}
@@ -86,18 +86,36 @@ func parseField(field *ast.Field) (*Field, error) {
 		return nil, nil
 	}
 
-	return &Field{
+	paramName := tags.GetWithDefault(basil.BlockTagName, generateParamName(name))
+
+	isID := tags.GetBool(basil.BlockTagID)
+	if isID {
+		paramName = "id"
+	}
+
+	blockType, isBlock := tags.Get("block")
+	if isBlock {
+		paramName = blockType
+	}
+
+	field := &Field{
 		Name:        name,
-		ParamName:   tags.GetWithDefault(basil.BlockTagName, generateParamName(name)),
+		ParamName:   paramName,
 		Required:    tags.GetBool(basil.BlockTagRequired),
-		Type:        getFieldType(field.Type),
+		Type:        getFieldType(astField.Type),
 		Stage:       tags.GetWithDefault(basil.BlockTagStage, "default"),
-		IsID:        tags.GetBool(basil.BlockTagID),
+		IsID:        isID,
 		IsValue:     tags.GetBool(basil.BlockTagValue),
 		IsReference: tags.GetBool(basil.BlockTagReference),
-		IsBlock:     tags.GetBool(basil.BlockTagBlock),
+		IsBlock:     isBlock,
 		IsNode:      tags.GetBool(basil.BlockTagNode),
-	}, nil
+	}
+
+	if !field.IsID && !field.IsBlock && !field.IsNode {
+		field.IsParam = true
+	}
+
+	return field, nil
 }
 
 func getFieldType(typeNode ast.Expr) string {

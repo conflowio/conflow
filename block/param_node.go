@@ -3,21 +3,32 @@ package block
 import (
 	"fmt"
 
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
 
 // ParamNode is a block parameter
 type ParamNode struct {
-	keyNode   parsley.Node
-	valueNode parsley.Node
+	keyNode       parsley.Node
+	valueNode     parsley.Node
+	dependencies  []parsley.Node
+	evalStage     basil.EvalStage
+	isDeclaration bool
 }
 
 // NewParamNode creates a new block parameter node
-func NewParamNode(keyNode parsley.Node, valueNode parsley.Node) *ParamNode {
+func NewParamNode(keyNode parsley.Node, valueNode parsley.Node, isDeclaration bool) *ParamNode {
 	return &ParamNode{
-		keyNode:   keyNode,
-		valueNode: valueNode,
+		keyNode:       keyNode,
+		valueNode:     valueNode,
+		isDeclaration: isDeclaration,
 	}
+}
+
+// ID returns with the name of the parameter
+func (p *ParamNode) ID() basil.ID {
+	id, _ := p.keyNode.Value(nil)
+	return id.(basil.ID)
 }
 
 // Token returns with the node token
@@ -28,6 +39,21 @@ func (p *ParamNode) Token() string {
 // Type returns with the value node's type
 func (p *ParamNode) Type() string {
 	return p.valueNode.Type()
+}
+
+// EvalStage returns with the evaluation stage
+func (p *ParamNode) EvalStage() basil.EvalStage {
+	return p.evalStage
+}
+
+// Dependencies returns the blocks/parameters this parameter depends on
+func (p *ParamNode) Dependencies() []parsley.Node {
+	return p.dependencies
+}
+
+// IsDeclaration returns true if the parameter was declared in the block
+func (p *ParamNode) IsDeclaration() bool {
+	return p.isDeclaration
 }
 
 // StaticCheck runs a static analysis on the value node
