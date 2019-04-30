@@ -7,6 +7,7 @@
 package function
 
 import (
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -16,7 +17,7 @@ func transformNode(
 	interpreter Interpreter,
 ) (parsley.Node, parsley.Error) {
 	nodes := node.(parsley.NonTerminalNode).Children()
-	nameNode := nodes[0]
+	nameNode := nodes[0].(*basil.IDNode)
 
 	argumentsNode := nodes[2].(parsley.NonTerminalNode)
 	var argumentNodes []parsley.Node

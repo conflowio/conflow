@@ -15,12 +15,12 @@ import (
 //go:generate counterfeiter . Interpreter
 type Interpreter interface {
 	Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block
-	Update(ctx *basil.EvalContext, b basil.Block, name basil.ID, node parsley.Node) parsley.Error
+	SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node parsley.Node) parsley.Error
+	Param(block basil.Block, name basil.ID) interface{}
 	Params() map[basil.ID]string
 	RequiredParams() map[basil.ID]bool
 	ValueParamName() basil.ID
 	HasForeignID() bool
-	Param(basil.Block, basil.ID) interface{}
 	basil.ParseContextAware
 }
 

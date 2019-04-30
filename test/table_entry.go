@@ -6,3 +6,8 @@ import "github.com/onsi/ginkgo/extensions/table"
 func TableEntry(input string, parameters ...interface{}) table.TableEntry {
 	return table.Entry(input, append([]interface{}{input}, parameters...)...)
 }
+
+// FTableEntry creates an custom focused entry for table driven tests where the input is the description
+func FTableEntry(input string, parameters ...interface{}) table.TableEntry {
+	return table.FEntry(input, append([]interface{}{input}, parameters...)...)
+}

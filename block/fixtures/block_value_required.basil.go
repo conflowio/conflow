@@ -18,18 +18,6 @@ func (i BlockValueRequiredInterpreter) Create(ctx *basil.EvalContext, node basil
 	}
 }
 
-func (i BlockValueRequiredInterpreter) Update(ctx *basil.EvalContext, target basil.Block, blockType basil.ID, n parsley.Node) parsley.Error {
-	b := target.(*BlockValueRequired)
-
-	switch blockType {
-	case "value":
-		var err parsley.Error
-		b.Value, err = variable.NodeAnyValue(n, ctx)
-		return err
-	}
-	panic(fmt.Errorf("unexpected parameter or block %q in BlockValueRequiredInterpreter", blockType))
-}
-
 // Params returns with the list of valid parameters
 func (i BlockValueRequiredInterpreter) Params() map[basil.ID]string {
 	return map[basil.ID]string{
@@ -64,14 +52,32 @@ func (i BlockValueRequiredInterpreter) ParseContext(parentCtx *basil.ParseContex
 	return parentCtx
 }
 
-func (i BlockValueRequiredInterpreter) Param(target basil.Block, paramName basil.ID) interface{} {
-	b := target.(*BlockValueRequired)
-	switch paramName {
+func (i BlockValueRequiredInterpreter) Param(block basil.Block, name basil.ID) interface{} {
+	b := block.(*BlockValueRequired)
+
+	switch name {
 	case "id":
 		return b.IDField
 	case "value":
 		return b.Value
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in BlockValueRequiredInterpreter", paramName))
+		panic(fmt.Errorf("unexpected parameter %q in BlockValueRequired", name))
+	}
+}
+
+func (i BlockValueRequiredInterpreter) SetParam(ctx *basil.EvalContext, block basil.Block, name basil.ID, node parsley.Node) parsley.Error {
+	b := block.(*BlockValueRequired)
+
+	switch name {
+	case "id":
+		var err parsley.Error
+		b.IDField, err = variable.NodeIdentifierValue(node, ctx)
+		return err
+	case "value":
+		var err parsley.Error
+		b.Value, err = variable.NodeAnyValue(node, ctx)
+		return err
+	default:
+		panic(fmt.Errorf("unexpected parameter or block %q in BlockValueRequired", name))
 	}
 }

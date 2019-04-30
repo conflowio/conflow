@@ -16,10 +16,6 @@ type BlockWithBlockInterface struct {
 	Blocks  []BlockInterface `basil:"block=block_simple"`
 }
 
-func (b *BlockWithBlockInterface) ID() basil.ID {
-	return b.IDField
-}
-
 func (b *BlockWithBlockInterface) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
 	return ctx.New(basil.ParseContextConfig{
 		BlockTransformerRegistry: block.InterpreterRegistry{

@@ -97,7 +97,9 @@ func getFieldType(typeNode ast.Expr) string {
 		return t.String()
 	default:
 		b := &bytes.Buffer{}
-		format.Node(b, token.NewFileSet(), t)
+		if err := format.Node(b, token.NewFileSet(), t); err != nil {
+			panic(err)
+		}
 		return b.String()
 	}
 }

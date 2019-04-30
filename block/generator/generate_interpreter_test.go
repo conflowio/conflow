@@ -121,7 +121,7 @@ var _ = Describe("GenerateInterpreter", func() {
 		It("should parse the input", func() {
 			test.ExpectBlockToHaveEvalError(parser.Block(), registry)(
 				`block_with_reference foo {}`,
-				errors.New("\"foo\" is referencing a non-existing block at testfile:1:22"),
+				MatchError(errors.New("\"foo\" is referencing a non-existing block at testfile:1:22")),
 			)
 		})
 	})

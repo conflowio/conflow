@@ -6,7 +6,3 @@ import "github.com/opsidian/basil/basil"
 type BlockNoFields struct {
 	IDField basil.ID `basil:"id"`
 }
-
-func (b *BlockNoFields) ID() basil.ID {
-	return b.IDField
-}

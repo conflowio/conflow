@@ -32,7 +32,7 @@ type {{.Name}}Interpreter struct {}
 // StaticCheck runs a static analysis on the function parameters
 func (i {{.Name}}Interpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (string, parsley.Error) {
 	if len(node.ArgumentNodes()) != {{ len .Arguments }} {
-		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects {{ len .Arguments }} arguments", node.ID()))
+		return "", parsley.NewError(node.Pos(), fmt.Errorf("%s expects {{ len .Arguments }} arguments", node.Name()))
 	}
 
 	{{ if .Arguments }}

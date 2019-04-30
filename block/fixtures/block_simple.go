@@ -8,10 +8,6 @@ type BlockSimple struct {
 	Value   interface{} `basil:"value"`
 }
 
-func (b *BlockSimple) ID() basil.ID {
-	return b.IDField
-}
-
 func (b *BlockSimple) Foo() string {
 	return "bar"
 }

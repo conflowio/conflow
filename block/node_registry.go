@@ -24,7 +24,7 @@ func (n NodeRegistry) BlockNode(id basil.ID) (basil.BlockNode, bool) {
 // It returns with an error if a block with the same id was already registered
 func (n NodeRegistry) AddBlockNode(node basil.BlockNode) error {
 	if _, exists := n[node.ID()]; exists {
-		return fmt.Errorf("duplicated identifier: %q", node.ID())
+		return fmt.Errorf("%q is already defined, please use a globally unique identifier", node.ID())
 	}
 
 	n[node.ID()] = node

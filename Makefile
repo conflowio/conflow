@@ -10,8 +10,8 @@ test: ## Runs all tests
 	@./test.sh
 
 .PHONY: test
-generate: ## Regenerates all files
-	go generate ./...
+generate: build ## Regenerates all files
+	@PATH="$(PWD)/bin;${PATH}" go generate ./...
 
 .PHONY: build
 build:

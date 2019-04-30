@@ -25,9 +25,9 @@ func (c ContainerRegistry) BlockContainer(id basil.ID) (basil.BlockContainer, bo
 // AddBlockContainer adds a new block container instance
 // It returns with an error if a block with the same id was already registered
 func (c ContainerRegistry) AddBlockContainer(b basil.BlockContainer) error {
-	id := b.Block().ID()
+	id := b.ID()
 	if _, exists := c[id]; exists {
-		return fmt.Errorf("duplicated identifier: %q", id)
+		return fmt.Errorf("%q is already defined, please use a globally unique identifier", id)
 	}
 
 	c[id] = b

@@ -36,7 +36,7 @@ func (r *Registry) IDExists(id basil.ID) bool {
 
 // GenerateID generates and registers a new block id
 // If there are many block ids generated with the current minimum length and it's getting hard to generate unique ones
-// thenb the min length will be increased by one (up to the maximum length)
+// then the min length will be increased by one (up to the maximum length)
 func (r *Registry) GenerateID() basil.ID {
 	util.SeedMathRand()
 
@@ -48,9 +48,13 @@ func (r *Registry) GenerateID() basil.ID {
 			return id
 		}
 		tries++
-		if tries == 3 && r.minLength < r.maxLength {
-			r.minLength++
-			tries = 0
+		if tries == 3 {
+			if r.minLength < r.maxLength {
+				r.minLength++
+				tries = 0
+			} else {
+				panic("unable to generate unique id, please increase the maximum identifier length")
+			}
 		}
 	}
 }
