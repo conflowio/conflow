@@ -182,16 +182,6 @@ func ExpectBlockToHaveEvalError(p parsley.Parser, registry parsley.NodeTransform
 	}
 }
 
-func ExpectBlockNodeToEvaluate(p parsley.Parser, registry parsley.NodeTransformerRegistry, block basil.Block, node basil.BlockNode) func(string, interface{}, func(interface{}, interface{}, string)) {
-	return func(input string, expected interface{}, compare func(interface{}, interface{}, string)) {
-		// TODO: registry is not used
-		block, err := node.Value(EvalUserCtx())
-		Expect(err).ToNot(HaveOccurred(), "create block failed, input: %s", input)
-
-		compare(block, expected, input)
-	}
-}
-
 func ExpectFunctionToEvaluate(p parsley.Parser, registry parsley.NodeTransformerRegistry) func(string, interface{}) {
 	return func(input string, expected interface{}) {
 		node, parseErr := parsley.Parse(ParseCtx(input, nil, registry), combinator.Sentence(p))
