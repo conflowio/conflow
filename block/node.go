@@ -18,7 +18,6 @@ var _ basil.BlockNode = &Node{}
 
 // Node is a block node
 type Node struct {
-	parentID     basil.ID
 	typeNode     *basil.IDNode
 	idNode       *basil.IDNode
 	children     []basil.Node
@@ -31,11 +30,6 @@ type Node struct {
 // ID returns with the id of the block
 func (n *Node) ID() basil.ID {
 	return n.idNode.ID()
-}
-
-// ParentID returns with the parent block ID
-func (n *Node) ParentID() basil.ID {
-	return n.parentID
 }
 
 // TypeNode returns with the type node

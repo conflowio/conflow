@@ -49,16 +49,6 @@ type FakeBlockParamNode struct {
 	nameReturnsOnCall map[int]struct {
 		result1 basil.ID
 	}
-	ParentIDStub        func() basil.ID
-	parentIDMutex       sync.RWMutex
-	parentIDArgsForCall []struct {
-	}
-	parentIDReturns struct {
-		result1 basil.ID
-	}
-	parentIDReturnsOnCall map[int]struct {
-		result1 basil.ID
-	}
 	PosStub        func() parsley.Pos
 	posMutex       sync.RWMutex
 	posArgsForCall []struct {
@@ -330,58 +320,6 @@ func (fake *FakeBlockParamNode) NameReturnsOnCall(i int, result1 basil.ID) {
 		})
 	}
 	fake.nameReturnsOnCall[i] = struct {
-		result1 basil.ID
-	}{result1}
-}
-
-func (fake *FakeBlockParamNode) ParentID() basil.ID {
-	fake.parentIDMutex.Lock()
-	ret, specificReturn := fake.parentIDReturnsOnCall[len(fake.parentIDArgsForCall)]
-	fake.parentIDArgsForCall = append(fake.parentIDArgsForCall, struct {
-	}{})
-	fake.recordInvocation("ParentID", []interface{}{})
-	fake.parentIDMutex.Unlock()
-	if fake.ParentIDStub != nil {
-		return fake.ParentIDStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.parentIDReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeBlockParamNode) ParentIDCallCount() int {
-	fake.parentIDMutex.RLock()
-	defer fake.parentIDMutex.RUnlock()
-	return len(fake.parentIDArgsForCall)
-}
-
-func (fake *FakeBlockParamNode) ParentIDCalls(stub func() basil.ID) {
-	fake.parentIDMutex.Lock()
-	defer fake.parentIDMutex.Unlock()
-	fake.ParentIDStub = stub
-}
-
-func (fake *FakeBlockParamNode) ParentIDReturns(result1 basil.ID) {
-	fake.parentIDMutex.Lock()
-	defer fake.parentIDMutex.Unlock()
-	fake.ParentIDStub = nil
-	fake.parentIDReturns = struct {
-		result1 basil.ID
-	}{result1}
-}
-
-func (fake *FakeBlockParamNode) ParentIDReturnsOnCall(i int, result1 basil.ID) {
-	fake.parentIDMutex.Lock()
-	defer fake.parentIDMutex.Unlock()
-	fake.ParentIDStub = nil
-	if fake.parentIDReturnsOnCall == nil {
-		fake.parentIDReturnsOnCall = make(map[int]struct {
-			result1 basil.ID
-		})
-	}
-	fake.parentIDReturnsOnCall[i] = struct {
 		result1 basil.ID
 	}{result1}
 }
@@ -720,8 +658,6 @@ func (fake *FakeBlockParamNode) Invocations() map[string][][]interface{} {
 	defer fake.iDMutex.RUnlock()
 	fake.nameMutex.RLock()
 	defer fake.nameMutex.RUnlock()
-	fake.parentIDMutex.RLock()
-	defer fake.parentIDMutex.RUnlock()
 	fake.posMutex.RLock()
 	defer fake.posMutex.RUnlock()
 	fake.providesMutex.RLock()

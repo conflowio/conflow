@@ -12,7 +12,6 @@ var _ basil.BlockParamNode = &ParamNode{}
 // ParamNode is a block parameter
 type ParamNode struct {
 	id            basil.ID
-	blockID       basil.ID
 	nameNode      *basil.IDNode
 	valueNode     parsley.Node
 	evalStage     basil.EvalStage
@@ -23,7 +22,6 @@ type ParamNode struct {
 func NewParamNode(blockID basil.ID, nameNode *basil.IDNode, valueNode parsley.Node, isDeclaration bool) *ParamNode {
 	return &ParamNode{
 		id:            basil.ID(fmt.Sprintf("%s.%s", blockID, nameNode.ID())),
-		blockID:       blockID,
 		nameNode:      nameNode,
 		valueNode:     valueNode,
 		isDeclaration: isDeclaration,
@@ -33,11 +31,6 @@ func NewParamNode(blockID basil.ID, nameNode *basil.IDNode, valueNode parsley.No
 // ID returns with the name of the parameter
 func (p *ParamNode) ID() basil.ID {
 	return p.id
-}
-
-// ParentID returns with the parent block ID
-func (p *ParamNode) ParentID() basil.ID {
-	return p.blockID
 }
 
 // ID returns with the name of the parameter
