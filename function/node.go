@@ -14,19 +14,20 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
+var _ basil.FunctionNode = &Node{}
+
 // Node is a function node
 type Node struct {
-	nameNode      parsley.Node
+	nameNode      *basil.IDNode
 	argumentNodes []parsley.Node
 	readerPos     parsley.Pos
 	interpreter   Interpreter
 	resultType    string
 }
 
-// ID returns with the function name
-func (n *Node) ID() basil.ID {
-	name, _ := n.nameNode.Value(nil)
-	return name.(basil.ID)
+// Name returns with the function name
+func (n *Node) Name() basil.ID {
+	return n.nameNode.ID()
 }
 
 // Token returns with the node's token
@@ -93,7 +94,7 @@ func (n *Node) Children() []parsley.Node {
 
 func (n *Node) String() string {
 	if n.resultType == "" {
-		return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
+		return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.nameNode.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
 	}
-	return fmt.Sprintf("%s{<%s> %s, %s, %d..%d}", n.Token(), n.resultType, n.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
+	return fmt.Sprintf("%s{<%s> %s, %s, %d..%d}", n.Token(), n.resultType, n.nameNode.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
 }

@@ -9,27 +9,23 @@ package block
 import (
 	"errors"
 
+	"github.com/opsidian/basil/dependency"
+
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/identifier"
 	"github.com/opsidian/parsley/parsley"
 )
 
-func transformNode(
-	parseCtx interface{},
-	node parsley.Node,
-	interpreter Interpreter,
-) (parsley.Node, parsley.Error) {
+func transformNode(parseCtx interface{}, node parsley.Node, interpreter Interpreter) (parsley.Node, parsley.Error) {
 	parseCtx = interpreter.ParseContext(parseCtx.(*basil.ParseContext))
 	idRegistry := parseCtx.(basil.IDRegistryAware).IDRegistry()
 
 	nodes := node.(parsley.NonTerminalNode).Children()
 	blockIDNodes := nodes[0].(parsley.NonTerminalNode).Children()
-	typeNode := blockIDNodes[0].(*identifier.Node)
-	var idNode *identifier.Node
+	typeNode := blockIDNodes[0].(*basil.IDNode)
+	var idNode *basil.IDNode
 	if len(blockIDNodes) == 2 {
-		idNode = blockIDNodes[1].(*identifier.Node)
-		id, _ := idNode.Value(nil)
-		if err := idRegistry.RegisterID(id.(basil.ID)); err != nil {
+		idNode = blockIDNodes[1].(*basil.IDNode)
+		if err := idRegistry.RegisterID(idNode.ID()); err != nil {
 			return nil, parsley.NewError(idNode.Pos(), err)
 		}
 	} else {
@@ -37,12 +33,14 @@ func transformNode(
 			return nil, parsley.NewError(typeNode.ReaderPos(), errors.New("identifier must be set"))
 		}
 
+		// TODO: there is a chance the id generator will generate an existing, manually defined id
 		id := idRegistry.GenerateID()
-		idNode = identifier.NewNode(id, typeNode.ReaderPos(), typeNode.ReaderPos())
+		idNode = basil.NewIDNode(id, typeNode.ReaderPos(), typeNode.ReaderPos())
 	}
 
-	var children []parsley.Node
+	var children []basil.Node
 
+	var dependencies []basil.IdentifiableNode
 	if len(nodes) > 1 {
 		blockValueNode := nodes[1]
 
@@ -50,27 +48,30 @@ func transformNode(
 			blockValueChildren := blockValueNode.(parsley.NonTerminalNode).Children()
 
 			if len(blockValueChildren) > 2 {
-				err := transformChildren(
+				var err parsley.Error
+				children, dependencies, err = transformChildren(
 					parseCtx,
+					idNode.ID(),
 					blockValueChildren[1].(parsley.NonTerminalNode).Children(),
 				)
 				if err != nil {
 					return nil, err
 				}
+
 			}
 		} else { // We have an expression as the value of the block
 			valueParamName := interpreter.ValueParamName()
 			if valueParamName == "" {
-				blockType, _ := typeNode.Value(nil)
-				return nil, parsley.NewErrorf(typeNode.Pos(), "%q block does not support short format", blockType)
+				return nil, parsley.NewErrorf(typeNode.Pos(), "%q block does not support short format", typeNode.ID())
 			}
 			valueNode, err := parsley.Transform(parseCtx, blockValueNode)
 			if err != nil {
 				return nil, err
 			}
-			children = []parsley.Node{
+			children = []basil.Node{
 				NewParamNode(
-					identifier.NewNode(valueParamName, blockValueNode.Pos(), blockValueNode.Pos()),
+					idNode.ID(),
+					basil.NewIDNode(valueParamName, blockValueNode.Pos(), blockValueNode.Pos()),
 					valueNode,
 					false,
 				),
@@ -78,14 +79,13 @@ func transformNode(
 		}
 	}
 
-	// TODO: calculate dependencies, eval stages and child order?
-
 	res := &Node{
-		idNode:      idNode,
-		typeNode:    typeNode,
-		children:    children,
-		interpreter: interpreter,
-		readerPos:   node.ReaderPos(),
+		idNode:       idNode,
+		typeNode:     typeNode,
+		children:     children,
+		interpreter:  interpreter,
+		readerPos:    node.ReaderPos(),
+		dependencies: dependencies,
 	}
 
 	if !interpreter.HasForeignID() {
@@ -98,41 +98,61 @@ func transformNode(
 	return res, nil
 }
 
-func transformChildren(parseCtx interface{}, nodes []parsley.Node) parsley.Error {
+func transformChildren(
+	parseCtx interface{},
+	blockID basil.ID,
+	nodes []parsley.Node,
+) ([]basil.Node, []basil.IdentifiableNode, parsley.Error) {
 	if len(nodes) == 0 {
-		return nil
+		return nil, nil, nil
 	}
 
+	res := make([]basil.Node, len(nodes))
 	paramNames := make(map[basil.ID]struct{}, len(nodes))
 
 	for i, node := range nodes {
 		if node.Token() == "BLOCK" {
 			blockNode, err := node.(parsley.Transformable).Transform(parseCtx)
 			if err != nil {
-				return err
+				return nil, nil, err
 			}
-			nodes[i] = blockNode.(*Node)
+			res[i] = blockNode.(*Node)
 		} else {
-			paramChildren := node.(parsley.NonTerminalNode).Children()
-
-			paramNode := paramChildren[0]
-			paramName, _ := paramNode.Value(nil)
-			if _, exists := paramNames[paramName.(basil.ID)]; exists {
-				return parsley.NewErrorf(paramChildren[0].Pos(), "%q parameter was defined multiple times", paramName)
-			}
-			paramNames[paramName.(basil.ID)] = struct{}{}
-
-			op, _ := paramChildren[1].Value(nil)
-			isDeclaration := op == ":="
-
-			valueNode, err := parsley.Transform(parseCtx, paramChildren[2])
+			paramNode, err := transformParamNode(parseCtx, node, blockID, paramNames)
 			if err != nil {
-				return err
+				return nil, nil, err
 			}
-
-			nodes[i] = NewParamNode(paramNode, valueNode, isDeclaration)
+			res[i] = paramNode
 		}
 	}
 
-	return nil
+	return dependency.NewResolver(res...).Resolve()
+}
+
+func transformParamNode(
+	parseCtx interface{},
+	node parsley.Node,
+	blockID basil.ID,
+	paramNames map[basil.ID]struct{},
+) (*ParamNode, parsley.Error) {
+	paramChildren := node.(parsley.NonTerminalNode).Children()
+
+	nameNode := paramChildren[0].(*basil.IDNode)
+	if _, exists := paramNames[nameNode.ID()]; exists {
+		return nil, parsley.NewErrorf(
+			paramChildren[0].Pos(),
+			"%q parameter was defined multiple times", nameNode.ID(),
+		)
+	}
+	paramNames[nameNode.ID()] = struct{}{}
+
+	op, _ := paramChildren[1].Value(nil)
+	isDeclaration := op == ":="
+
+	valueNode, err := parsley.Transform(parseCtx, paramChildren[2])
+	if err != nil {
+		return nil, err
+	}
+
+	return NewParamNode(blockID, nameNode, valueNode, isDeclaration), nil
 }

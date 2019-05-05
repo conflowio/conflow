@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opsidian/basil/identifier"
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/variable"
 )
 
@@ -35,7 +35,7 @@ func (f *Field) Validate() error {
 		return fmt.Errorf("field %q must only have one tag of: id, value, block or node", f.Name)
 	}
 
-	if !identifier.RegExp.MatchString(f.ParamName) {
+	if !basil.IDRegExp.MatchString(f.ParamName) {
 		return fmt.Errorf("\"name\" tag is invalid on field %q, it must be a valid identifier", f.Name)
 	}
 

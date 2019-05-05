@@ -41,34 +41,6 @@ func (i {{$root.Name}}Interpreter) Create(ctx *basil.EvalContext, node basil.Blo
 	}
 }
 
-func (i {{$root.Name}}Interpreter) Update(ctx *basil.EvalContext, target basil.Block, blockType basil.ID, n parsley.Node) parsley.Error {
-	{{ if .EvalFieldsCnt -}}
-	b := target.(*{{$root.Name}})
-
-	switch blockType {
-	{{ range $root.Fields -}}
-	{{ if .IsParam -}}
-	case "{{.ParamName}}":
-		var err parsley.Error
-		b.{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(n, ctx)
-		return err
-	{{ end -}}
-	{{ if .IsBlock -}}
-	case "{{.ParamName}}":
-		block, err := n.Value(ctx)
-		if err != nil {
-			return err
-		}
-		b.{{.Name}} = append(b.{{.Name}}, block.({{trimPrefix .Type "[]" }}))
-		return nil
-	{{ end -}}
-	{{ end -}}
-	}
-	{{ end -}}
-
-	panic(fmt.Errorf("unexpected parameter or block %q in {{$root.Name}}Interpreter", blockType))
-}
-
 // Params returns with the list of valid parameters
 func (i {{$root.Name}}Interpreter) Params() map[basil.ID]string {
 	{{ if .ParamTypes -}}
@@ -115,15 +87,42 @@ func (i {{$root.Name}}Interpreter) ParseContext(parentCtx *basil.ParseContext) *
 	return parentCtx
 }
 
-func (i {{$root.Name}}Interpreter) Param(target basil.Block, paramName basil.ID) interface{} {
-	b := target.(*{{$root.Name}})
-	switch paramName {
+func (i {{$root.Name}}Interpreter) Param(block basil.Block, name basil.ID) interface{} {
+	b := block.(*{{$root.Name}})
+
+	switch name {
 	{{ range $root.Fields }}{{ if or .IsParam .IsID -}}
 	case "{{.ParamName}}":
 		return b.{{.Name}}
 	{{ end }}{{ end -}}
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in {{$root.Name}}Interpreter", paramName))
+		panic(fmt.Errorf("unexpected parameter %q in {{$root.Name}}", name))
+	}
+}
+
+func (i {{$root.Name}}Interpreter) SetParam(ctx *basil.EvalContext, block basil.Block, name basil.ID, node parsley.Node) parsley.Error {
+	b := block.(*{{$root.Name}})
+
+	switch name {
+	{{ range $root.Fields -}}
+	{{ if or .IsParam .IsID -}}
+	case "{{.ParamName}}":
+		var err parsley.Error
+		b.{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(node, ctx)
+		return err
+	{{ end -}}
+	{{ if .IsBlock -}}
+	case "{{.ParamName}}":
+		value, err := node.Value(ctx)
+		if err != nil {
+			return err
+		}
+		b.{{.Name}} = append(b.{{.Name}}, value.({{trimPrefix .Type "[]" }}))
+		return nil
+	{{ end -}}
+	{{ end -}}
+	default:
+		panic(fmt.Errorf("unexpected parameter or block %q in {{$root.Name}}", name))
 	}
 }
 

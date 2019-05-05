@@ -11,8 +11,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const q = "`"
-
 var _ = Describe("ParseArguments", func() {
 
 	var source string

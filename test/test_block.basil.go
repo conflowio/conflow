@@ -18,57 +18,6 @@ func (i TestBlockInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNod
 	}
 }
 
-func (i TestBlockInterpreter) Update(ctx *basil.EvalContext, target basil.Block, blockType basil.ID, n parsley.Node) parsley.Error {
-	b := target.(*TestBlock)
-
-	switch blockType {
-	case "value":
-		var err parsley.Error
-		b.Value, err = variable.NodeAnyValue(n, ctx)
-		return err
-	case "field_string":
-		var err parsley.Error
-		b.FieldString, err = variable.NodeStringValue(n, ctx)
-		return err
-	case "field_int":
-		var err parsley.Error
-		b.FieldInt, err = variable.NodeIntegerValue(n, ctx)
-		return err
-	case "field_float":
-		var err parsley.Error
-		b.FieldFloat, err = variable.NodeFloatValue(n, ctx)
-		return err
-	case "field_bool":
-		var err parsley.Error
-		b.FieldBool, err = variable.NodeBoolValue(n, ctx)
-		return err
-	case "field_array":
-		var err parsley.Error
-		b.FieldArray, err = variable.NodeArrayValue(n, ctx)
-		return err
-	case "field_map":
-		var err parsley.Error
-		b.FieldMap, err = variable.NodeMapValue(n, ctx)
-		return err
-	case "field_time_duration":
-		var err parsley.Error
-		b.FieldTimeDuration, err = variable.NodeTimeDurationValue(n, ctx)
-		return err
-	case "custom_field":
-		var err parsley.Error
-		b.FieldCustomName, err = variable.NodeStringValue(n, ctx)
-		return err
-	case "testblock":
-		block, err := n.Value(ctx)
-		if err != nil {
-			return err
-		}
-		b.Blocks = append(b.Blocks, block.(*TestBlock))
-		return nil
-	}
-	panic(fmt.Errorf("unexpected parameter or block %q in TestBlockInterpreter", blockType))
-}
-
 // Params returns with the list of valid parameters
 func (i TestBlockInterpreter) Params() map[basil.ID]string {
 	return map[basil.ID]string{
@@ -109,9 +58,10 @@ func (i TestBlockInterpreter) ParseContext(parentCtx *basil.ParseContext) *basil
 	return parentCtx
 }
 
-func (i TestBlockInterpreter) Param(target basil.Block, paramName basil.ID) interface{} {
-	b := target.(*TestBlock)
-	switch paramName {
+func (i TestBlockInterpreter) Param(block basil.Block, name basil.ID) interface{} {
+	b := block.(*TestBlock)
+
+	switch name {
 	case "id":
 		return b.IDField
 	case "value":
@@ -133,6 +83,62 @@ func (i TestBlockInterpreter) Param(target basil.Block, paramName basil.ID) inte
 	case "custom_field":
 		return b.FieldCustomName
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in TestBlockInterpreter", paramName))
+		panic(fmt.Errorf("unexpected parameter %q in TestBlock", name))
+	}
+}
+
+func (i TestBlockInterpreter) SetParam(ctx *basil.EvalContext, block basil.Block, name basil.ID, node parsley.Node) parsley.Error {
+	b := block.(*TestBlock)
+
+	switch name {
+	case "id":
+		var err parsley.Error
+		b.IDField, err = variable.NodeIdentifierValue(node, ctx)
+		return err
+	case "value":
+		var err parsley.Error
+		b.Value, err = variable.NodeAnyValue(node, ctx)
+		return err
+	case "field_string":
+		var err parsley.Error
+		b.FieldString, err = variable.NodeStringValue(node, ctx)
+		return err
+	case "field_int":
+		var err parsley.Error
+		b.FieldInt, err = variable.NodeIntegerValue(node, ctx)
+		return err
+	case "field_float":
+		var err parsley.Error
+		b.FieldFloat, err = variable.NodeFloatValue(node, ctx)
+		return err
+	case "field_bool":
+		var err parsley.Error
+		b.FieldBool, err = variable.NodeBoolValue(node, ctx)
+		return err
+	case "field_array":
+		var err parsley.Error
+		b.FieldArray, err = variable.NodeArrayValue(node, ctx)
+		return err
+	case "field_map":
+		var err parsley.Error
+		b.FieldMap, err = variable.NodeMapValue(node, ctx)
+		return err
+	case "field_time_duration":
+		var err parsley.Error
+		b.FieldTimeDuration, err = variable.NodeTimeDurationValue(node, ctx)
+		return err
+	case "custom_field":
+		var err parsley.Error
+		b.FieldCustomName, err = variable.NodeStringValue(node, ctx)
+		return err
+	case "testblock":
+		value, err := node.Value(ctx)
+		if err != nil {
+			return err
+		}
+		b.Blocks = append(b.Blocks, value.(*TestBlock))
+		return nil
+	default:
+		panic(fmt.Errorf("unexpected parameter or block %q in TestBlock", name))
 	}
 }

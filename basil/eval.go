@@ -14,11 +14,6 @@ const (
 	EvalStagePost
 )
 
-// EvalStageAware defines an interface to return with the evaluation stage
-type EvalStageAware interface {
-	EvalStage() EvalStage
-}
-
 // EvalContext is the evaluation context
 type EvalContext struct {
 	processCtx             context.Context

@@ -32,15 +32,15 @@ var _ = Describe("Expression", func() {
 		test.TableEntry("[1, 2]", []interface{}{int64(1), int64(2)}),
 		test.TableEntry("[1, 2][1]", int64(2)),
 		test.TableEntry(`[1, "foo"]`, []interface{}{int64(1), "foo"}),
-		test.TableEntry(`[1, foo]`, []interface{}{int64(1), "bar"}),
+		test.TableEntry(`[1, test.field_string]`, []interface{}{int64(1), "bar"}),
 		test.TableEntry("[]", []interface{}{}),
 		test.TableEntry("[nil]", []interface{}{nil}),
-		test.TableEntry("foo", "bar"),
-		test.TableEntry(`testmap["key1"]`, "value1"),
-		test.TableEntry(`testmap["key2"]["key3"]`, "value3"),
-		test.TableEntry(`arr[0]`, "value1"),
-		test.TableEntry(`arr[intkey]`, []interface{}{"value2"}),
-		test.TableEntry(`arr[1][0]`, "value2"),
+		test.TableEntry("test.field_string", "bar"),
+		test.TableEntry(`test.field_map["key1"]`, "value1"),
+		test.TableEntry(`test.field_map["key2"]["key3"]`, "value3"),
+		test.TableEntry(`test.field_array[0]`, "value1"),
+		test.TableEntry(`test.field_array[test.field_int]`, "value2"),
+		test.TableEntry(`test.field_array[2][0]`, "value2"),
 		test.TableEntry(`1h30m`, time.Hour+30*time.Minute),
 
 		// Function
@@ -152,8 +152,8 @@ var _ = Describe("Expression", func() {
 		test.TableEntry("1 <=", errors.New("was expecting value at testfile:1:5")),
 
 		// And/or
-		test.TableEntry("a &&", errors.New("was expecting value at testfile:1:5")),
-		test.TableEntry("b ||", errors.New("was expecting value at testfile:1:5")),
+		test.TableEntry("true &&", errors.New("was expecting value at testfile:1:8")),
+		test.TableEntry("false ||", errors.New("was expecting value at testfile:1:9")),
 
 		// Ternary
 		test.TableEntry("true ?", errors.New("was expecting value at testfile:1:7")),
@@ -166,6 +166,24 @@ var _ = Describe("Expression", func() {
 		// Index
 		test.TableEntry(`([0, 1])[1]`, errors.New("was expecting the end of input at testfile:1:9")),
 		test.TableEntry(`1[1]`, errors.New("was expecting the end of input at testfile:1:2")),
+	)
+
+	DescribeTable("it returns an static check error",
+		func(input string, expectedErr error) {
+			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
+		},
+		// And
+		test.TableEntry(`true && "a"`, errors.New("was expecting boolean at testfile:1:9")),
+
+		// Or
+		test.TableEntry(`true || "a"`, errors.New("was expecting boolean at testfile:1:9")),
+
+		// Variable
+		test.TableEntry(`non.existing`, errors.New("block \"non\" does not exist at testfile:1:1")),
+		test.TableEntry(`test.nonexisting`, errors.New("parameter \"nonexisting\" does not exist at testfile:1:6")),
+
+		// Functions
+		test.TableEntry(`non_existing()`, errors.New("\"non_existing\" function does not exist at testfile:1:1")),
 	)
 
 	DescribeTable("it returns an eval error",
@@ -192,24 +210,14 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`1 < "a"`, errors.New("unsupported < operation on int64 and string at testfile:1:3")),
 		test.TableEntry(`1 <= "a"`, errors.New("unsupported <= operation on int64 and string at testfile:1:3")),
 
-		// And
-		test.TableEntry(`true && "a"`, errors.New("was expecting boolean at testfile:1:9")),
-
-		// Or
-		test.TableEntry(`true || "a"`, errors.New("was expecting boolean at testfile:1:9")),
-
 		// Ternary
 		test.TableEntry("1 ? 2 : 3", errors.New("expecting bool, got int64 at testfile:1:1")),
 
 		// Variable
-		test.TableEntry(`a`, errors.New("variable \"a\" is not defined at testfile:1:1")),
-		test.TableEntry(`arr[3]`, errors.New("array index out of bounds: 3 (0..2) at testfile:1:5")),
-		test.TableEntry(`arr["key"]`, errors.New("non-integer index on array at testfile:1:5")),
-		test.TableEntry(`testmap["nooo"]`, errors.New("key \"nooo\" does not exist on map at testfile:1:9")),
-		test.TableEntry(`testmap[1]`, errors.New("invalid non-string index on map at testfile:1:9")),
-
-		// Functions
-		test.TableEntry(`non_existing()`, errors.New("\"non_existing\" function does not exist at testfile:1:1")),
+		test.TableEntry(`test.field_array[3]`, errors.New("array index out of bounds: 3 (0..2) at testfile:1:18")),
+		test.TableEntry(`test.field_array["key"]`, errors.New("non-integer index on array at testfile:1:18")),
+		test.TableEntry(`test.field_map["nooo"]`, errors.New("key \"nooo\" does not exist on map at testfile:1:16")),
+		test.TableEntry(`test.field_map[1]`, errors.New("invalid non-string index on map at testfile:1:16")),
 	)
 
 	Context("When there is only one node", func() {

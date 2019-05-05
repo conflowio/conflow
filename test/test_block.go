@@ -24,10 +24,6 @@ type TestBlock struct {
 	Blocks []*TestBlock `basil:"block=testblock"`
 }
 
-func (t *TestBlock) ID() basil.ID {
-	return t.IDField
-}
-
 func (t *TestBlock) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
 	return ctx.New(basil.ParseContextConfig{
 		BlockTransformerRegistry: block.InterpreterRegistry{

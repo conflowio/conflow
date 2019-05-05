@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -15,10 +16,6 @@ func (i BlockWithBlockInterpreter) Create(ctx *basil.EvalContext, node basil.Blo
 	return &BlockWithBlock{
 		IDField: node.ID(),
 	}
-}
-
-func (i BlockWithBlockInterpreter) Update(ctx *basil.EvalContext, target basil.Block, blockType basil.ID, n parsley.Node) parsley.Error {
-	panic(fmt.Errorf("unexpected parameter or block %q in BlockWithBlockInterpreter", blockType))
 }
 
 // Params returns with the list of valid parameters
@@ -51,12 +48,33 @@ func (i BlockWithBlockInterpreter) ParseContext(parentCtx *basil.ParseContext) *
 	return parentCtx
 }
 
-func (i BlockWithBlockInterpreter) Param(target basil.Block, paramName basil.ID) interface{} {
-	b := target.(*BlockWithBlock)
-	switch paramName {
+func (i BlockWithBlockInterpreter) Param(block basil.Block, name basil.ID) interface{} {
+	b := block.(*BlockWithBlock)
+
+	switch name {
 	case "id":
 		return b.IDField
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in BlockWithBlockInterpreter", paramName))
+		panic(fmt.Errorf("unexpected parameter %q in BlockWithBlock", name))
+	}
+}
+
+func (i BlockWithBlockInterpreter) SetParam(ctx *basil.EvalContext, block basil.Block, name basil.ID, node parsley.Node) parsley.Error {
+	b := block.(*BlockWithBlock)
+
+	switch name {
+	case "id":
+		var err parsley.Error
+		b.IDField, err = variable.NodeIdentifierValue(node, ctx)
+		return err
+	case "block_simple":
+		value, err := node.Value(ctx)
+		if err != nil {
+			return err
+		}
+		b.Blocks = append(b.Blocks, value.(*BlockSimple))
+		return nil
+	default:
+		panic(fmt.Errorf("unexpected parameter or block %q in BlockWithBlock", name))
 	}
 }

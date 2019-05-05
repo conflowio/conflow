@@ -9,7 +9,7 @@ import (
 type FunctionNode interface {
 	parsley.Node
 	parsley.StaticCheckable
-	Identifiable
+	Name() ID
 	ArgumentNodes() []parsley.Node
 }
 

@@ -30,6 +30,7 @@ var _ = Describe("ID", func() {
 		test.TableEntry(`testkeyword`, errors.New("testkeyword is a reserved keyword at testfile:1:1")),
 		test.TableEntry(`a__b`, errors.New("was expecting the end of input at testfile:1:2")),
 		test.TableEntry(`_b`, errors.New("was expecting identifier at testfile:1:1")),
+		test.TableEntry(`b_`, errors.New("was expecting the end of input at testfile:1:2")),
 		test.TableEntry(`0ab`, errors.New("was expecting identifier at testfile:1:1")),
 	)
 

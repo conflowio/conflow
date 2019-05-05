@@ -14,31 +14,33 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
+var _ basil.BlockNode = &Node{}
+
 // Node is a block node
 type Node struct {
-	typeNode     parsley.Node
-	idNode       parsley.Node
-	children     []parsley.Node
-	dependencies []parsley.Node
+	parentID     basil.ID
+	typeNode     *basil.IDNode
+	idNode       *basil.IDNode
+	children     []basil.Node
 	readerPos    parsley.Pos
 	interpreter  Interpreter
+	dependencies []basil.IdentifiableNode
 	evalStage    basil.EvalStage
 }
 
 // ID returns with the id of the block
 func (n *Node) ID() basil.ID {
-	id, _ := n.idNode.Value(nil)
-	return id.(basil.ID)
+	return n.idNode.ID()
 }
 
-// IDNode returns with the id node
-func (n *Node) IDNode() parsley.Node {
-	return n.idNode
+// ParentID returns with the parent block ID
+func (n *Node) ParentID() basil.ID {
+	return n.parentID
 }
 
 // TypeNode returns with the type node
-func (n *Node) TypeNode() parsley.Node {
-	return n.typeNode
+func (n *Node) BlockType() basil.ID {
+	return n.typeNode.ID()
 }
 
 // Token returns with the node's token
@@ -48,13 +50,29 @@ func (n *Node) Token() string {
 
 // Type returns with the node's type
 func (n *Node) Type() string {
-	nodeType, _ := n.typeNode.Value(nil)
-	return string(nodeType.(basil.ID))
+	return string(n.typeNode.ID())
 }
 
 // EvalStage returns with the evaluation stage
 func (n *Node) EvalStage() basil.EvalStage {
 	return n.evalStage
+}
+
+// Dependencies returns the blocks/parameters this block depends on
+func (n *Node) Dependencies() []basil.IdentifiableNode {
+	return n.dependencies
+}
+
+// Provides returns with the all the defined blocked node ids inside this block
+func (n *Node) Provides() []basil.ID {
+	var providedBlockIDs []basil.ID
+	for _, c := range n.children {
+		if b, ok := c.(*Node); ok {
+			providedBlockIDs = append(providedBlockIDs, b.ID())
+			providedBlockIDs = append(providedBlockIDs, b.Provides()...)
+		}
+	}
+	return providedBlockIDs
 }
 
 // StaticCheck runs static analysis on the node
@@ -72,19 +90,23 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case *Node:
-			if _, exists := params[c.ID()]; exists {
-				return parsley.NewError(c.idNode.Pos(), fmt.Errorf("%q block can not have the same name as a block parameter", c.ID()))
-			}
 		case *ParamNode:
-			paramType, exists := params[c.ID()]
-			if !exists {
-				return parsley.NewError(c.Pos(), fmt.Errorf("%q parameter does not exist", c.ID()))
+			paramType, exists := params[c.Name()]
+
+			if exists && c.IsDeclaration() {
+				return parsley.NewErrorf(c.Pos(), "%q parameter already exists. Use \"=\" to set the parameter value or use a different name", c.Name())
 			}
+
+			if !exists && !c.IsDeclaration() {
+				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
+			}
+
 			if err := variable.CheckNodeType(c, paramType); err != nil {
 				return err
 			}
-			if _, required := requiredParams[c.ID()]; required {
-				requiredParams[c.ID()] = true
+
+			if _, required := requiredParams[c.Name()]; required {
+				requiredParams[c.Name()] = true
 			}
 		}
 	}
@@ -105,8 +127,10 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 	evalCtx := userCtx.(*basil.EvalContext)
 
 	block := n.interpreter.Create(evalCtx, n)
-	container := NewContainer(block, n.interpreter)
-	blockContainerRegistry.AddBlockContainer(container)
+	container := NewContainer(n.idNode.ID(), block, n.interpreter)
+	if err := blockContainerRegistry.AddBlockContainer(container); err != nil {
+		return nil, parsley.NewError(n.Pos(), err)
+	}
 
 	if b, ok := block.(basil.EvalContextAware); ok {
 		evalCtx = b.EvalContext(evalCtx)
@@ -132,8 +156,8 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 		return nil, err
 	}
 
-	if b, ok := block.(basil.BlockRunner); ok {
-		if err := b.Run(evalCtx); err != nil {
+	if b, ok := basil.Block(block).(basil.BlockRunner); ok {
+		if err := b.Main(evalCtx); err != nil {
 			return nil, parsley.NewError(n.Pos(), err)
 		}
 	}
@@ -142,8 +166,8 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 		return nil, err
 	}
 
-	if b, ok := basil.Block(block).(basil.BlockFinisher); ok {
-		if err := b.Finish(evalCtx); err != nil {
+	if b, ok := basil.Block(block).(basil.BlockCloser); ok {
+		if err := b.Close(evalCtx); err != nil {
 			return nil, parsley.NewError(n.Pos(), err)
 		}
 	}
@@ -156,14 +180,13 @@ func (n *Node) eval(ctx *basil.EvalContext, stage basil.EvalStage, container *Co
 		switch c := child.(type) {
 		case *ParamNode:
 			if c.EvalStage() == stage {
-				if err := container.SetParam(ctx, c.ID(), c.ValueNode()); err != nil {
+				if err := container.SetParam(ctx, c.Name(), c.valueNode); err != nil {
 					return err
 				}
 			}
 		case *Node:
 			if c.EvalStage() == stage {
-				blockType, _ := c.TypeNode().Value(ctx)
-				if err := n.interpreter.Update(ctx, container.Block(), blockType.(basil.ID), c); err != nil {
+				if err := n.interpreter.SetParam(ctx, container.Block(), c.BlockType(), c); err != nil {
 					return err
 				}
 			}
@@ -189,20 +212,15 @@ func (n *Node) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 }
 
 // Children returns with the parameter and child block nodes
-func (n *Node) Children() []parsley.Node {
+func (n *Node) Children() []basil.Node {
 	return n.children
-}
-
-// Dependencies returns the blocks/parameters this block depends on
-func (n *Node) Dependencies() []parsley.Node {
-	return n.dependencies
 }
 
 // ParamType returns with the given parameter's type if it exists, otherwise it returns false
 func (n *Node) ParamType(name basil.ID) (string, bool) {
 	for _, child := range n.children {
 		if paramNode, ok := child.(*ParamNode); ok {
-			if paramNode.ID() == name {
+			if paramNode.Name() == name {
 				return paramNode.Type(), true
 			}
 		}
@@ -219,16 +237,6 @@ func (n *Node) ParamType(name basil.ID) (string, bool) {
 
 // Walk runs the given function on all child nodes
 func (n *Node) Walk(f func(n parsley.Node) bool) bool {
-	if parsley.Walk(n.typeNode, f) {
-		return true
-	}
-
-	if n.idNode != nil {
-		if parsley.Walk(n.idNode, f) {
-			return true
-		}
-	}
-
 	for _, node := range n.children {
 		if parsley.Walk(node, f) {
 			return true

@@ -50,13 +50,13 @@ var _ = Describe("Function", func() {
 		},
 		test.TableEntry(`test_func0("foo")`, errors.New("test_func0 expects 0 arguments at testfile:1:1")),
 		test.TableEntry(`test_func1(5)`, errors.New("was expecting string at testfile:1:12")),
+		test.TableEntry(`nonexisting("foo")`, errors.New("\"nonexisting\" function does not exist at testfile:1:1")),
 	)
 
 	DescribeTable("it returns an eval error",
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
 		},
-		test.TableEntry(`nonexisting("foo")`, errors.New("\"nonexisting\" function does not exist at testfile:1:1")),
 		test.TableEntry("test_func1(ERR)", errors.New("ERR at testfile:1:12")),
 	)
 

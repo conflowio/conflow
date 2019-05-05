@@ -1,4 +1,4 @@
-package basil_test
+package dependency_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestOcl(t *testing.T) {
+func TestDependency(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Ocl Suite")
+	RunSpecs(t, "Dependency Suite")
 }

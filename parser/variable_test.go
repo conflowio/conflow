@@ -57,53 +57,13 @@ var _ = Describe("Variable", func() {
 		}
 	})
 
-	Context("when referencing a root block", func() {
-		var rootNode *basilfakes.FakeBlockNode
-		var rootBlock *basilfakes.FakeBlock
-		var rootBlockInterpreter *blockfakes.FakeInterpreter
-
+	Context("when referencing only the block name", func() {
 		BeforeEach(func() {
-			rootNode = &basilfakes.FakeBlockNode{}
-			blockNodeRegistry.BlockNodeReturnsOnCall(0, rootNode, true)
-
-			rootBlock = &basilfakes.FakeBlock{}
-			rootBlock.IDReturns("root")
-			rootBlockInterpreter = &blockfakes.FakeInterpreter{}
-			rootBlockInterpreter.ParamReturnsOnCall(0, "bar")
-
-			rootBlockContainer := block.NewContainer(rootBlock, rootBlockInterpreter)
-			blockContainerRegistry.AddBlockContainer(rootBlockContainer)
-
+			input = "foo"
 		})
 
-		Context("with an existing parameter", func() {
-			BeforeEach(func() {
-				input = "param1"
-				rootNode.ParamTypeReturnsOnCall(0, "string", true)
-			})
-
-			It("should evaluate successfully", func() {
-				Expect(parseErr).ToNot(HaveOccurred())
-				Expect(evalErr).ToNot(HaveOccurred())
-				Expect(value).To(Equal("bar"))
-
-				Expect(blockNodeRegistry.BlockNodeArgsForCall(0)).To(Equal(basil.ID("root")))
-				Expect(rootNode.ParamTypeArgsForCall(0)).To(Equal(basil.ID("param1")))
-				passedBlock, passedParam := rootBlockInterpreter.ParamArgsForCall(0)
-				Expect(passedBlock).To(Equal(rootBlock))
-				Expect(passedParam).To(Equal(basil.ID("param1")))
-			})
-		})
-
-		Context("with a nonexisting parameter", func() {
-			BeforeEach(func() {
-				input = "param1"
-				rootNode.ParamTypeReturnsOnCall(0, "", false)
-			})
-
-			It("should return a parse error", func() {
-				Expect(parseErr).To(MatchError("parameter \"param1\" does not exist at testfile:1:1"))
-			})
+		It("should return with a parse error", func() {
+			Expect(parseErr).To(HaveOccurred())
 		})
 	})
 
@@ -117,12 +77,12 @@ var _ = Describe("Variable", func() {
 			blockNodeRegistry.BlockNodeReturnsOnCall(0, blockNode, true)
 
 			fooBlock = &basilfakes.FakeBlock{}
-			fooBlock.IDReturns("foo")
 			fooBlockInterpreter = &blockfakes.FakeInterpreter{}
 			fooBlockInterpreter.ParamReturnsOnCall(0, "bar")
 
-			blockContainer := block.NewContainer(fooBlock, fooBlockInterpreter)
-			blockContainerRegistry.AddBlockContainer(blockContainer)
+			blockContainer := block.NewContainer(basil.ID("foo"), fooBlock, fooBlockInterpreter)
+			err := blockContainerRegistry.AddBlockContainer(blockContainer)
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		Context("with an existing parameter", func() {
