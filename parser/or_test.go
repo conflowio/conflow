@@ -43,13 +43,19 @@ var _ = Describe("Or", func() {
 		test.TableEntry("true ||", errors.New("was expecting value at testfile:1:8")),
 	)
 
-	DescribeTable("it returns an eval error",
+	DescribeTable("it returns a parse error",
 		func(input string, expectedErr error) {
-			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
+			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
 		},
 		test.TableEntry("1 || 2", errors.New("was expecting boolean at testfile:1:1")),
 		test.TableEntry("nil || 1", errors.New("was expecting boolean at testfile:1:8")),
 		test.TableEntry("true || 1", errors.New("was expecting boolean at testfile:1:9")),
+	)
+
+	DescribeTable("it returns an eval error",
+		func(input string, expectedErr error) {
+			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
+		},
 		test.TableEntry("ERR", errors.New("ERR at testfile:1:1")),
 		test.TableEntry("true || ERR", errors.New("ERR at testfile:1:9")),
 	)
