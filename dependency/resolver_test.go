@@ -20,10 +20,7 @@ var _ = Describe("Resolver", func() {
 	var err error
 
 	BeforeEach(func() {
-		resolver = dependency.NewResolver()
-		result = nil
-		dependencies = nil
-		err = nil
+		resolver = dependency.NewResolver("b")
 	})
 
 	JustBeforeEach(func() {
@@ -241,6 +238,30 @@ var _ = Describe("Resolver", func() {
 			param1.PosReturns(parsley.Pos(1))
 
 			dep1 = dep("b.param2")
+			dep1.PosReturns(parsley.Pos(2))
+
+			param1.DependenciesReturns([]basil.IdentifiableNode{dep1})
+
+			resolver.AddNodes(param1)
+		})
+
+		It("should return with an error", func() {
+			expectedErr := parsley.NewError(parsley.Pos(2), errors.New("unknown parameter: \"b.param2\""))
+			Expect(err).To(MatchError(expectedErr))
+		})
+
+	})
+
+	Context("when a node is referencing an external parameter", func() {
+		var param1 *basilfakes.FakeNode
+		var dep1 *basilfakes.FakeIdentifiableNode
+
+		BeforeEach(func() {
+			param1 = &basilfakes.FakeNode{}
+			param1.IDReturns("b.param1")
+			param1.PosReturns(parsley.Pos(1))
+
+			dep1 = dep("b2.param2")
 
 			param1.DependenciesReturns([]basil.IdentifiableNode{dep1})
 

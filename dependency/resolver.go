@@ -13,6 +13,7 @@ import (
 //
 // It uses Tarjan's strongly connected components algorithm to detect cycles.
 type Resolver struct {
+	id            basil.ID
 	nodes         map[basil.ID]*node
 	providedNodes map[basil.ID]basil.ID
 	index         int
@@ -22,8 +23,9 @@ type Resolver struct {
 }
 
 // NewResolver creates a new dependency resolver
-func NewResolver(nodes ...basil.Node) *Resolver {
+func NewResolver(id basil.ID, nodes ...basil.Node) *Resolver {
 	r := &Resolver{
+		id:            id,
 		nodes:         make(map[basil.ID]*node),
 		providedNodes: make(map[basil.ID]basil.ID),
 	}
@@ -65,6 +67,10 @@ func (r *Resolver) strongConnect(v *node) parsley.Error {
 	for _, d := range v.Node.Dependencies() {
 		w, found := r.nodes[d.ID()]
 		if !found {
+			if d.ParentID() == r.id {
+				return parsley.NewErrorf(d.Pos(), "unknown parameter: %q", d.ID())
+			}
+
 			w, found = r.nodes[d.ParentID()]
 		}
 		if !found {

@@ -126,7 +126,7 @@ func transformChildren(
 		}
 	}
 
-	return dependency.NewResolver(res...).Resolve()
+	return dependency.NewResolver(blockID, res...).Resolve()
 }
 
 func transformParamNode(
