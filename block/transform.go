@@ -44,7 +44,7 @@ func transformNode(parseCtx interface{}, node parsley.Node, interpreter Interpre
 	if len(nodes) > 1 {
 		blockValueNode := nodes[1]
 
-		if blockValueNode.Token() == "BLOCK_BODY" {
+		if blockValueNode.Token() == TokenBlockBody {
 			blockValueChildren := blockValueNode.(parsley.NonTerminalNode).Children()
 
 			if len(blockValueChildren) > 2 {
@@ -98,6 +98,44 @@ func transformNode(parseCtx interface{}, node parsley.Node, interpreter Interpre
 	return res, nil
 }
 
+func transformMainNode(parseCtx interface{}, node parsley.Node, interpreter Interpreter) (parsley.Node, parsley.Error) {
+	blockNodeRegistry := parseCtx.(basil.BlockNodeRegistryAware).BlockNodeRegistry()
+
+	id := basil.ID(basil.MainID)
+
+	children, dependencies, err := transformChildren(
+		parseCtx,
+		id,
+		node.(parsley.NonTerminalNode).Children(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(dependencies) > 0 {
+		d := dependencies[0]
+		if _, blockNodeExists := blockNodeRegistry.BlockNode(d.ParentID()); blockNodeExists {
+			return nil, parsley.NewErrorf(dependencies[0].Pos(), "unknown parameter: %q", d.ID())
+		} else {
+			return nil, parsley.NewErrorf(dependencies[0].Pos(), "unknown block: %q", d.ParentID())
+		}
+	}
+
+	res := &Node{
+		idNode:      basil.NewIDNode(id, node.Pos(), node.Pos()),
+		typeNode:    basil.NewIDNode(id, node.Pos(), node.Pos()),
+		children:    children,
+		interpreter: interpreter,
+		readerPos:   node.ReaderPos(),
+	}
+
+	if err := blockNodeRegistry.AddBlockNode(res); err != nil {
+		panic("")
+	}
+
+	return res, nil
+}
+
 func transformChildren(
 	parseCtx interface{},
 	blockID basil.ID,
@@ -107,22 +145,22 @@ func transformChildren(
 		return nil, nil, nil
 	}
 
-	res := make([]basil.Node, len(nodes))
+	res := make([]basil.Node, 0, len(nodes))
 	paramNames := make(map[basil.ID]struct{}, len(nodes))
 
-	for i, node := range nodes {
-		if node.Token() == "BLOCK" {
+	for _, node := range nodes {
+		if node.Token() == TokenBlock {
 			blockNode, err := node.(parsley.Transformable).Transform(parseCtx)
 			if err != nil {
 				return nil, nil, err
 			}
-			res[i] = blockNode.(*Node)
-		} else {
+			res = append(res, blockNode.(*Node))
+		} else if node.Token() == TokenParameter {
 			paramNode, err := transformParamNode(parseCtx, node, blockID, paramNames)
 			if err != nil {
 				return nil, nil, err
 			}
-			res[i] = paramNode
+			res = append(res, paramNode)
 		}
 	}
 

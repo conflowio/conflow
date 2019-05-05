@@ -14,6 +14,13 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
+// Node tokens
+const (
+	TokenBlock     = "BLOCK"
+	TokenBlockBody = "BLOCK_BODY"
+	TokenParameter = "PARAMETER"
+)
+
 var _ basil.BlockNode = &Node{}
 
 // Node is a block node

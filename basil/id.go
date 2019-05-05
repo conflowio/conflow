@@ -6,6 +6,9 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
+// Main is the main block's id
+const MainID = "main"
+
 // IDRegExpPattern is the regular expression for a valid identifier
 const IDRegExpPattern = "[a-z][a-z0-9]*(?:_[a-z0-9]+)*"
 
