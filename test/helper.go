@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/opsidian/basil/basil/basilfakes"
+
 	"github.com/onsi/gomega/types"
 
 	"github.com/opsidian/basil/block"
@@ -29,6 +31,20 @@ func ParseCtx(
 		}
 	}
 
+	blockNodeRegistry := block.NewNodeRegistry()
+	testBlockNode := &basilfakes.FakeBlockNode{}
+	testBlockNode.IDReturns(basil.ID("test"))
+	testBlockNode.ParamTypeCalls(func(id basil.ID) (s string, b bool) {
+		interpreter := TestBlockInterpreter{}
+		for paramName, paramType := range interpreter.Params() {
+			if id == paramName {
+				return paramType, true
+			}
+		}
+		return "", false
+	})
+	_ = blockNodeRegistry.AddBlockNode(testBlockNode)
+
 	f := text.NewFile("testfile", []byte(input))
 	fs := parsley.NewFileSet(f)
 	r := text.NewReader(f)
@@ -40,7 +56,7 @@ func ParseCtx(
 		blockRegistry,
 		functionRegistry,
 		newIDRegistry(),
-		block.NewNodeRegistry(),
+		blockNodeRegistry,
 	))
 	return ctx
 }
@@ -51,11 +67,23 @@ func EvalUserCtx() *basil.EvalContext {
 	testBlock := block.NewContainer(
 		basil.ID("test"),
 		&TestBlock{
-			Value: "bar",
+			FieldString: "bar",
+			FieldMap: map[string]interface{}{
+				"key1": "value1",
+				"key2": map[string]interface{}{
+					"key3": "value3",
+				},
+			},
+			FieldArray: []interface{}{
+				"value1",
+				"value2",
+				[]interface{}{"value2"},
+			},
+			FieldInt: int64(1),
 		},
 		TestBlockInterpreter{},
 	)
-	registry.AddBlockContainer(testBlock)
+	_ = registry.AddBlockContainer(testBlock)
 
 	return basil.NewEvalContext(context.Background(), "userctx", registry)
 }
