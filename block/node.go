@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/block/parameter"
 	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -91,7 +92,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case *Node:
-		case *ParamNode:
+		case *parameter.Node:
 			paramType, exists := params[c.Name()]
 
 			if exists && c.IsDeclaration() {
@@ -179,9 +180,9 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 func (n *Node) eval(ctx *basil.EvalContext, stage basil.EvalStage, container *Container) parsley.Error {
 	for _, child := range n.children {
 		switch c := child.(type) {
-		case *ParamNode:
+		case *parameter.Node:
 			if c.EvalStage() == stage {
-				if err := container.SetParam(ctx, c.Name(), c.valueNode); err != nil {
+				if err := container.SetParam(ctx, c.Name(), c.ValueNode()); err != nil {
 					return err
 				}
 			}
@@ -220,7 +221,7 @@ func (n *Node) Children() []basil.Node {
 // ParamType returns with the given parameter's type if it exists, otherwise it returns false
 func (n *Node) ParamType(name basil.ID) (string, bool) {
 	for _, child := range n.children {
-		if paramNode, ok := child.(*ParamNode); ok {
+		if paramNode, ok := child.(*parameter.Node); ok {
 			if paramNode.Name() == name {
 				return paramNode.Type(), true
 			}

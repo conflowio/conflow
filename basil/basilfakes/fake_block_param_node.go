@@ -112,6 +112,16 @@ type FakeBlockParamNode struct {
 		result1 interface{}
 		result2 parsley.Error
 	}
+	ValueNodeStub        func() parsley.Node
+	valueNodeMutex       sync.RWMutex
+	valueNodeArgsForCall []struct {
+	}
+	valueNodeReturns struct {
+		result1 parsley.Node
+	}
+	valueNodeReturnsOnCall map[int]struct {
+		result1 parsley.Node
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -647,6 +657,58 @@ func (fake *FakeBlockParamNode) ValueReturnsOnCall(i int, result1 interface{}, r
 	}{result1, result2}
 }
 
+func (fake *FakeBlockParamNode) ValueNode() parsley.Node {
+	fake.valueNodeMutex.Lock()
+	ret, specificReturn := fake.valueNodeReturnsOnCall[len(fake.valueNodeArgsForCall)]
+	fake.valueNodeArgsForCall = append(fake.valueNodeArgsForCall, struct {
+	}{})
+	fake.recordInvocation("ValueNode", []interface{}{})
+	fake.valueNodeMutex.Unlock()
+	if fake.ValueNodeStub != nil {
+		return fake.ValueNodeStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.valueNodeReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockParamNode) ValueNodeCallCount() int {
+	fake.valueNodeMutex.RLock()
+	defer fake.valueNodeMutex.RUnlock()
+	return len(fake.valueNodeArgsForCall)
+}
+
+func (fake *FakeBlockParamNode) ValueNodeCalls(stub func() parsley.Node) {
+	fake.valueNodeMutex.Lock()
+	defer fake.valueNodeMutex.Unlock()
+	fake.ValueNodeStub = stub
+}
+
+func (fake *FakeBlockParamNode) ValueNodeReturns(result1 parsley.Node) {
+	fake.valueNodeMutex.Lock()
+	defer fake.valueNodeMutex.Unlock()
+	fake.ValueNodeStub = nil
+	fake.valueNodeReturns = struct {
+		result1 parsley.Node
+	}{result1}
+}
+
+func (fake *FakeBlockParamNode) ValueNodeReturnsOnCall(i int, result1 parsley.Node) {
+	fake.valueNodeMutex.Lock()
+	defer fake.valueNodeMutex.Unlock()
+	fake.ValueNodeStub = nil
+	if fake.valueNodeReturnsOnCall == nil {
+		fake.valueNodeReturnsOnCall = make(map[int]struct {
+			result1 parsley.Node
+		})
+	}
+	fake.valueNodeReturnsOnCall[i] = struct {
+		result1 parsley.Node
+	}{result1}
+}
+
 func (fake *FakeBlockParamNode) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -670,6 +732,8 @@ func (fake *FakeBlockParamNode) Invocations() map[string][][]interface{} {
 	defer fake.typeMutex.RUnlock()
 	fake.valueMutex.RLock()
 	defer fake.valueMutex.RUnlock()
+	fake.valueNodeMutex.RLock()
+	defer fake.valueNodeMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

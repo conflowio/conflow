@@ -101,6 +101,7 @@ type BlockNodeRegistryAware interface {
 type BlockParamNode interface {
 	Node
 	Name() ID
+	ValueNode() parsley.Node
 }
 
 // BlockTransformerRegistryAware is an interface to get a block node transformer registry

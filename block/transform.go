@@ -9,6 +9,7 @@ package block
 import (
 	"errors"
 
+	"github.com/opsidian/basil/block/parameter"
 	"github.com/opsidian/basil/dependency"
 
 	"github.com/opsidian/basil/basil"
@@ -69,7 +70,7 @@ func transformNode(parseCtx interface{}, node parsley.Node, interpreter Interpre
 				return nil, err
 			}
 			children = []basil.Node{
-				NewParamNode(
+				parameter.NewNode(
 					idNode.ID(),
 					basil.NewIDNode(valueParamName, blockValueNode.Pos(), blockValueNode.Pos()),
 					valueNode,
@@ -172,7 +173,7 @@ func transformParamNode(
 	node parsley.Node,
 	blockID basil.ID,
 	paramNames map[basil.ID]struct{},
-) (*ParamNode, parsley.Error) {
+) (*parameter.Node, parsley.Error) {
 	paramChildren := node.(parsley.NonTerminalNode).Children()
 
 	nameNode := paramChildren[0].(*basil.IDNode)
@@ -192,5 +193,5 @@ func transformParamNode(
 		return nil, err
 	}
 
-	return NewParamNode(blockID, nameNode, valueNode, isDeclaration), nil
+	return parameter.NewNode(blockID, nameNode, valueNode, isDeclaration), nil
 }
