@@ -114,7 +114,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 	for paramName, isSet := range requiredParams {
 		if !isSet {
-			return parsley.NewError(n.Pos(), fmt.Errorf("%s parameter is required", paramName))
+			return parsley.NewError(n.Pos(), fmt.Errorf("%q parameter is required", paramName))
 		}
 	}
 
