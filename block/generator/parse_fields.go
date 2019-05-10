@@ -98,11 +98,13 @@ func parseField(astField *ast.Field) (*Field, error) {
 		paramName = blockType
 	}
 
+	fieldType := getFieldType(astField.Type)
+
 	field := &Field{
 		Name:        name,
 		ParamName:   paramName,
 		Required:    tags.GetBool(basil.BlockTagRequired),
-		Type:        getFieldType(astField.Type),
+		Type:        fieldType,
 		Stage:       tags.GetWithDefault(basil.BlockTagStage, "default"),
 		IsID:        isID,
 		IsValue:     tags.GetBool(basil.BlockTagValue),
@@ -110,9 +112,10 @@ func parseField(astField *ast.Field) (*Field, error) {
 		IsBlock:     isBlock,
 		IsNode:      tags.GetBool(basil.BlockTagNode),
 		IsOutput:    tags.GetBool(basil.BlockTagOut),
+		IsChannel:   strings.HasPrefix(fieldType, "chan "),
 	}
 
-	if !field.IsID && !field.IsBlock && !field.IsNode {
+	if !field.IsBlock && !field.IsNode && !field.IsChannel {
 		field.IsParam = true
 	}
 
