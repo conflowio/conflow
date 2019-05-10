@@ -100,6 +100,7 @@ func transformNode(parseCtx interface{}, node parsley.Node, interpreter Interpre
 }
 
 func transformMainNode(parseCtx interface{}, node parsley.Node, interpreter Interpreter) (parsley.Node, parsley.Error) {
+	parseCtx = interpreter.ParseContext(parseCtx.(*basil.ParseContext))
 	blockNodeRegistry := parseCtx.(basil.BlockNodeRegistryAware).BlockNodeRegistry()
 
 	id := basil.ID(basil.MainID)
