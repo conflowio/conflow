@@ -13,6 +13,11 @@ import (
 )
 
 func writeFile(name string, filename string, path string, content []byte) error {
+	err := ioutil.WriteFile(path, content, 0644)
+	if err != nil {
+		return errors.Wrapf(err, "failed to write %s to %s", name, getRelativePath(path))
+	}
+
 	formatted, err := format.Source(content)
 	if err != nil {
 		return err
