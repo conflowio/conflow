@@ -105,7 +105,7 @@ func (i {{$root.Name}}Interpreter) SetParam(ctx *basil.EvalContext, block basil.
 
 	switch name {
 	{{ range $root.Fields -}}
-	{{ if or .IsParam .IsID -}}
+	{{ if and (or .IsParam .IsID) (not .IsOutput) -}}
 	case "{{.ParamName}}":
 		var err parsley.Error
 		b.{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(node, ctx)

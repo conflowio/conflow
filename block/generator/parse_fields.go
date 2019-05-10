@@ -28,7 +28,9 @@ func ParseFields(str *ast.StructType, file *ast.File) ([]*Field, error) {
 		if err != nil {
 			return nil, err
 		}
-
+		if field == nil {
+			continue
+		}
 		if field.IsID {
 			if idField != "" {
 				return nil, fmt.Errorf("multiple id fields were found: %s, %s", idField, field.Name)
@@ -43,9 +45,7 @@ func ParseFields(str *ast.StructType, file *ast.File) ([]*Field, error) {
 			valueField = field.Name
 		}
 
-		if field != nil {
-			fields = append(fields, field)
-		}
+		fields = append(fields, field)
 	}
 
 	if idField == "" {
@@ -109,6 +109,7 @@ func parseField(astField *ast.Field) (*Field, error) {
 		IsReference: tags.GetBool(basil.BlockTagReference),
 		IsBlock:     isBlock,
 		IsNode:      tags.GetBool(basil.BlockTagNode),
+		IsOutput:    tags.GetBool(basil.BlockTagOut),
 	}
 
 	if !field.IsID && !field.IsBlock && !field.IsNode {

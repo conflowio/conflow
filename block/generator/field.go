@@ -22,6 +22,7 @@ type Field struct {
 	IsReference bool
 	IsBlock     bool
 	IsNode      bool
+	IsOutput    bool
 }
 
 // Validate validates the field tags

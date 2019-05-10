@@ -12,6 +12,7 @@ const (
 	BlockTagIgnore     = "ignore"
 	BlockTagName       = "name"
 	BlockTagNode       = "node"
+	BlockTagOut        = "out"
 	BlockTagReference  = "reference"
 	BlockTagRequired   = "required"
 	BlockTagStage      = "stage"
@@ -26,6 +27,7 @@ var BlockTags = map[string]string{
 	BlockTagIgnore:     "the field is ignored when processing the block",
 	BlockTagName:       "overrides the parameter name, otherwise the field name will be converted to under_score",
 	BlockTagNode:       "marks an array field which should store child block AST nodes",
+	BlockTagOut:        "marks the field as output",
 	BlockTagReference:  "marks the field that it must reference an existing identifier",
 	BlockTagRequired:   "marks the field as required (must be set but can be empty)",
 	BlockTagStage:      "sets the evaluation stage for the field",
