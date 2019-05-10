@@ -49,10 +49,8 @@ func (i BlockValueRequiredInterpreter) ParseContext(parentCtx *basil.ParseContex
 
 func (i BlockValueRequiredInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
-
 	case "id":
 		return b.(*BlockValueRequired).IDField
-
 	case "value":
 		return b.(*BlockValueRequired).Value
 	default:

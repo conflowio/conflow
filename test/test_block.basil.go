@@ -57,34 +57,24 @@ func (i TestBlockInterpreter) ParseContext(parentCtx *basil.ParseContext) *basil
 
 func (i TestBlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
-
 	case "id":
 		return b.(*TestBlock).IDField
-
 	case "value":
 		return b.(*TestBlock).Value
-
 	case "field_string":
 		return b.(*TestBlock).FieldString
-
 	case "field_int":
 		return b.(*TestBlock).FieldInt
-
 	case "field_float":
 		return b.(*TestBlock).FieldFloat
-
 	case "field_bool":
 		return b.(*TestBlock).FieldBool
-
 	case "field_array":
 		return b.(*TestBlock).FieldArray
-
 	case "field_map":
 		return b.(*TestBlock).FieldMap
-
 	case "field_time_duration":
 		return b.(*TestBlock).FieldTimeDuration
-
 	case "custom_field":
 		return b.(*TestBlock).FieldCustomName
 	default:

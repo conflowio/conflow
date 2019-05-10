@@ -49,10 +49,8 @@ func (i BlockSimpleInterpreter) ParseContext(parentCtx *basil.ParseContext) *bas
 
 func (i BlockSimpleInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
-
 	case "id":
 		return b.(*BlockSimple).IDField
-
 	case "value":
 		return b.(*BlockSimple).Value
 	default:

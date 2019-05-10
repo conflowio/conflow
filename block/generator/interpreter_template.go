@@ -43,7 +43,7 @@ func (i {{.Name}}Interpreter) Params() map[basil.ID]block.ParameterDescriptor {
 	{{ if .Params -}}
 	return map[basil.ID]block.ParameterDescriptor{
 		{{ range .Params -}}
-		"{{.ParamName}}": { Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}},
+		"{{.ParamName}}": {Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}},
 		{{ end -}}
 	}
 	{{ else -}}
@@ -73,7 +73,7 @@ func (i {{.Name}}Interpreter) ParseContext(parentCtx *basil.ParseContext) *basil
 
 func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
-	{{ range .Params }}
+	{{ range .Params -}}
 	case "{{.ParamName}}":
 		return b.(*{{$root.Name}}).{{.Name}}
 	{{ end -}}
