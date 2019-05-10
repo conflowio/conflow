@@ -40,7 +40,7 @@ func transformNode(parseCtx interface{}, node parsley.Node, interpreter Interpre
 
 	var children []basil.Node
 
-	var dependencies []basil.IdentifiableNode
+	var dependencies []basil.VariableNode
 	if len(nodes) > 1 {
 		blockValueNode := nodes[1]
 
@@ -140,7 +140,7 @@ func transformChildren(
 	parseCtx interface{},
 	blockID basil.ID,
 	nodes []parsley.Node,
-) ([]basil.Node, []basil.IdentifiableNode, parsley.Error) {
+) ([]basil.Node, []basil.VariableNode, parsley.Error) {
 	if len(nodes) == 0 {
 		return nil, nil, nil
 	}

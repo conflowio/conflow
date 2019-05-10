@@ -16,7 +16,7 @@ var _ = Describe("Resolver", func() {
 
 	var resolver *dependency.Resolver
 	var result []basil.Node
-	var dependencies []basil.IdentifiableNode
+	var dependencies []basil.VariableNode
 	var err error
 
 	BeforeEach(func() {
@@ -100,8 +100,8 @@ var _ = Describe("Resolver", func() {
 			param4 = &basilfakes.FakeNode{}
 			param4.IDReturns("b.param4")
 
-			param1.DependenciesReturns([]basil.IdentifiableNode{dep("b.param2")})
-			param3.DependenciesReturns([]basil.IdentifiableNode{dep("b.param4")})
+			param1.DependenciesReturns([]basil.VariableNode{dep("b.param2")})
+			param3.DependenciesReturns([]basil.VariableNode{dep("b.param4")})
 
 			resolver.AddNodes(param1, param2, param3, param4)
 		})
@@ -132,7 +132,7 @@ var _ = Describe("Resolver", func() {
 			node2 = &basilfakes.FakeNode{}
 			node2.IDReturns("node2")
 
-			param1.DependenciesReturns([]basil.IdentifiableNode{dep("node2.x")})
+			param1.DependenciesReturns([]basil.VariableNode{dep("node2.x")})
 
 			resolver.AddNodes(param1, node2)
 		})
@@ -160,7 +160,7 @@ var _ = Describe("Resolver", func() {
 			node2.IDReturns("node2")
 
 			node2.ProvidesReturns([]basil.ID{"node3"})
-			param1.DependenciesReturns([]basil.IdentifiableNode{dep("node3.x")})
+			param1.DependenciesReturns([]basil.VariableNode{dep("node3.x")})
 
 			resolver.AddNodes(param1, node2)
 		})
@@ -192,8 +192,8 @@ var _ = Describe("Resolver", func() {
 			param3.IDReturns("b.param3")
 			param3.PosReturns(parsley.Pos(3))
 
-			param1.DependenciesReturns([]basil.IdentifiableNode{dep("b.param2")})
-			param2.DependenciesReturns([]basil.IdentifiableNode{dep("b.param1")})
+			param1.DependenciesReturns([]basil.VariableNode{dep("b.param2")})
+			param2.DependenciesReturns([]basil.VariableNode{dep("b.param1")})
 
 			resolver.AddNodes(param1, param2, param3)
 		})
@@ -216,8 +216,8 @@ var _ = Describe("Resolver", func() {
 			param2.IDReturns("b.param2")
 			param2.PosReturns(parsley.Pos(2))
 
-			param1.DependenciesReturns([]basil.IdentifiableNode{dep("b.param2")})
-			param2.DependenciesReturns([]basil.IdentifiableNode{dep("b.param2")})
+			param1.DependenciesReturns([]basil.VariableNode{dep("b.param2")})
+			param2.DependenciesReturns([]basil.VariableNode{dep("b.param2")})
 
 			resolver.AddNodes(param1, param2)
 		})
@@ -230,7 +230,7 @@ var _ = Describe("Resolver", func() {
 
 	Context("when a node is referencing an unknown parameter", func() {
 		var param1 *basilfakes.FakeNode
-		var dep1 *basilfakes.FakeIdentifiableNode
+		var dep1 *basilfakes.FakeVariableNode
 
 		BeforeEach(func() {
 			param1 = &basilfakes.FakeNode{}
@@ -240,7 +240,7 @@ var _ = Describe("Resolver", func() {
 			dep1 = dep("b.param2")
 			dep1.PosReturns(parsley.Pos(2))
 
-			param1.DependenciesReturns([]basil.IdentifiableNode{dep1})
+			param1.DependenciesReturns([]basil.VariableNode{dep1})
 
 			resolver.AddNodes(param1)
 		})
@@ -254,7 +254,7 @@ var _ = Describe("Resolver", func() {
 
 	Context("when a node is referencing an external parameter", func() {
 		var param1 *basilfakes.FakeNode
-		var dep1 *basilfakes.FakeIdentifiableNode
+		var dep1 *basilfakes.FakeVariableNode
 
 		BeforeEach(func() {
 			param1 = &basilfakes.FakeNode{}
@@ -263,7 +263,7 @@ var _ = Describe("Resolver", func() {
 
 			dep1 = dep("b2.param2")
 
-			param1.DependenciesReturns([]basil.IdentifiableNode{dep1})
+			param1.DependenciesReturns([]basil.VariableNode{dep1})
 
 			resolver.AddNodes(param1)
 		})
@@ -283,7 +283,7 @@ var _ = Describe("Resolver", func() {
 
 	Context("when a node is referencing an unknown node", func() {
 		var param1 *basilfakes.FakeNode
-		var dep1 *basilfakes.FakeIdentifiableNode
+		var dep1 *basilfakes.FakeVariableNode
 
 		BeforeEach(func() {
 			param1 = &basilfakes.FakeNode{}
@@ -292,7 +292,7 @@ var _ = Describe("Resolver", func() {
 
 			dep1 = dep("b2.param2")
 
-			param1.DependenciesReturns([]basil.IdentifiableNode{dep1})
+			param1.DependenciesReturns([]basil.VariableNode{dep1})
 
 			resolver.AddNodes(param1)
 		})
@@ -311,8 +311,8 @@ var _ = Describe("Resolver", func() {
 	})
 })
 
-func dep(id string) *basilfakes.FakeIdentifiableNode {
-	f := &basilfakes.FakeIdentifiableNode{}
+func dep(id string) *basilfakes.FakeVariableNode {
+	f := &basilfakes.FakeVariableNode{}
 	f.IDReturns(basil.ID(id))
 	f.ParentIDReturns(basil.ID(id[0:strings.IndexByte(id, '.')]))
 	return f

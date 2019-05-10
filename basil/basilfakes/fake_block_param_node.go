@@ -9,15 +9,15 @@ import (
 )
 
 type FakeBlockParamNode struct {
-	DependenciesStub        func() []basil.IdentifiableNode
+	DependenciesStub        func() []basil.VariableNode
 	dependenciesMutex       sync.RWMutex
 	dependenciesArgsForCall []struct {
 	}
 	dependenciesReturns struct {
-		result1 []basil.IdentifiableNode
+		result1 []basil.VariableNode
 	}
 	dependenciesReturnsOnCall map[int]struct {
-		result1 []basil.IdentifiableNode
+		result1 []basil.VariableNode
 	}
 	EvalStageStub        func() basil.EvalStage
 	evalStageMutex       sync.RWMutex
@@ -116,7 +116,7 @@ type FakeBlockParamNode struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlockParamNode) Dependencies() []basil.IdentifiableNode {
+func (fake *FakeBlockParamNode) Dependencies() []basil.VariableNode {
 	fake.dependenciesMutex.Lock()
 	ret, specificReturn := fake.dependenciesReturnsOnCall[len(fake.dependenciesArgsForCall)]
 	fake.dependenciesArgsForCall = append(fake.dependenciesArgsForCall, struct {
@@ -139,32 +139,32 @@ func (fake *FakeBlockParamNode) DependenciesCallCount() int {
 	return len(fake.dependenciesArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) DependenciesCalls(stub func() []basil.IdentifiableNode) {
+func (fake *FakeBlockParamNode) DependenciesCalls(stub func() []basil.VariableNode) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = stub
 }
 
-func (fake *FakeBlockParamNode) DependenciesReturns(result1 []basil.IdentifiableNode) {
+func (fake *FakeBlockParamNode) DependenciesReturns(result1 []basil.VariableNode) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = nil
 	fake.dependenciesReturns = struct {
-		result1 []basil.IdentifiableNode
+		result1 []basil.VariableNode
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) DependenciesReturnsOnCall(i int, result1 []basil.IdentifiableNode) {
+func (fake *FakeBlockParamNode) DependenciesReturnsOnCall(i int, result1 []basil.VariableNode) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = nil
 	if fake.dependenciesReturnsOnCall == nil {
 		fake.dependenciesReturnsOnCall = make(map[int]struct {
-			result1 []basil.IdentifiableNode
+			result1 []basil.VariableNode
 		})
 	}
 	fake.dependenciesReturnsOnCall[i] = struct {
-		result1 []basil.IdentifiableNode
+		result1 []basil.VariableNode
 	}{result1}
 }
 

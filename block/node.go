@@ -30,7 +30,7 @@ type Node struct {
 	children     []basil.Node
 	readerPos    parsley.Pos
 	interpreter  Interpreter
-	dependencies []basil.IdentifiableNode
+	dependencies []basil.VariableNode
 	evalStage    basil.EvalStage
 }
 
@@ -60,7 +60,7 @@ func (n *Node) EvalStage() basil.EvalStage {
 }
 
 // Dependencies returns the blocks/parameters this block depends on
-func (n *Node) Dependencies() []basil.IdentifiableNode {
+func (n *Node) Dependencies() []basil.VariableNode {
 	return n.dependencies
 }
 

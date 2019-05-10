@@ -6,8 +6,8 @@ import "github.com/opsidian/parsley/parsley"
 //go:generate counterfeiter . Node
 type Node interface {
 	parsley.Node
-	ID() ID
+	Identifiable
 	EvalStage() EvalStage
-	Dependencies() []IdentifiableNode
+	Dependencies() []VariableNode
 	Provides() []ID
 }

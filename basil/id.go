@@ -2,8 +2,6 @@ package basil
 
 import (
 	"regexp"
-
-	"github.com/opsidian/parsley/parsley"
 )
 
 // Main is the main block's id
@@ -27,14 +25,6 @@ func (i ID) String() string {
 //go:generate counterfeiter . Identifiable
 type Identifiable interface {
 	ID() ID
-	ParentID() ID
-}
-
-// IdentifiableNode defines a node which contains an identifier
-//go:generate counterfeiter . IdentifiableNode
-type IdentifiableNode interface {
-	parsley.Node
-	Identifiable
 }
 
 // IDRegistry provides information about existing identifiers and able to generate new ones
