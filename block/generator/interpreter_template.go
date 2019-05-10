@@ -6,15 +6,12 @@ type InterpreterTemplateParams struct {
 	Name                   string
 	HasForeignID           bool
 	Stages                 []string
-	ParamTypes             map[string]string
-	BlockTypes             map[string]string
-	NodeTypes              map[string]string
-	IDField                *Field
 	ValueField             *Field
-	Fields                 []*Field
+	Params                 []*Field
+	Blocks                 []*Field
+	RequiredParams         []string
+	IDField                *Field
 	NodeValueFunctionNames map[string]string
-	EvalFieldsCnt          int
-	RequiredFieldsCnt      int
 }
 
 const interpreterTemplate = `
@@ -32,21 +29,21 @@ import (
 
 {{ $root := .}}
 
-type {{$root.Name}}Interpreter struct {}
+type {{.Name}}Interpreter struct {}
 
-// Create creates a new {{$root.Name}} block
-func (i {{$root.Name}}Interpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
-	return &{{$root.Name}}{
+// Create creates a new {{.Name}} block
+func (i {{.Name}}Interpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+	return &{{.Name}}{
 		{{.IDField.Name}}: node.ID(),
 	}
 }
 
 // Params returns with the list of valid parameters
-func (i {{$root.Name}}Interpreter) Params() map[basil.ID]string {
-	{{ if .ParamTypes -}}
+func (i {{.Name}}Interpreter) Params() map[basil.ID]string {
+	{{ if .Params -}}
 	return map[basil.ID]string{
-		{{ range $paramName, $paramType := $root.ParamTypes -}}
-		"{{$paramName}}": "{{$paramType}}",
+		{{ range .Params -}}
+		"{{.ParamName}}": "{{.Type}}",
 		{{ end -}}
 	}
 	{{ else -}}
@@ -55,12 +52,12 @@ func (i {{$root.Name}}Interpreter) Params() map[basil.ID]string {
 }
 
 // RequiredParams returns with the list of required parameters
-func (i {{$root.Name}}Interpreter) RequiredParams() map[basil.ID]bool {
-	{{ if .RequiredFieldsCnt -}}
+func (i {{.Name}}Interpreter) RequiredParams() map[basil.ID]bool {
+	{{ if .RequiredParams -}}
 	return map[basil.ID]bool{
-		{{ range $root.Fields -}}{{ if and (.Required) (not .IsID) (not .IsNode) (not .IsBlock) -}}
-		"{{.ParamName}}": false,
-		{{ end }}{{ end -}}
+		{{ range .RequiredParams -}}
+		"{{.}}": false,
+		{{ end -}}
 	}
 	{{ else -}}
 	return nil
@@ -68,18 +65,18 @@ func (i {{$root.Name}}Interpreter) RequiredParams() map[basil.ID]bool {
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
-func (i {{$root.Name}}Interpreter) HasForeignID() bool {
+func (i {{.Name}}Interpreter) HasForeignID() bool {
 	return {{.HasForeignID}}
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i {{$root.Name}}Interpreter) ValueParamName() basil.ID {
+func (i {{.Name}}Interpreter) ValueParamName() basil.ID {
 	return {{ if .ValueField }}"{{.ValueField.ParamName}}"{{ else }}""{{ end }}
 }
 
 // ParseContext returns with the parse context for the block
-func (i {{$root.Name}}Interpreter) ParseContext(parentCtx *basil.ParseContext) *basil.ParseContext {
-	var nilBlock *{{$root.Name}}
+func (i {{.Name}}Interpreter) ParseContext(parentCtx *basil.ParseContext) *basil.ParseContext {
+	var nilBlock *{{.Name}}
 	if b, ok := basil.Block(nilBlock).(basil.ParseContextAware); ok {
 		return b.ParseContext(parentCtx)
 	}
@@ -87,43 +84,42 @@ func (i {{$root.Name}}Interpreter) ParseContext(parentCtx *basil.ParseContext) *
 	return parentCtx
 }
 
-func (i {{$root.Name}}Interpreter) Param(block basil.Block, name basil.ID) interface{} {
-	b := block.(*{{$root.Name}})
-
+func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
-	{{ range $root.Fields }}{{ if or .IsParam .IsID -}}
+	{{ range .Params }}
 	case "{{.ParamName}}":
-		return b.{{.Name}}
-	{{ end }}{{ end -}}
+		return b.(*{{$root.Name}}).{{.Name}}
+	{{ end -}}
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in {{$root.Name}}", name))
+		panic(fmt.Errorf("unexpected parameter %q in {{.Name}}", name))
 	}
 }
 
-func (i {{$root.Name}}Interpreter) SetParam(ctx *basil.EvalContext, block basil.Block, name basil.ID, node parsley.Node) parsley.Error {
-	b := block.(*{{$root.Name}})
-
+func (i {{.Name}}Interpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.BlockParamNode) parsley.Error {
 	switch name {
-	{{ range $root.Fields -}}
-	{{ if and (or .IsParam .IsID) (not .IsOutput) -}}
+	{{ range .Params -}}
+	{{ if not .IsOutput -}}
 	case "{{.ParamName}}":
 		var err parsley.Error
-		b.{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(node, ctx)
+		b.(*{{$root.Name}}).{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(node, ctx)
 		return err
 	{{ end -}}
-	{{ if .IsBlock -}}
-	case "{{.ParamName}}":
-		value, err := node.Value(ctx)
-		if err != nil {
-			return err
-		}
-		b.{{.Name}} = append(b.{{.Name}}, value.({{trimPrefix .Type "[]" }}))
-		return nil
 	{{ end -}}
-	{{ end -}}
-	default:
-		panic(fmt.Errorf("unexpected parameter or block %q in {{$root.Name}}", name))
 	}
+
+	return nil
+}
+
+func (i {{.Name}}Interpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+	{{ if .Blocks -}}
+	switch name {
+	{{ range .Blocks -}}
+	case "{{.ParamName}}":
+		b.(*{{$root.Name}}).{{.Name}} = append(b.(*{{$root.Name}}).{{.Name}}, value.({{trimPrefix .Type "[]" }}))
+	{{ end -}}
+	}
+	{{ end -}}
+	return nil
 }
 
 `

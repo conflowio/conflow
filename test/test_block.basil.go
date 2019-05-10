@@ -21,15 +21,15 @@ func (i TestBlockInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNod
 // Params returns with the list of valid parameters
 func (i TestBlockInterpreter) Params() map[basil.ID]string {
 	return map[basil.ID]string{
-		"custom_field":        "string",
-		"field_array":         "[]interface{}",
-		"field_bool":          "bool",
-		"field_float":         "float64",
-		"field_int":           "int64",
-		"field_map":           "map[string]interface{}",
-		"field_string":        "string",
-		"field_time_duration": "time.Duration",
 		"value":               "interface{}",
+		"field_string":        "string",
+		"field_int":           "int64",
+		"field_float":         "float64",
+		"field_bool":          "bool",
+		"field_array":         "[]interface{}",
+		"field_map":           "map[string]interface{}",
+		"field_time_duration": "time.Duration",
+		"custom_field":        "string",
 	}
 }
 
@@ -58,87 +58,87 @@ func (i TestBlockInterpreter) ParseContext(parentCtx *basil.ParseContext) *basil
 	return parentCtx
 }
 
-func (i TestBlockInterpreter) Param(block basil.Block, name basil.ID) interface{} {
-	b := block.(*TestBlock)
-
+func (i TestBlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
-	case "id":
-		return b.IDField
+
 	case "value":
-		return b.Value
+		return b.(*TestBlock).Value
+
 	case "field_string":
-		return b.FieldString
+		return b.(*TestBlock).FieldString
+
 	case "field_int":
-		return b.FieldInt
+		return b.(*TestBlock).FieldInt
+
 	case "field_float":
-		return b.FieldFloat
+		return b.(*TestBlock).FieldFloat
+
 	case "field_bool":
-		return b.FieldBool
+		return b.(*TestBlock).FieldBool
+
 	case "field_array":
-		return b.FieldArray
+		return b.(*TestBlock).FieldArray
+
 	case "field_map":
-		return b.FieldMap
+		return b.(*TestBlock).FieldMap
+
 	case "field_time_duration":
-		return b.FieldTimeDuration
+		return b.(*TestBlock).FieldTimeDuration
+
 	case "custom_field":
-		return b.FieldCustomName
+		return b.(*TestBlock).FieldCustomName
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in TestBlock", name))
 	}
 }
 
-func (i TestBlockInterpreter) SetParam(ctx *basil.EvalContext, block basil.Block, name basil.ID, node parsley.Node) parsley.Error {
-	b := block.(*TestBlock)
-
+func (i TestBlockInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.BlockParamNode) parsley.Error {
 	switch name {
-	case "id":
-		var err parsley.Error
-		b.IDField, err = variable.NodeIdentifierValue(node, ctx)
-		return err
 	case "value":
 		var err parsley.Error
-		b.Value, err = variable.NodeAnyValue(node, ctx)
+		b.(*TestBlock).Value, err = variable.NodeAnyValue(node, ctx)
 		return err
 	case "field_string":
 		var err parsley.Error
-		b.FieldString, err = variable.NodeStringValue(node, ctx)
+		b.(*TestBlock).FieldString, err = variable.NodeStringValue(node, ctx)
 		return err
 	case "field_int":
 		var err parsley.Error
-		b.FieldInt, err = variable.NodeIntegerValue(node, ctx)
+		b.(*TestBlock).FieldInt, err = variable.NodeIntegerValue(node, ctx)
 		return err
 	case "field_float":
 		var err parsley.Error
-		b.FieldFloat, err = variable.NodeFloatValue(node, ctx)
+		b.(*TestBlock).FieldFloat, err = variable.NodeFloatValue(node, ctx)
 		return err
 	case "field_bool":
 		var err parsley.Error
-		b.FieldBool, err = variable.NodeBoolValue(node, ctx)
+		b.(*TestBlock).FieldBool, err = variable.NodeBoolValue(node, ctx)
 		return err
 	case "field_array":
 		var err parsley.Error
-		b.FieldArray, err = variable.NodeArrayValue(node, ctx)
+		b.(*TestBlock).FieldArray, err = variable.NodeArrayValue(node, ctx)
 		return err
 	case "field_map":
 		var err parsley.Error
-		b.FieldMap, err = variable.NodeMapValue(node, ctx)
+		b.(*TestBlock).FieldMap, err = variable.NodeMapValue(node, ctx)
 		return err
 	case "field_time_duration":
 		var err parsley.Error
-		b.FieldTimeDuration, err = variable.NodeTimeDurationValue(node, ctx)
+		b.(*TestBlock).FieldTimeDuration, err = variable.NodeTimeDurationValue(node, ctx)
 		return err
 	case "custom_field":
 		var err parsley.Error
-		b.FieldCustomName, err = variable.NodeStringValue(node, ctx)
+		b.(*TestBlock).FieldCustomName, err = variable.NodeStringValue(node, ctx)
 		return err
-	case "testblock":
-		value, err := node.Value(ctx)
-		if err != nil {
-			return err
-		}
-		b.Blocks = append(b.Blocks, value.(*TestBlock))
-		return nil
-	default:
-		panic(fmt.Errorf("unexpected parameter or block %q in TestBlock", name))
 	}
+
+	return nil
+}
+
+func (i TestBlockInterpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+	switch name {
+	case "testblock":
+		b.(*TestBlock).Blocks = append(b.(*TestBlock).Blocks, value.(*TestBlock))
+	}
+	return nil
 }

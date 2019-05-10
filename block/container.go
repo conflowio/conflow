@@ -1,6 +1,9 @@
 package block
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -47,11 +50,32 @@ func (c *Container) Param(name basil.ID) interface{} {
 	return c.interpreter.Param(c.block, name)
 }
 
-// SetParam sets the parameter value
-func (c *Container) SetParam(ctx *basil.EvalContext, name basil.ID, node parsley.Node) parsley.Error {
-	if _, exists := c.interpreter.Params()[name]; exists {
-		return c.interpreter.SetParam(ctx, c.block, name, node)
+// EvaluateChildNode evaluates
+func (c *Container) EvaluateChildNode(ctx *basil.EvalContext, node basil.Node) parsley.Error {
+	switch n := node.(type) {
+	case basil.BlockNode:
+		return c.setBlock(ctx, n)
+	case basil.BlockParamNode:
+		return c.setParam(ctx, n)
+	default:
+		panic(fmt.Errorf("Invalid node type: %s", reflect.TypeOf(node)))
 	}
+	return nil
+}
+
+func (c *Container) setBlock(ctx *basil.EvalContext, node basil.BlockNode) parsley.Error {
+	value, err := node.Value(ctx)
+	if err != nil {
+		return err
+	}
+	return c.interpreter.SetBlock(ctx, c.block, node.BlockType(), value)
+}
+
+func (c *Container) setParam(ctx *basil.EvalContext, node basil.BlockParamNode) parsley.Error {
+	if !node.IsDeclaration() {
+		return c.interpreter.SetParam(ctx, c.block, node.Name(), node)
+	}
+
 	value, err := node.Value(ctx)
 	if err != nil {
 		return err
@@ -60,7 +84,7 @@ func (c *Container) SetParam(ctx *basil.EvalContext, name basil.ID, node parsley
 	if c.extraParams == nil {
 		c.extraParams = make(map[basil.ID]interface{})
 	}
-	c.extraParams[name] = value
+	c.extraParams[node.Name()] = value
 
 	return nil
 }

@@ -39,6 +39,16 @@ type FakeBlockParamNode struct {
 	iDReturnsOnCall map[int]struct {
 		result1 basil.ID
 	}
+	IsDeclarationStub        func() bool
+	isDeclarationMutex       sync.RWMutex
+	isDeclarationArgsForCall []struct {
+	}
+	isDeclarationReturns struct {
+		result1 bool
+	}
+	isDeclarationReturnsOnCall map[int]struct {
+		result1 bool
+	}
 	NameStub        func() basil.ID
 	nameMutex       sync.RWMutex
 	nameArgsForCall []struct {
@@ -279,6 +289,58 @@ func (fake *FakeBlockParamNode) IDReturnsOnCall(i int, result1 basil.ID) {
 	}
 	fake.iDReturnsOnCall[i] = struct {
 		result1 basil.ID
+	}{result1}
+}
+
+func (fake *FakeBlockParamNode) IsDeclaration() bool {
+	fake.isDeclarationMutex.Lock()
+	ret, specificReturn := fake.isDeclarationReturnsOnCall[len(fake.isDeclarationArgsForCall)]
+	fake.isDeclarationArgsForCall = append(fake.isDeclarationArgsForCall, struct {
+	}{})
+	fake.recordInvocation("IsDeclaration", []interface{}{})
+	fake.isDeclarationMutex.Unlock()
+	if fake.IsDeclarationStub != nil {
+		return fake.IsDeclarationStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.isDeclarationReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockParamNode) IsDeclarationCallCount() int {
+	fake.isDeclarationMutex.RLock()
+	defer fake.isDeclarationMutex.RUnlock()
+	return len(fake.isDeclarationArgsForCall)
+}
+
+func (fake *FakeBlockParamNode) IsDeclarationCalls(stub func() bool) {
+	fake.isDeclarationMutex.Lock()
+	defer fake.isDeclarationMutex.Unlock()
+	fake.IsDeclarationStub = stub
+}
+
+func (fake *FakeBlockParamNode) IsDeclarationReturns(result1 bool) {
+	fake.isDeclarationMutex.Lock()
+	defer fake.isDeclarationMutex.Unlock()
+	fake.IsDeclarationStub = nil
+	fake.isDeclarationReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeBlockParamNode) IsDeclarationReturnsOnCall(i int, result1 bool) {
+	fake.isDeclarationMutex.Lock()
+	defer fake.isDeclarationMutex.Unlock()
+	fake.IsDeclarationStub = nil
+	if fake.isDeclarationReturnsOnCall == nil {
+		fake.isDeclarationReturnsOnCall = make(map[int]struct {
+			result1 bool
+		})
+	}
+	fake.isDeclarationReturnsOnCall[i] = struct {
+		result1 bool
 	}{result1}
 }
 
@@ -718,6 +780,8 @@ func (fake *FakeBlockParamNode) Invocations() map[string][][]interface{} {
 	defer fake.evalStageMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
+	fake.isDeclarationMutex.RLock()
+	defer fake.isDeclarationMutex.RUnlock()
 	fake.nameMutex.RLock()
 	defer fake.nameMutex.RUnlock()
 	fake.posMutex.RLock()

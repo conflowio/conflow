@@ -44,23 +44,18 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 	var idField, valueField *Field
 	var hasForeignID bool
 
-	stages := []string{}
-	paramTypes := map[string]string{}
-	blockTypes := map[string]string{}
-	nodeTypes := map[string]string{}
-	evalFieldsCnt := 0
-	requiredFieldsCnt := 0
+	var stages []string
+	var requiredParams []string
+	var params []*Field
+	var blocks []*Field
 	for _, field := range fields {
 		if field.Stage != "-" {
 			if !util.StringSliceContains(stages, field.Stage) {
 				stages = append(stages, field.Stage)
 			}
-			if !field.IsID && !field.IsBlock {
-				evalFieldsCnt++
-			}
 		}
-		if field.Required {
-			requiredFieldsCnt++
+		if field.Required && !field.IsBlock {
+			requiredParams = append(requiredParams, field.ParamName)
 		}
 		if field.IsValue {
 			valueField = field
@@ -71,11 +66,9 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 			idField = field
 			hasForeignID = field.IsReference
 		case field.IsParam:
-			paramTypes[field.ParamName] = field.Type
-		case field.IsNode:
-			nodeTypes[field.Type] = field.Name
+			params = append(params, field)
 		case field.IsBlock:
-			blockTypes[field.Type] = field.Name
+			blocks = append(blocks, field)
 		}
 	}
 
@@ -83,15 +76,12 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 		Package:                pkgName,
 		Name:                   name,
 		Stages:                 stages,
-		ParamTypes:             paramTypes,
-		BlockTypes:             blockTypes,
-		NodeTypes:              nodeTypes,
-		Fields:                 fields,
+		Params:                 params,
+		RequiredParams:         requiredParams,
+		Blocks:                 blocks,
 		IDField:                idField,
 		ValueField:             valueField,
 		HasForeignID:           hasForeignID,
 		NodeValueFunctionNames: variable.NodeValueFunctionNames,
-		EvalFieldsCnt:          evalFieldsCnt,
-		RequiredFieldsCnt:      requiredFieldsCnt,
 	}, nil
 }

@@ -45,7 +45,7 @@ type BlockContainer interface {
 	ID() ID
 	Block() Block
 	Param(ID) interface{}
-	SetParam(ctx *EvalContext, name ID, node parsley.Node) parsley.Error
+	EvaluateChildNode(*EvalContext, Node) parsley.Error
 }
 
 // BlockContainerRegistry stores block container instances
@@ -102,6 +102,7 @@ type BlockParamNode interface {
 	Node
 	Name() ID
 	ValueNode() parsley.Node
+	IsDeclaration() bool
 }
 
 // BlockTransformerRegistryAware is an interface to get a block node transformer registry

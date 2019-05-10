@@ -10,7 +10,6 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/block/parameter"
 	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -69,7 +68,7 @@ func (n *Node) Dependencies() []basil.VariableNode {
 func (n *Node) Provides() []basil.ID {
 	var providedBlockIDs []basil.ID
 	for _, c := range n.children {
-		if b, ok := c.(*Node); ok {
+		if b, ok := c.(basil.BlockNode); ok {
 			providedBlockIDs = append(providedBlockIDs, b.ID())
 			providedBlockIDs = append(providedBlockIDs, b.Provides()...)
 		}
@@ -91,8 +90,8 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 	for _, child := range n.Children() {
 		switch c := child.(type) {
-		case *Node:
-		case *parameter.Node:
+		case basil.BlockNode:
+		case basil.BlockParamNode:
 			paramType, exists := params[c.Name()]
 
 			if exists && c.IsDeclaration() {
@@ -138,7 +137,7 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 		evalCtx = b.EvalContext(evalCtx)
 	}
 
-	if err := n.eval(evalCtx, basil.EvalStagePre, container); err != nil {
+	if err := n.evaluateChildren(evalCtx, container, basil.EvalStagePre); err != nil {
 		return nil, err
 	}
 
@@ -154,7 +153,7 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 		return nil, nil
 	}
 
-	if err := n.eval(evalCtx, basil.EvalStageDefault, container); err != nil {
+	if err := n.evaluateChildren(evalCtx, container, basil.EvalStageDefault); err != nil {
 		return nil, err
 	}
 
@@ -164,7 +163,7 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 		}
 	}
 
-	if err := n.eval(evalCtx, basil.EvalStagePost, container); err != nil {
+	if err := n.evaluateChildren(evalCtx, container, basil.EvalStagePost); err != nil {
 		return nil, err
 	}
 
@@ -177,20 +176,11 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 	return block, nil
 }
 
-func (n *Node) eval(ctx *basil.EvalContext, stage basil.EvalStage, container *Container) parsley.Error {
+func (n *Node) evaluateChildren(ctx *basil.EvalContext, container *Container, stage basil.EvalStage) parsley.Error {
 	for _, child := range n.children {
-		switch c := child.(type) {
-		case *parameter.Node:
-			if c.EvalStage() == stage {
-				if err := container.SetParam(ctx, c.Name(), c.ValueNode()); err != nil {
-					return err
-				}
-			}
-		case *Node:
-			if c.EvalStage() == stage {
-				if err := n.interpreter.SetParam(ctx, container.Block(), c.BlockType(), c); err != nil {
-					return err
-				}
+		if child.EvalStage() == stage {
+			if err := container.EvaluateChildNode(ctx, child); err != nil {
+				return err
 			}
 		}
 	}
@@ -221,7 +211,7 @@ func (n *Node) Children() []basil.Node {
 // ParamType returns with the given parameter's type if it exists, otherwise it returns false
 func (n *Node) ParamType(name basil.ID) (string, bool) {
 	for _, child := range n.children {
-		if paramNode, ok := child.(*parameter.Node); ok {
+		if paramNode, ok := child.(basil.BlockParamNode); ok {
 			if paramNode.Name() == name {
 				return paramNode.Type(), true
 			}

@@ -19,6 +19,18 @@ type FakeBlockContainer struct {
 	blockReturnsOnCall map[int]struct {
 		result1 basil.Block
 	}
+	EvaluateChildNodeStub        func(*basil.EvalContext, basil.Node) parsley.Error
+	evaluateChildNodeMutex       sync.RWMutex
+	evaluateChildNodeArgsForCall []struct {
+		arg1 *basil.EvalContext
+		arg2 basil.Node
+	}
+	evaluateChildNodeReturns struct {
+		result1 parsley.Error
+	}
+	evaluateChildNodeReturnsOnCall map[int]struct {
+		result1 parsley.Error
+	}
 	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
 	iDArgsForCall []struct {
@@ -39,19 +51,6 @@ type FakeBlockContainer struct {
 	}
 	paramReturnsOnCall map[int]struct {
 		result1 interface{}
-	}
-	SetParamStub        func(*basil.EvalContext, basil.ID, parsley.Node) parsley.Error
-	setParamMutex       sync.RWMutex
-	setParamArgsForCall []struct {
-		arg1 *basil.EvalContext
-		arg2 basil.ID
-		arg3 parsley.Node
-	}
-	setParamReturns struct {
-		result1 parsley.Error
-	}
-	setParamReturnsOnCall map[int]struct {
-		result1 parsley.Error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -106,6 +105,67 @@ func (fake *FakeBlockContainer) BlockReturnsOnCall(i int, result1 basil.Block) {
 	}
 	fake.blockReturnsOnCall[i] = struct {
 		result1 basil.Block
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) EvaluateChildNode(arg1 *basil.EvalContext, arg2 basil.Node) parsley.Error {
+	fake.evaluateChildNodeMutex.Lock()
+	ret, specificReturn := fake.evaluateChildNodeReturnsOnCall[len(fake.evaluateChildNodeArgsForCall)]
+	fake.evaluateChildNodeArgsForCall = append(fake.evaluateChildNodeArgsForCall, struct {
+		arg1 *basil.EvalContext
+		arg2 basil.Node
+	}{arg1, arg2})
+	fake.recordInvocation("EvaluateChildNode", []interface{}{arg1, arg2})
+	fake.evaluateChildNodeMutex.Unlock()
+	if fake.EvaluateChildNodeStub != nil {
+		return fake.EvaluateChildNodeStub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.evaluateChildNodeReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContainer) EvaluateChildNodeCallCount() int {
+	fake.evaluateChildNodeMutex.RLock()
+	defer fake.evaluateChildNodeMutex.RUnlock()
+	return len(fake.evaluateChildNodeArgsForCall)
+}
+
+func (fake *FakeBlockContainer) EvaluateChildNodeCalls(stub func(*basil.EvalContext, basil.Node) parsley.Error) {
+	fake.evaluateChildNodeMutex.Lock()
+	defer fake.evaluateChildNodeMutex.Unlock()
+	fake.EvaluateChildNodeStub = stub
+}
+
+func (fake *FakeBlockContainer) EvaluateChildNodeArgsForCall(i int) (*basil.EvalContext, basil.Node) {
+	fake.evaluateChildNodeMutex.RLock()
+	defer fake.evaluateChildNodeMutex.RUnlock()
+	argsForCall := fake.evaluateChildNodeArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeBlockContainer) EvaluateChildNodeReturns(result1 parsley.Error) {
+	fake.evaluateChildNodeMutex.Lock()
+	defer fake.evaluateChildNodeMutex.Unlock()
+	fake.EvaluateChildNodeStub = nil
+	fake.evaluateChildNodeReturns = struct {
+		result1 parsley.Error
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) EvaluateChildNodeReturnsOnCall(i int, result1 parsley.Error) {
+	fake.evaluateChildNodeMutex.Lock()
+	defer fake.evaluateChildNodeMutex.Unlock()
+	fake.EvaluateChildNodeStub = nil
+	if fake.evaluateChildNodeReturnsOnCall == nil {
+		fake.evaluateChildNodeReturnsOnCall = make(map[int]struct {
+			result1 parsley.Error
+		})
+	}
+	fake.evaluateChildNodeReturnsOnCall[i] = struct {
+		result1 parsley.Error
 	}{result1}
 }
 
@@ -221,79 +281,17 @@ func (fake *FakeBlockContainer) ParamReturnsOnCall(i int, result1 interface{}) {
 	}{result1}
 }
 
-func (fake *FakeBlockContainer) SetParam(arg1 *basil.EvalContext, arg2 basil.ID, arg3 parsley.Node) parsley.Error {
-	fake.setParamMutex.Lock()
-	ret, specificReturn := fake.setParamReturnsOnCall[len(fake.setParamArgsForCall)]
-	fake.setParamArgsForCall = append(fake.setParamArgsForCall, struct {
-		arg1 *basil.EvalContext
-		arg2 basil.ID
-		arg3 parsley.Node
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("SetParam", []interface{}{arg1, arg2, arg3})
-	fake.setParamMutex.Unlock()
-	if fake.SetParamStub != nil {
-		return fake.SetParamStub(arg1, arg2, arg3)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.setParamReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeBlockContainer) SetParamCallCount() int {
-	fake.setParamMutex.RLock()
-	defer fake.setParamMutex.RUnlock()
-	return len(fake.setParamArgsForCall)
-}
-
-func (fake *FakeBlockContainer) SetParamCalls(stub func(*basil.EvalContext, basil.ID, parsley.Node) parsley.Error) {
-	fake.setParamMutex.Lock()
-	defer fake.setParamMutex.Unlock()
-	fake.SetParamStub = stub
-}
-
-func (fake *FakeBlockContainer) SetParamArgsForCall(i int) (*basil.EvalContext, basil.ID, parsley.Node) {
-	fake.setParamMutex.RLock()
-	defer fake.setParamMutex.RUnlock()
-	argsForCall := fake.setParamArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
-}
-
-func (fake *FakeBlockContainer) SetParamReturns(result1 parsley.Error) {
-	fake.setParamMutex.Lock()
-	defer fake.setParamMutex.Unlock()
-	fake.SetParamStub = nil
-	fake.setParamReturns = struct {
-		result1 parsley.Error
-	}{result1}
-}
-
-func (fake *FakeBlockContainer) SetParamReturnsOnCall(i int, result1 parsley.Error) {
-	fake.setParamMutex.Lock()
-	defer fake.setParamMutex.Unlock()
-	fake.SetParamStub = nil
-	if fake.setParamReturnsOnCall == nil {
-		fake.setParamReturnsOnCall = make(map[int]struct {
-			result1 parsley.Error
-		})
-	}
-	fake.setParamReturnsOnCall[i] = struct {
-		result1 parsley.Error
-	}{result1}
-}
-
 func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.blockMutex.RLock()
 	defer fake.blockMutex.RUnlock()
+	fake.evaluateChildNodeMutex.RLock()
+	defer fake.evaluateChildNodeMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	fake.paramMutex.RLock()
 	defer fake.paramMutex.RUnlock()
-	fake.setParamMutex.RLock()
-	defer fake.setParamMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

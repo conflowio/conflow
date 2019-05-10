@@ -155,7 +155,7 @@ func transformChildren(
 			if err != nil {
 				return nil, nil, err
 			}
-			res = append(res, blockNode.(*Node))
+			res = append(res, blockNode.(basil.Node))
 		} else if node.Token() == TokenParameter {
 			paramNode, err := transformParamNode(parseCtx, node, blockID, paramNames)
 			if err != nil {
@@ -173,7 +173,7 @@ func transformParamNode(
 	node parsley.Node,
 	blockID basil.ID,
 	paramNames map[basil.ID]struct{},
-) (*parameter.Node, parsley.Error) {
+) (basil.BlockParamNode, parsley.Error) {
 	paramChildren := node.(parsley.NonTerminalNode).Children()
 
 	nameNode := paramChildren[0].(*basil.IDNode)
