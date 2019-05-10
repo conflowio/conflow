@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/block"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -18,13 +19,10 @@ func (i BlockWithReferenceInterpreter) Create(ctx *basil.EvalContext, node basil
 }
 
 // Params returns with the list of valid parameters
-func (i BlockWithReferenceInterpreter) Params() map[basil.ID]string {
-	return nil
-}
-
-// RequiredParams returns with the list of required parameters
-func (i BlockWithReferenceInterpreter) RequiredParams() map[basil.ID]bool {
-	return nil
+func (i BlockWithReferenceInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
+	return map[basil.ID]block.ParameterDescriptor{
+		"id": {Type: "basil.ID", IsRequired: false, IsOutput: false},
+	}
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
@@ -49,6 +47,9 @@ func (i BlockWithReferenceInterpreter) ParseContext(parentCtx *basil.ParseContex
 
 func (i BlockWithReferenceInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
+
+	case "id":
+		return b.(*BlockWithReference).IDField
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in BlockWithReference", name))
 	}

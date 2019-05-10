@@ -44,15 +44,15 @@ type FakeInterpreter struct {
 	paramReturnsOnCall map[int]struct {
 		result1 interface{}
 	}
-	ParamsStub        func() map[basil.ID]string
+	ParamsStub        func() map[basil.ID]block.ParameterDescriptor
 	paramsMutex       sync.RWMutex
 	paramsArgsForCall []struct {
 	}
 	paramsReturns struct {
-		result1 map[basil.ID]string
+		result1 map[basil.ID]block.ParameterDescriptor
 	}
 	paramsReturnsOnCall map[int]struct {
-		result1 map[basil.ID]string
+		result1 map[basil.ID]block.ParameterDescriptor
 	}
 	ParseContextStub        func(*basil.ParseContext) *basil.ParseContext
 	parseContextMutex       sync.RWMutex
@@ -64,16 +64,6 @@ type FakeInterpreter struct {
 	}
 	parseContextReturnsOnCall map[int]struct {
 		result1 *basil.ParseContext
-	}
-	RequiredParamsStub        func() map[basil.ID]bool
-	requiredParamsMutex       sync.RWMutex
-	requiredParamsArgsForCall []struct {
-	}
-	requiredParamsReturns struct {
-		result1 map[basil.ID]bool
-	}
-	requiredParamsReturnsOnCall map[int]struct {
-		result1 map[basil.ID]bool
 	}
 	SetBlockStub        func(*basil.EvalContext, basil.Block, basil.ID, interface{}) parsley.Error
 	setBlockMutex       sync.RWMutex
@@ -291,7 +281,7 @@ func (fake *FakeInterpreter) ParamReturnsOnCall(i int, result1 interface{}) {
 	}{result1}
 }
 
-func (fake *FakeInterpreter) Params() map[basil.ID]string {
+func (fake *FakeInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
 	fake.paramsMutex.Lock()
 	ret, specificReturn := fake.paramsReturnsOnCall[len(fake.paramsArgsForCall)]
 	fake.paramsArgsForCall = append(fake.paramsArgsForCall, struct {
@@ -314,32 +304,32 @@ func (fake *FakeInterpreter) ParamsCallCount() int {
 	return len(fake.paramsArgsForCall)
 }
 
-func (fake *FakeInterpreter) ParamsCalls(stub func() map[basil.ID]string) {
+func (fake *FakeInterpreter) ParamsCalls(stub func() map[basil.ID]block.ParameterDescriptor) {
 	fake.paramsMutex.Lock()
 	defer fake.paramsMutex.Unlock()
 	fake.ParamsStub = stub
 }
 
-func (fake *FakeInterpreter) ParamsReturns(result1 map[basil.ID]string) {
+func (fake *FakeInterpreter) ParamsReturns(result1 map[basil.ID]block.ParameterDescriptor) {
 	fake.paramsMutex.Lock()
 	defer fake.paramsMutex.Unlock()
 	fake.ParamsStub = nil
 	fake.paramsReturns = struct {
-		result1 map[basil.ID]string
+		result1 map[basil.ID]block.ParameterDescriptor
 	}{result1}
 }
 
-func (fake *FakeInterpreter) ParamsReturnsOnCall(i int, result1 map[basil.ID]string) {
+func (fake *FakeInterpreter) ParamsReturnsOnCall(i int, result1 map[basil.ID]block.ParameterDescriptor) {
 	fake.paramsMutex.Lock()
 	defer fake.paramsMutex.Unlock()
 	fake.ParamsStub = nil
 	if fake.paramsReturnsOnCall == nil {
 		fake.paramsReturnsOnCall = make(map[int]struct {
-			result1 map[basil.ID]string
+			result1 map[basil.ID]block.ParameterDescriptor
 		})
 	}
 	fake.paramsReturnsOnCall[i] = struct {
-		result1 map[basil.ID]string
+		result1 map[basil.ID]block.ParameterDescriptor
 	}{result1}
 }
 
@@ -400,58 +390,6 @@ func (fake *FakeInterpreter) ParseContextReturnsOnCall(i int, result1 *basil.Par
 	}
 	fake.parseContextReturnsOnCall[i] = struct {
 		result1 *basil.ParseContext
-	}{result1}
-}
-
-func (fake *FakeInterpreter) RequiredParams() map[basil.ID]bool {
-	fake.requiredParamsMutex.Lock()
-	ret, specificReturn := fake.requiredParamsReturnsOnCall[len(fake.requiredParamsArgsForCall)]
-	fake.requiredParamsArgsForCall = append(fake.requiredParamsArgsForCall, struct {
-	}{})
-	fake.recordInvocation("RequiredParams", []interface{}{})
-	fake.requiredParamsMutex.Unlock()
-	if fake.RequiredParamsStub != nil {
-		return fake.RequiredParamsStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.requiredParamsReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeInterpreter) RequiredParamsCallCount() int {
-	fake.requiredParamsMutex.RLock()
-	defer fake.requiredParamsMutex.RUnlock()
-	return len(fake.requiredParamsArgsForCall)
-}
-
-func (fake *FakeInterpreter) RequiredParamsCalls(stub func() map[basil.ID]bool) {
-	fake.requiredParamsMutex.Lock()
-	defer fake.requiredParamsMutex.Unlock()
-	fake.RequiredParamsStub = stub
-}
-
-func (fake *FakeInterpreter) RequiredParamsReturns(result1 map[basil.ID]bool) {
-	fake.requiredParamsMutex.Lock()
-	defer fake.requiredParamsMutex.Unlock()
-	fake.RequiredParamsStub = nil
-	fake.requiredParamsReturns = struct {
-		result1 map[basil.ID]bool
-	}{result1}
-}
-
-func (fake *FakeInterpreter) RequiredParamsReturnsOnCall(i int, result1 map[basil.ID]bool) {
-	fake.requiredParamsMutex.Lock()
-	defer fake.requiredParamsMutex.Unlock()
-	fake.RequiredParamsStub = nil
-	if fake.requiredParamsReturnsOnCall == nil {
-		fake.requiredParamsReturnsOnCall = make(map[int]struct {
-			result1 map[basil.ID]bool
-		})
-	}
-	fake.requiredParamsReturnsOnCall[i] = struct {
-		result1 map[basil.ID]bool
 	}{result1}
 }
 
@@ -646,8 +584,6 @@ func (fake *FakeInterpreter) Invocations() map[string][][]interface{} {
 	defer fake.paramsMutex.RUnlock()
 	fake.parseContextMutex.RLock()
 	defer fake.parseContextMutex.RUnlock()
-	fake.requiredParamsMutex.RLock()
-	defer fake.requiredParamsMutex.RUnlock()
 	fake.setBlockMutex.RLock()
 	defer fake.setBlockMutex.RUnlock()
 	fake.setParamMutex.RLock()

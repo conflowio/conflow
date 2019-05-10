@@ -54,7 +54,7 @@ func ParseFields(str *ast.StructType, file *ast.File) ([]*Field, error) {
 
 	if valueField != "" {
 		for _, field := range fields {
-			if !field.IsValue && field.Required {
+			if !field.IsValue && field.IsRequired {
 				return nil, errors.New("when setting a value field then no other fields can be required")
 			}
 		}
@@ -103,7 +103,7 @@ func parseField(astField *ast.Field) (*Field, error) {
 	field := &Field{
 		Name:        name,
 		ParamName:   paramName,
-		Required:    tags.GetBool(basil.BlockTagRequired),
+		IsRequired:  tags.GetBool(basil.BlockTagRequired),
 		Type:        fieldType,
 		Stage:       tags.GetWithDefault(basil.BlockTagStage, "default"),
 		IsID:        isID,

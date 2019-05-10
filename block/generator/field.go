@@ -14,8 +14,8 @@ type Field struct {
 	Name        string
 	ParamName   string
 	Type        string
-	Required    bool
 	Stage       string
+	IsRequired  bool
 	IsParam     bool
 	IsID        bool
 	IsValue     bool

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/block"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -18,13 +19,10 @@ func (i BlockNoFieldsInterpreter) Create(ctx *basil.EvalContext, node basil.Bloc
 }
 
 // Params returns with the list of valid parameters
-func (i BlockNoFieldsInterpreter) Params() map[basil.ID]string {
-	return nil
-}
-
-// RequiredParams returns with the list of required parameters
-func (i BlockNoFieldsInterpreter) RequiredParams() map[basil.ID]bool {
-	return nil
+func (i BlockNoFieldsInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
+	return map[basil.ID]block.ParameterDescriptor{
+		"id": {Type: "basil.ID", IsRequired: false, IsOutput: false},
+	}
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
@@ -49,6 +47,9 @@ func (i BlockNoFieldsInterpreter) ParseContext(parentCtx *basil.ParseContext) *b
 
 func (i BlockNoFieldsInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
+
+	case "id":
+		return b.(*BlockNoFields).IDField
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in BlockNoFields", name))
 	}

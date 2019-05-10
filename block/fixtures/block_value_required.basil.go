@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/block"
 	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -19,16 +20,10 @@ func (i BlockValueRequiredInterpreter) Create(ctx *basil.EvalContext, node basil
 }
 
 // Params returns with the list of valid parameters
-func (i BlockValueRequiredInterpreter) Params() map[basil.ID]string {
-	return map[basil.ID]string{
-		"value": "interface{}",
-	}
-}
-
-// RequiredParams returns with the list of required parameters
-func (i BlockValueRequiredInterpreter) RequiredParams() map[basil.ID]bool {
-	return map[basil.ID]bool{
-		"value": false,
+func (i BlockValueRequiredInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
+	return map[basil.ID]block.ParameterDescriptor{
+		"id":    {Type: "basil.ID", IsRequired: false, IsOutput: false},
+		"value": {Type: "interface{}", IsRequired: true, IsOutput: false},
 	}
 }
 
@@ -54,6 +49,9 @@ func (i BlockValueRequiredInterpreter) ParseContext(parentCtx *basil.ParseContex
 
 func (i BlockValueRequiredInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
+
+	case "id":
+		return b.(*BlockValueRequired).IDField
 
 	case "value":
 		return b.(*BlockValueRequired).Value

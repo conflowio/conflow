@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/block"
 	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -19,23 +20,19 @@ func (i TestBlockInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNod
 }
 
 // Params returns with the list of valid parameters
-func (i TestBlockInterpreter) Params() map[basil.ID]string {
-	return map[basil.ID]string{
-		"value":               "interface{}",
-		"field_string":        "string",
-		"field_int":           "int64",
-		"field_float":         "float64",
-		"field_bool":          "bool",
-		"field_array":         "[]interface{}",
-		"field_map":           "map[string]interface{}",
-		"field_time_duration": "time.Duration",
-		"custom_field":        "string",
+func (i TestBlockInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
+	return map[basil.ID]block.ParameterDescriptor{
+		"id":                  {Type: "basil.ID", IsRequired: false, IsOutput: false},
+		"value":               {Type: "interface{}", IsRequired: false, IsOutput: false},
+		"field_string":        {Type: "string", IsRequired: false, IsOutput: false},
+		"field_int":           {Type: "int64", IsRequired: false, IsOutput: false},
+		"field_float":         {Type: "float64", IsRequired: false, IsOutput: false},
+		"field_bool":          {Type: "bool", IsRequired: false, IsOutput: false},
+		"field_array":         {Type: "[]interface{}", IsRequired: false, IsOutput: false},
+		"field_map":           {Type: "map[string]interface{}", IsRequired: false, IsOutput: false},
+		"field_time_duration": {Type: "time.Duration", IsRequired: false, IsOutput: false},
+		"custom_field":        {Type: "string", IsRequired: false, IsOutput: false},
 	}
-}
-
-// RequiredParams returns with the list of required parameters
-func (i TestBlockInterpreter) RequiredParams() map[basil.ID]bool {
-	return nil
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
@@ -60,6 +57,9 @@ func (i TestBlockInterpreter) ParseContext(parentCtx *basil.ParseContext) *basil
 
 func (i TestBlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
+
+	case "id":
+		return b.(*TestBlock).IDField
 
 	case "value":
 		return b.(*TestBlock).Value

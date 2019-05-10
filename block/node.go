@@ -86,27 +86,33 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	}
 
 	params := n.interpreter.Params()
-	requiredParams := n.interpreter.RequiredParams()
+	requiredParams := make(map[basil.ID]bool, len(params))
+	for name, param := range params {
+		if param.IsRequired {
+			requiredParams[name] = false
+		}
+	}
 
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case basil.BlockNode:
 		case basil.BlockParamNode:
-			paramType, exists := params[c.Name()]
+			param, exists := params[c.Name()]
 
-			if exists && c.IsDeclaration() {
+			switch {
+			case exists && c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter already exists. Use \"=\" to set the parameter value or use a different name", c.Name())
-			}
-
-			if !exists && !c.IsDeclaration() {
+			case !exists && !c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
+			case param.IsOutput:
+				return parsley.NewErrorf(c.Pos(), "%q is an output parameter and can not be defined", c.Name())
 			}
 
-			if err := variable.CheckNodeType(c, paramType); err != nil {
+			if err := variable.CheckNodeType(c, param.Type); err != nil {
 				return err
 			}
 
-			if _, required := requiredParams[c.Name()]; required {
+			if param.IsRequired {
 				requiredParams[c.Name()] = true
 			}
 		}
@@ -218,10 +224,8 @@ func (n *Node) ParamType(name basil.ID) (string, bool) {
 		}
 	}
 
-	for paramName, paramType := range n.interpreter.Params() {
-		if name == paramName {
-			return paramType, true
-		}
+	if param, ok := n.interpreter.Params()[name]; ok {
+		return param.Type, true
 	}
 
 	return "", false

@@ -36,10 +36,8 @@ func ParseCtx(
 	testBlockNode.IDReturns(basil.ID("test"))
 	testBlockNode.ParamTypeCalls(func(id basil.ID) (s string, b bool) {
 		interpreter := TestBlockInterpreter{}
-		for paramName, paramType := range interpreter.Params() {
-			if id == paramName {
-				return paramType, true
-			}
+		if param, ok := interpreter.Params()[id]; ok {
+			return param.Type, true
 		}
 		return "", false
 	})

@@ -54,7 +54,7 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 				stages = append(stages, field.Stage)
 			}
 		}
-		if field.Required && !field.IsBlock {
+		if field.IsRequired && !field.IsBlock {
 			requiredParams = append(requiredParams, field.ParamName)
 		}
 		if field.IsValue {
@@ -65,6 +65,7 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 		case field.IsID:
 			idField = field
 			hasForeignID = field.IsReference
+			params = append(params, field)
 		case field.IsParam:
 			params = append(params, field)
 		case field.IsBlock:

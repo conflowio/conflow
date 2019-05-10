@@ -39,24 +39,11 @@ func (i {{.Name}}Interpreter) Create(ctx *basil.EvalContext, node basil.BlockNod
 }
 
 // Params returns with the list of valid parameters
-func (i {{.Name}}Interpreter) Params() map[basil.ID]string {
+func (i {{.Name}}Interpreter) Params() map[basil.ID]block.ParameterDescriptor {
 	{{ if .Params -}}
-	return map[basil.ID]string{
+	return map[basil.ID]block.ParameterDescriptor{
 		{{ range .Params -}}
-		"{{.ParamName}}": "{{.Type}}",
-		{{ end -}}
-	}
-	{{ else -}}
-	return nil
-	{{ end -}}
-}
-
-// RequiredParams returns with the list of required parameters
-func (i {{.Name}}Interpreter) RequiredParams() map[basil.ID]bool {
-	{{ if .RequiredParams -}}
-	return map[basil.ID]bool{
-		{{ range .RequiredParams -}}
-		"{{.}}": false,
+		"{{.ParamName}}": { Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}},
 		{{ end -}}
 	}
 	{{ else -}}
@@ -98,7 +85,7 @@ func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 func (i {{.Name}}Interpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.BlockParamNode) parsley.Error {
 	switch name {
 	{{ range .Params -}}
-	{{ if not .IsOutput -}}
+	{{ if and (not .IsID) (not .IsOutput) -}}
 	case "{{.ParamName}}":
 		var err parsley.Error
 		b.(*{{$root.Name}}).{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(node, ctx)
