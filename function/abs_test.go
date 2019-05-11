@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 	basilfunction "github.com/opsidian/basil/basil/function"
 	"github.com/opsidian/basil/basil/variable"
-	"github.com/opsidian/basil/lib/function"
+	"github.com/opsidian/basil/function"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/parsley"

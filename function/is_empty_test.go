@@ -8,44 +8,46 @@ import (
 	. "github.com/onsi/gomega"
 	basilfunction "github.com/opsidian/basil/basil/function"
 	"github.com/opsidian/basil/basil/variable"
-	"github.com/opsidian/basil/lib/function"
+	"github.com/opsidian/basil/function"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/parsley"
 )
 
-var _ = Describe("StringContains", func() {
+var _ = Describe("IsEmpty", func() {
 
 	registry := basilfunction.InterpreterRegistry{
-		"test": function.StringContainsInterpreter{},
+		"test": function.IsEmptyInterpreter{},
 	}
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
 			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, expected)
 		},
-		test.TableEntry(`test("", "")`, true),
-		test.TableEntry(`test("foo", "")`, true),
-		test.TableEntry(`test("abcd", "abc")`, true),
-		test.TableEntry(`test("abcd", "bcd")`, true),
-		test.TableEntry(`test("abcd", "bc")`, true),
-		test.TableEntry(`test("abcd", "foo")`, false),
-		test.TableEntry(`test("abcd", "Bc")`, false),
+		test.TableEntry(`test(nil)`, true),
+		test.TableEntry(`test("")`, true),
+		test.TableEntry(`test("a")`, false),
+		test.TableEntry(`test(0)`, true),
+		test.TableEntry(`test(1)`, false),
+		test.TableEntry(`test(0.0)`, true),
+		test.TableEntry(`test(0.1)`, false),
+		test.TableEntry(`test([])`, true),
+		test.TableEntry(`test([1])`, false),
+		test.TableEntry(`test(0s)`, true),
+		test.TableEntry(`test(1s)`, false),
 	)
 
 	DescribeTable("it will have a parse error",
 		func(input string, expectedErr error) {
 			test.ExpectFunctionToHaveParseError(parser.Expression(), registry)(input, expectedErr)
 		},
-		test.TableEntry(`test("foo")`, errors.New("test expects 2 arguments at testfile:1:1")),
-		test.TableEntry(`test("a", "a", "a")`, errors.New("test expects 2 arguments at testfile:1:1")),
-		test.TableEntry(`test(1, "a")`, errors.New("was expecting string at testfile:1:6")),
-		test.TableEntry(`test("a", 1)`, errors.New("was expecting string at testfile:1:11")),
+		test.TableEntry(`test()`, errors.New("test expects 1 arguments at testfile:1:1")),
+		test.TableEntry(`test(1, 2)`, errors.New("test expects 1 arguments at testfile:1:1")),
 	)
 
-	It("should return with boolean type", func() {
+	It("should return with bool type", func() {
 		test.ExpectFunctionNode(parser.Expression(), registry)(
-			`test("", "")`,
+			`test("")`,
 			func(userCtx interface{}, node parsley.Node) {
 				Expect(node.Type()).To(Equal(variable.TypeBool))
 			},

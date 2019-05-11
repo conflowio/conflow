@@ -8,27 +8,30 @@ import (
 	. "github.com/onsi/gomega"
 	basilfunction "github.com/opsidian/basil/basil/function"
 	"github.com/opsidian/basil/basil/variable"
-	"github.com/opsidian/basil/lib/function"
+	"github.com/opsidian/basil/function"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/parsley"
 )
 
-var _ = Describe("Trim", func() {
+var _ = Describe("Ceil", func() {
 
 	registry := basilfunction.InterpreterRegistry{
-		"test": function.TrimSpaceInterpreter{},
+		"test": function.CeilInterpreter{},
 	}
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
 			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, expected)
 		},
-		test.TableEntry(`test("")`, ""),
-		test.TableEntry(`test(" ")`, ""),
-		test.TableEntry(`test(" foo ")`, "foo"),
-		test.TableEntry(`test(" foo bar ")`, "foo bar"),
-		test.TableEntry(`test("\r\n\t foo \r\n\t ")`, "foo"),
+		test.TableEntry("test(1)", int64(1)),
+		test.TableEntry("test(1.0)", int64(1)),
+		test.TableEntry("test(1.1)", int64(2)),
+		test.TableEntry("test(1.9)", int64(2)),
+		test.TableEntry("test(-1)", int64(-1)),
+		test.TableEntry("test(-1.0)", int64(-1)),
+		test.TableEntry("test(-1.1)", int64(-1)),
+		test.TableEntry("test(-1.9)", int64(-1)),
 	)
 
 	DescribeTable("it will have a parse error",
@@ -36,15 +39,15 @@ var _ = Describe("Trim", func() {
 			test.ExpectFunctionToHaveParseError(parser.Expression(), registry)(input, expectedErr)
 		},
 		test.TableEntry(`test()`, errors.New("test expects 1 arguments at testfile:1:1")),
-		test.TableEntry(`test("a", "a")`, errors.New("test expects 1 arguments at testfile:1:1")),
-		test.TableEntry(`test(1)`, errors.New("was expecting string at testfile:1:6")),
+		test.TableEntry(`test(1, 2)`, errors.New("test expects 1 arguments at testfile:1:1")),
+		test.TableEntry(`test("nan")`, errors.New("was expecting number at testfile:1:6")),
 	)
 
-	It("should return with string type", func() {
+	It("should return with integer type", func() {
 		test.ExpectFunctionNode(parser.Expression(), registry)(
-			`test("")`,
+			"test(1)",
 			func(userCtx interface{}, node parsley.Node) {
-				Expect(node.Type()).To(Equal(variable.TypeString))
+				Expect(node.Type()).To(Equal(variable.TypeInteger))
 			},
 		)
 	})

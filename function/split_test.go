@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	basilfunction "github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/lib/function"
+	"github.com/opsidian/basil/function"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
 )

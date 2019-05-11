@@ -8,33 +8,29 @@ import (
 	. "github.com/onsi/gomega"
 	basilfunction "github.com/opsidian/basil/basil/function"
 	"github.com/opsidian/basil/basil/variable"
-	"github.com/opsidian/basil/lib/function"
+	"github.com/opsidian/basil/function"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/parsley"
 )
 
-var _ = Describe("IsEmpty", func() {
+var _ = Describe("JSONEncode", func() {
 
 	registry := basilfunction.InterpreterRegistry{
-		"test": function.IsEmptyInterpreter{},
+		"test": function.JSONEncodeInterpreter{},
 	}
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
 			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, expected)
 		},
-		test.TableEntry(`test(nil)`, true),
-		test.TableEntry(`test("")`, true),
-		test.TableEntry(`test("a")`, false),
-		test.TableEntry(`test(0)`, true),
-		test.TableEntry(`test(1)`, false),
-		test.TableEntry(`test(0.0)`, true),
-		test.TableEntry(`test(0.1)`, false),
-		test.TableEntry(`test([])`, true),
-		test.TableEntry(`test([1])`, false),
-		test.TableEntry(`test(0s)`, true),
-		test.TableEntry(`test(1s)`, false),
+		test.TableEntry(`test(nil)`, "null"),
+		test.TableEntry(`test(1)`, "1"),
+		test.TableEntry(`test(1.1)`, "1.1"),
+		test.TableEntry(`test("foo")`, "\"foo\""),
+		test.TableEntry(`test(true)`, "true"),
+		test.TableEntry(`test(1m30s)`, "90000000000"),
+		test.TableEntry(`test([1, "foo"])`, "[1,\"foo\"]"),
 	)
 
 	DescribeTable("it will have a parse error",
@@ -42,14 +38,14 @@ var _ = Describe("IsEmpty", func() {
 			test.ExpectFunctionToHaveParseError(parser.Expression(), registry)(input, expectedErr)
 		},
 		test.TableEntry(`test()`, errors.New("test expects 1 arguments at testfile:1:1")),
-		test.TableEntry(`test(1, 2)`, errors.New("test expects 1 arguments at testfile:1:1")),
+		test.TableEntry(`test("a", "a")`, errors.New("test expects 1 arguments at testfile:1:1")),
 	)
 
-	It("should return with bool type", func() {
+	It("should return with string type", func() {
 		test.ExpectFunctionNode(parser.Expression(), registry)(
 			`test("")`,
 			func(userCtx interface{}, node parsley.Node) {
-				Expect(node.Type()).To(Equal(variable.TypeBool))
+				Expect(node.Type()).To(Equal(variable.TypeString))
 			},
 		)
 	})
