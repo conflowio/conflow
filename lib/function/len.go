@@ -5,7 +5,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 // Len returns with the length of the variable

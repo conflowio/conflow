@@ -3,7 +3,7 @@ package test
 import (
 	"time"
 
-	"github.com/opsidian/basil/block"
+	"github.com/opsidian/basil/basil/block"
 
 	"github.com/opsidian/basil/basil"
 )

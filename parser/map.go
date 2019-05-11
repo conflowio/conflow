@@ -7,7 +7,7 @@
 package parser
 
 import (
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 // String converts the given value to a string

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 // Floor returns the greatest integer value less than or equal to x.

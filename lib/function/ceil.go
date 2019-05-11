@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 // Ceil returns the least integer value greater than or equal to x.

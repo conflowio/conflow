@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
-	"github.com/opsidian/basil/block"
+	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
 )

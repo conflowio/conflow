@@ -9,7 +9,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"

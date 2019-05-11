@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/opsidian/basil/function"
+	"github.com/opsidian/basil/basil/function"
 )
 
 // JSONDecode converts the given json string to a data structure

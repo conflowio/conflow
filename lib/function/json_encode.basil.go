@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/function"
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/function"
+	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 

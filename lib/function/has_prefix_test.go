@@ -6,11 +6,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	basilfunction "github.com/opsidian/basil/function"
+	basilfunction "github.com/opsidian/basil/basil/function"
+	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/basil/lib/function"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
-	"github.com/opsidian/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 

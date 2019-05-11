@@ -3,7 +3,7 @@ package function
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 // Abs returns the absolute value of the given number

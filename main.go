@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/opsidian/basil/generator"
+	"github.com/opsidian/basil/basil/generator"
 )
 
 func main() {

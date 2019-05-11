@@ -8,8 +8,8 @@ import (
 
 	"github.com/onsi/gomega/types"
 
-	"github.com/opsidian/basil/block"
-	"github.com/opsidian/basil/function"
+	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/basil/function"
 
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"

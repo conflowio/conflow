@@ -1,6 +1,6 @@
 package function
 
-import "github.com/opsidian/basil/variable"
+import "github.com/opsidian/basil/basil/variable"
 
 // ArrayContains returns true if the array contains the given element
 //go:generate basil generate

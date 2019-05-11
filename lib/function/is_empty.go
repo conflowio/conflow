@@ -1,7 +1,7 @@
 package function
 
 import (
-	"github.com/opsidian/basil/variable"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 // IsEmpty returns true if the given value has an empty value
