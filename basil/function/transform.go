@@ -14,7 +14,7 @@ import (
 func transformNode(
 	userCtx interface{},
 	node parsley.Node,
-	interpreter Interpreter,
+	interpreter basil.FunctionInterpreter,
 ) (parsley.Node, parsley.Error) {
 	nodes := node.(parsley.NonTerminalNode).Children()
 	nameNode := nodes[0].(*basil.IDNode)

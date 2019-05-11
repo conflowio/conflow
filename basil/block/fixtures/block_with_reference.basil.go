@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -19,7 +18,7 @@ func (i BlockWithReferenceInterpreter) Create(ctx *basil.EvalContext, node basil
 }
 
 // Params returns with the list of valid parameters
-func (i BlockWithReferenceInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
+func (i BlockWithReferenceInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return nil
 }
 
@@ -52,7 +51,7 @@ func (i BlockWithReferenceInterpreter) Param(b basil.Block, name basil.ID) inter
 	}
 }
 
-func (i BlockWithReferenceInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.BlockParamNode) parsley.Error {
+func (i BlockWithReferenceInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
 	return nil
 }
 

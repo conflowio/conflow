@@ -17,3 +17,10 @@ type FunctionNode interface {
 type FunctionTransformerRegistryAware interface {
 	FunctionTransformerRegistry() parsley.NodeTransformerRegistry
 }
+
+// FunctionInterpreter defines an interpreter for functions
+//go:generate counterfeiter . FunctionInterpreter
+type FunctionInterpreter interface {
+	StaticCheck(ctx interface{}, node FunctionNode) (string, parsley.Error)
+	Eval(ctx interface{}, node FunctionNode) (interface{}, parsley.Error)
+}

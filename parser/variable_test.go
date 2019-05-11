@@ -6,7 +6,6 @@ import (
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
 	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/block/blockfakes"
 	"github.com/opsidian/basil/basil/function"
 	"github.com/opsidian/basil/basil/identifier"
 	"github.com/opsidian/basil/test"
@@ -70,14 +69,14 @@ var _ = Describe("Variable", func() {
 	Context("when referencing a block module parameter", func() {
 		var blockNode *basilfakes.FakeBlockNode
 		var fooBlock *basilfakes.FakeBlock
-		var fooBlockInterpreter *blockfakes.FakeInterpreter
+		var fooBlockInterpreter *basilfakes.FakeBlockInterpreter
 
 		BeforeEach(func() {
 			blockNode = &basilfakes.FakeBlockNode{}
 			blockNodeRegistry.BlockNodeReturnsOnCall(0, blockNode, true)
 
 			fooBlock = &basilfakes.FakeBlock{}
-			fooBlockInterpreter = &blockfakes.FakeInterpreter{}
+			fooBlockInterpreter = &basilfakes.FakeBlockInterpreter{}
 			fooBlockInterpreter.ParamReturnsOnCall(0, "bar")
 
 			blockContainer := block.NewContainer(basil.ID("foo"), fooBlock, fooBlockInterpreter)

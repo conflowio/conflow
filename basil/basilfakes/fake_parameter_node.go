@@ -8,7 +8,7 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-type FakeBlockParamNode struct {
+type FakeParameterNode struct {
 	DependenciesStub        func() []basil.VariableNode
 	dependenciesMutex       sync.RWMutex
 	dependenciesArgsForCall []struct {
@@ -136,7 +136,7 @@ type FakeBlockParamNode struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlockParamNode) Dependencies() []basil.VariableNode {
+func (fake *FakeParameterNode) Dependencies() []basil.VariableNode {
 	fake.dependenciesMutex.Lock()
 	ret, specificReturn := fake.dependenciesReturnsOnCall[len(fake.dependenciesArgsForCall)]
 	fake.dependenciesArgsForCall = append(fake.dependenciesArgsForCall, struct {
@@ -153,19 +153,19 @@ func (fake *FakeBlockParamNode) Dependencies() []basil.VariableNode {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) DependenciesCallCount() int {
+func (fake *FakeParameterNode) DependenciesCallCount() int {
 	fake.dependenciesMutex.RLock()
 	defer fake.dependenciesMutex.RUnlock()
 	return len(fake.dependenciesArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) DependenciesCalls(stub func() []basil.VariableNode) {
+func (fake *FakeParameterNode) DependenciesCalls(stub func() []basil.VariableNode) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = stub
 }
 
-func (fake *FakeBlockParamNode) DependenciesReturns(result1 []basil.VariableNode) {
+func (fake *FakeParameterNode) DependenciesReturns(result1 []basil.VariableNode) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = nil
@@ -174,7 +174,7 @@ func (fake *FakeBlockParamNode) DependenciesReturns(result1 []basil.VariableNode
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) DependenciesReturnsOnCall(i int, result1 []basil.VariableNode) {
+func (fake *FakeParameterNode) DependenciesReturnsOnCall(i int, result1 []basil.VariableNode) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = nil
@@ -188,7 +188,7 @@ func (fake *FakeBlockParamNode) DependenciesReturnsOnCall(i int, result1 []basil
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) EvalStage() basil.EvalStage {
+func (fake *FakeParameterNode) EvalStage() basil.EvalStage {
 	fake.evalStageMutex.Lock()
 	ret, specificReturn := fake.evalStageReturnsOnCall[len(fake.evalStageArgsForCall)]
 	fake.evalStageArgsForCall = append(fake.evalStageArgsForCall, struct {
@@ -205,19 +205,19 @@ func (fake *FakeBlockParamNode) EvalStage() basil.EvalStage {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) EvalStageCallCount() int {
+func (fake *FakeParameterNode) EvalStageCallCount() int {
 	fake.evalStageMutex.RLock()
 	defer fake.evalStageMutex.RUnlock()
 	return len(fake.evalStageArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) EvalStageCalls(stub func() basil.EvalStage) {
+func (fake *FakeParameterNode) EvalStageCalls(stub func() basil.EvalStage) {
 	fake.evalStageMutex.Lock()
 	defer fake.evalStageMutex.Unlock()
 	fake.EvalStageStub = stub
 }
 
-func (fake *FakeBlockParamNode) EvalStageReturns(result1 basil.EvalStage) {
+func (fake *FakeParameterNode) EvalStageReturns(result1 basil.EvalStage) {
 	fake.evalStageMutex.Lock()
 	defer fake.evalStageMutex.Unlock()
 	fake.EvalStageStub = nil
@@ -226,7 +226,7 @@ func (fake *FakeBlockParamNode) EvalStageReturns(result1 basil.EvalStage) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) EvalStageReturnsOnCall(i int, result1 basil.EvalStage) {
+func (fake *FakeParameterNode) EvalStageReturnsOnCall(i int, result1 basil.EvalStage) {
 	fake.evalStageMutex.Lock()
 	defer fake.evalStageMutex.Unlock()
 	fake.EvalStageStub = nil
@@ -240,7 +240,7 @@ func (fake *FakeBlockParamNode) EvalStageReturnsOnCall(i int, result1 basil.Eval
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) ID() basil.ID {
+func (fake *FakeParameterNode) ID() basil.ID {
 	fake.iDMutex.Lock()
 	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
 	fake.iDArgsForCall = append(fake.iDArgsForCall, struct {
@@ -257,19 +257,19 @@ func (fake *FakeBlockParamNode) ID() basil.ID {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) IDCallCount() int {
+func (fake *FakeParameterNode) IDCallCount() int {
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	return len(fake.iDArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) IDCalls(stub func() basil.ID) {
+func (fake *FakeParameterNode) IDCalls(stub func() basil.ID) {
 	fake.iDMutex.Lock()
 	defer fake.iDMutex.Unlock()
 	fake.IDStub = stub
 }
 
-func (fake *FakeBlockParamNode) IDReturns(result1 basil.ID) {
+func (fake *FakeParameterNode) IDReturns(result1 basil.ID) {
 	fake.iDMutex.Lock()
 	defer fake.iDMutex.Unlock()
 	fake.IDStub = nil
@@ -278,7 +278,7 @@ func (fake *FakeBlockParamNode) IDReturns(result1 basil.ID) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) IDReturnsOnCall(i int, result1 basil.ID) {
+func (fake *FakeParameterNode) IDReturnsOnCall(i int, result1 basil.ID) {
 	fake.iDMutex.Lock()
 	defer fake.iDMutex.Unlock()
 	fake.IDStub = nil
@@ -292,7 +292,7 @@ func (fake *FakeBlockParamNode) IDReturnsOnCall(i int, result1 basil.ID) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) IsDeclaration() bool {
+func (fake *FakeParameterNode) IsDeclaration() bool {
 	fake.isDeclarationMutex.Lock()
 	ret, specificReturn := fake.isDeclarationReturnsOnCall[len(fake.isDeclarationArgsForCall)]
 	fake.isDeclarationArgsForCall = append(fake.isDeclarationArgsForCall, struct {
@@ -309,19 +309,19 @@ func (fake *FakeBlockParamNode) IsDeclaration() bool {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) IsDeclarationCallCount() int {
+func (fake *FakeParameterNode) IsDeclarationCallCount() int {
 	fake.isDeclarationMutex.RLock()
 	defer fake.isDeclarationMutex.RUnlock()
 	return len(fake.isDeclarationArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) IsDeclarationCalls(stub func() bool) {
+func (fake *FakeParameterNode) IsDeclarationCalls(stub func() bool) {
 	fake.isDeclarationMutex.Lock()
 	defer fake.isDeclarationMutex.Unlock()
 	fake.IsDeclarationStub = stub
 }
 
-func (fake *FakeBlockParamNode) IsDeclarationReturns(result1 bool) {
+func (fake *FakeParameterNode) IsDeclarationReturns(result1 bool) {
 	fake.isDeclarationMutex.Lock()
 	defer fake.isDeclarationMutex.Unlock()
 	fake.IsDeclarationStub = nil
@@ -330,7 +330,7 @@ func (fake *FakeBlockParamNode) IsDeclarationReturns(result1 bool) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) IsDeclarationReturnsOnCall(i int, result1 bool) {
+func (fake *FakeParameterNode) IsDeclarationReturnsOnCall(i int, result1 bool) {
 	fake.isDeclarationMutex.Lock()
 	defer fake.isDeclarationMutex.Unlock()
 	fake.IsDeclarationStub = nil
@@ -344,7 +344,7 @@ func (fake *FakeBlockParamNode) IsDeclarationReturnsOnCall(i int, result1 bool) 
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) Name() basil.ID {
+func (fake *FakeParameterNode) Name() basil.ID {
 	fake.nameMutex.Lock()
 	ret, specificReturn := fake.nameReturnsOnCall[len(fake.nameArgsForCall)]
 	fake.nameArgsForCall = append(fake.nameArgsForCall, struct {
@@ -361,19 +361,19 @@ func (fake *FakeBlockParamNode) Name() basil.ID {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) NameCallCount() int {
+func (fake *FakeParameterNode) NameCallCount() int {
 	fake.nameMutex.RLock()
 	defer fake.nameMutex.RUnlock()
 	return len(fake.nameArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) NameCalls(stub func() basil.ID) {
+func (fake *FakeParameterNode) NameCalls(stub func() basil.ID) {
 	fake.nameMutex.Lock()
 	defer fake.nameMutex.Unlock()
 	fake.NameStub = stub
 }
 
-func (fake *FakeBlockParamNode) NameReturns(result1 basil.ID) {
+func (fake *FakeParameterNode) NameReturns(result1 basil.ID) {
 	fake.nameMutex.Lock()
 	defer fake.nameMutex.Unlock()
 	fake.NameStub = nil
@@ -382,7 +382,7 @@ func (fake *FakeBlockParamNode) NameReturns(result1 basil.ID) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) NameReturnsOnCall(i int, result1 basil.ID) {
+func (fake *FakeParameterNode) NameReturnsOnCall(i int, result1 basil.ID) {
 	fake.nameMutex.Lock()
 	defer fake.nameMutex.Unlock()
 	fake.NameStub = nil
@@ -396,7 +396,7 @@ func (fake *FakeBlockParamNode) NameReturnsOnCall(i int, result1 basil.ID) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) Pos() parsley.Pos {
+func (fake *FakeParameterNode) Pos() parsley.Pos {
 	fake.posMutex.Lock()
 	ret, specificReturn := fake.posReturnsOnCall[len(fake.posArgsForCall)]
 	fake.posArgsForCall = append(fake.posArgsForCall, struct {
@@ -413,19 +413,19 @@ func (fake *FakeBlockParamNode) Pos() parsley.Pos {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) PosCallCount() int {
+func (fake *FakeParameterNode) PosCallCount() int {
 	fake.posMutex.RLock()
 	defer fake.posMutex.RUnlock()
 	return len(fake.posArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) PosCalls(stub func() parsley.Pos) {
+func (fake *FakeParameterNode) PosCalls(stub func() parsley.Pos) {
 	fake.posMutex.Lock()
 	defer fake.posMutex.Unlock()
 	fake.PosStub = stub
 }
 
-func (fake *FakeBlockParamNode) PosReturns(result1 parsley.Pos) {
+func (fake *FakeParameterNode) PosReturns(result1 parsley.Pos) {
 	fake.posMutex.Lock()
 	defer fake.posMutex.Unlock()
 	fake.PosStub = nil
@@ -434,7 +434,7 @@ func (fake *FakeBlockParamNode) PosReturns(result1 parsley.Pos) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) PosReturnsOnCall(i int, result1 parsley.Pos) {
+func (fake *FakeParameterNode) PosReturnsOnCall(i int, result1 parsley.Pos) {
 	fake.posMutex.Lock()
 	defer fake.posMutex.Unlock()
 	fake.PosStub = nil
@@ -448,7 +448,7 @@ func (fake *FakeBlockParamNode) PosReturnsOnCall(i int, result1 parsley.Pos) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) Provides() []basil.ID {
+func (fake *FakeParameterNode) Provides() []basil.ID {
 	fake.providesMutex.Lock()
 	ret, specificReturn := fake.providesReturnsOnCall[len(fake.providesArgsForCall)]
 	fake.providesArgsForCall = append(fake.providesArgsForCall, struct {
@@ -465,19 +465,19 @@ func (fake *FakeBlockParamNode) Provides() []basil.ID {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) ProvidesCallCount() int {
+func (fake *FakeParameterNode) ProvidesCallCount() int {
 	fake.providesMutex.RLock()
 	defer fake.providesMutex.RUnlock()
 	return len(fake.providesArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) ProvidesCalls(stub func() []basil.ID) {
+func (fake *FakeParameterNode) ProvidesCalls(stub func() []basil.ID) {
 	fake.providesMutex.Lock()
 	defer fake.providesMutex.Unlock()
 	fake.ProvidesStub = stub
 }
 
-func (fake *FakeBlockParamNode) ProvidesReturns(result1 []basil.ID) {
+func (fake *FakeParameterNode) ProvidesReturns(result1 []basil.ID) {
 	fake.providesMutex.Lock()
 	defer fake.providesMutex.Unlock()
 	fake.ProvidesStub = nil
@@ -486,7 +486,7 @@ func (fake *FakeBlockParamNode) ProvidesReturns(result1 []basil.ID) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) ProvidesReturnsOnCall(i int, result1 []basil.ID) {
+func (fake *FakeParameterNode) ProvidesReturnsOnCall(i int, result1 []basil.ID) {
 	fake.providesMutex.Lock()
 	defer fake.providesMutex.Unlock()
 	fake.ProvidesStub = nil
@@ -500,7 +500,7 @@ func (fake *FakeBlockParamNode) ProvidesReturnsOnCall(i int, result1 []basil.ID)
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) ReaderPos() parsley.Pos {
+func (fake *FakeParameterNode) ReaderPos() parsley.Pos {
 	fake.readerPosMutex.Lock()
 	ret, specificReturn := fake.readerPosReturnsOnCall[len(fake.readerPosArgsForCall)]
 	fake.readerPosArgsForCall = append(fake.readerPosArgsForCall, struct {
@@ -517,19 +517,19 @@ func (fake *FakeBlockParamNode) ReaderPos() parsley.Pos {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) ReaderPosCallCount() int {
+func (fake *FakeParameterNode) ReaderPosCallCount() int {
 	fake.readerPosMutex.RLock()
 	defer fake.readerPosMutex.RUnlock()
 	return len(fake.readerPosArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) ReaderPosCalls(stub func() parsley.Pos) {
+func (fake *FakeParameterNode) ReaderPosCalls(stub func() parsley.Pos) {
 	fake.readerPosMutex.Lock()
 	defer fake.readerPosMutex.Unlock()
 	fake.ReaderPosStub = stub
 }
 
-func (fake *FakeBlockParamNode) ReaderPosReturns(result1 parsley.Pos) {
+func (fake *FakeParameterNode) ReaderPosReturns(result1 parsley.Pos) {
 	fake.readerPosMutex.Lock()
 	defer fake.readerPosMutex.Unlock()
 	fake.ReaderPosStub = nil
@@ -538,7 +538,7 @@ func (fake *FakeBlockParamNode) ReaderPosReturns(result1 parsley.Pos) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) ReaderPosReturnsOnCall(i int, result1 parsley.Pos) {
+func (fake *FakeParameterNode) ReaderPosReturnsOnCall(i int, result1 parsley.Pos) {
 	fake.readerPosMutex.Lock()
 	defer fake.readerPosMutex.Unlock()
 	fake.ReaderPosStub = nil
@@ -552,7 +552,7 @@ func (fake *FakeBlockParamNode) ReaderPosReturnsOnCall(i int, result1 parsley.Po
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) Token() string {
+func (fake *FakeParameterNode) Token() string {
 	fake.tokenMutex.Lock()
 	ret, specificReturn := fake.tokenReturnsOnCall[len(fake.tokenArgsForCall)]
 	fake.tokenArgsForCall = append(fake.tokenArgsForCall, struct {
@@ -569,19 +569,19 @@ func (fake *FakeBlockParamNode) Token() string {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) TokenCallCount() int {
+func (fake *FakeParameterNode) TokenCallCount() int {
 	fake.tokenMutex.RLock()
 	defer fake.tokenMutex.RUnlock()
 	return len(fake.tokenArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) TokenCalls(stub func() string) {
+func (fake *FakeParameterNode) TokenCalls(stub func() string) {
 	fake.tokenMutex.Lock()
 	defer fake.tokenMutex.Unlock()
 	fake.TokenStub = stub
 }
 
-func (fake *FakeBlockParamNode) TokenReturns(result1 string) {
+func (fake *FakeParameterNode) TokenReturns(result1 string) {
 	fake.tokenMutex.Lock()
 	defer fake.tokenMutex.Unlock()
 	fake.TokenStub = nil
@@ -590,7 +590,7 @@ func (fake *FakeBlockParamNode) TokenReturns(result1 string) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) TokenReturnsOnCall(i int, result1 string) {
+func (fake *FakeParameterNode) TokenReturnsOnCall(i int, result1 string) {
 	fake.tokenMutex.Lock()
 	defer fake.tokenMutex.Unlock()
 	fake.TokenStub = nil
@@ -604,7 +604,7 @@ func (fake *FakeBlockParamNode) TokenReturnsOnCall(i int, result1 string) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) Type() string {
+func (fake *FakeParameterNode) Type() string {
 	fake.typeMutex.Lock()
 	ret, specificReturn := fake.typeReturnsOnCall[len(fake.typeArgsForCall)]
 	fake.typeArgsForCall = append(fake.typeArgsForCall, struct {
@@ -621,19 +621,19 @@ func (fake *FakeBlockParamNode) Type() string {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) TypeCallCount() int {
+func (fake *FakeParameterNode) TypeCallCount() int {
 	fake.typeMutex.RLock()
 	defer fake.typeMutex.RUnlock()
 	return len(fake.typeArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) TypeCalls(stub func() string) {
+func (fake *FakeParameterNode) TypeCalls(stub func() string) {
 	fake.typeMutex.Lock()
 	defer fake.typeMutex.Unlock()
 	fake.TypeStub = stub
 }
 
-func (fake *FakeBlockParamNode) TypeReturns(result1 string) {
+func (fake *FakeParameterNode) TypeReturns(result1 string) {
 	fake.typeMutex.Lock()
 	defer fake.typeMutex.Unlock()
 	fake.TypeStub = nil
@@ -642,7 +642,7 @@ func (fake *FakeBlockParamNode) TypeReturns(result1 string) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) TypeReturnsOnCall(i int, result1 string) {
+func (fake *FakeParameterNode) TypeReturnsOnCall(i int, result1 string) {
 	fake.typeMutex.Lock()
 	defer fake.typeMutex.Unlock()
 	fake.TypeStub = nil
@@ -656,7 +656,7 @@ func (fake *FakeBlockParamNode) TypeReturnsOnCall(i int, result1 string) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) Value(arg1 interface{}) (interface{}, parsley.Error) {
+func (fake *FakeParameterNode) Value(arg1 interface{}) (interface{}, parsley.Error) {
 	fake.valueMutex.Lock()
 	ret, specificReturn := fake.valueReturnsOnCall[len(fake.valueArgsForCall)]
 	fake.valueArgsForCall = append(fake.valueArgsForCall, struct {
@@ -674,26 +674,26 @@ func (fake *FakeBlockParamNode) Value(arg1 interface{}) (interface{}, parsley.Er
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeBlockParamNode) ValueCallCount() int {
+func (fake *FakeParameterNode) ValueCallCount() int {
 	fake.valueMutex.RLock()
 	defer fake.valueMutex.RUnlock()
 	return len(fake.valueArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) ValueCalls(stub func(interface{}) (interface{}, parsley.Error)) {
+func (fake *FakeParameterNode) ValueCalls(stub func(interface{}) (interface{}, parsley.Error)) {
 	fake.valueMutex.Lock()
 	defer fake.valueMutex.Unlock()
 	fake.ValueStub = stub
 }
 
-func (fake *FakeBlockParamNode) ValueArgsForCall(i int) interface{} {
+func (fake *FakeParameterNode) ValueArgsForCall(i int) interface{} {
 	fake.valueMutex.RLock()
 	defer fake.valueMutex.RUnlock()
 	argsForCall := fake.valueArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *FakeBlockParamNode) ValueReturns(result1 interface{}, result2 parsley.Error) {
+func (fake *FakeParameterNode) ValueReturns(result1 interface{}, result2 parsley.Error) {
 	fake.valueMutex.Lock()
 	defer fake.valueMutex.Unlock()
 	fake.ValueStub = nil
@@ -703,7 +703,7 @@ func (fake *FakeBlockParamNode) ValueReturns(result1 interface{}, result2 parsle
 	}{result1, result2}
 }
 
-func (fake *FakeBlockParamNode) ValueReturnsOnCall(i int, result1 interface{}, result2 parsley.Error) {
+func (fake *FakeParameterNode) ValueReturnsOnCall(i int, result1 interface{}, result2 parsley.Error) {
 	fake.valueMutex.Lock()
 	defer fake.valueMutex.Unlock()
 	fake.ValueStub = nil
@@ -719,7 +719,7 @@ func (fake *FakeBlockParamNode) ValueReturnsOnCall(i int, result1 interface{}, r
 	}{result1, result2}
 }
 
-func (fake *FakeBlockParamNode) ValueNode() parsley.Node {
+func (fake *FakeParameterNode) ValueNode() parsley.Node {
 	fake.valueNodeMutex.Lock()
 	ret, specificReturn := fake.valueNodeReturnsOnCall[len(fake.valueNodeArgsForCall)]
 	fake.valueNodeArgsForCall = append(fake.valueNodeArgsForCall, struct {
@@ -736,19 +736,19 @@ func (fake *FakeBlockParamNode) ValueNode() parsley.Node {
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockParamNode) ValueNodeCallCount() int {
+func (fake *FakeParameterNode) ValueNodeCallCount() int {
 	fake.valueNodeMutex.RLock()
 	defer fake.valueNodeMutex.RUnlock()
 	return len(fake.valueNodeArgsForCall)
 }
 
-func (fake *FakeBlockParamNode) ValueNodeCalls(stub func() parsley.Node) {
+func (fake *FakeParameterNode) ValueNodeCalls(stub func() parsley.Node) {
 	fake.valueNodeMutex.Lock()
 	defer fake.valueNodeMutex.Unlock()
 	fake.ValueNodeStub = stub
 }
 
-func (fake *FakeBlockParamNode) ValueNodeReturns(result1 parsley.Node) {
+func (fake *FakeParameterNode) ValueNodeReturns(result1 parsley.Node) {
 	fake.valueNodeMutex.Lock()
 	defer fake.valueNodeMutex.Unlock()
 	fake.ValueNodeStub = nil
@@ -757,7 +757,7 @@ func (fake *FakeBlockParamNode) ValueNodeReturns(result1 parsley.Node) {
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) ValueNodeReturnsOnCall(i int, result1 parsley.Node) {
+func (fake *FakeParameterNode) ValueNodeReturnsOnCall(i int, result1 parsley.Node) {
 	fake.valueNodeMutex.Lock()
 	defer fake.valueNodeMutex.Unlock()
 	fake.ValueNodeStub = nil
@@ -771,7 +771,7 @@ func (fake *FakeBlockParamNode) ValueNodeReturnsOnCall(i int, result1 parsley.No
 	}{result1}
 }
 
-func (fake *FakeBlockParamNode) Invocations() map[string][][]interface{} {
+func (fake *FakeParameterNode) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.dependenciesMutex.RLock()
@@ -805,7 +805,7 @@ func (fake *FakeBlockParamNode) Invocations() map[string][][]interface{} {
 	return copiedInvocations
 }
 
-func (fake *FakeBlockParamNode) recordInvocation(key string, args []interface{}) {
+func (fake *FakeParameterNode) recordInvocation(key string, args []interface{}) {
 	fake.invocationsMutex.Lock()
 	defer fake.invocationsMutex.Unlock()
 	if fake.invocations == nil {
@@ -817,4 +817,4 @@ func (fake *FakeBlockParamNode) recordInvocation(key string, args []interface{})
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ basil.BlockParamNode = new(FakeBlockParamNode)
+var _ basil.ParameterNode = new(FakeParameterNode)

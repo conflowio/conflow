@@ -7,7 +7,7 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-var _ basil.BlockParamNode = &Node{}
+var _ basil.ParameterNode = &Node{}
 
 // Node is a block parameter
 type Node struct {

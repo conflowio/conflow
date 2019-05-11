@@ -9,14 +9,14 @@ package block
 import (
 	"errors"
 
-	"github.com/opsidian/basil/basil/block/parameter"
 	"github.com/opsidian/basil/basil/dependency"
+	"github.com/opsidian/basil/basil/parameter"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
 
-func transformNode(parseCtx interface{}, node parsley.Node, interpreter Interpreter) (parsley.Node, parsley.Error) {
+func transformNode(parseCtx interface{}, node parsley.Node, interpreter basil.BlockInterpreter) (parsley.Node, parsley.Error) {
 	parseCtx = interpreter.ParseContext(parseCtx.(*basil.ParseContext))
 	idRegistry := parseCtx.(basil.IDRegistryAware).IDRegistry()
 
@@ -99,7 +99,7 @@ func transformNode(parseCtx interface{}, node parsley.Node, interpreter Interpre
 	return res, nil
 }
 
-func transformMainNode(parseCtx interface{}, node parsley.Node, interpreter Interpreter) (parsley.Node, parsley.Error) {
+func transformMainNode(parseCtx interface{}, node parsley.Node, interpreter basil.BlockInterpreter) (parsley.Node, parsley.Error) {
 	parseCtx = interpreter.ParseContext(parseCtx.(*basil.ParseContext))
 	blockNodeRegistry := parseCtx.(basil.BlockNodeRegistryAware).BlockNodeRegistry()
 
@@ -174,7 +174,7 @@ func transformParamNode(
 	node parsley.Node,
 	blockID basil.ID,
 	paramNames map[basil.ID]struct{},
-) (basil.BlockParamNode, parsley.Error) {
+) (basil.ParameterNode, parsley.Error) {
 	paramChildren := node.(parsley.NonTerminalNode).Children()
 
 	nameNode := paramChildren[0].(*basil.IDNode)

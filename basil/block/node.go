@@ -29,7 +29,7 @@ type Node struct {
 	idNode       *basil.IDNode
 	children     []basil.Node
 	readerPos    parsley.Pos
-	interpreter  Interpreter
+	interpreter  basil.BlockInterpreter
 	dependencies []basil.VariableNode
 	evalStage    basil.EvalStage
 }
@@ -96,7 +96,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case basil.BlockNode:
-		case basil.BlockParamNode:
+		case basil.ParameterNode:
 			param, exists := params[c.Name()]
 
 			switch {
@@ -217,7 +217,7 @@ func (n *Node) Children() []basil.Node {
 // ParamType returns with the given parameter's type if it exists, otherwise it returns false
 func (n *Node) ParamType(name basil.ID) (string, bool) {
 	for _, child := range n.children {
-		if paramNode, ok := child.(basil.BlockParamNode); ok {
+		if paramNode, ok := child.(basil.ParameterNode); ok {
 			if paramNode.Name() == name {
 				return paramNode.Type(), true
 			}

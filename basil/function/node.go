@@ -21,7 +21,7 @@ type Node struct {
 	nameNode      *basil.IDNode
 	argumentNodes []parsley.Node
 	readerPos     parsley.Pos
-	interpreter   Interpreter
+	interpreter   basil.FunctionInterpreter
 	resultType    string
 }
 

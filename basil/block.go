@@ -96,16 +96,20 @@ type BlockNodeRegistryAware interface {
 	BlockNodeRegistry() BlockNodeRegistry
 }
 
-// BlockParamNode is the AST node for a block parameter
-//go:generate counterfeiter . BlockParamNode
-type BlockParamNode interface {
-	Node
-	Name() ID
-	ValueNode() parsley.Node
-	IsDeclaration() bool
-}
-
 // BlockTransformerRegistryAware is an interface to get a block node transformer registry
 type BlockTransformerRegistryAware interface {
 	BlockTransformerRegistry() parsley.NodeTransformerRegistry
+}
+
+// BlockInterpreter defines an interpreter for blocks
+//go:generate counterfeiter . BlockInterpreter
+type BlockInterpreter interface {
+	Create(ctx *EvalContext, node BlockNode) Block
+	SetParam(ctx *EvalContext, b Block, name ID, node ParameterNode) parsley.Error
+	SetBlock(ctx *EvalContext, b Block, name ID, value interface{}) parsley.Error
+	Param(block Block, name ID) interface{}
+	Params() map[ID]ParameterDescriptor
+	ValueParamName() ID
+	HasForeignID() bool
+	ParseContextAware
 }

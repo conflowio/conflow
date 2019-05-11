@@ -13,14 +13,14 @@ type Container struct {
 	id          basil.ID
 	block       basil.Block
 	extraParams map[basil.ID]interface{}
-	interpreter Interpreter
+	interpreter basil.BlockInterpreter
 }
 
 // NewContainer creates a new block container instance
 func NewContainer(
 	id basil.ID,
 	block basil.Block,
-	interpreter Interpreter,
+	interpreter basil.BlockInterpreter,
 ) *Container {
 	return &Container{
 		id:          id,
@@ -55,7 +55,7 @@ func (c *Container) EvaluateChildNode(ctx *basil.EvalContext, node basil.Node) p
 	switch n := node.(type) {
 	case basil.BlockNode:
 		return c.setBlock(ctx, n)
-	case basil.BlockParamNode:
+	case basil.ParameterNode:
 		return c.setParam(ctx, n)
 	default:
 		panic(fmt.Errorf("Invalid node type: %s", reflect.TypeOf(node)))
@@ -71,7 +71,7 @@ func (c *Container) setBlock(ctx *basil.EvalContext, node basil.BlockNode) parsl
 	return c.interpreter.SetBlock(ctx, c.block, node.BlockType(), value)
 }
 
-func (c *Container) setParam(ctx *basil.EvalContext, node basil.BlockParamNode) parsley.Error {
+func (c *Container) setParam(ctx *basil.EvalContext, node basil.ParameterNode) parsley.Error {
 	if !node.IsDeclaration() {
 		return c.interpreter.SetParam(ctx, c.block, node.Name(), node)
 	}

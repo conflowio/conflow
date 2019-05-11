@@ -39,9 +39,9 @@ func (i {{.Name}}Interpreter) Create(ctx *basil.EvalContext, node basil.BlockNod
 }
 
 // Params returns with the list of valid parameters
-func (i {{.Name}}Interpreter) Params() map[basil.ID]block.ParameterDescriptor {
+func (i {{.Name}}Interpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	{{ if .Params -}}
-	return map[basil.ID]block.ParameterDescriptor{
+	return map[basil.ID]basil.ParameterDescriptor{
 		{{ range .Params -}}
 		"{{.ParamName}}": {Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}},
 		{{ end -}}
@@ -84,7 +84,7 @@ func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i {{.Name}}Interpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.BlockParamNode) parsley.Error {
+func (i {{.Name}}Interpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
 	{{ if .InputParams -}}
 	switch name {
 	{{ range .InputParams -}}

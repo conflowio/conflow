@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -20,8 +19,8 @@ func (i TestBlockInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNod
 }
 
 // Params returns with the list of valid parameters
-func (i TestBlockInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
-	return map[basil.ID]block.ParameterDescriptor{
+func (i TestBlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
+	return map[basil.ID]basil.ParameterDescriptor{
 		"value":               {Type: "interface{}", IsRequired: false, IsOutput: false},
 		"field_string":        {Type: "string", IsRequired: false, IsOutput: false},
 		"field_int":           {Type: "int64", IsRequired: false, IsOutput: false},
@@ -81,7 +80,7 @@ func (i TestBlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i TestBlockInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.BlockParamNode) parsley.Error {
+func (i TestBlockInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
 	switch name {
 	case "value":
 		var err parsley.Error
