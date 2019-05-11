@@ -22,7 +22,6 @@ func (i TestBlockInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNod
 // Params returns with the list of valid parameters
 func (i TestBlockInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
 	return map[basil.ID]block.ParameterDescriptor{
-		"id":                  {Type: "basil.ID", IsRequired: false, IsOutput: false},
 		"value":               {Type: "interface{}", IsRequired: false, IsOutput: false},
 		"field_string":        {Type: "string", IsRequired: false, IsOutput: false},
 		"field_int":           {Type: "int64", IsRequired: false, IsOutput: false},
@@ -121,7 +120,6 @@ func (i TestBlockInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, na
 		b.(*TestBlock).FieldCustomName, err = variable.NodeStringValue(node, ctx)
 		return err
 	}
-
 	return nil
 }
 

@@ -22,7 +22,6 @@ func (i BlockSimpleInterpreter) Create(ctx *basil.EvalContext, node basil.BlockN
 // Params returns with the list of valid parameters
 func (i BlockSimpleInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
 	return map[basil.ID]block.ParameterDescriptor{
-		"id":    {Type: "basil.ID", IsRequired: false, IsOutput: false},
 		"value": {Type: "interface{}", IsRequired: false, IsOutput: false},
 	}
 }
@@ -65,7 +64,6 @@ func (i BlockSimpleInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, 
 		b.(*BlockSimple).Value, err = variable.NodeAnyValue(node, ctx)
 		return err
 	}
-
 	return nil
 }
 

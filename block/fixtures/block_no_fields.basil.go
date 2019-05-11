@@ -20,9 +20,7 @@ func (i BlockNoFieldsInterpreter) Create(ctx *basil.EvalContext, node basil.Bloc
 
 // Params returns with the list of valid parameters
 func (i BlockNoFieldsInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
-	return map[basil.ID]block.ParameterDescriptor{
-		"id": {Type: "basil.ID", IsRequired: false, IsOutput: false},
-	}
+	return nil
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
@@ -55,9 +53,6 @@ func (i BlockNoFieldsInterpreter) Param(b basil.Block, name basil.ID) interface{
 }
 
 func (i BlockNoFieldsInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.BlockParamNode) parsley.Error {
-	switch name {
-	}
-
 	return nil
 }
 

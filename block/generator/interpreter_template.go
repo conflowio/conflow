@@ -4,13 +4,13 @@ type InterpreterTemplateParams struct {
 	Package                string
 	Type                   string
 	Name                   string
-	HasForeignID           bool
 	Stages                 []string
+	IDField                *Field
+	HasForeignID           bool
 	ValueField             *Field
 	Params                 []*Field
+	InputParams            []*Field
 	Blocks                 []*Field
-	RequiredParams         []string
-	IDField                *Field
 	NodeValueFunctionNames map[string]string
 }
 
@@ -73,6 +73,8 @@ func (i {{.Name}}Interpreter) ParseContext(parentCtx *basil.ParseContext) *basil
 
 func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*{{$root.Name}}).{{.IDField.Name}}
 	{{ range .Params -}}
 	case "{{.ParamName}}":
 		return b.(*{{$root.Name}}).{{.Name}}
@@ -83,17 +85,16 @@ func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 }
 
 func (i {{.Name}}Interpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.BlockParamNode) parsley.Error {
+	{{ if .InputParams -}}
 	switch name {
-	{{ range .Params -}}
-	{{ if and (not .IsID) (not .IsOutput) -}}
+	{{ range .InputParams -}}
 	case "{{.ParamName}}":
 		var err parsley.Error
 		b.(*{{$root.Name}}).{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(node, ctx)
 		return err
 	{{ end -}}
-	{{ end -}}
 	}
-
+	{{ end -}}
 	return nil
 }
 

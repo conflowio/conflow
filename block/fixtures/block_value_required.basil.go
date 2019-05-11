@@ -22,7 +22,6 @@ func (i BlockValueRequiredInterpreter) Create(ctx *basil.EvalContext, node basil
 // Params returns with the list of valid parameters
 func (i BlockValueRequiredInterpreter) Params() map[basil.ID]block.ParameterDescriptor {
 	return map[basil.ID]block.ParameterDescriptor{
-		"id":    {Type: "basil.ID", IsRequired: false, IsOutput: false},
 		"value": {Type: "interface{}", IsRequired: true, IsOutput: false},
 	}
 }
@@ -65,7 +64,6 @@ func (i BlockValueRequiredInterpreter) SetParam(ctx *basil.EvalContext, b basil.
 		b.(*BlockValueRequired).Value, err = variable.NodeAnyValue(node, ctx)
 		return err
 	}
-
 	return nil
 }
 

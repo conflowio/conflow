@@ -45,8 +45,8 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 	var hasForeignID bool
 
 	var stages []string
-	var requiredParams []string
 	var params []*Field
+	var inputParams []*Field
 	var blocks []*Field
 	for _, field := range fields {
 		if field.Stage != "-" {
@@ -54,22 +54,22 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 				stages = append(stages, field.Stage)
 			}
 		}
-		if field.IsRequired && !field.IsBlock {
-			requiredParams = append(requiredParams, field.ParamName)
-		}
-		if field.IsValue {
-			valueField = field
-		}
 
 		switch {
 		case field.IsID:
 			idField = field
 			hasForeignID = field.IsReference
-			params = append(params, field)
 		case field.IsParam:
 			params = append(params, field)
+			if !field.IsOutput {
+				inputParams = append(inputParams, field)
+			}
 		case field.IsBlock:
 			blocks = append(blocks, field)
+		}
+
+		if field.IsValue {
+			valueField = field
 		}
 	}
 
@@ -78,7 +78,7 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 		Name:                   name,
 		Stages:                 stages,
 		Params:                 params,
-		RequiredParams:         requiredParams,
+		InputParams:            inputParams,
 		Blocks:                 blocks,
 		IDField:                idField,
 		ValueField:             valueField,
