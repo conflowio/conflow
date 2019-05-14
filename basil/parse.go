@@ -33,8 +33,15 @@ func ParseFile(ctx *ParseContext, p parsley.Parser, path string) error {
 	return nil
 }
 
-// ParseFiles parses a file with the given parser
-func ParseFiles(ctx *ParseContext, p parsley.Parser, paths []string) error {
+// ParseFiles parses multiple files as one
+// The result node will be created using the nodeBuilder function
+// The transformation and the static checking will run on the built node
+func ParseFiles(
+	ctx *ParseContext,
+	p parsley.Parser,
+	nodeBuilder func(nodes []parsley.Node) parsley.Node,
+	paths []string,
+) error {
 	var children []parsley.Node
 	for _, path := range paths {
 		f, readErr := text.ReadFile(path)
@@ -45,7 +52,7 @@ func ParseFiles(ctx *ParseContext, p parsley.Parser, paths []string) error {
 		ctx.FileSet().AddFile(f)
 
 		parsleyCtx := parsley.NewContext(ctx.FileSet(), text.NewReader(f))
-		parsleyCtx.RegisterKeywords(keywords...)
+		parsleyCtx.RegisterKeywords(Keywords...)
 		parsleyCtx.SetUserContext(ctx)
 
 		node, parseErr := parsley.Parse(parsleyCtx, p)
@@ -54,6 +61,18 @@ func ParseFiles(ctx *ParseContext, p parsley.Parser, paths []string) error {
 		}
 
 		children = append(children, node.(*ast.NonTerminalNode).Children()...)
+	}
+
+	node := nodeBuilder(children)
+
+	var transformErr parsley.Error
+	node, transformErr = parsley.Transform(ctx, node)
+	if transformErr != nil {
+		return ctx.FileSet().ErrorWithPosition(transformErr)
+	}
+
+	if err := parsley.StaticCheck(ctx, node); err != nil {
+		return ctx.FileSet().ErrorWithPosition(err)
 	}
 
 	return nil

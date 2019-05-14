@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/opsidian/parsley/ast"
 
 	"github.com/opsidian/basil/basil"
@@ -35,7 +33,7 @@ func NewMain(id basil.ID, interpreter basil.BlockInterpreter) *Main {
 
 	m.p = text.Trim(
 		combinator.Seq(
-			"MAIN_BODY",
+			"MAIN",
 			func(i int) parsley.Parser {
 				if i == 0 {
 					return text.LeftTrim(paramOrBlock, text.WsSpacesNl)
@@ -51,78 +49,39 @@ func NewMain(id basil.ID, interpreter basil.BlockInterpreter) *Main {
 	return m
 }
 
+// Main is the main block parser
+// It will parse a block body (list of params and blocks)
+// and will return with a block with the given id and the type "main"
 type Main struct {
 	id          basil.ID
 	interpreter basil.BlockInterpreter
 	p           parsley.Parser
 }
 
+// Parse will parse the input into a block
 func (m *Main) Parse(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
 	return m.p.Parse(ctx, leftRecCtx, pos)
 }
 
+// ParseFile parses the given file as a main block
 func (m *Main) ParseFile(ctx *basil.ParseContext, path string) error {
-	f, err := text.ReadFile(path)
-	if err != nil {
-		return fmt.Errorf("failed to read %s", path)
-	}
-
-	ctx.FileSet().AddFile(f)
-
-	parsleyCtx := parsley.NewContext(ctx.FileSet(), text.NewReader(f))
-	parsleyCtx.EnableStaticCheck()
-	parsleyCtx.EnableTransformation()
-	parsleyCtx.RegisterKeywords(basil.Keywords...)
-	parsleyCtx.SetUserContext(ctx)
-
-	if _, err := parsley.Parse(parsleyCtx, m.p); err != nil {
-		return err
-	}
-
-	return nil
+	return basil.ParseFile(ctx, m.p, path)
 }
 
+// ParseFiles parses multiple files as one block
 func (m *Main) ParseFiles(ctx *basil.ParseContext, paths ...string) error {
-	var children []parsley.Node
-	for _, path := range paths {
-		f, readErr := text.ReadFile(path)
-		if readErr != nil {
-			return fmt.Errorf("failed to read %s", path)
-		}
-
-		ctx.FileSet().AddFile(f)
-
-		parsleyCtx := parsley.NewContext(ctx.FileSet(), text.NewReader(f))
-		parsleyCtx.RegisterKeywords(basil.Keywords...)
-		parsleyCtx.SetUserContext(ctx)
-
-		node, parseErr := parsley.Parse(parsleyCtx, m.p)
-		if parseErr != nil {
-			return parseErr
-		}
-
-		children = append(children, node.(*ast.NonTerminalNode).Children()...)
+	nodeBuilder := func(nodes []parsley.Node) parsley.Node {
+		return ast.NewNonTerminalNode("BLOCK_BODY", nodes, m)
 	}
-
-	var node parsley.Node = ast.NewNonTerminalNode("BLOCK_BODY", children, m)
-
-	var transformErr parsley.Error
-	node, transformErr = parsley.Transform(ctx, node)
-	if transformErr != nil {
-		return ctx.FileSet().ErrorWithPosition(transformErr)
-	}
-
-	if err := parsley.StaticCheck(ctx, node); err != nil {
-		return ctx.FileSet().ErrorWithPosition(err)
-	}
-
-	return nil
+	return basil.ParseFiles(ctx, m.p, nodeBuilder, paths)
 }
 
+// Eval will panic as it should not be called on a raw block node
 func (m *Main) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	panic("Eval should not be called on a raw block node")
 }
 
+// TransformNode will transform the parsley node into a basil block node
 func (m *Main) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
 	return block.TransformMainNode(userCtx, node, m.id, m.interpreter)
 }
