@@ -6,8 +6,6 @@ import (
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
 	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/basil/identifier"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
@@ -20,37 +18,34 @@ import (
 var _ = Describe("Variable", func() {
 
 	var p = parser.Variable()
-	var parseCtx *parsley.Context
-	var evalCtx interface{}
+	var parsleyContext *parsley.Context
+	var parseCtx *basil.ParseContext
+	var evalCtx *basil.EvalContext
 	var res parsley.Node
 	var parseErr, evalErr error
 	var value interface{}
 	var input string
-	var blockNodeRegistry *basilfakes.FakeBlockNodeRegistry
-	var blockContainerRegistry block.ContainerRegistry
+	var blockNode *basilfakes.FakeBlockNode
 
 	BeforeEach(func() {
-		parseCtx = nil
-		evalCtx = nil
-		res = nil
+		parseCtx = basil.NewParseContext(basil.NewIDRegistry(8, 16))
+		evalCtx = basil.NewEvalContext(context.Background(), nil)
 		parseErr = nil
 		evalErr = nil
 		value = nil
-		blockNodeRegistry = &basilfakes.FakeBlockNodeRegistry{}
-		blockContainerRegistry = block.NewContainerRegistry()
+		blockNode = nil
 	})
 
 	JustBeforeEach(func() {
-		parseCtx = test.ParseCtx(input, nil, nil)
-		parseCtx.SetUserContext(basil.NewParseContext(
-			block.InterpreterRegistry{},
-			function.InterpreterRegistry{},
-			identifier.NewRegistry(8, 16),
-			blockNodeRegistry,
-		))
-		evalCtx = basil.NewEvalContext(context.Background(), nil, blockContainerRegistry)
-		res, parseErr = parsley.Parse(parseCtx, combinator.Sentence(p))
+		parsleyContext = test.ParseCtx(input, nil, nil)
+		parsleyContext.SetUserContext(parseCtx)
 
+		if blockNode != nil {
+			err := parseCtx.AddBlockNode(blockNode)
+			Expect(err).ToNot(HaveOccurred())
+		}
+
+		res, parseErr = parsley.Parse(parsleyContext, combinator.Sentence(p))
 		if parseErr == nil {
 			value, evalErr = res.Value(evalCtx)
 		}
@@ -67,20 +62,19 @@ var _ = Describe("Variable", func() {
 	})
 
 	Context("when referencing a block module parameter", func() {
-		var blockNode *basilfakes.FakeBlockNode
 		var fooBlock *basilfakes.FakeBlock
 		var fooBlockInterpreter *basilfakes.FakeBlockInterpreter
 
 		BeforeEach(func() {
 			blockNode = &basilfakes.FakeBlockNode{}
-			blockNodeRegistry.BlockNodeReturnsOnCall(0, blockNode, true)
+			blockNode.IDReturns(basil.ID("foo"))
 
 			fooBlock = &basilfakes.FakeBlock{}
 			fooBlockInterpreter = &basilfakes.FakeBlockInterpreter{}
 			fooBlockInterpreter.ParamReturnsOnCall(0, "bar")
 
 			blockContainer := block.NewContainer(basil.ID("foo"), fooBlock, fooBlockInterpreter)
-			err := blockContainerRegistry.AddBlockContainer(blockContainer)
+			err := evalCtx.AddBlockContainer(blockContainer)
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -95,7 +89,6 @@ var _ = Describe("Variable", func() {
 				Expect(evalErr).ToNot(HaveOccurred())
 				Expect(value).To(Equal("bar"))
 
-				Expect(blockNodeRegistry.BlockNodeArgsForCall(0)).To(Equal(basil.ID("foo")))
 				Expect(blockNode.ParamTypeArgsForCall(0)).To(Equal(basil.ID("param1")))
 				passedBlock, passedParam := fooBlockInterpreter.ParamArgsForCall(0)
 				Expect(passedBlock).To(Equal(fooBlock))
@@ -117,7 +110,6 @@ var _ = Describe("Variable", func() {
 
 	Context("when referencing a non-existing block", func() {
 		BeforeEach(func() {
-			blockNodeRegistry.BlockNodeReturnsOnCall(0, nil, false)
 			input = "foo.param1"
 		})
 

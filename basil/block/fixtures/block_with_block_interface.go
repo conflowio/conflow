@@ -16,10 +16,10 @@ type BlockWithBlockInterface struct {
 	Blocks  []BlockInterface `basil:"block=block_simple"`
 }
 
-func (b *BlockWithBlockInterface) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
-	return ctx.New(basil.ParseContextConfig{
+func (b *BlockWithBlockInterface) ParseContextOverride(ctx *basil.ParseContext) basil.ParseContextOverride {
+	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"block_simple": BlockSimpleInterpreter{},
 		},
-	})
+	}
 }

@@ -78,9 +78,10 @@ func (n *Node) Provides() []basil.ID {
 
 // StaticCheck runs static analysis on the node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
+	parseCtx := ctx.(*basil.ParseContext)
+
 	if n.interpreter.HasForeignID() {
-		blockNodeRegistry := ctx.(basil.BlockNodeRegistryAware).BlockNodeRegistry()
-		if _, exists := blockNodeRegistry.BlockNode(n.ID()); !exists {
+		if _, exists := parseCtx.BlockNode(n.ID()); !exists {
 			return parsley.NewErrorf(n.idNode.Pos(), "%q is referencing a non-existing block", n.ID())
 		}
 	}
@@ -129,28 +130,28 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value creates a new block
 func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	blockContainerRegistry := userCtx.(basil.BlockContainerRegistryAware).BlockContainerRegistry()
-
 	evalCtx := userCtx.(*basil.EvalContext)
 
 	block := n.interpreter.Create(evalCtx, n)
 	container := NewContainer(n.idNode.ID(), block, n.interpreter)
-	if err := blockContainerRegistry.AddBlockContainer(container); err != nil {
+	if err := evalCtx.AddBlockContainer(container); err != nil {
 		return nil, parsley.NewError(n.Pos(), err)
 	}
 
-	if b, ok := block.(basil.EvalContextAware); ok {
-		evalCtx = b.EvalContext(evalCtx)
+	if b, ok := block.(basil.BlockContextOverrider); ok {
+		evalCtx = evalCtx.New(b.BlockContextOverride(evalCtx.BlockContext()))
 	}
 
-	if err := n.evaluateChildren(evalCtx, container, basil.EvalStagePre); err != nil {
+	blockContext := evalCtx.BlockContext()
+
+	if err := n.evaluateChildren(evalCtx, container, basil.EvalStageInit); err != nil {
 		return nil, err
 	}
 
 	start := true
 	if b, ok := block.(basil.BlockInitialiser); ok {
 		var err error
-		if start, err = b.Init(evalCtx); err != nil {
+		if start, err = b.Init(blockContext); err != nil {
 			return nil, parsley.NewError(n.Pos(), err)
 		}
 	}
@@ -159,22 +160,22 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 		return nil, nil
 	}
 
-	if err := n.evaluateChildren(evalCtx, container, basil.EvalStageDefault); err != nil {
+	if err := n.evaluateChildren(evalCtx, container, basil.EvalStageMain); err != nil {
 		return nil, err
 	}
 
 	if b, ok := basil.Block(block).(basil.BlockRunner); ok {
-		if err := b.Main(evalCtx); err != nil {
+		if err := b.Main(blockContext); err != nil {
 			return nil, parsley.NewError(n.Pos(), err)
 		}
 	}
 
-	if err := n.evaluateChildren(evalCtx, container, basil.EvalStagePost); err != nil {
+	if err := n.evaluateChildren(evalCtx, container, basil.EvalStageClose); err != nil {
 		return nil, err
 	}
 
 	if b, ok := basil.Block(block).(basil.BlockCloser); ok {
-		if err := b.Close(evalCtx); err != nil {
+		if err := b.Close(blockContext); err != nil {
 			return nil, parsley.NewError(n.Pos(), err)
 		}
 	}

@@ -31,7 +31,6 @@ func ParseCtx(
 		}
 	}
 
-	blockNodeRegistry := block.NewNodeRegistry()
 	testBlockNode := &basilfakes.FakeBlockNode{}
 	testBlockNode.IDReturns(basil.ID("test"))
 	testBlockNode.ParamTypeCalls(func(id basil.ID) (s string, b bool) {
@@ -41,27 +40,27 @@ func ParseCtx(
 		}
 		return "", false
 	})
-	_ = blockNodeRegistry.AddBlockNode(testBlockNode)
 
 	f := text.NewFile("testfile", []byte(input))
 	fs := parsley.NewFileSet(f)
 	r := text.NewReader(f)
+
+	parseCtx := basil.NewParseContext(newIDRegistry()).New(basil.ParseContextOverride{
+		BlockTransformerRegistry:    blockRegistry,
+		FunctionTransformerRegistry: functionRegistry,
+	})
+	_ = parseCtx.AddBlockNode(testBlockNode)
+
 	ctx := parsley.NewContext(fs, r)
 	ctx.EnableStaticCheck()
 	ctx.EnableTransformation()
 	ctx.RegisterKeywords("true", "false", "nil", "map", "testkeyword")
-	ctx.SetUserContext(basil.NewParseContext(
-		blockRegistry,
-		functionRegistry,
-		newIDRegistry(),
-		blockNodeRegistry,
-	))
+	ctx.SetUserContext(parseCtx)
+
 	return ctx
 }
 
 func EvalUserCtx() *basil.EvalContext {
-	registry := block.NewContainerRegistry()
-
 	testBlock := block.NewContainer(
 		basil.ID("test"),
 		&TestBlock{
@@ -81,9 +80,11 @@ func EvalUserCtx() *basil.EvalContext {
 		},
 		TestBlockInterpreter{},
 	)
-	_ = registry.AddBlockContainer(testBlock)
 
-	return basil.NewEvalContext(context.Background(), "userctx", registry)
+	evalCtx := basil.NewEvalContext(context.Background(), "userctx")
+	_ = evalCtx.AddBlockContainer(testBlock)
+
+	return evalCtx
 }
 
 func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {

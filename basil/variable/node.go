@@ -60,9 +60,9 @@ func (n *Node) Type() string {
 
 // StaticCheck runs static analysis on the node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
-	blockNodeRegistry := ctx.(basil.BlockNodeRegistryAware).BlockNodeRegistry()
+	parseCtx := ctx.(*basil.ParseContext)
 
-	blockNode, exists := blockNodeRegistry.BlockNode(n.blockIDNode.ID())
+	blockNode, exists := parseCtx.BlockNode(n.blockIDNode.ID())
 	if !exists {
 		return parsley.NewErrorf(n.blockIDNode.Pos(), "block %q does not exist", n.blockIDNode.ID())
 	}
@@ -79,8 +79,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value returns with the result of the function
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
-	blockContainerRegistry := ctx.(basil.BlockContainerRegistryAware).BlockContainerRegistry()
-	blockContainer, ok := blockContainerRegistry.BlockContainer(n.blockIDNode.ID())
+	blockContainer, ok := ctx.(*basil.EvalContext).BlockContainer(n.blockIDNode.ID())
 	if !ok {
 		panic(parsley.NewErrorf(n.Pos(), "%q was referenced before it was evaluated", n.blockIDNode.ID()))
 	}

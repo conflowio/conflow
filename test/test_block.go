@@ -24,10 +24,10 @@ type TestBlock struct {
 	Blocks []*TestBlock `basil:"block=testblock"`
 }
 
-func (t *TestBlock) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
-	return ctx.New(basil.ParseContextConfig{
+func (t *TestBlock) ParseContextOverride() basil.ParseContextOverride {
+	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"testblock": TestBlockInterpreter{},
 		},
-	})
+	}
 }

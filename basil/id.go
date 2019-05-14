@@ -4,14 +4,14 @@ import (
 	"regexp"
 )
 
-// Main is the main block's id
-const MainID = "main"
-
 // IDRegExpPattern is the regular expression for a valid identifier
 const IDRegExpPattern = "[a-z][a-z0-9]*(?:_[a-z0-9]+)*"
 
 // IDRegExp is a compiled regular expression object for a valid identifier
 var IDRegExp = regexp.MustCompile("^" + IDRegExpPattern + "$")
+
+// Keywords are reserved strings and may not be used as identifiers.
+var Keywords = []string{"true", "false", "nil", "map"}
 
 // ID contains an identifier
 type ID string
@@ -25,16 +25,4 @@ func (i ID) String() string {
 //go:generate counterfeiter . Identifiable
 type Identifiable interface {
 	ID() ID
-}
-
-// IDRegistry provides information about existing identifiers and able to generate new ones
-type IDRegistry interface {
-	IDExists(ID) bool
-	GenerateID() ID
-	RegisterID(ID) error
-}
-
-// IDRegistryAware defines an interface to retrieve an identifier registry
-type IDRegistryAware interface {
-	IDRegistry() IDRegistry
 }

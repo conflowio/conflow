@@ -15,13 +15,7 @@ func (i InterpreterRegistry) NodeTransformer(name string) (parsley.NodeTransform
 		return nil, false
 	}
 
-	if name == basil.MainID {
-		return parsley.NodeTransformFunc(func(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-			return transformMainNode(userCtx, node, interpreter)
-		}), true
-	}
-
 	return parsley.NodeTransformFunc(func(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-		return transformNode(userCtx, node, interpreter)
+		return TransformNode(userCtx, node, interpreter)
 	}), true
 }

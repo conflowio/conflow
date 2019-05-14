@@ -48,31 +48,20 @@ type BlockContainer interface {
 	EvaluateChildNode(*EvalContext, Node) parsley.Error
 }
 
-// BlockContainerRegistry stores block container instances
-type BlockContainerRegistry interface {
-	BlockContainer(ID) (BlockContainer, bool)
-	AddBlockContainer(BlockContainer) error
-}
-
-// BlockContainerRegistryAware defines an interface to get a block registry
-type BlockContainerRegistryAware interface {
-	BlockContainerRegistry() BlockContainerRegistry
-}
-
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
 // If the boolean return value is false then the block won't be evaluated
 type BlockInitialiser interface {
-	Init(ctx *EvalContext) (bool, error)
+	Init(ctx BlockContext) (bool, error)
 }
 
 // BlockRunner defines a Main() function which runs the main business logic
 type BlockRunner interface {
-	Main(ctx *EvalContext) error
+	Main(ctx BlockContext) error
 }
 
 // BlockCloser defines a Close function which runs after the main evaluation stage
 type BlockCloser interface {
-	Close(ctx *EvalContext) error
+	Close(ctx BlockContext) error
 }
 
 // BlockNode is the AST node for a block
@@ -91,11 +80,6 @@ type BlockNodeRegistry interface {
 	AddBlockNode(BlockNode) error
 }
 
-// BlockNodeRegistryAware defines an interface to access a block node registry
-type BlockNodeRegistryAware interface {
-	BlockNodeRegistry() BlockNodeRegistry
-}
-
 // BlockTransformerRegistryAware is an interface to get a block node transformer registry
 type BlockTransformerRegistryAware interface {
 	BlockTransformerRegistry() parsley.NodeTransformerRegistry
@@ -111,5 +95,5 @@ type BlockInterpreter interface {
 	Params() map[ID]ParameterDescriptor
 	ValueParamName() ID
 	HasForeignID() bool
-	ParseContextAware
+	ParseContext(*ParseContext) *ParseContext
 }

@@ -33,13 +33,13 @@ func (i BlockWithBlockInterfaceInterpreter) ValueParamName() basil.ID {
 }
 
 // ParseContext returns with the parse context for the block
-func (i BlockWithBlockInterfaceInterpreter) ParseContext(parentCtx *basil.ParseContext) *basil.ParseContext {
+func (i BlockWithBlockInterfaceInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
 	var nilBlock *BlockWithBlockInterface
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextAware); ok {
-		return b.ParseContext(parentCtx)
+	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+		return ctx.New(b.ParseContextOverride())
 	}
 
-	return parentCtx
+	return ctx
 }
 
 func (i BlockWithBlockInterfaceInterpreter) Param(b basil.Block, name basil.ID) interface{} {

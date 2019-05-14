@@ -13,7 +13,6 @@ import (
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
@@ -26,16 +25,14 @@ import (
 //         -> ID ID? VALUE
 //   ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //   ATTR  -> ID ("="|":=") P
-//   VALUE -> STRING
-//         -> INT
-//         -> FLOAT
-//         -> BOOL
-//         -> TIME_DURATION
+//   VALUE -> EXPRESSION
+//         -> ARRAY
+//         -> MAP
 func Block(expr parsley.Parser) *combinator.Sequence {
 	var p combinator.Sequence
 
 	paramOrBlock := combinator.Choice(
-		blockParameter(expr),
+		Parameter(expr),
 		&p,
 	).Name("parameter or block definition")
 
@@ -71,43 +68,6 @@ func Block(expr parsley.Parser) *combinator.Sequence {
 	return &p
 }
 
-func MainBlock() parser.Func {
-	expr := Expression()
-
-	paramOrBlock := combinator.Choice(
-		blockParameter(expr),
-		Block(expr),
-	).Name("parameter or block definition")
-
-	return text.Trim(
-		combinator.Seq(
-			"MAIN_BODY",
-			func(i int) parsley.Parser {
-				if i == 0 {
-					return text.LeftTrim(paramOrBlock, text.WsSpacesNl)
-				}
-				return text.LeftTrim(paramOrBlock, text.WsSpacesForceNl)
-			},
-			func(int) bool {
-				return true
-			},
-		).Bind(mainBlockInterpreter{}),
-	)
-}
-
-func blockParameter(expr parsley.Parser) *combinator.Sequence {
-	parameterValue := combinator.Choice(
-		Array(expr, text.WsSpacesNl),
-		Map(expr),
-		expr,
-	)
-	return combinator.SeqOf(
-		ID(),
-		text.LeftTrim(combinator.Choice(terminal.Rune('='), terminal.Op(":=")), text.WsSpaces),
-		text.LeftTrim(parameterValue, text.WsSpaces),
-	).Token(block.TokenParameter)
-}
-
 type blockInterpreter struct{}
 
 func (b blockInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
@@ -124,24 +84,6 @@ func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) 
 	transformer, exists := registry.NodeTransformer(string(typeNode.ID()))
 	if !exists {
 		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf("%q type is invalid or not allowed here", typeNode.ID()))
-	}
-
-	return transformer.TransformNode(userCtx, node)
-}
-
-type mainBlockInterpreter struct {
-}
-
-func (m mainBlockInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
-	panic("Eval should not be called on a raw block node")
-}
-
-func (m mainBlockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	registry := userCtx.(basil.BlockTransformerRegistryAware).BlockTransformerRegistry()
-
-	transformer, exists := registry.NodeTransformer(basil.MainID)
-	if !exists {
-		panic("can not parse main block as block type is not registered")
 	}
 
 	return transformer.TransformNode(userCtx, node)

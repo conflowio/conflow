@@ -1,79 +1,60 @@
 package basil
 
 import (
+	"fmt"
+
+	"github.com/opsidian/parsley/ast"
+
 	"github.com/opsidian/parsley/parsley"
+	"github.com/opsidian/parsley/text"
 )
 
-// ParseContext is the parsing context
-type ParseContext struct {
-	blockTransformerRegistry    parsley.NodeTransformerRegistry
-	functionTransformerRegistry parsley.NodeTransformerRegistry
-	idRegistry                  IDRegistry
-	blockNodeRegistry           BlockNodeRegistry
-}
+var keywords = []string{"true", "false", "nil", "map"}
 
-// ParseContextAware defines an interface to return a child parsing content
-type ParseContextAware interface {
-	ParseContext(*ParseContext) *ParseContext
-}
-
-// ParseContextConfig stores override values for a child context
-type ParseContextConfig struct {
-	BlockTransformerRegistry    parsley.NodeTransformerRegistry
-	FunctionTransformerRegistry parsley.NodeTransformerRegistry
-}
-
-// NewParseContext returns with a new parsing context
-func NewParseContext(
-	blockTransformerRegistry parsley.NodeTransformerRegistry,
-	functionTransformerRegistry parsley.NodeTransformerRegistry,
-	idRegistry IDRegistry,
-	blockNodeRegistry BlockNodeRegistry,
-) *ParseContext {
-	return &ParseContext{
-		blockTransformerRegistry:    blockTransformerRegistry,
-		functionTransformerRegistry: functionTransformerRegistry,
-		idRegistry:                  idRegistry,
-		blockNodeRegistry:           blockNodeRegistry,
-	}
-}
-
-// New creates a new child context
-func (p *ParseContext) New(config ParseContextConfig) *ParseContext {
-	ctx := &ParseContext{
-		idRegistry:        p.idRegistry,
-		blockNodeRegistry: p.blockNodeRegistry,
-	}
-	if config.BlockTransformerRegistry != nil {
-		ctx.blockTransformerRegistry = config.BlockTransformerRegistry
-	} else {
-		ctx.blockTransformerRegistry = p.blockTransformerRegistry
-	}
-	if config.FunctionTransformerRegistry != nil {
-		ctx.functionTransformerRegistry = config.FunctionTransformerRegistry
-	} else {
-		ctx.functionTransformerRegistry = p.functionTransformerRegistry
+// ParseFile parses a file with the given parser
+func ParseFile(ctx *ParseContext, p parsley.Parser, path string) error {
+	f, err := text.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("failed to read %s", path)
 	}
 
-	return ctx
+	ctx.FileSet().AddFile(f)
+
+	parsleyCtx := parsley.NewContext(ctx.FileSet(), text.NewReader(f))
+	parsleyCtx.EnableStaticCheck()
+	parsleyCtx.EnableTransformation()
+	parsleyCtx.RegisterKeywords(keywords...)
+	parsleyCtx.SetUserContext(ctx)
+
+	if _, err := parsley.Parse(parsleyCtx, p); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-// BlockTransformerRegistry returns with the block node transformer registry
-func (p *ParseContext) BlockTransformerRegistry() parsley.NodeTransformerRegistry {
-	return p.blockTransformerRegistry
-}
+// ParseFiles parses a file with the given parser
+func ParseFiles(ctx *ParseContext, p parsley.Parser, paths []string) error {
+	var children []parsley.Node
+	for _, path := range paths {
+		f, readErr := text.ReadFile(path)
+		if readErr != nil {
+			return fmt.Errorf("failed to read %s", path)
+		}
 
-// FunctionTransformerRegistry returns with the function node transformer registry
-func (p *ParseContext) FunctionTransformerRegistry() parsley.NodeTransformerRegistry {
-	return p.functionTransformerRegistry
-}
+		ctx.FileSet().AddFile(f)
 
-// IDRegistry returns with the identifier registry
-func (p *ParseContext) IDRegistry() IDRegistry {
-	return p.idRegistry
-}
+		parsleyCtx := parsley.NewContext(ctx.FileSet(), text.NewReader(f))
+		parsleyCtx.RegisterKeywords(keywords...)
+		parsleyCtx.SetUserContext(ctx)
 
-// BlockNodeRegistry returns with the the block node registry
-func (p *ParseContext) BlockNodeRegistry() BlockNodeRegistry {
-	return p.blockNodeRegistry
+		node, parseErr := parsley.Parse(parsleyCtx, p)
+		if parseErr != nil {
+			return parseErr
+		}
+
+		children = append(children, node.(*ast.NonTerminalNode).Children()...)
+	}
+
+	return nil
 }
