@@ -88,10 +88,10 @@ type BlockTransformerRegistryAware interface {
 // BlockInterpreter defines an interpreter for blocks
 //go:generate counterfeiter . BlockInterpreter
 type BlockInterpreter interface {
-	Create(ctx *EvalContext, node BlockNode) Block
-	SetParam(ctx *EvalContext, b Block, name ID, node ParameterNode) parsley.Error
-	SetBlock(ctx *EvalContext, b Block, name ID, value interface{}) parsley.Error
-	Param(block Block, name ID) interface{}
+	CreateBlock(ID) Block
+	SetParam(b Block, name ID, value interface{}) error
+	SetBlock(b Block, name ID, value interface{}) error
+	Param(b Block, name ID) interface{}
 	Params() map[ID]ParameterDescriptor
 	ValueParamName() ID
 	HasForeignID() bool

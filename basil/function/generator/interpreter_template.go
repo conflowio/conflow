@@ -1,14 +1,14 @@
 package generator
 
 type InterpreterTemplateParams struct {
-	Package                string
-	Name                   string
-	FuncName               string
-	Arguments              []*Argument
-	Results                []*Argument
-	ResultType             string
-	ReturnNodeType         bool
-	NodeValueFunctionNames map[string]string
+	Package            string
+	Name               string
+	FuncName           string
+	Arguments          []*Argument
+	Results            []*Argument
+	ResultType         string
+	ReturnNodeType     bool
+	ValueFunctionNames map[string]string
 }
 
 const interpreterTemplate = `
@@ -56,9 +56,14 @@ func (i {{.Name}}Interpreter) Eval(ctx interface{}, node basil.FunctionNode) (in
 	{{- if .Arguments }}
 	arguments := node.ArgumentNodes()
 	{{ range $i, $arg := .Arguments }}
-	arg{{$i}}, err := variable.{{index $root.NodeValueFunctionNames .Type}}(arguments[{{$i}}], ctx)
-	if err != nil {
-		return nil, err
+	arg{{$i}}, evalErr := arguments[{{$i}}].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	val{{$i}}, convertErr := variable.{{index $root.ValueFunctionNames .Type}}(arg{{$i}})
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[{{$i}}].Pos(), convertErr)
 	}
 	{{ end }}
 
@@ -66,13 +71,13 @@ func (i {{.Name}}Interpreter) Eval(ctx interface{}, node basil.FunctionNode) (in
 	{{ if eq (len .Results) 1 }}
 	return {{.FuncName}}(
 		{{range $i, $arg := .Arguments -}}
-		arg{{$i}},
+		val{{$i}},
 		{{ end -}}
 	), nil
 	{{ else }}
 	res, resErr := {{.FuncName}}(
 		{{- range $i, $arg := .Arguments -}}
-		arg{{$i}},
+		val{{$i}},
 		{{- end -}}
 	)
 	if resErr != nil {

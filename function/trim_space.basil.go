@@ -32,13 +32,18 @@ func (i TrimSpaceInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNo
 func (i TrimSpaceInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := variable.NodeStringValue(arguments[0], ctx)
-	if err != nil {
-		return nil, err
+	arg0, evalErr := arguments[0].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	val0, convertErr := variable.StringValue(arg0)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[0].Pos(), convertErr)
 	}
 
 	return TrimSpace(
-		arg0,
+		val0,
 	), nil
 
 }

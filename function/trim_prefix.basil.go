@@ -36,19 +36,29 @@ func (i TrimPrefixInterpreter) StaticCheck(ctx interface{}, node basil.FunctionN
 func (i TrimPrefixInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := variable.NodeStringValue(arguments[0], ctx)
-	if err != nil {
-		return nil, err
+	arg0, evalErr := arguments[0].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
 	}
 
-	arg1, err := variable.NodeStringValue(arguments[1], ctx)
-	if err != nil {
-		return nil, err
+	val0, convertErr := variable.StringValue(arg0)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[0].Pos(), convertErr)
+	}
+
+	arg1, evalErr := arguments[1].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	val1, convertErr := variable.StringValue(arg1)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[1].Pos(), convertErr)
 	}
 
 	return TrimPrefix(
-		arg0,
-		arg1,
+		val0,
+		val1,
 	), nil
 
 }

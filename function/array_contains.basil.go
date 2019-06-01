@@ -36,19 +36,29 @@ func (i ArrayContainsInterpreter) StaticCheck(ctx interface{}, node basil.Functi
 func (i ArrayContainsInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := variable.NodeArrayValue(arguments[0], ctx)
-	if err != nil {
-		return nil, err
+	arg0, evalErr := arguments[0].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
 	}
 
-	arg1, err := variable.NodeAnyValue(arguments[1], ctx)
-	if err != nil {
-		return nil, err
+	val0, convertErr := variable.ArrayValue(arg0)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[0].Pos(), convertErr)
+	}
+
+	arg1, evalErr := arguments[1].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	val1, convertErr := variable.AnyValue(arg1)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[1].Pos(), convertErr)
 	}
 
 	return ArrayContains(
-		arg0,
-		arg1,
+		val0,
+		val1,
 	), nil
 
 }
