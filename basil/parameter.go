@@ -17,3 +17,10 @@ type ParameterNode interface {
 	ValueNode() parsley.Node
 	IsDeclaration() bool
 }
+
+// ParameterContainer is a parameter container
+type ParameterContainer interface {
+	Container
+	Node() ParameterNode
+	Parent() BlockContainer
+}

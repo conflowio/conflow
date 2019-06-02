@@ -9,15 +9,15 @@ import (
 )
 
 type FakeNode struct {
-	DependenciesStub        func() []basil.VariableNode
+	DependenciesStub        func() basil.Dependencies
 	dependenciesMutex       sync.RWMutex
 	dependenciesArgsForCall []struct {
 	}
 	dependenciesReturns struct {
-		result1 []basil.VariableNode
+		result1 basil.Dependencies
 	}
 	dependenciesReturnsOnCall map[int]struct {
-		result1 []basil.VariableNode
+		result1 basil.Dependencies
 	}
 	EvalStageStub        func() basil.EvalStage
 	evalStageMutex       sync.RWMutex
@@ -106,7 +106,7 @@ type FakeNode struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeNode) Dependencies() []basil.VariableNode {
+func (fake *FakeNode) Dependencies() basil.Dependencies {
 	fake.dependenciesMutex.Lock()
 	ret, specificReturn := fake.dependenciesReturnsOnCall[len(fake.dependenciesArgsForCall)]
 	fake.dependenciesArgsForCall = append(fake.dependenciesArgsForCall, struct {
@@ -129,32 +129,32 @@ func (fake *FakeNode) DependenciesCallCount() int {
 	return len(fake.dependenciesArgsForCall)
 }
 
-func (fake *FakeNode) DependenciesCalls(stub func() []basil.VariableNode) {
+func (fake *FakeNode) DependenciesCalls(stub func() basil.Dependencies) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = stub
 }
 
-func (fake *FakeNode) DependenciesReturns(result1 []basil.VariableNode) {
+func (fake *FakeNode) DependenciesReturns(result1 basil.Dependencies) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = nil
 	fake.dependenciesReturns = struct {
-		result1 []basil.VariableNode
+		result1 basil.Dependencies
 	}{result1}
 }
 
-func (fake *FakeNode) DependenciesReturnsOnCall(i int, result1 []basil.VariableNode) {
+func (fake *FakeNode) DependenciesReturnsOnCall(i int, result1 basil.Dependencies) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = nil
 	if fake.dependenciesReturnsOnCall == nil {
 		fake.dependenciesReturnsOnCall = make(map[int]struct {
-			result1 []basil.VariableNode
+			result1 basil.Dependencies
 		})
 	}
 	fake.dependenciesReturnsOnCall[i] = struct {
-		result1 []basil.VariableNode
+		result1 basil.Dependencies
 	}{result1}
 }
 

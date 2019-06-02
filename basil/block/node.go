@@ -30,7 +30,7 @@ type Node struct {
 	children     []basil.Node
 	readerPos    parsley.Pos
 	interpreter  basil.BlockInterpreter
-	dependencies []basil.VariableNode
+	dependencies basil.Dependencies
 	evalStage    basil.EvalStage
 }
 
@@ -60,8 +60,13 @@ func (n *Node) EvalStage() basil.EvalStage {
 }
 
 // Dependencies returns the blocks/parameters this block depends on
-func (n *Node) Dependencies() []basil.VariableNode {
+func (n *Node) Dependencies() basil.Dependencies {
 	return n.dependencies
+}
+
+// Interpreter returns with the interpreter
+func (n *Node) Interpreter() basil.BlockInterpreter {
+	return n.interpreter
 }
 
 // Provides returns with the all the defined blocked node ids inside this block
@@ -130,69 +135,10 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value creates a new block
 func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	evalCtx := userCtx.(*basil.EvalContext)
+	container := NewContainer(userCtx.(basil.EvalContext), n)
+	container.Run()
 
-	block := n.interpreter.Create(evalCtx, n)
-	container := NewContainer(n.idNode.ID(), block, n.interpreter)
-	if err := evalCtx.AddBlockContainer(container); err != nil {
-		return nil, parsley.NewError(n.Pos(), err)
-	}
-
-	if b, ok := block.(basil.BlockContextOverrider); ok {
-		evalCtx = evalCtx.New(b.BlockContextOverride(evalCtx.BlockContext()))
-	}
-
-	blockContext := evalCtx.BlockContext()
-
-	if err := n.evaluateChildren(evalCtx, container, basil.EvalStageInit); err != nil {
-		return nil, err
-	}
-
-	start := true
-	if b, ok := block.(basil.BlockInitialiser); ok {
-		var err error
-		if start, err = b.Init(blockContext); err != nil {
-			return nil, parsley.NewError(n.Pos(), err)
-		}
-	}
-
-	if !start {
-		return nil, nil
-	}
-
-	if err := n.evaluateChildren(evalCtx, container, basil.EvalStageMain); err != nil {
-		return nil, err
-	}
-
-	if b, ok := basil.Block(block).(basil.BlockRunner); ok {
-		if err := b.Main(blockContext); err != nil {
-			return nil, parsley.NewError(n.Pos(), err)
-		}
-	}
-
-	if err := n.evaluateChildren(evalCtx, container, basil.EvalStageClose); err != nil {
-		return nil, err
-	}
-
-	if b, ok := basil.Block(block).(basil.BlockCloser); ok {
-		if err := b.Close(blockContext); err != nil {
-			return nil, parsley.NewError(n.Pos(), err)
-		}
-	}
-
-	return block, nil
-}
-
-func (n *Node) evaluateChildren(ctx *basil.EvalContext, container *Container, stage basil.EvalStage) parsley.Error {
-	for _, child := range n.children {
-		if child.EvalStage() == stage {
-			if err := container.EvaluateChildNode(ctx, child); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
+	return container.Value()
 }
 
 // Pos returns with the node's position

@@ -5,7 +5,6 @@ import (
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
@@ -20,7 +19,7 @@ var _ = Describe("Variable", func() {
 	var p = parser.Variable()
 	var parsleyContext *parsley.Context
 	var parseCtx *basil.ParseContext
-	var evalCtx *basil.EvalContext
+	var evalCtx basil.EvalContext
 	var res parsley.Node
 	var parseErr, evalErr error
 	var value interface{}
@@ -29,7 +28,8 @@ var _ = Describe("Variable", func() {
 
 	BeforeEach(func() {
 		parseCtx = basil.NewParseContext(basil.NewIDRegistry(8, 16))
-		evalCtx = basil.NewEvalContext(context.Background(), nil)
+		blockContext := basil.NewBlockContext(context.Background(), nil)
+		evalCtx = basil.NewEvalContext(blockContext, test.Scheduler{})
 		parseErr = nil
 		evalErr = nil
 		value = nil
@@ -62,20 +62,15 @@ var _ = Describe("Variable", func() {
 	})
 
 	Context("when referencing a block module parameter", func() {
-		var fooBlock *basilfakes.FakeBlock
-		var fooBlockInterpreter *basilfakes.FakeBlockInterpreter
-
 		BeforeEach(func() {
 			blockNode = &basilfakes.FakeBlockNode{}
 			blockNode.IDReturns(basil.ID("foo"))
 
-			fooBlock = &basilfakes.FakeBlock{}
-			fooBlockInterpreter = &basilfakes.FakeBlockInterpreter{}
-			fooBlockInterpreter.ParamReturnsOnCall(0, "bar")
+			cont := &basilfakes.FakeBlockContainer{}
+			cont.ParamReturnsOnCall(0, "bar")
+			cont.NodeReturns(blockNode)
 
-			blockContainer := block.NewContainer(basil.ID("foo"), fooBlock, fooBlockInterpreter)
-			err := evalCtx.AddBlockContainer(blockContainer)
-			Expect(err).ToNot(HaveOccurred())
+			evalCtx = evalCtx.WithDependencies(map[basil.ID]basil.BlockContainer{"foo": cont})
 		})
 
 		Context("with an existing parameter", func() {
@@ -90,9 +85,6 @@ var _ = Describe("Variable", func() {
 				Expect(value).To(Equal("bar"))
 
 				Expect(blockNode.ParamTypeArgsForCall(0)).To(Equal(basil.ID("param1")))
-				passedBlock, passedParam := fooBlockInterpreter.ParamArgsForCall(0)
-				Expect(passedBlock).To(Equal(fooBlock))
-				Expect(passedParam).To(Equal(basil.ID("param1")))
 			})
 		})
 

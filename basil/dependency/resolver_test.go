@@ -16,7 +16,7 @@ var _ = Describe("Resolver", func() {
 
 	var resolver *dependency.Resolver
 	var result []basil.Node
-	var dependencies []basil.VariableNode
+	var dependencies basil.Dependencies
 	var err error
 
 	BeforeEach(func() {
@@ -100,8 +100,8 @@ var _ = Describe("Resolver", func() {
 			param4 = &basilfakes.FakeNode{}
 			param4.IDReturns("b.param4")
 
-			param1.DependenciesReturns([]basil.VariableNode{dep("b.param2")})
-			param3.DependenciesReturns([]basil.VariableNode{dep("b.param4")})
+			param1.DependenciesReturns(basil.Dependencies{"b.param2": dep("b.param2")})
+			param3.DependenciesReturns(basil.Dependencies{"b.param4": dep("b.param4")})
 
 			resolver.AddNodes(param1, param2, param3, param4)
 		})
@@ -132,7 +132,7 @@ var _ = Describe("Resolver", func() {
 			node2 = &basilfakes.FakeNode{}
 			node2.IDReturns("node2")
 
-			param1.DependenciesReturns([]basil.VariableNode{dep("node2.x")})
+			param1.DependenciesReturns(basil.Dependencies{"node2.x": dep("node2.x")})
 
 			resolver.AddNodes(param1, node2)
 		})
@@ -160,7 +160,7 @@ var _ = Describe("Resolver", func() {
 			node2.IDReturns("node2")
 
 			node2.ProvidesReturns([]basil.ID{"node3"})
-			param1.DependenciesReturns([]basil.VariableNode{dep("node3.x")})
+			param1.DependenciesReturns(basil.Dependencies{"node3.x": dep("node3.x")})
 
 			resolver.AddNodes(param1, node2)
 		})
@@ -192,8 +192,8 @@ var _ = Describe("Resolver", func() {
 			param3.IDReturns("b.param3")
 			param3.PosReturns(parsley.Pos(3))
 
-			param1.DependenciesReturns([]basil.VariableNode{dep("b.param2")})
-			param2.DependenciesReturns([]basil.VariableNode{dep("b.param1")})
+			param1.DependenciesReturns(basil.Dependencies{"b.param2": dep("b.param2")})
+			param2.DependenciesReturns(basil.Dependencies{"b.param1": dep("b.param1")})
 
 			resolver.AddNodes(param1, param2, param3)
 		})
@@ -216,8 +216,8 @@ var _ = Describe("Resolver", func() {
 			param2.IDReturns("b.param2")
 			param2.PosReturns(parsley.Pos(2))
 
-			param1.DependenciesReturns([]basil.VariableNode{dep("b.param2")})
-			param2.DependenciesReturns([]basil.VariableNode{dep("b.param2")})
+			param1.DependenciesReturns(basil.Dependencies{"b.param2": dep("b.param2")})
+			param2.DependenciesReturns(basil.Dependencies{"b.param2": dep("b.param2")})
 
 			resolver.AddNodes(param1, param2)
 		})
@@ -240,7 +240,7 @@ var _ = Describe("Resolver", func() {
 			dep1 = dep("b.param2")
 			dep1.PosReturns(parsley.Pos(2))
 
-			param1.DependenciesReturns([]basil.VariableNode{dep1})
+			param1.DependenciesReturns(basil.Dependencies{"b.param2": dep1})
 
 			resolver.AddNodes(param1)
 		})
@@ -263,7 +263,7 @@ var _ = Describe("Resolver", func() {
 
 			dep1 = dep("b2.param2")
 
-			param1.DependenciesReturns([]basil.VariableNode{dep1})
+			param1.DependenciesReturns(basil.Dependencies{"b2.param2": dep1})
 
 			resolver.AddNodes(param1)
 		})
@@ -292,7 +292,7 @@ var _ = Describe("Resolver", func() {
 
 			dep1 = dep("b2.param2")
 
-			param1.DependenciesReturns([]basil.VariableNode{dep1})
+			param1.DependenciesReturns(basil.Dependencies{"b2.param2": dep1})
 
 			resolver.AddNodes(param1)
 		})

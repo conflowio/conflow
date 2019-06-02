@@ -6,15 +6,14 @@ import (
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/variable"
-	"github.com/opsidian/parsley/parsley"
 )
 
 type BlockSimpleInterpreter struct{}
 
 // Create creates a new BlockSimple block
-func (i BlockSimpleInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+func (i BlockSimpleInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &BlockSimple{
-		IDField: node.ID(),
+		IDField: id,
 	}
 }
 
@@ -56,16 +55,15 @@ func (i BlockSimpleInterpreter) Param(b basil.Block, name basil.ID) interface{} 
 	}
 }
 
-func (i BlockSimpleInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
+func (i BlockSimpleInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+	var err error
 	switch name {
 	case "value":
-		var err parsley.Error
-		b.(*BlockSimple).Value, err = variable.NodeAnyValue(node, ctx)
-		return err
+		b.(*BlockSimple).Value, err = variable.AnyValue(value)
 	}
-	return nil
+	return err
 }
 
-func (i BlockSimpleInterpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+func (i BlockSimpleInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

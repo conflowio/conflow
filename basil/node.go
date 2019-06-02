@@ -8,6 +8,9 @@ type Node interface {
 	parsley.Node
 	Identifiable
 	EvalStage() EvalStage
-	Dependencies() []VariableNode
+	Dependencies() Dependencies
 	Provides() []ID
 }
+
+// Dependencies is a variable list
+type Dependencies map[ID]VariableNode

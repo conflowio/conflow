@@ -5,15 +5,14 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/parsley/parsley"
 )
 
 type BlockWithBlockInterpreter struct{}
 
 // Create creates a new BlockWithBlock block
-func (i BlockWithBlockInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+func (i BlockWithBlockInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &BlockWithBlock{
-		IDField: node.ID(),
+		IDField: id,
 	}
 }
 
@@ -51,11 +50,11 @@ func (i BlockWithBlockInterpreter) Param(b basil.Block, name basil.ID) interface
 	}
 }
 
-func (i BlockWithBlockInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
+func (i BlockWithBlockInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
 
-func (i BlockWithBlockInterpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+func (i BlockWithBlockInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	switch name {
 	case "block_simple":
 		b.(*BlockWithBlock).Blocks = append(b.(*BlockWithBlock).Blocks, value.(*BlockSimple))

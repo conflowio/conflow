@@ -9,15 +9,22 @@ type BlockContext interface {
 	UserContext() interface{}
 }
 
-// BlockContextOverride contains block context override values
-type BlockContextOverride struct {
-	Context     context.Context
-	UserContext interface{}
+// Context defines an interface about creating a new context
+type Contexter interface {
+	Context(ctx context.Context) (context.Context, context.CancelFunc)
 }
 
-// BlockContextOverrider defines an interface to override a block context
-type BlockContextOverrider interface {
-	BlockContextOverride(BlockContext) BlockContextOverride
+// UserContexter defines an interface about creating a new user context
+type UserContexter interface {
+	UserContext(ctx interface{}) interface{}
+}
+
+// NewBlockContext creates a new block context
+func NewBlockContext(context context.Context, userContext interface{}) BlockContext {
+	return &blockContext{
+		context:     context,
+		userContext: userContext,
+	}
 }
 
 type blockContext struct {

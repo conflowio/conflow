@@ -42,26 +42,25 @@ type Block interface {
 // BlockContainer is a simple wrapper around a block object
 //go:generate counterfeiter . BlockContainer
 type BlockContainer interface {
-	ID() ID
-	Block() Block
+	Container
+	Node() BlockNode
 	Param(ID) interface{}
-	EvaluateChildNode(*EvalContext, Node) parsley.Error
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
 // If the boolean return value is false then the block won't be evaluated
 type BlockInitialiser interface {
-	Init(ctx BlockContext) (bool, error)
+	Init(blockCtx BlockContext) (bool, error)
 }
 
 // BlockRunner defines a Main() function which runs the main business logic
 type BlockRunner interface {
-	Main(ctx BlockContext) error
+	Main(blockCtx BlockContext) error
 }
 
 // BlockCloser defines a Close function which runs after the main evaluation stage
 type BlockCloser interface {
-	Close(ctx BlockContext) error
+	Close(blockCtx BlockContext) error
 }
 
 // BlockNode is the AST node for a block
@@ -71,6 +70,7 @@ type BlockNode interface {
 	Children() []Node
 	BlockType() ID
 	ParamType(ID) (string, bool)
+	Interpreter() BlockInterpreter
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks
