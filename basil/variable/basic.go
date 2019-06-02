@@ -42,6 +42,8 @@ func (b *Basic) Type() string {
 		return TypeNumber
 	case string:
 		return TypeString
+	case time.Time:
+		return TypeTime
 	case time.Duration:
 		return TypeTimeDuration
 	default:
@@ -52,7 +54,7 @@ func (b *Basic) Type() string {
 // IsBasicType returns true if the given value is a number type
 func IsBasicType(val interface{}) bool {
 	switch val.(type) {
-	case bool, float64, basil.ID, int64, Number, string, time.Duration:
+	case bool, float64, basil.ID, int64, Number, string, time.Duration, time.Time:
 		return true
 	default:
 		return false

@@ -1,5 +1,7 @@
 package variable
 
+import "time"
+
 // Equals returns true if the two given values are deeply equal
 func Equals(v1 interface{}, v2 interface{}) bool {
 	type1 := GetType(v1)
@@ -38,6 +40,9 @@ func Equals(v1 interface{}, v2 interface{}) bool {
 	case Union:
 		v2t := v2.(Union)
 		return Equals(v1t.Value(), v2t.Value())
+	case time.Time:
+		v2t := v2.(time.Time)
+		return v1t.Equal(v2t)
 	default:
 		return v1 == v2
 	}

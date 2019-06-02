@@ -30,6 +30,8 @@ func IsEmpty(value interface{}) bool {
 		return v == ""
 	case []string:
 		return len(v) == 0
+	case time.Time:
+		return v.IsZero()
 	case time.Duration:
 		return v == 0
 	case Union:

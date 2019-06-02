@@ -19,6 +19,7 @@ var ValueFunctionNames = map[string]string{
 	TypeNumber:       "NumberValue",
 	TypeString:       "StringValue",
 	TypeStringArray:  "StringArrayValue",
+	TypeTime:         "TimeValue",
 	TypeTimeDuration: "TimeDurationValue",
 	TypeWithLength:   "WithLengthValue",
 }
@@ -166,6 +167,29 @@ func StringArrayValue(val interface{}) ([]string, error) {
 	}
 
 	return nil, ErrExpectingString
+}
+
+// TimeValue returns with the time  value of the given interface{} value
+// It accepts a time.Time object or a time string in RFC3339 format
+func TimeValue(val interface{}) (time.Time, error) {
+	if val == nil {
+		return time.Time{}, nil
+	}
+
+	if res, ok := val.(time.Time); ok {
+		return res, nil
+	}
+
+	if res, ok := val.(string); ok {
+		t, err := time.Parse(time.RFC3339, res)
+		if err != nil {
+			return time.Time{}, err
+		}
+
+		return t, nil
+	}
+
+	return time.Time{}, ErrExpectingTime
 }
 
 // TimeDurationValue returns with the time duration value of the given interface{} value

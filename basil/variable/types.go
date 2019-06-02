@@ -1,6 +1,8 @@
 package variable
 
-import "github.com/opsidian/parsley/text/terminal"
+import (
+	"github.com/opsidian/parsley/text/terminal"
+)
 
 // Variable types
 const (
@@ -15,6 +17,7 @@ const (
 	TypeNumber       = "*variable.Number"
 	TypeString       = terminal.StringType
 	TypeStringArray  = "[]string"
+	TypeTime         = "time.Time"
 	TypeTimeDuration = terminal.TimeDurationType
 	TypeWithLength   = "*variable.WithLength"
 	TypeUnknown      = ""
@@ -33,6 +36,7 @@ var Types = map[string]string{
 	TypeNumber:       "number",
 	TypeString:       "string",
 	TypeStringArray:  "string array",
+	TypeTime:         "time",
 	TypeTimeDuration: "time duration",
 	TypeWithLength:   "string, array or map",
 }
@@ -40,7 +44,7 @@ var Types = map[string]string{
 // UnionTypes contains all union variable types
 var UnionTypes = map[string][]string{
 	TypeArray:      []string{TypeStringArray},
-	TypeBasic:      []string{TypeBool, TypeFloat, TypeIdentifier, TypeInteger, TypeNumber, TypeString, TypeTimeDuration},
+	TypeBasic:      []string{TypeBool, TypeFloat, TypeIdentifier, TypeInteger, TypeNumber, TypeString, TypeTime, TypeTimeDuration},
 	TypeNumber:     []string{TypeFloat, TypeInteger},
 	TypeWithLength: []string{TypeArray, TypeIdentifier, TypeString, TypeStringArray, TypeMap},
 }
