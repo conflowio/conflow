@@ -128,7 +128,7 @@ func (c *Container) mainLoop() {
 		case child := <-c.childrenChan:
 			if err := c.setChild(child); err != nil {
 				c.setState(containerStateErrored)
-				c.err = parsley.NewError(c.node.Pos(), errors.New("aborted"))
+				c.err = parsley.NewError(c.node.Pos(), err)
 				return
 			}
 
