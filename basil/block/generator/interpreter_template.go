@@ -5,12 +5,10 @@ type InterpreterTemplateParams struct {
 	Type               string
 	Name               string
 	Stages             []string
+	Fields             Fields
 	IDField            *Field
 	HasForeignID       bool
 	ValueField         *Field
-	Params             []*Field
-	InputParams        []*Field
-	Blocks             []*Field
 	ValueFunctionNames map[string]string
 }
 
@@ -35,15 +33,31 @@ type {{.Name}}Interpreter struct {}
 func (i {{.Name}}Interpreter) CreateBlock(id basil.ID) basil.Block {
 	return &{{.Name}}{
 		{{.IDField.Name}}: id,
+		{{ range filterChannels .Fields -}}
+		{{ .Name }}: make(chan {{ .Type}}, 1),
+		{{ end -}}
 	}
 }
 
 // Params returns with the list of valid parameters
 func (i {{.Name}}Interpreter) Params() map[basil.ID]basil.ParameterDescriptor {
-	{{ if .Params -}}
+	{{ if filterNonID (filterParams .Fields) -}}
 	return map[basil.ID]basil.ParameterDescriptor{
-		{{ range .Params -}}
-		"{{.ParamName}}": {Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}},
+		{{ range (filterNonID (filterParams .Fields)) -}}
+		"{{.ParamName}}": { Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}},
+		{{ end -}}
+	}
+	{{ else -}}
+	return nil
+	{{ end -}}
+}
+
+// Blocks returns with the list of valid blocks
+func (i {{.Name}}Interpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
+	{{ if filterBlocks .Fields -}}
+	return map[basil.ID]basil.BlockDescriptor{
+		{{ range (filterBlocks .Fields) -}}
+		"{{.ParamName}}": { Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}, IsMany: {{ .IsMany }} },
 		{{ end -}}
 	}
 	{{ else -}}
@@ -73,9 +87,7 @@ func (i {{.Name}}Interpreter) ParseContext(ctx *basil.ParseContext) *basil.Parse
 
 func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*{{$root.Name}}).{{.IDField.Name}}
-	{{ range .Params -}}
+	{{ range filterParams .Fields -}}
 	case "{{.ParamName}}":
 		return b.(*{{$root.Name}}).{{.Name}}
 	{{ end -}}
@@ -84,13 +96,14 @@ func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i {{.Name}}Interpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
-	{{ if .InputParams -}}
+func (i {{.Name}}Interpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+	{{ if filterInputs (filterParams .Fields) -}}
 	var err error
+	b := block.(*{{$root.Name}})
 	switch name {
-	{{ range .InputParams -}}
+	{{ range (filterInputs (filterParams .Fields)) -}}
 	case "{{.ParamName}}":
-		b.(*{{$root.Name}}).{{.Name}}, err = variable.{{index $root.ValueFunctionNames .Type}}(value)
+		b.{{.Name}}, err = variable.{{index $root.ValueFunctionNames .Type}}(value)
 	{{ end -}}
 	}
 	return err
@@ -99,12 +112,17 @@ func (i {{.Name}}Interpreter) SetParam(b basil.Block, name basil.ID, value inter
 	{{ end -}}
 }
 
-func (i {{.Name}}Interpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
-	{{ if .Blocks -}}
+func (i {{.Name}}Interpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	{{ if filterInputs (filterBlocks .Fields) -}}
+	b := block.(*{{$root.Name}})
 	switch name {
-	{{ range .Blocks -}}
+	{{ range (filterInputs (filterBlocks .Fields)) -}}
 	case "{{.ParamName}}":
-		b.(*{{$root.Name}}).{{.Name}} = append(b.(*{{$root.Name}}).{{.Name}}, value.({{trimPrefix .Type "[]" }}))
+		{{ if .IsMany -}}
+		b.{{.Name}} = append(b.{{.Name}}, value.({{ .Type }}))
+		{{ else -}}
+		b.{{.Name}} = value.({{ .Type }})
+		{{ end -}}
 	{{ end -}}
 	}
 	{{ end -}}

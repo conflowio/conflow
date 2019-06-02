@@ -3,7 +3,6 @@ package generator
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/variable"
@@ -16,20 +15,33 @@ type Field struct {
 	Type        string
 	Stage       string
 	IsRequired  bool
-	IsParam     bool
 	IsID        bool
 	IsValue     bool
 	IsReference bool
 	IsBlock     bool
-	IsNode      bool
 	IsOutput    bool
 	IsChannel   bool
+	IsMany      bool
+}
+
+// Fields is a field list
+type Fields []*Field
+
+// Filter creates a new field array with all elements that pass the test implemented by the provided function.
+func (fs Fields) Filter(test func(*Field) bool) Fields {
+	out := make(Fields, 0, len(fs))
+	for _, f := range fs {
+		if test(f) {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 // Validate validates the field tags
 func (f *Field) Validate() error {
 	_, validType := variable.Types[f.Type]
-	if !validType && !f.IsBlock && !f.IsNode {
+	if !validType && !f.IsBlock {
 		return fmt.Errorf("invalid field type on field %q, use valid type or use ignore tag", f.Name)
 	}
 
@@ -47,12 +59,6 @@ func (f *Field) Validate() error {
 
 	if f.IsReference && !f.IsID {
 		return errors.New("the \"reference\" tag can only be set on the id field")
-	}
-
-	if f.IsBlock || f.IsNode {
-		if !strings.HasPrefix(f.Type, "[]") {
-			return fmt.Errorf("field %q must be an array", f.Name)
-		}
 	}
 
 	if f.Stage == "" {
@@ -73,7 +79,7 @@ func (f *Field) hasMultipleKinds() bool {
 	if f.IsBlock {
 		typeCnt++
 	}
-	if f.IsNode {
+	if f.IsChannel {
 		typeCnt++
 	}
 	return typeCnt > 1

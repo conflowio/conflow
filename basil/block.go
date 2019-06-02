@@ -11,8 +11,7 @@ const (
 	BlockTagID         = "id"
 	BlockTagIgnore     = "ignore"
 	BlockTagName       = "name"
-	BlockTagNode       = "node"
-	BlockTagOut        = "out"
+	BlockTagOutput     = "output"
 	BlockTagReference  = "reference"
 	BlockTagRequired   = "required"
 	BlockTagStage      = "stage"
@@ -26,8 +25,7 @@ var BlockTags = map[string]string{
 	BlockTagID:         "marks the id field in the block",
 	BlockTagIgnore:     "the field is ignored when processing the block",
 	BlockTagName:       "overrides the parameter name, otherwise the field name will be converted to under_score",
-	BlockTagNode:       "marks an array field which should store child block AST nodes",
-	BlockTagOut:        "marks the field as output",
+	BlockTagOutput:     "marks the field as output",
 	BlockTagReference:  "marks the field that it must reference an existing identifier",
 	BlockTagRequired:   "marks the field as required (must be set but can be empty)",
 	BlockTagStage:      "sets the evaluation stage for the field",
@@ -37,6 +35,14 @@ var BlockTags = map[string]string{
 // Block is an interface for a block object
 //go:generate counterfeiter . Block
 type Block interface {
+}
+
+// BlockDescriptor describes a block
+type BlockDescriptor struct {
+	Type       string
+	IsRequired bool
+	IsOutput   bool
+	IsMany     bool
 }
 
 // BlockContainer is a simple wrapper around a block object
@@ -93,6 +99,7 @@ type BlockInterpreter interface {
 	SetBlock(b Block, name ID, value interface{}) error
 	Param(b Block, name ID) interface{}
 	Params() map[ID]ParameterDescriptor
+	Blocks() map[ID]BlockDescriptor
 	ValueParamName() ID
 	HasForeignID() bool
 	ParseContext(*ParseContext) *ParseContext

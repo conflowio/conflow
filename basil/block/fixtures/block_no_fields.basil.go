@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 type BlockNoFieldsInterpreter struct{}
@@ -18,6 +19,11 @@ func (i BlockNoFieldsInterpreter) CreateBlock(id basil.ID) basil.Block {
 
 // Params returns with the list of valid parameters
 func (i BlockNoFieldsInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
+	return nil
+}
+
+// Blocks returns with the list of valid blocks
+func (i BlockNoFieldsInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return nil
 }
 
@@ -50,10 +56,16 @@ func (i BlockNoFieldsInterpreter) Param(b basil.Block, name basil.ID) interface{
 	}
 }
 
-func (i BlockNoFieldsInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
-	return nil
+func (i BlockNoFieldsInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+	var err error
+	b := block.(*BlockNoFields)
+	switch name {
+	case "id":
+		b.IDField, err = variable.IdentifierValue(value)
+	}
+	return err
 }
 
-func (i BlockNoFieldsInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (i BlockNoFieldsInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

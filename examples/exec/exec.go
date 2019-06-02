@@ -17,9 +17,9 @@ type Exec struct {
 	params   []string
 	dir      string
 	env      []string
-	exitCode int    `basil:"out"`
-	stdout   string `basil:"out"`
-	stderr   string `basil:"out"`
+	exitCode int    `basil:"output"`
+	stdout   string `basil:"output"`
+	stderr   string `basil:"output"`
 }
 
 func (e *Exec) Main(ctx basil.BlockContext) error {

@@ -21,7 +21,6 @@ var _ = Describe("Field", func() {
 			IsValue:     false,
 			IsReference: false,
 			IsBlock:     false,
-			IsNode:      false,
 		}
 	})
 
@@ -44,21 +43,9 @@ var _ = Describe("Field", func() {
 			Expect(f.Validate()).To(BeNil())
 		})
 
-		It("allows an array type with node", func() {
-			f.IsNode = true
-			f.Type = "[]SomeNode"
-			Expect(f.Validate()).To(BeNil())
-		})
-
 		It("returns error if id and value are both set", func() {
 			f.IsID = true
 			f.IsValue = true
-			Expect(f.Validate()).To(MatchError("field \"foo\" must only have one tag of: id, value, block or node"))
-		})
-
-		It("returns error if block and node are both set", func() {
-			f.IsBlock = true
-			f.IsNode = true
 			Expect(f.Validate()).To(MatchError("field \"foo\" must only have one tag of: id, value, block or node"))
 		})
 
@@ -74,11 +61,6 @@ var _ = Describe("Field", func() {
 
 		It("returns error if block is not on an array field", func() {
 			f.IsBlock = true
-			Expect(f.Validate()).To(MatchError("field \"foo\" must be an array"))
-		})
-
-		It("returns error if node is not on an array field", func() {
-			f.IsNode = true
 			Expect(f.Validate()).To(MatchError("field \"foo\" must be an array"))
 		})
 

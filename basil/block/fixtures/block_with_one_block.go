@@ -6,12 +6,12 @@ import (
 )
 
 //go:generate basil generate
-type BlockWithBlock struct {
-	IDField     basil.ID       `basil:"id"`
-	BlockSimple []*BlockSimple `basil:"block"`
+type BlockWithOneBlock struct {
+	IDField     basil.ID     `basil:"id"`
+	BlockSimple *BlockSimple `basil:"block"`
 }
 
-func (b *BlockWithBlock) ParseContextOverride() basil.ParseContextOverride {
+func (b *BlockWithOneBlock) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"block_simple": BlockSimpleInterpreter{},

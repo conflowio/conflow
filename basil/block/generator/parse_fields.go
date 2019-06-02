@@ -17,8 +17,8 @@ import (
 )
 
 // ParseFields parses all fields of a given go struct
-func ParseFields(str *ast.StructType, file *ast.File) ([]*Field, error) {
-	fields := make([]*Field, 0, len(str.Fields.List))
+func ParseFields(str *ast.StructType, file *ast.File) (Fields, error) {
+	fields := make(Fields, 0, len(str.Fields.List))
 
 	var idField string
 	var valueField string
@@ -93,41 +93,51 @@ func parseField(astField *ast.Field) (*Field, error) {
 		paramName = "id"
 	}
 
-	fieldType := getFieldType(astField.Type)
-
 	field := &Field{
 		Name:        name,
 		ParamName:   paramName,
 		IsRequired:  tags.GetBool(basil.BlockTagRequired),
-		Type:        fieldType,
 		Stage:       tags.GetWithDefault(basil.BlockTagStage, "default"),
 		IsID:        isID,
 		IsValue:     tags.GetBool(basil.BlockTagValue),
 		IsReference: tags.GetBool(basil.BlockTagReference),
 		IsBlock:     tags.GetBool(basil.BlockTagBlock),
-		IsNode:      tags.GetBool(basil.BlockTagNode),
-		IsOutput:    tags.GetBool(basil.BlockTagOut),
-		IsChannel:   strings.HasPrefix(fieldType, "chan "),
+		IsOutput:    tags.GetBool(basil.BlockTagOutput),
 	}
 
-	if !field.IsBlock && !field.IsNode && !field.IsChannel {
-		field.IsParam = true
+	setFieldType(astField.Type, field)
+
+	if field.IsChannel {
+		field.IsBlock = true
+		field.IsRequired = true
+		field.IsOutput = true
 	}
 
 	return field, nil
 }
 
-func getFieldType(typeNode ast.Expr) string {
+func setFieldType(typeNode ast.Expr, field *Field) {
 	switch t := typeNode.(type) {
 	case *ast.Ident:
-		return t.String()
-	default:
-		b := &bytes.Buffer{}
-		if err := format.Node(b, token.NewFileSet(), t); err != nil {
-			panic(err)
+		field.Type = t.String()
+		return
+	case *ast.ChanType:
+		field.IsChannel = true
+		setFieldType(t.Value, field)
+		return
+	case *ast.ArrayType:
+		if field.IsBlock {
+			field.IsMany = true
+			setFieldType(t.Elt, field)
+			return
 		}
-		return b.String()
 	}
+
+	b := &bytes.Buffer{}
+	if err := format.Node(b, token.NewFileSet(), typeNode); err != nil {
+		panic(err)
+	}
+	field.Type = b.String()
 }
 
 func generateParamName(name string) string {

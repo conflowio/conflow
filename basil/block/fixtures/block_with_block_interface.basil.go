@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 type BlockWithBlockInterfaceInterpreter struct{}
@@ -19,6 +20,13 @@ func (i BlockWithBlockInterfaceInterpreter) CreateBlock(id basil.ID) basil.Block
 // Params returns with the list of valid parameters
 func (i BlockWithBlockInterfaceInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return nil
+}
+
+// Blocks returns with the list of valid blocks
+func (i BlockWithBlockInterfaceInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
+	return map[basil.ID]basil.BlockDescriptor{
+		"block_simple": {Type: "BlockInterface", IsRequired: false, IsOutput: false, IsMany: true},
+	}
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
@@ -50,14 +58,21 @@ func (i BlockWithBlockInterfaceInterpreter) Param(b basil.Block, name basil.ID) 
 	}
 }
 
-func (i BlockWithBlockInterfaceInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
-	return nil
+func (i BlockWithBlockInterfaceInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+	var err error
+	b := block.(*BlockWithBlockInterface)
+	switch name {
+	case "id":
+		b.IDField, err = variable.IdentifierValue(value)
+	}
+	return err
 }
 
-func (i BlockWithBlockInterfaceInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (i BlockWithBlockInterfaceInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	b := block.(*BlockWithBlockInterface)
 	switch name {
 	case "block_simple":
-		b.(*BlockWithBlockInterface).BlockSimple = append(b.(*BlockWithBlockInterface).BlockSimple, value.(BlockInterface))
+		b.BlockSimple = append(b.BlockSimple, value.(BlockInterface))
 	}
 	return nil
 }

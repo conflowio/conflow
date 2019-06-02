@@ -3,7 +3,6 @@ package generator
 import (
 	"bytes"
 	"go/ast"
-	"strings"
 	"text/template"
 
 	"github.com/opsidian/basil/basil/variable"
@@ -19,9 +18,11 @@ func GenerateInterpreter(str *ast.StructType, file *ast.File, pkgName string, na
 
 	tmpl := template.New("block_interpreter")
 	tmpl.Funcs(map[string]interface{}{
-		"trimPrefix": func(s string, prefix string) string {
-			return strings.TrimPrefix(s, prefix)
-		},
+		"filterInputs":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsOutput }) },
+		"filterParams":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsBlock }) },
+		"filterBlocks":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return f.IsBlock }) },
+		"filterChannels": func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return f.IsChannel }) },
+		"filterNonID":    func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsID }) },
 	})
 	if _, parseErr := tmpl.Parse(interpreterTemplate); parseErr != nil {
 		return nil, parseErr
@@ -45,9 +46,6 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 	var hasForeignID bool
 
 	var stages []string
-	var params []*Field
-	var inputParams []*Field
-	var blocks []*Field
 	for _, field := range fields {
 		if field.Stage != "-" {
 			if !util.StringSliceContains(stages, field.Stage) {
@@ -59,16 +57,7 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 		case field.IsID:
 			idField = field
 			hasForeignID = field.IsReference
-		case field.IsParam:
-			params = append(params, field)
-			if !field.IsOutput {
-				inputParams = append(inputParams, field)
-			}
-		case field.IsBlock:
-			blocks = append(blocks, field)
-		}
-
-		if field.IsValue {
+		case field.IsValue:
 			valueField = field
 		}
 	}
@@ -77,9 +66,7 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 		Package:            pkgName,
 		Name:               name,
 		Stages:             stages,
-		Params:             params,
-		InputParams:        inputParams,
-		Blocks:             blocks,
+		Fields:             fields,
 		IDField:            idField,
 		ValueField:         valueField,
 		HasForeignID:       hasForeignID,

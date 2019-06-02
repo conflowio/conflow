@@ -111,7 +111,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			case !exists && !c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
 			case param.IsOutput:
-				return parsley.NewErrorf(c.Pos(), "%q is an output parameter and can not be defined", c.Name())
+				return parsley.NewErrorf(c.Pos(), "%q is an output parameter and can not be set", c.Name())
 			}
 
 			if err := variable.CheckNodeType(c, param.Type); err != nil {

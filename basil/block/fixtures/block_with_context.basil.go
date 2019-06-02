@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/variable"
 )
 
 type BlockWithContextInterpreter struct{}
@@ -18,6 +19,11 @@ func (i BlockWithContextInterpreter) CreateBlock(id basil.ID) basil.Block {
 
 // Params returns with the list of valid parameters
 func (i BlockWithContextInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
+	return nil
+}
+
+// Blocks returns with the list of valid blocks
+func (i BlockWithContextInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return nil
 }
 
@@ -50,10 +56,16 @@ func (i BlockWithContextInterpreter) Param(b basil.Block, name basil.ID) interfa
 	}
 }
 
-func (i BlockWithContextInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
-	return nil
+func (i BlockWithContextInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+	var err error
+	b := block.(*BlockWithContext)
+	switch name {
+	case "id":
+		b.IDField, err = variable.IdentifierValue(value)
+	}
+	return err
 }
 
-func (i BlockWithContextInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (i BlockWithContextInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

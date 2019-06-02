@@ -25,6 +25,11 @@ func (i PrintInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	}
 }
 
+// Blocks returns with the list of valid blocks
+func (i PrintInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
+	return nil
+}
+
 // HasForeignID returns true if the block ID is referencing an other block id
 func (i PrintInterpreter) HasForeignID() bool {
 	return false
@@ -58,17 +63,20 @@ func (i PrintInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i PrintInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+func (i PrintInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
 	var err error
+	b := block.(*Print)
 	switch name {
+	case "id":
+		b.id, err = variable.IdentifierValue(value)
 	case "value":
-		b.(*Print).value, err = variable.AnyValue(value)
+		b.value, err = variable.AnyValue(value)
 	case "newline":
-		b.(*Print).newline, err = variable.BoolValue(value)
+		b.newline, err = variable.BoolValue(value)
 	}
 	return err
 }
 
-func (i PrintInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (i PrintInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

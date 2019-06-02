@@ -13,7 +13,7 @@ import (
 type Hello struct {
 	id       basil.ID   `basil:"id"`
 	to       string     `basil:"required"`
-	greeting string     `basil:"out"`
+	greeting string     `basil:"output"`
 	r        *rand.Rand `basil:"ignore"`
 }
 

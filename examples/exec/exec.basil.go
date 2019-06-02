@@ -30,6 +30,11 @@ func (i ExecInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	}
 }
 
+// Blocks returns with the list of valid blocks
+func (i ExecInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
+	return nil
+}
+
 // HasForeignID returns true if the block ID is referencing an other block id
 func (i ExecInterpreter) HasForeignID() bool {
 	return false
@@ -73,21 +78,24 @@ func (i ExecInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i ExecInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+func (i ExecInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
 	var err error
+	b := block.(*Exec)
 	switch name {
+	case "id":
+		b.id, err = variable.IdentifierValue(value)
 	case "cmd":
-		b.(*Exec).cmd, err = variable.StringValue(value)
+		b.cmd, err = variable.StringValue(value)
 	case "params":
-		b.(*Exec).params, err = variable.StringArrayValue(value)
+		b.params, err = variable.StringArrayValue(value)
 	case "dir":
-		b.(*Exec).dir, err = variable.StringValue(value)
+		b.dir, err = variable.StringValue(value)
 	case "env":
-		b.(*Exec).env, err = variable.StringArrayValue(value)
+		b.env, err = variable.StringArrayValue(value)
 	}
 	return err
 }
 
-func (i ExecInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (i ExecInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

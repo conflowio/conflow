@@ -24,6 +24,11 @@ func (i BlockValueRequiredInterpreter) Params() map[basil.ID]basil.ParameterDesc
 	}
 }
 
+// Blocks returns with the list of valid blocks
+func (i BlockValueRequiredInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
+	return nil
+}
+
 // HasForeignID returns true if the block ID is referencing an other block id
 func (i BlockValueRequiredInterpreter) HasForeignID() bool {
 	return false
@@ -55,15 +60,18 @@ func (i BlockValueRequiredInterpreter) Param(b basil.Block, name basil.ID) inter
 	}
 }
 
-func (i BlockValueRequiredInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+func (i BlockValueRequiredInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
 	var err error
+	b := block.(*BlockValueRequired)
 	switch name {
+	case "id":
+		b.IDField, err = variable.IdentifierValue(value)
 	case "value":
-		b.(*BlockValueRequired).Value, err = variable.AnyValue(value)
+		b.Value, err = variable.AnyValue(value)
 	}
 	return err
 }
 
-func (i BlockValueRequiredInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (i BlockValueRequiredInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

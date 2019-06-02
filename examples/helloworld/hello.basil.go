@@ -25,6 +25,11 @@ func (i HelloInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	}
 }
 
+// Blocks returns with the list of valid blocks
+func (i HelloInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
+	return nil
+}
+
 // HasForeignID returns true if the block ID is referencing an other block id
 func (i HelloInterpreter) HasForeignID() bool {
 	return false
@@ -58,15 +63,18 @@ func (i HelloInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i HelloInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+func (i HelloInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
 	var err error
+	b := block.(*Hello)
 	switch name {
+	case "id":
+		b.id, err = variable.IdentifierValue(value)
 	case "to":
-		b.(*Hello).to, err = variable.StringValue(value)
+		b.to, err = variable.StringValue(value)
 	}
 	return err
 }
 
-func (i HelloInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (i HelloInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

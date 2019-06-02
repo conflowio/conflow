@@ -32,6 +32,13 @@ func (i TestBlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	}
 }
 
+// Blocks returns with the list of valid blocks
+func (i TestBlockInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
+	return map[basil.ID]basil.BlockDescriptor{
+		"testblock": {Type: "*TestBlock", IsRequired: false, IsOutput: false, IsMany: true},
+	}
+}
+
 // HasForeignID returns true if the block ID is referencing an other block id
 func (i TestBlockInterpreter) HasForeignID() bool {
 	return false
@@ -79,35 +86,39 @@ func (i TestBlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i TestBlockInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+func (i TestBlockInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
 	var err error
+	b := block.(*TestBlock)
 	switch name {
+	case "id":
+		b.IDField, err = variable.IdentifierValue(value)
 	case "value":
-		b.(*TestBlock).Value, err = variable.AnyValue(value)
+		b.Value, err = variable.AnyValue(value)
 	case "field_string":
-		b.(*TestBlock).FieldString, err = variable.StringValue(value)
+		b.FieldString, err = variable.StringValue(value)
 	case "field_int":
-		b.(*TestBlock).FieldInt, err = variable.IntegerValue(value)
+		b.FieldInt, err = variable.IntegerValue(value)
 	case "field_float":
-		b.(*TestBlock).FieldFloat, err = variable.FloatValue(value)
+		b.FieldFloat, err = variable.FloatValue(value)
 	case "field_bool":
-		b.(*TestBlock).FieldBool, err = variable.BoolValue(value)
+		b.FieldBool, err = variable.BoolValue(value)
 	case "field_array":
-		b.(*TestBlock).FieldArray, err = variable.ArrayValue(value)
+		b.FieldArray, err = variable.ArrayValue(value)
 	case "field_map":
-		b.(*TestBlock).FieldMap, err = variable.MapValue(value)
+		b.FieldMap, err = variable.MapValue(value)
 	case "field_time_duration":
-		b.(*TestBlock).FieldTimeDuration, err = variable.TimeDurationValue(value)
+		b.FieldTimeDuration, err = variable.TimeDurationValue(value)
 	case "custom_field":
-		b.(*TestBlock).FieldCustomName, err = variable.StringValue(value)
+		b.FieldCustomName, err = variable.StringValue(value)
 	}
 	return err
 }
 
-func (i TestBlockInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (i TestBlockInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	b := block.(*TestBlock)
 	switch name {
 	case "testblock":
-		b.(*TestBlock).TestBlock = append(b.(*TestBlock).TestBlock, value.(*TestBlock))
+		b.TestBlock = append(b.TestBlock, value.(*TestBlock))
 	}
 	return nil
 }
