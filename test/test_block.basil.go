@@ -107,7 +107,7 @@ func (i TestBlockInterpreter) SetParam(b basil.Block, name basil.ID, value inter
 func (i TestBlockInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	switch name {
 	case "testblock":
-		b.(*TestBlock).Blocks = append(b.(*TestBlock).Blocks, value.(*TestBlock))
+		b.(*TestBlock).TestBlock = append(b.(*TestBlock).TestBlock, value.(*TestBlock))
 	}
 	return nil
 }

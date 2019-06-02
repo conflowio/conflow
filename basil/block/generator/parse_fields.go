@@ -93,11 +93,6 @@ func parseField(astField *ast.Field) (*Field, error) {
 		paramName = "id"
 	}
 
-	blockType, isBlock := tags.Get("block")
-	if isBlock {
-		paramName = blockType
-	}
-
 	fieldType := getFieldType(astField.Type)
 
 	field := &Field{
@@ -109,7 +104,7 @@ func parseField(astField *ast.Field) (*Field, error) {
 		IsID:        isID,
 		IsValue:     tags.GetBool(basil.BlockTagValue),
 		IsReference: tags.GetBool(basil.BlockTagReference),
-		IsBlock:     isBlock,
+		IsBlock:     tags.GetBool(basil.BlockTagBlock),
 		IsNode:      tags.GetBool(basil.BlockTagNode),
 		IsOutput:    tags.GetBool(basil.BlockTagOut),
 		IsChannel:   strings.HasPrefix(fieldType, "chan "),

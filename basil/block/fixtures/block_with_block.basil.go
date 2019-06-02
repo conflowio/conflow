@@ -57,7 +57,7 @@ func (i BlockWithBlockInterpreter) SetParam(b basil.Block, name basil.ID, value 
 func (i BlockWithBlockInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	switch name {
 	case "block_simple":
-		b.(*BlockWithBlock).Blocks = append(b.(*BlockWithBlock).Blocks, value.(*BlockSimple))
+		b.(*BlockWithBlock).BlockSimple = append(b.(*BlockWithBlock).BlockSimple, value.(*BlockSimple))
 	}
 	return nil
 }

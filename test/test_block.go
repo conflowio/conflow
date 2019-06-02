@@ -21,7 +21,7 @@ type TestBlock struct {
 	FieldTimeDuration time.Duration
 	FieldCustomName   string `basil:"name=custom_field"`
 
-	Blocks []*TestBlock `basil:"block=testblock"`
+	TestBlock []*TestBlock `basil:"block,name=testblock"`
 }
 
 func (t *TestBlock) ParseContextOverride() basil.ParseContextOverride {

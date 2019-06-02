@@ -7,8 +7,8 @@ import (
 
 //go:generate basil generate
 type BlockWithBlock struct {
-	IDField basil.ID       `basil:"id"`
-	Blocks  []*BlockSimple `basil:"block=block_simple"`
+	IDField     basil.ID       `basil:"id"`
+	BlockSimple []*BlockSimple `basil:"block"`
 }
 
 func (b *BlockWithBlock) ParseContextOverride() basil.ParseContextOverride {

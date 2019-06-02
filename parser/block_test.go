@@ -31,11 +31,11 @@ func compareTestBlocks(b1i interface{}, b2i interface{}, input string) {
 		}
 	}
 
-	Expect(len(b1.Blocks)).To(Equal(len(b2.Blocks)), "child block count does not match, input: %s", input)
+	Expect(len(b1.TestBlock)).To(Equal(len(b2.TestBlock)), "child block count does not match, input: %s", input)
 
-	for _, c1 := range b1.Blocks {
+	for _, c1 := range b1.TestBlock {
 		found := false
-		for _, c2 := range b2.Blocks {
+		for _, c2 := range b2.TestBlock {
 			if c1.IDField == c2.IDField {
 				compareTestBlocks(c1, c2, input)
 				found = true
@@ -206,7 +206,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.TestBlock{
 				IDField: "0",
-				Blocks: []*test.TestBlock{
+				TestBlock: []*test.TestBlock{
 					{IDField: "1"},
 				},
 			},
@@ -218,7 +218,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.TestBlock{
 				IDField: "0",
-				Blocks: []*test.TestBlock{
+				TestBlock: []*test.TestBlock{
 					{IDField: "foo"},
 				},
 			},
@@ -231,7 +231,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.TestBlock{
 				IDField: "0",
-				Blocks: []*test.TestBlock{
+				TestBlock: []*test.TestBlock{
 					{IDField: "1"},
 				},
 			},
@@ -245,7 +245,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.TestBlock{
 				IDField: "0",
-				Blocks: []*test.TestBlock{
+				TestBlock: []*test.TestBlock{
 					{IDField: "1", Value: int64(1)},
 				},
 			},
@@ -262,7 +262,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.TestBlock{
 				IDField: "0",
-				Blocks: []*test.TestBlock{
+				TestBlock: []*test.TestBlock{
 					{IDField: "1", Value: int64(1)},
 					{IDField: "2", Value: int64(2)},
 				},
@@ -280,7 +280,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.TestBlock{
 				IDField: "0",
-				Blocks: []*test.TestBlock{
+				TestBlock: []*test.TestBlock{
 					{IDField: "b1", Value: int64(1)},
 					{IDField: "b2", Value: int64(2)},
 				},

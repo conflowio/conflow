@@ -12,8 +12,8 @@ type BlockInterface interface {
 
 //go:generate basil generate
 type BlockWithBlockInterface struct {
-	IDField basil.ID         `basil:"id"`
-	Blocks  []BlockInterface `basil:"block=block_simple"`
+	IDField     basil.ID         `basil:"id"`
+	BlockSimple []BlockInterface `basil:"block"`
 }
 
 func (b *BlockWithBlockInterface) ParseContextOverride(ctx *basil.ParseContext) basil.ParseContextOverride {
