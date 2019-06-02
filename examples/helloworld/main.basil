@@ -1,0 +1,10 @@
+world := "World"
+
+hello hello_world {
+    to = main.world
+}
+
+print {
+    value = hello_world.greeting
+    newline = true
+}

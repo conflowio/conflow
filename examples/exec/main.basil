@@ -1,0 +1,8 @@
+exec hello {
+    cmd = "sh"
+    params = ["-c", `echo "I was echoed in shell"`]
+}
+
+print {
+    value = hello.stdout
+}
