@@ -55,10 +55,16 @@ type Container struct {
 func NewContainer(
 	ctx basil.EvalContext,
 	node basil.BlockNode,
+	block basil.Block,
 ) *Container {
+	if block == nil {
+		block = node.Interpreter().CreateBlock(node.ID())
+	}
+
 	return &Container{
 		ctx:       ctx,
 		node:      node,
+		block:     block,
 		evalStage: basil.EvalStageInit,
 	}
 }
@@ -186,8 +192,6 @@ func (c *Container) setState(state containerState) {
 
 	switch c.state {
 	case containerStatePreInit:
-		c.block = c.node.Interpreter().CreateBlock(c.node.ID())
-
 		c.children = make(map[basil.ID]*basil.NodeContainer, len(c.node.Children()))
 		for _, node := range c.node.Children() {
 			c.children[node.ID()] = c.createNodeContainer(node)
@@ -327,7 +331,7 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
 
 	switch n := nodeContainer.Node().(type) {
 	case basil.BlockNode:
-		container = NewContainer(ctx, n)
+		container = NewContainer(ctx, n, nil)
 	case basil.ParameterNode:
 		container = parameter.NewContainer(ctx, n, c)
 	default:
