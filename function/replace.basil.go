@@ -40,25 +40,40 @@ func (i ReplaceInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode
 func (i ReplaceInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := variable.NodeStringValue(arguments[0], ctx)
-	if err != nil {
-		return nil, err
+	arg0, evalErr := arguments[0].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
 	}
 
-	arg1, err := variable.NodeStringValue(arguments[1], ctx)
-	if err != nil {
-		return nil, err
+	val0, convertErr := variable.StringValue(arg0)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[0].Pos(), convertErr)
 	}
 
-	arg2, err := variable.NodeStringValue(arguments[2], ctx)
-	if err != nil {
-		return nil, err
+	arg1, evalErr := arguments[1].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	val1, convertErr := variable.StringValue(arg1)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[1].Pos(), convertErr)
+	}
+
+	arg2, evalErr := arguments[2].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
+	}
+
+	val2, convertErr := variable.StringValue(arg2)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[2].Pos(), convertErr)
 	}
 
 	return Replace(
-		arg0,
-		arg1,
-		arg2,
+		val0,
+		val1,
+		val2,
 	), nil
 
 }

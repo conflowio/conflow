@@ -9,18 +9,9 @@ import (
 
 //go:generate basil generate
 type BlockWithContext struct {
-	IDField basil.ID           `basil:"id"`
-	cancel  context.CancelFunc `basil:"ignore"`
+	IDField basil.ID `basil:"id"`
 }
 
-func (b *BlockWithContext) Close(blockCtx basil.BlockContext) error {
-	b.cancel()
-	return nil
-}
-
-func (b *BlockWithContext) Context(blockCtx basil.BlockContext) basil.BlockContextOverride {
-	ctx, _ := context.WithTimeout(blockCtx.Context(), 1*time.Second)
-	return basil.BlockContextOverride{
-		Context: ctx,
-	}
+func (b *BlockWithContext) Context(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(ctx, 1*time.Second)
 }

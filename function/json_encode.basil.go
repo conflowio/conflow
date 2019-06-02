@@ -33,12 +33,17 @@ func (i JSONEncodeInterpreter) StaticCheck(ctx interface{}, node basil.FunctionN
 func (i JSONEncodeInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := variable.NodeAnyValue(arguments[0], ctx)
-	if err != nil {
-		return nil, err
+	arg0, evalErr := arguments[0].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
 	}
 
-	res, resErr := JSONEncode(arg0)
+	val0, convertErr := variable.AnyValue(arg0)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[0].Pos(), convertErr)
+	}
+
+	res, resErr := JSONEncode(val0)
 	if resErr != nil {
 		if funcErr, ok := resErr.(*function.Error); ok {
 			return nil, parsley.NewError(arguments[funcErr.ArgIndex].Pos(), funcErr.Err)

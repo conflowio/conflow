@@ -57,13 +57,13 @@ func generateTemplateParams(fun *ast.FuncType, file *ast.File, pkgName string, n
 	}
 
 	return &InterpreterTemplateParams{
-		Package:                pkgName,
-		Name:                   strings.ToUpper(string(name[0])) + name[1:],
-		FuncName:               name,
-		Arguments:              arguments,
-		Results:                results,
-		ResultType:             results[0].Type,
-		ReturnNodeType:         returnNodeType,
-		NodeValueFunctionNames: variable.NodeValueFunctionNames,
+		Package:            pkgName,
+		Name:               strings.ToUpper(string(name[0])) + name[1:],
+		FuncName:           name,
+		Arguments:          arguments,
+		Results:            results,
+		ResultType:         results[0].Type,
+		ReturnNodeType:     returnNodeType,
+		ValueFunctionNames: variable.ValueFunctionNames,
 	}, nil
 }

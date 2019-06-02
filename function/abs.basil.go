@@ -33,12 +33,17 @@ func (i AbsInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (s
 func (i AbsInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
 	arguments := node.ArgumentNodes()
 
-	arg0, err := variable.NodeNumberValue(arguments[0], ctx)
-	if err != nil {
-		return nil, err
+	arg0, evalErr := arguments[0].Value(ctx)
+	if evalErr != nil {
+		return nil, evalErr
 	}
 
-	res, resErr := Abs(arg0)
+	val0, convertErr := variable.NumberValue(arg0)
+	if convertErr != nil {
+		return nil, parsley.NewError(arguments[0].Pos(), convertErr)
+	}
+
+	res, resErr := Abs(val0)
 	if resErr != nil {
 		if funcErr, ok := resErr.(*function.Error); ok {
 			return nil, parsley.NewError(arguments[funcErr.ArgIndex].Pos(), funcErr.Err)

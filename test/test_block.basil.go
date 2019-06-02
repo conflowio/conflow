@@ -6,15 +6,14 @@ import (
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/variable"
-	"github.com/opsidian/parsley/parsley"
 )
 
 type TestBlockInterpreter struct{}
 
 // Create creates a new TestBlock block
-func (i TestBlockInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+func (i TestBlockInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &TestBlock{
-		IDField: node.ID(),
+		IDField: id,
 	}
 }
 
@@ -80,49 +79,32 @@ func (i TestBlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i TestBlockInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
+func (i TestBlockInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+	var err error
 	switch name {
 	case "value":
-		var err parsley.Error
-		b.(*TestBlock).Value, err = variable.NodeAnyValue(node, ctx)
-		return err
+		b.(*TestBlock).Value, err = variable.AnyValue(value)
 	case "field_string":
-		var err parsley.Error
-		b.(*TestBlock).FieldString, err = variable.NodeStringValue(node, ctx)
-		return err
+		b.(*TestBlock).FieldString, err = variable.StringValue(value)
 	case "field_int":
-		var err parsley.Error
-		b.(*TestBlock).FieldInt, err = variable.NodeIntegerValue(node, ctx)
-		return err
+		b.(*TestBlock).FieldInt, err = variable.IntegerValue(value)
 	case "field_float":
-		var err parsley.Error
-		b.(*TestBlock).FieldFloat, err = variable.NodeFloatValue(node, ctx)
-		return err
+		b.(*TestBlock).FieldFloat, err = variable.FloatValue(value)
 	case "field_bool":
-		var err parsley.Error
-		b.(*TestBlock).FieldBool, err = variable.NodeBoolValue(node, ctx)
-		return err
+		b.(*TestBlock).FieldBool, err = variable.BoolValue(value)
 	case "field_array":
-		var err parsley.Error
-		b.(*TestBlock).FieldArray, err = variable.NodeArrayValue(node, ctx)
-		return err
+		b.(*TestBlock).FieldArray, err = variable.ArrayValue(value)
 	case "field_map":
-		var err parsley.Error
-		b.(*TestBlock).FieldMap, err = variable.NodeMapValue(node, ctx)
-		return err
+		b.(*TestBlock).FieldMap, err = variable.MapValue(value)
 	case "field_time_duration":
-		var err parsley.Error
-		b.(*TestBlock).FieldTimeDuration, err = variable.NodeTimeDurationValue(node, ctx)
-		return err
+		b.(*TestBlock).FieldTimeDuration, err = variable.TimeDurationValue(value)
 	case "custom_field":
-		var err parsley.Error
-		b.(*TestBlock).FieldCustomName, err = variable.NodeStringValue(node, ctx)
-		return err
+		b.(*TestBlock).FieldCustomName, err = variable.StringValue(value)
 	}
-	return nil
+	return err
 }
 
-func (i TestBlockInterpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+func (i TestBlockInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	switch name {
 	case "testblock":
 		b.(*TestBlock).Blocks = append(b.(*TestBlock).Blocks, value.(*TestBlock))

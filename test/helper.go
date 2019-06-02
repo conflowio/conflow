@@ -8,7 +8,6 @@ import (
 
 	"github.com/onsi/gomega/types"
 
-	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/basil/function"
 
 	. "github.com/onsi/gomega"
@@ -60,9 +59,8 @@ func ParseCtx(
 	return ctx
 }
 
-func EvalUserCtx() *basil.EvalContext {
-	testBlock := block.NewContainer(
-		basil.ID("test"),
+func EvalUserCtx() basil.EvalContext {
+	testBlock :=
 		&TestBlock{
 			FieldString: "bar",
 			FieldMap: map[string]interface{}{
@@ -77,12 +75,19 @@ func EvalUserCtx() *basil.EvalContext {
 				[]interface{}{"value2"},
 			},
 			FieldInt: int64(1),
-		},
-		TestBlockInterpreter{},
-	)
+		}
 
-	evalCtx := basil.NewEvalContext(context.Background(), "userctx")
-	_ = evalCtx.AddBlockContainer(testBlock)
+	testBlockContainer := &basilfakes.FakeBlockContainer{}
+	testBlockContainer.ParamCalls(func(name basil.ID) interface{} {
+		return TestBlockInterpreter{}.Param(testBlock, name)
+	})
+
+	containers := map[basil.ID]basil.BlockContainer{
+		"test": testBlockContainer,
+	}
+
+	blockContext := basil.NewBlockContext(context.Background(), "userCtx")
+	evalCtx := basil.NewEvalContext(blockContext, Scheduler{}).WithDependencies(containers)
 
 	return evalCtx
 }

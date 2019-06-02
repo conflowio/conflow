@@ -5,15 +5,14 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/parsley/parsley"
 )
 
 type BlockWithReferenceInterpreter struct{}
 
 // Create creates a new BlockWithReference block
-func (i BlockWithReferenceInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+func (i BlockWithReferenceInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &BlockWithReference{
-		IDField: node.ID(),
+		IDField: id,
 	}
 }
 
@@ -51,10 +50,10 @@ func (i BlockWithReferenceInterpreter) Param(b basil.Block, name basil.ID) inter
 	}
 }
 
-func (i BlockWithReferenceInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
+func (i BlockWithReferenceInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
 
-func (i BlockWithReferenceInterpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+func (i BlockWithReferenceInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

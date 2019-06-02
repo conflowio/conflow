@@ -42,26 +42,25 @@ type Block interface {
 // BlockContainer is a simple wrapper around a block object
 //go:generate counterfeiter . BlockContainer
 type BlockContainer interface {
-	ID() ID
-	Block() Block
+	Container
+	Node() BlockNode
 	Param(ID) interface{}
-	EvaluateChildNode(*EvalContext, Node) parsley.Error
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
 // If the boolean return value is false then the block won't be evaluated
 type BlockInitialiser interface {
-	Init(ctx BlockContext) (bool, error)
+	Init(blockCtx BlockContext) (bool, error)
 }
 
 // BlockRunner defines a Main() function which runs the main business logic
 type BlockRunner interface {
-	Main(ctx BlockContext) error
+	Main(blockCtx BlockContext) error
 }
 
 // BlockCloser defines a Close function which runs after the main evaluation stage
 type BlockCloser interface {
-	Close(ctx BlockContext) error
+	Close(blockCtx BlockContext) error
 }
 
 // BlockNode is the AST node for a block
@@ -71,6 +70,7 @@ type BlockNode interface {
 	Children() []Node
 	BlockType() ID
 	ParamType(ID) (string, bool)
+	Interpreter() BlockInterpreter
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks
@@ -88,10 +88,10 @@ type BlockTransformerRegistryAware interface {
 // BlockInterpreter defines an interpreter for blocks
 //go:generate counterfeiter . BlockInterpreter
 type BlockInterpreter interface {
-	Create(ctx *EvalContext, node BlockNode) Block
-	SetParam(ctx *EvalContext, b Block, name ID, node ParameterNode) parsley.Error
-	SetBlock(ctx *EvalContext, b Block, name ID, value interface{}) parsley.Error
-	Param(block Block, name ID) interface{}
+	CreateBlock(ID) Block
+	SetParam(b Block, name ID, value interface{}) error
+	SetBlock(b Block, name ID, value interface{}) error
+	Param(b Block, name ID) interface{}
 	Params() map[ID]ParameterDescriptor
 	ValueParamName() ID
 	HasForeignID() bool

@@ -19,7 +19,7 @@ type Resolver struct {
 	index         int
 	stack         stack
 	result        []basil.Node
-	dependencies  []basil.VariableNode
+	dependencies  basil.Dependencies
 }
 
 // NewResolver creates a new dependency resolver
@@ -47,7 +47,7 @@ func (r *Resolver) AddNodes(nodes ...basil.Node) {
 }
 
 // Resolve will resolve the dependency graph
-func (r *Resolver) Resolve() (result []basil.Node, dependencies []basil.VariableNode, err parsley.Error) {
+func (r *Resolver) Resolve() (result []basil.Node, dependencies basil.Dependencies, err parsley.Error) {
 	for _, v := range r.nodes {
 		if v.Index == -1 {
 			if err := r.strongConnect(v); err != nil {
@@ -81,7 +81,10 @@ func (r *Resolver) strongConnect(v *node) parsley.Error {
 		}
 
 		if !found {
-			r.dependencies = append(r.dependencies, d)
+			if r.dependencies == nil {
+				r.dependencies = make(basil.Dependencies, 0)
+			}
+			r.dependencies[d.ID()] = d
 			continue
 		}
 

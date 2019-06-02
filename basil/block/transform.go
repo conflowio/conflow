@@ -40,7 +40,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 
 	var children []basil.Node
 
-	var dependencies []basil.VariableNode
+	var dependencies basil.Dependencies
 	if len(nodes) > 1 {
 		blockValueNode := nodes[1]
 
@@ -109,11 +109,12 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 	}
 
 	if len(dependencies) > 0 {
-		d := dependencies[0]
-		if _, blockNodeExists := parseCtx.BlockNode(d.ParentID()); blockNodeExists {
-			return nil, parsley.NewErrorf(dependencies[0].Pos(), "unknown parameter: %q", d.ID())
-		} else {
-			return nil, parsley.NewErrorf(dependencies[0].Pos(), "unknown block: %q", d.ParentID())
+		for _, d := range dependencies {
+			if _, blockNodeExists := parseCtx.BlockNode(d.ParentID()); blockNodeExists {
+				return nil, parsley.NewErrorf(d.Pos(), "unknown parameter: %q", d.ID())
+			} else {
+				return nil, parsley.NewErrorf(d.Pos(), "unknown block: %q", d.ParentID())
+			}
 		}
 	}
 
@@ -136,7 +137,7 @@ func TransformChildren(
 	parseCtx interface{},
 	blockID basil.ID,
 	nodes []parsley.Node,
-) ([]basil.Node, []basil.VariableNode, parsley.Error) {
+) ([]basil.Node, basil.Dependencies, parsley.Error) {
 	if len(nodes) == 0 {
 		return nil, nil, nil
 	}

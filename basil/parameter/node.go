@@ -16,7 +16,7 @@ type Node struct {
 	valueNode     parsley.Node
 	evalStage     basil.EvalStage
 	isDeclaration bool
-	dependencies  []basil.VariableNode
+	dependencies  basil.Dependencies
 }
 
 // NewNode creates a new block parameter node
@@ -60,16 +60,16 @@ func (n *Node) EvalStage() basil.EvalStage {
 }
 
 // Dependencies returns the blocks/parameters this parameter depends on
-func (n *Node) Dependencies() []basil.VariableNode {
+func (n *Node) Dependencies() basil.Dependencies {
 	if n.dependencies != nil {
 		return n.dependencies
 	}
 
-	n.dependencies = make([]basil.VariableNode, 0)
+	n.dependencies = make(basil.Dependencies, 0)
 
 	parsley.Walk(n.valueNode, func(node parsley.Node) bool {
 		if v, ok := node.(basil.VariableNode); ok {
-			n.dependencies = append(n.dependencies, v)
+			n.dependencies[v.ID()] = v
 		}
 		return false
 	})

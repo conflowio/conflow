@@ -29,15 +29,15 @@ type FakeBlockNode struct {
 	childrenReturnsOnCall map[int]struct {
 		result1 []basil.Node
 	}
-	DependenciesStub        func() []basil.VariableNode
+	DependenciesStub        func() basil.Dependencies
 	dependenciesMutex       sync.RWMutex
 	dependenciesArgsForCall []struct {
 	}
 	dependenciesReturns struct {
-		result1 []basil.VariableNode
+		result1 basil.Dependencies
 	}
 	dependenciesReturnsOnCall map[int]struct {
-		result1 []basil.VariableNode
+		result1 basil.Dependencies
 	}
 	EvalStageStub        func() basil.EvalStage
 	evalStageMutex       sync.RWMutex
@@ -58,6 +58,16 @@ type FakeBlockNode struct {
 	}
 	iDReturnsOnCall map[int]struct {
 		result1 basil.ID
+	}
+	InterpreterStub        func() basil.BlockInterpreter
+	interpreterMutex       sync.RWMutex
+	interpreterArgsForCall []struct {
+	}
+	interpreterReturns struct {
+		result1 basil.BlockInterpreter
+	}
+	interpreterReturnsOnCall map[int]struct {
+		result1 basil.BlockInterpreter
 	}
 	ParamTypeStub        func(basil.ID) (string, bool)
 	paramTypeMutex       sync.RWMutex
@@ -243,7 +253,7 @@ func (fake *FakeBlockNode) ChildrenReturnsOnCall(i int, result1 []basil.Node) {
 	}{result1}
 }
 
-func (fake *FakeBlockNode) Dependencies() []basil.VariableNode {
+func (fake *FakeBlockNode) Dependencies() basil.Dependencies {
 	fake.dependenciesMutex.Lock()
 	ret, specificReturn := fake.dependenciesReturnsOnCall[len(fake.dependenciesArgsForCall)]
 	fake.dependenciesArgsForCall = append(fake.dependenciesArgsForCall, struct {
@@ -266,32 +276,32 @@ func (fake *FakeBlockNode) DependenciesCallCount() int {
 	return len(fake.dependenciesArgsForCall)
 }
 
-func (fake *FakeBlockNode) DependenciesCalls(stub func() []basil.VariableNode) {
+func (fake *FakeBlockNode) DependenciesCalls(stub func() basil.Dependencies) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = stub
 }
 
-func (fake *FakeBlockNode) DependenciesReturns(result1 []basil.VariableNode) {
+func (fake *FakeBlockNode) DependenciesReturns(result1 basil.Dependencies) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = nil
 	fake.dependenciesReturns = struct {
-		result1 []basil.VariableNode
+		result1 basil.Dependencies
 	}{result1}
 }
 
-func (fake *FakeBlockNode) DependenciesReturnsOnCall(i int, result1 []basil.VariableNode) {
+func (fake *FakeBlockNode) DependenciesReturnsOnCall(i int, result1 basil.Dependencies) {
 	fake.dependenciesMutex.Lock()
 	defer fake.dependenciesMutex.Unlock()
 	fake.DependenciesStub = nil
 	if fake.dependenciesReturnsOnCall == nil {
 		fake.dependenciesReturnsOnCall = make(map[int]struct {
-			result1 []basil.VariableNode
+			result1 basil.Dependencies
 		})
 	}
 	fake.dependenciesReturnsOnCall[i] = struct {
-		result1 []basil.VariableNode
+		result1 basil.Dependencies
 	}{result1}
 }
 
@@ -396,6 +406,58 @@ func (fake *FakeBlockNode) IDReturnsOnCall(i int, result1 basil.ID) {
 	}
 	fake.iDReturnsOnCall[i] = struct {
 		result1 basil.ID
+	}{result1}
+}
+
+func (fake *FakeBlockNode) Interpreter() basil.BlockInterpreter {
+	fake.interpreterMutex.Lock()
+	ret, specificReturn := fake.interpreterReturnsOnCall[len(fake.interpreterArgsForCall)]
+	fake.interpreterArgsForCall = append(fake.interpreterArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Interpreter", []interface{}{})
+	fake.interpreterMutex.Unlock()
+	if fake.InterpreterStub != nil {
+		return fake.InterpreterStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.interpreterReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockNode) InterpreterCallCount() int {
+	fake.interpreterMutex.RLock()
+	defer fake.interpreterMutex.RUnlock()
+	return len(fake.interpreterArgsForCall)
+}
+
+func (fake *FakeBlockNode) InterpreterCalls(stub func() basil.BlockInterpreter) {
+	fake.interpreterMutex.Lock()
+	defer fake.interpreterMutex.Unlock()
+	fake.InterpreterStub = stub
+}
+
+func (fake *FakeBlockNode) InterpreterReturns(result1 basil.BlockInterpreter) {
+	fake.interpreterMutex.Lock()
+	defer fake.interpreterMutex.Unlock()
+	fake.InterpreterStub = nil
+	fake.interpreterReturns = struct {
+		result1 basil.BlockInterpreter
+	}{result1}
+}
+
+func (fake *FakeBlockNode) InterpreterReturnsOnCall(i int, result1 basil.BlockInterpreter) {
+	fake.interpreterMutex.Lock()
+	defer fake.interpreterMutex.Unlock()
+	fake.InterpreterStub = nil
+	if fake.interpreterReturnsOnCall == nil {
+		fake.interpreterReturnsOnCall = make(map[int]struct {
+			result1 basil.BlockInterpreter
+		})
+	}
+	fake.interpreterReturnsOnCall[i] = struct {
+		result1 basil.BlockInterpreter
 	}{result1}
 }
 
@@ -798,6 +860,8 @@ func (fake *FakeBlockNode) Invocations() map[string][][]interface{} {
 	defer fake.evalStageMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
+	fake.interpreterMutex.RLock()
+	defer fake.interpreterMutex.RUnlock()
 	fake.paramTypeMutex.RLock()
 	defer fake.paramTypeMutex.RUnlock()
 	fake.posMutex.RLock()

@@ -74,15 +74,15 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 	}
 
 	return &InterpreterTemplateParams{
-		Package:                pkgName,
-		Name:                   name,
-		Stages:                 stages,
-		Params:                 params,
-		InputParams:            inputParams,
-		Blocks:                 blocks,
-		IDField:                idField,
-		ValueField:             valueField,
-		HasForeignID:           hasForeignID,
-		NodeValueFunctionNames: variable.NodeValueFunctionNames,
+		Package:            pkgName,
+		Name:               name,
+		Stages:             stages,
+		Params:             params,
+		InputParams:        inputParams,
+		Blocks:             blocks,
+		IDField:            idField,
+		ValueField:         valueField,
+		HasForeignID:       hasForeignID,
+		ValueFunctionNames: variable.ValueFunctionNames,
 	}, nil
 }

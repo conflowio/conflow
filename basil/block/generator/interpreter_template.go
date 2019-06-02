@@ -1,17 +1,17 @@
 package generator
 
 type InterpreterTemplateParams struct {
-	Package                string
-	Type                   string
-	Name                   string
-	Stages                 []string
-	IDField                *Field
-	HasForeignID           bool
-	ValueField             *Field
-	Params                 []*Field
-	InputParams            []*Field
-	Blocks                 []*Field
-	NodeValueFunctionNames map[string]string
+	Package            string
+	Type               string
+	Name               string
+	Stages             []string
+	IDField            *Field
+	HasForeignID       bool
+	ValueField         *Field
+	Params             []*Field
+	InputParams        []*Field
+	Blocks             []*Field
+	ValueFunctionNames map[string]string
 }
 
 const interpreterTemplate = `
@@ -32,9 +32,9 @@ import (
 type {{.Name}}Interpreter struct {}
 
 // Create creates a new {{.Name}} block
-func (i {{.Name}}Interpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+func (i {{.Name}}Interpreter) CreateBlock(id basil.ID) basil.Block {
 	return &{{.Name}}{
-		{{.IDField.Name}}: node.ID(),
+		{{.IDField.Name}}: id,
 	}
 }
 
@@ -84,21 +84,22 @@ func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i {{.Name}}Interpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
+func (i {{.Name}}Interpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
 	{{ if .InputParams -}}
+	var err error
 	switch name {
 	{{ range .InputParams -}}
 	case "{{.ParamName}}":
-		var err parsley.Error
-		b.(*{{$root.Name}}).{{.Name}}, err = variable.{{index $root.NodeValueFunctionNames .Type}}(node, ctx)
-		return err
+		b.(*{{$root.Name}}).{{.Name}}, err = variable.{{index $root.ValueFunctionNames .Type}}(value)
 	{{ end -}}
 	}
-	{{ end -}}
+	return err
+	{{ else -}}
 	return nil
+	{{ end -}}
 }
 
-func (i {{.Name}}Interpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+func (i {{.Name}}Interpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	{{ if .Blocks -}}
 	switch name {
 	{{ range .Blocks -}}

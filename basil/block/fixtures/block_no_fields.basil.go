@@ -5,15 +5,14 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/parsley/parsley"
 )
 
 type BlockNoFieldsInterpreter struct{}
 
 // Create creates a new BlockNoFields block
-func (i BlockNoFieldsInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+func (i BlockNoFieldsInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &BlockNoFields{
-		IDField: node.ID(),
+		IDField: id,
 	}
 }
 
@@ -51,10 +50,10 @@ func (i BlockNoFieldsInterpreter) Param(b basil.Block, name basil.ID) interface{
 	}
 }
 
-func (i BlockNoFieldsInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
+func (i BlockNoFieldsInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
 
-func (i BlockNoFieldsInterpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+func (i BlockNoFieldsInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }

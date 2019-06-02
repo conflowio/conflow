@@ -6,15 +6,14 @@ import (
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/variable"
-	"github.com/opsidian/parsley/parsley"
 )
 
 type BlockValueRequiredInterpreter struct{}
 
 // Create creates a new BlockValueRequired block
-func (i BlockValueRequiredInterpreter) Create(ctx *basil.EvalContext, node basil.BlockNode) basil.Block {
+func (i BlockValueRequiredInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &BlockValueRequired{
-		IDField: node.ID(),
+		IDField: id,
 	}
 }
 
@@ -56,16 +55,15 @@ func (i BlockValueRequiredInterpreter) Param(b basil.Block, name basil.ID) inter
 	}
 }
 
-func (i BlockValueRequiredInterpreter) SetParam(ctx *basil.EvalContext, b basil.Block, name basil.ID, node basil.ParameterNode) parsley.Error {
+func (i BlockValueRequiredInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+	var err error
 	switch name {
 	case "value":
-		var err parsley.Error
-		b.(*BlockValueRequired).Value, err = variable.NodeAnyValue(node, ctx)
-		return err
+		b.(*BlockValueRequired).Value, err = variable.AnyValue(value)
 	}
-	return nil
+	return err
 }
 
-func (i BlockValueRequiredInterpreter) SetBlock(ctx *basil.EvalContext, b basil.Block, name basil.ID, value interface{}) parsley.Error {
+func (i BlockValueRequiredInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
