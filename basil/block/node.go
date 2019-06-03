@@ -98,10 +98,18 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			requiredParams[name] = false
 		}
 	}
+	blocks := n.interpreter.Blocks()
+	blockCounts := make(map[basil.ID]int, len(blocks))
 
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case basil.BlockNode:
+			blockCounts[c.BlockType()] = blockCounts[c.BlockType()] + 1
+			if block, ok := blocks[c.BlockType()]; ok {
+				if blockCounts[c.BlockType()] > 1 && !block.IsMany {
+					return parsley.NewError(c.Pos(), fmt.Errorf("%q block can only be defined once", c.BlockType()))
+				}
+			}
 		case basil.ParameterNode:
 			param, exists := params[c.Name()]
 
@@ -127,6 +135,12 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	for paramName, isSet := range requiredParams {
 		if !isSet {
 			return parsley.NewError(n.Pos(), fmt.Errorf("%q parameter is required", paramName))
+		}
+	}
+
+	for blockType, block := range blocks {
+		if block.IsRequired && blockCounts[blockType] == 0 {
+			return parsley.NewError(n.Pos(), fmt.Errorf("%q block is required", blockType))
 		}
 	}
 
