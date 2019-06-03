@@ -153,7 +153,7 @@ func TransformChildren(
 			}
 			res = append(res, blockNode.(basil.Node))
 		} else if node.Token() == TokenParameter {
-			paramNode, err := TransformParamNode(parseCtx, node, blockID, paramNames)
+			paramNode, err := parameter.TransformNode(parseCtx, node, blockID, paramNames)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -162,32 +162,4 @@ func TransformChildren(
 	}
 
 	return dependency.NewResolver(blockID, res...).Resolve()
-}
-
-func TransformParamNode(
-	parseCtx interface{},
-	node parsley.Node,
-	blockID basil.ID,
-	paramNames map[basil.ID]struct{},
-) (basil.ParameterNode, parsley.Error) {
-	paramChildren := node.(parsley.NonTerminalNode).Children()
-
-	nameNode := paramChildren[0].(*basil.IDNode)
-	if _, exists := paramNames[nameNode.ID()]; exists {
-		return nil, parsley.NewErrorf(
-			paramChildren[0].Pos(),
-			"%q parameter was defined multiple times", nameNode.ID(),
-		)
-	}
-	paramNames[nameNode.ID()] = struct{}{}
-
-	op, _ := paramChildren[1].Value(nil)
-	isDeclaration := op == ":="
-
-	valueNode, err := parsley.Transform(parseCtx, paramChildren[2])
-	if err != nil {
-		return nil, err
-	}
-
-	return parameter.NewNode(blockID, nameNode, valueNode, isDeclaration), nil
 }
