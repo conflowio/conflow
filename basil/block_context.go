@@ -7,6 +7,7 @@ import "context"
 type BlockContext interface {
 	Context() context.Context
 	UserContext() interface{}
+	Logger() Logger
 }
 
 // Context defines an interface about creating a new context
@@ -19,17 +20,24 @@ type UserContexter interface {
 	UserContext(ctx interface{}) interface{}
 }
 
+// UserContexter defines an interface about creating a new logger
+type Loggerer interface {
+	Logger(logger Logger) Logger
+}
+
 // NewBlockContext creates a new block context
-func NewBlockContext(context context.Context, userContext interface{}) BlockContext {
+func NewBlockContext(context context.Context, userContext interface{}, logger Logger) BlockContext {
 	return &blockContext{
 		context:     context,
 		userContext: userContext,
+		logger:      logger,
 	}
 }
 
 type blockContext struct {
 	context     context.Context
 	userContext interface{}
+	logger      Logger
 }
 
 func (b *blockContext) Context() context.Context {
@@ -38,4 +46,8 @@ func (b *blockContext) Context() context.Context {
 
 func (b *blockContext) UserContext() interface{} {
 	return b.userContext
+}
+
+func (b *blockContext) Logger() Logger {
+	return b.logger
 }

@@ -1,11 +1,14 @@
 package main
 
 import (
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/function"
+
 	"github.com/opsidian/basil/examples/common"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/util"
+
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/block"
 )
 
 //go:generate basil generate
@@ -16,9 +19,10 @@ type Main struct {
 func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"hello": HelloInterpreter{},
-			"print": common.PrintInterpreter{},
+			"ticker": TickerInterpreter{},
+			"print":  common.PrintInterpreter{},
 		},
+		FunctionTransformerRegistry: function.Registry(),
 	}
 }
 

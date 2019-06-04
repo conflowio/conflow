@@ -53,6 +53,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 					parseCtx,
 					idNode.ID(),
 					blockValueChildren[1].(parsley.NonTerminalNode).Children(),
+					interpreter,
 				)
 				if err != nil {
 					return nil, err
@@ -103,6 +104,7 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 		parseCtx,
 		id,
 		node.(parsley.NonTerminalNode).Children(),
+		interpreter,
 	)
 	if err != nil {
 		return nil, err
@@ -137,29 +139,38 @@ func TransformChildren(
 	parseCtx interface{},
 	blockID basil.ID,
 	nodes []parsley.Node,
+	interpreter basil.BlockInterpreter,
 ) ([]basil.Node, basil.Dependencies, parsley.Error) {
 	if len(nodes) == 0 {
 		return nil, nil, nil
 	}
 
-	res := make([]basil.Node, 0, len(nodes))
+	basilNodes := make([]basil.Node, 0, len(nodes))
 	paramNames := make(map[basil.ID]struct{}, len(nodes))
+
+	blocks := interpreter.Blocks()
+	parameters := interpreter.Params()
 
 	for _, node := range nodes {
 		if node.Token() == TokenBlock {
-			blockNode, err := node.(parsley.Transformable).Transform(parseCtx)
+			res, err := node.(parsley.Transformable).Transform(parseCtx)
 			if err != nil {
 				return nil, nil, err
 			}
-			res = append(res, blockNode.(basil.Node))
+			blockNode := res.(basil.BlockNode)
+			blockNode.SetDescriptor(blocks[blockNode.ID()])
+			basilNodes = append(basilNodes, blockNode)
 		} else if node.Token() == TokenParameter {
 			paramNode, err := parameter.TransformNode(parseCtx, node, blockID, paramNames)
 			if err != nil {
 				return nil, nil, err
 			}
-			res = append(res, paramNode)
+			if !paramNode.IsDeclaration() {
+				paramNode.SetDescriptor(parameters[paramNode.ID()])
+			}
+			basilNodes = append(basilNodes, paramNode)
 		}
 	}
 
-	return dependency.NewResolver(blockID, res...).Resolve()
+	return dependency.NewResolver(blockID, basilNodes...).Resolve()
 }

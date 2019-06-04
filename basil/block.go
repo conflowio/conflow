@@ -40,6 +40,7 @@ type Block interface {
 // BlockDescriptor describes a block
 type BlockDescriptor struct {
 	Type       string
+	EvalStage  EvalStage
 	IsRequired bool
 	IsOutput   bool
 	IsMany     bool
@@ -50,7 +51,9 @@ type BlockDescriptor struct {
 type BlockContainer interface {
 	Container
 	Node() BlockNode
+	Block() Block
 	Param(ID) interface{}
+	PublishBlock(blockType ID, block Block)
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
@@ -77,6 +80,7 @@ type BlockNode interface {
 	BlockType() ID
 	ParamType(ID) (string, bool)
 	Interpreter() BlockInterpreter
+	SetDescriptor(BlockDescriptor)
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks
@@ -103,4 +107,6 @@ type BlockInterpreter interface {
 	ValueParamName() ID
 	HasForeignID() bool
 	ParseContext(*ParseContext) *ParseContext
+	ProcessChannels(blockContainer BlockContainer)
+	CloseChannels(blockContainer BlockContainer)
 }

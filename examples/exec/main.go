@@ -1,11 +1,8 @@
 package main
 
 import (
-	"runtime"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/examples/common"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/util"
@@ -40,16 +37,5 @@ func main() {
 		panic(err)
 	}
 
-	scheduler := job.NewScheduler(runtime.NumCPU()*2, 100)
-	scheduler.Start()
-	defer scheduler.Stop()
-
-	if _, err := basil.Evaluate(
-		parseCtx,
-		basil.NewBlockContext(ctx, nil),
-		scheduler,
-		"main",
-	); err != nil {
-		panic(err)
-	}
+	common.Main(ctx, parseCtx)
 }

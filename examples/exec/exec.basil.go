@@ -20,13 +20,48 @@ func (i ExecInterpreter) CreateBlock(id basil.ID) basil.Block {
 // Params returns with the list of valid parameters
 func (i ExecInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return map[basil.ID]basil.ParameterDescriptor{
-		"cmd":       {Type: "string", IsRequired: true, IsOutput: false},
-		"params":    {Type: "[]string", IsRequired: false, IsOutput: false},
-		"dir":       {Type: "string", IsRequired: false, IsOutput: false},
-		"env":       {Type: "[]string", IsRequired: false, IsOutput: false},
-		"exit_code": {Type: "int", IsRequired: false, IsOutput: true},
-		"stdout":    {Type: "string", IsRequired: false, IsOutput: true},
-		"stderr":    {Type: "string", IsRequired: false, IsOutput: true},
+		"cmd": {
+			Type:       "string",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: true,
+			IsOutput:   false,
+		},
+		"params": {
+			Type:       "[]string",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"dir": {
+			Type:       "string",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"env": {
+			Type:       "[]string",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"exit_code": {
+			Type:       "int",
+			EvalStage:  basil.EvalStages["close"],
+			IsRequired: false,
+			IsOutput:   true,
+		},
+		"stdout": {
+			Type:       "string",
+			EvalStage:  basil.EvalStages["close"],
+			IsRequired: false,
+			IsOutput:   true,
+		},
+		"stderr": {
+			Type:       "string",
+			EvalStage:  basil.EvalStages["close"],
+			IsRequired: false,
+			IsOutput:   true,
+		},
 	}
 }
 
@@ -98,4 +133,10 @@ func (i ExecInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 
 func (i ExecInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i ExecInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i ExecInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
 }

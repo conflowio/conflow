@@ -20,22 +20,73 @@ func (i TestBlockInterpreter) CreateBlock(id basil.ID) basil.Block {
 // Params returns with the list of valid parameters
 func (i TestBlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return map[basil.ID]basil.ParameterDescriptor{
-		"value":               {Type: "interface{}", IsRequired: false, IsOutput: false},
-		"field_string":        {Type: "string", IsRequired: false, IsOutput: false},
-		"field_int":           {Type: "int64", IsRequired: false, IsOutput: false},
-		"field_float":         {Type: "float64", IsRequired: false, IsOutput: false},
-		"field_bool":          {Type: "bool", IsRequired: false, IsOutput: false},
-		"field_array":         {Type: "[]interface{}", IsRequired: false, IsOutput: false},
-		"field_map":           {Type: "map[string]interface{}", IsRequired: false, IsOutput: false},
-		"field_time_duration": {Type: "time.Duration", IsRequired: false, IsOutput: false},
-		"custom_field":        {Type: "string", IsRequired: false, IsOutput: false},
+		"value": {
+			Type:       "interface{}",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"field_string": {
+			Type:       "string",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"field_int": {
+			Type:       "int64",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"field_float": {
+			Type:       "float64",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"field_bool": {
+			Type:       "bool",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"field_array": {
+			Type:       "[]interface{}",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"field_map": {
+			Type:       "map[string]interface{}",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"field_time_duration": {
+			Type:       "time.Duration",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"custom_field": {
+			Type:       "string",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
 	}
 }
 
 // Blocks returns with the list of valid blocks
 func (i TestBlockInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
-		"testblock": {Type: "*TestBlock", IsRequired: false, IsOutput: false, IsMany: true},
+		"testblock": {
+			Type:       "*TestBlock",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+			IsMany:     true,
+		},
 	}
 }
 
@@ -121,4 +172,10 @@ func (i TestBlockInterpreter) SetBlock(block basil.Block, name basil.ID, value i
 		b.TestBlock = append(b.TestBlock, value.(*TestBlock))
 	}
 	return nil
+}
+
+func (i TestBlockInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i TestBlockInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
 }

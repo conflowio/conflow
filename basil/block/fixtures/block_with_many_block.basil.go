@@ -25,7 +25,13 @@ func (i BlockWithManyBlockInterpreter) Params() map[basil.ID]basil.ParameterDesc
 // Blocks returns with the list of valid blocks
 func (i BlockWithManyBlockInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
-		"block_simple": {Type: "*BlockSimple", IsRequired: false, IsOutput: false, IsMany: true},
+		"block_simple": {
+			Type:       "*BlockSimple",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+			IsMany:     true,
+		},
 	}
 }
 
@@ -75,4 +81,10 @@ func (i BlockWithManyBlockInterpreter) SetBlock(block basil.Block, name basil.ID
 		b.BlockSimple = append(b.BlockSimple, value.(*BlockSimple))
 	}
 	return nil
+}
+
+func (i BlockWithManyBlockInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i BlockWithManyBlockInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
 }

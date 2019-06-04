@@ -9,6 +9,16 @@ import (
 )
 
 type FakeBlockContainer struct {
+	BlockStub        func() basil.Block
+	blockMutex       sync.RWMutex
+	blockArgsForCall []struct {
+	}
+	blockReturns struct {
+		result1 basil.Block
+	}
+	blockReturnsOnCall map[int]struct {
+		result1 basil.Block
+	}
 	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
 	iDArgsForCall []struct {
@@ -40,6 +50,12 @@ type FakeBlockContainer struct {
 	paramReturnsOnCall map[int]struct {
 		result1 interface{}
 	}
+	PublishBlockStub        func(basil.ID, basil.Block)
+	publishBlockMutex       sync.RWMutex
+	publishBlockArgsForCall []struct {
+		arg1 basil.ID
+		arg2 basil.Block
+	}
 	RunStub        func()
 	runMutex       sync.RWMutex
 	runArgsForCall []struct {
@@ -58,6 +74,58 @@ type FakeBlockContainer struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeBlockContainer) Block() basil.Block {
+	fake.blockMutex.Lock()
+	ret, specificReturn := fake.blockReturnsOnCall[len(fake.blockArgsForCall)]
+	fake.blockArgsForCall = append(fake.blockArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Block", []interface{}{})
+	fake.blockMutex.Unlock()
+	if fake.BlockStub != nil {
+		return fake.BlockStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.blockReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContainer) BlockCallCount() int {
+	fake.blockMutex.RLock()
+	defer fake.blockMutex.RUnlock()
+	return len(fake.blockArgsForCall)
+}
+
+func (fake *FakeBlockContainer) BlockCalls(stub func() basil.Block) {
+	fake.blockMutex.Lock()
+	defer fake.blockMutex.Unlock()
+	fake.BlockStub = stub
+}
+
+func (fake *FakeBlockContainer) BlockReturns(result1 basil.Block) {
+	fake.blockMutex.Lock()
+	defer fake.blockMutex.Unlock()
+	fake.BlockStub = nil
+	fake.blockReturns = struct {
+		result1 basil.Block
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) BlockReturnsOnCall(i int, result1 basil.Block) {
+	fake.blockMutex.Lock()
+	defer fake.blockMutex.Unlock()
+	fake.BlockStub = nil
+	if fake.blockReturnsOnCall == nil {
+		fake.blockReturnsOnCall = make(map[int]struct {
+			result1 basil.Block
+		})
+	}
+	fake.blockReturnsOnCall[i] = struct {
+		result1 basil.Block
+	}{result1}
 }
 
 func (fake *FakeBlockContainer) ID() basil.ID {
@@ -224,6 +292,38 @@ func (fake *FakeBlockContainer) ParamReturnsOnCall(i int, result1 interface{}) {
 	}{result1}
 }
 
+func (fake *FakeBlockContainer) PublishBlock(arg1 basil.ID, arg2 basil.Block) {
+	fake.publishBlockMutex.Lock()
+	fake.publishBlockArgsForCall = append(fake.publishBlockArgsForCall, struct {
+		arg1 basil.ID
+		arg2 basil.Block
+	}{arg1, arg2})
+	fake.recordInvocation("PublishBlock", []interface{}{arg1, arg2})
+	fake.publishBlockMutex.Unlock()
+	if fake.PublishBlockStub != nil {
+		fake.PublishBlockStub(arg1, arg2)
+	}
+}
+
+func (fake *FakeBlockContainer) PublishBlockCallCount() int {
+	fake.publishBlockMutex.RLock()
+	defer fake.publishBlockMutex.RUnlock()
+	return len(fake.publishBlockArgsForCall)
+}
+
+func (fake *FakeBlockContainer) PublishBlockCalls(stub func(basil.ID, basil.Block)) {
+	fake.publishBlockMutex.Lock()
+	defer fake.publishBlockMutex.Unlock()
+	fake.PublishBlockStub = stub
+}
+
+func (fake *FakeBlockContainer) PublishBlockArgsForCall(i int) (basil.ID, basil.Block) {
+	fake.publishBlockMutex.RLock()
+	defer fake.publishBlockMutex.RUnlock()
+	argsForCall := fake.publishBlockArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
 func (fake *FakeBlockContainer) Run() {
 	fake.runMutex.Lock()
 	fake.runArgsForCall = append(fake.runArgsForCall, struct {
@@ -305,12 +405,16 @@ func (fake *FakeBlockContainer) ValueReturnsOnCall(i int, result1 interface{}, r
 func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.blockMutex.RLock()
+	defer fake.blockMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	fake.nodeMutex.RLock()
 	defer fake.nodeMutex.RUnlock()
 	fake.paramMutex.RLock()
 	defer fake.paramMutex.RUnlock()
+	fake.publishBlockMutex.RLock()
+	defer fake.publishBlockMutex.RUnlock()
 	fake.runMutex.RLock()
 	defer fake.runMutex.RUnlock()
 	fake.valueMutex.RLock()

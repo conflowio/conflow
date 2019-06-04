@@ -20,8 +20,18 @@ func (i PrintInterpreter) CreateBlock(id basil.ID) basil.Block {
 // Params returns with the list of valid parameters
 func (i PrintInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return map[basil.ID]basil.ParameterDescriptor{
-		"value":   {Type: "interface{}", IsRequired: true, IsOutput: false},
-		"newline": {Type: "bool", IsRequired: false, IsOutput: false},
+		"value": {
+			Type:       "interface{}",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: true,
+			IsOutput:   false,
+		},
+		"newline": {
+			Type:       "bool",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
 	}
 }
 
@@ -79,4 +89,10 @@ func (i PrintInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 
 func (i PrintInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i PrintInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i PrintInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
 }

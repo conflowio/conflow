@@ -87,6 +87,17 @@ func (n *Node) IsDeclaration() bool {
 	return n.isDeclaration
 }
 
+// SetDescriptor applies the descriptor parameters to the node
+func (n *Node) SetDescriptor(descriptor basil.ParameterDescriptor) {
+	n.evalStage = descriptor.EvalStage
+}
+
+// Generated returns true if the parameter's value contains a generator function
+func (n *Node) Generated() bool {
+	// TODO: implement generator functions
+	return false
+}
+
 // StaticCheck runs a static analysis on the value node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	switch n := n.valueNode.(type) {

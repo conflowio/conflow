@@ -69,3 +69,9 @@ func (i BlockWithContextInterpreter) SetParam(block basil.Block, name basil.ID, 
 func (i BlockWithContextInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i BlockWithContextInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i BlockWithContextInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
+}

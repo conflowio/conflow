@@ -5,6 +5,7 @@ import "github.com/opsidian/parsley/parsley"
 // ParameterDescriptor describes a parameter
 type ParameterDescriptor struct {
 	Type       string
+	EvalStage  EvalStage
 	IsRequired bool
 	IsOutput   bool
 }
@@ -16,6 +17,7 @@ type ParameterNode interface {
 	Name() ID
 	ValueNode() parsley.Node
 	IsDeclaration() bool
+	SetDescriptor(ParameterDescriptor)
 }
 
 // ParameterContainer is a parameter container

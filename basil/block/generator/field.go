@@ -65,6 +65,10 @@ func (f *Field) Validate() error {
 		return fmt.Errorf("\"stage\" can not be empty on field %q", f.Name)
 	}
 
+	if _, ok := basil.EvalStages[f.Stage]; !ok {
+		return fmt.Errorf("\"stage\" is invalid on field %q", f.Name)
+	}
+
 	return nil
 }
 

@@ -20,7 +20,12 @@ func (i BlockSimpleInterpreter) CreateBlock(id basil.ID) basil.Block {
 // Params returns with the list of valid parameters
 func (i BlockSimpleInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return map[basil.ID]basil.ParameterDescriptor{
-		"value": {Type: "interface{}", IsRequired: false, IsOutput: false},
+		"value": {
+			Type:       "interface{}",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
+			IsOutput:   false,
+		},
 	}
 }
 
@@ -74,4 +79,10 @@ func (i BlockSimpleInterpreter) SetParam(block basil.Block, name basil.ID, value
 
 func (i BlockSimpleInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i BlockSimpleInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i BlockSimpleInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
 }

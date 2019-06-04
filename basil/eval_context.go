@@ -14,14 +14,22 @@ const (
 	EvalStageClose EvalStage = 1
 )
 
+// EvalStages returns with the evaluation stages
+var EvalStages = map[string]EvalStage{
+	"init":  EvalStageInit,
+	"main":  EvalStageMain,
+	"close": EvalStageClose,
+}
+
 type EvalContext interface {
 	WithDependencies(dependencies map[ID]BlockContainer) EvalContext
 	BlockContext() BlockContext
 	SetBlockContext(blockContext BlockContext)
 	BlockContainer(id ID) (BlockContainer, bool)
 	ScheduleJob(job Job)
-	Subscribe(id ID, container *NodeContainer, ready func(c *NodeContainer))
+	Subscribe(id ID, container *NodeContainer)
 	Publish(c Container)
+	Logger() Logger
 }
 
 // EvalContext is the evaluation context
@@ -80,40 +88,36 @@ func (e *evalContext) ScheduleJob(job Job) {
 	e.scheduler.Schedule(job)
 }
 
-func (e *evalContext) Subscribe(id ID, container *NodeContainer, ready func(c *NodeContainer)) {
-	e.pubsub.Subscribe(id, container, ready)
+func (e *evalContext) Subscribe(id ID, container *NodeContainer) {
+	e.pubsub.Subscribe(id, container)
 }
 
 func (e *evalContext) Publish(c Container) {
 	e.pubsub.Publish(c)
 }
 
-type subscription struct {
-	container *NodeContainer
-	ready     func(c *NodeContainer)
+func (e *evalContext) Logger() Logger {
+	return e.blockCtx.Logger()
 }
 
 type pubsub struct {
-	subscriptions     map[ID][]subscription
+	subscriptions     map[ID][]*NodeContainer
 	subscriptionsLock *sync.RWMutex
 }
 
 func newPubSub() *pubsub {
 	return &pubsub{
-		subscriptions:     make(map[ID][]subscription, 32),
+		subscriptions:     make(map[ID][]*NodeContainer, 32),
 		subscriptionsLock: &sync.RWMutex{},
 	}
 }
 
 // Subscribe will subscribe the given node container for the given dependency
-func (p *pubsub) Subscribe(id ID, container *NodeContainer, ready func(c *NodeContainer)) {
+func (p *pubsub) Subscribe(id ID, container *NodeContainer) {
 	p.subscriptionsLock.Lock()
 	defer p.subscriptionsLock.Unlock()
 
-	p.subscriptions[id] = append(p.subscriptions[id], subscription{
-		container: container,
-		ready:     ready,
-	})
+	p.subscriptions[id] = append(p.subscriptions[id], container)
 }
 
 // Publish will notify all node containers which are subscribed for the dependency
@@ -122,9 +126,7 @@ func (p *pubsub) Publish(c Container) {
 	p.subscriptionsLock.RLock()
 	defer p.subscriptionsLock.RUnlock()
 
-	for _, sub := range p.subscriptions[c.ID()] {
-		if sub.container.SetDependency(c) {
-			sub.ready(sub.container)
-		}
+	for _, container := range p.subscriptions[c.ID()] {
+		container.SetDependency(c)
 	}
 }

@@ -19,6 +19,16 @@ type FakeBlockContext struct {
 	contextReturnsOnCall map[int]struct {
 		result1 context.Context
 	}
+	LoggerStub        func() basil.Logger
+	loggerMutex       sync.RWMutex
+	loggerArgsForCall []struct {
+	}
+	loggerReturns struct {
+		result1 basil.Logger
+	}
+	loggerReturnsOnCall map[int]struct {
+		result1 basil.Logger
+	}
 	UserContextStub        func() interface{}
 	userContextMutex       sync.RWMutex
 	userContextArgsForCall []struct {
@@ -85,6 +95,58 @@ func (fake *FakeBlockContext) ContextReturnsOnCall(i int, result1 context.Contex
 	}{result1}
 }
 
+func (fake *FakeBlockContext) Logger() basil.Logger {
+	fake.loggerMutex.Lock()
+	ret, specificReturn := fake.loggerReturnsOnCall[len(fake.loggerArgsForCall)]
+	fake.loggerArgsForCall = append(fake.loggerArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Logger", []interface{}{})
+	fake.loggerMutex.Unlock()
+	if fake.LoggerStub != nil {
+		return fake.LoggerStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.loggerReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContext) LoggerCallCount() int {
+	fake.loggerMutex.RLock()
+	defer fake.loggerMutex.RUnlock()
+	return len(fake.loggerArgsForCall)
+}
+
+func (fake *FakeBlockContext) LoggerCalls(stub func() basil.Logger) {
+	fake.loggerMutex.Lock()
+	defer fake.loggerMutex.Unlock()
+	fake.LoggerStub = stub
+}
+
+func (fake *FakeBlockContext) LoggerReturns(result1 basil.Logger) {
+	fake.loggerMutex.Lock()
+	defer fake.loggerMutex.Unlock()
+	fake.LoggerStub = nil
+	fake.loggerReturns = struct {
+		result1 basil.Logger
+	}{result1}
+}
+
+func (fake *FakeBlockContext) LoggerReturnsOnCall(i int, result1 basil.Logger) {
+	fake.loggerMutex.Lock()
+	defer fake.loggerMutex.Unlock()
+	fake.LoggerStub = nil
+	if fake.loggerReturnsOnCall == nil {
+		fake.loggerReturnsOnCall = make(map[int]struct {
+			result1 basil.Logger
+		})
+	}
+	fake.loggerReturnsOnCall[i] = struct {
+		result1 basil.Logger
+	}{result1}
+}
+
 func (fake *FakeBlockContext) UserContext() interface{} {
 	fake.userContextMutex.Lock()
 	ret, specificReturn := fake.userContextReturnsOnCall[len(fake.userContextArgsForCall)]
@@ -142,6 +204,8 @@ func (fake *FakeBlockContext) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.contextMutex.RLock()
 	defer fake.contextMutex.RUnlock()
+	fake.loggerMutex.RLock()
+	defer fake.loggerMutex.RUnlock()
 	fake.userContextMutex.RLock()
 	defer fake.userContextMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

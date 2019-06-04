@@ -20,8 +20,18 @@ func (i HelloInterpreter) CreateBlock(id basil.ID) basil.Block {
 // Params returns with the list of valid parameters
 func (i HelloInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return map[basil.ID]basil.ParameterDescriptor{
-		"to":       {Type: "string", IsRequired: true, IsOutput: false},
-		"greeting": {Type: "string", IsRequired: false, IsOutput: true},
+		"to": {
+			Type:       "string",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: true,
+			IsOutput:   false,
+		},
+		"greeting": {
+			Type:       "string",
+			EvalStage:  basil.EvalStages["close"],
+			IsRequired: false,
+			IsOutput:   true,
+		},
 	}
 }
 
@@ -77,4 +87,10 @@ func (i HelloInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 
 func (i HelloInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i HelloInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i HelloInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
 }

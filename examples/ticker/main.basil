@@ -1,0 +1,18 @@
+ticker ticker {
+    interval = 1s
+    count = 3
+
+    tick tick {
+        prefix := "Time is: "
+    }
+}
+
+print time {
+    value = tick.prefix + string(tick.time)
+    newline = true
+}
+
+print number_of_ticks {
+    value = "Number of ticks: " + string(ticker.ticks)
+    newline = true
+}

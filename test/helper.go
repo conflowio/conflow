@@ -3,6 +3,11 @@ package test
 import (
 	"context"
 	"fmt"
+	"os"
+
+	"github.com/rs/zerolog"
+
+	"github.com/opsidian/basil/logger"
 
 	"github.com/opsidian/basil/basil/basilfakes"
 
@@ -86,7 +91,11 @@ func EvalUserCtx() basil.EvalContext {
 		"test": testBlockContainer,
 	}
 
-	blockContext := basil.NewBlockContext(context.Background(), "userCtx")
+	blockContext := basil.NewBlockContext(
+		context.Background(),
+		"userCtx",
+		logger.NewZeroLogLogger(zerolog.New(os.Stderr).Level(zerolog.Disabled)),
+	)
 	evalCtx := basil.NewEvalContext(blockContext, Scheduler{}).WithDependencies(containers)
 
 	return evalCtx

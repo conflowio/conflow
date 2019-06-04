@@ -69,3 +69,9 @@ func (i MainInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i MainInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i MainInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i MainInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
+}

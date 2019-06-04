@@ -49,6 +49,16 @@ type FakeBlockNode struct {
 	evalStageReturnsOnCall map[int]struct {
 		result1 basil.EvalStage
 	}
+	GeneratedStub        func() bool
+	generatedMutex       sync.RWMutex
+	generatedArgsForCall []struct {
+	}
+	generatedReturns struct {
+		result1 bool
+	}
+	generatedReturnsOnCall map[int]struct {
+		result1 bool
+	}
 	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
 	iDArgsForCall []struct {
@@ -111,6 +121,11 @@ type FakeBlockNode struct {
 	}
 	readerPosReturnsOnCall map[int]struct {
 		result1 parsley.Pos
+	}
+	SetDescriptorStub        func(basil.BlockDescriptor)
+	setDescriptorMutex       sync.RWMutex
+	setDescriptorArgsForCall []struct {
+		arg1 basil.BlockDescriptor
 	}
 	TokenStub        func() string
 	tokenMutex       sync.RWMutex
@@ -354,6 +369,58 @@ func (fake *FakeBlockNode) EvalStageReturnsOnCall(i int, result1 basil.EvalStage
 	}
 	fake.evalStageReturnsOnCall[i] = struct {
 		result1 basil.EvalStage
+	}{result1}
+}
+
+func (fake *FakeBlockNode) Generated() bool {
+	fake.generatedMutex.Lock()
+	ret, specificReturn := fake.generatedReturnsOnCall[len(fake.generatedArgsForCall)]
+	fake.generatedArgsForCall = append(fake.generatedArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Generated", []interface{}{})
+	fake.generatedMutex.Unlock()
+	if fake.GeneratedStub != nil {
+		return fake.GeneratedStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.generatedReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockNode) GeneratedCallCount() int {
+	fake.generatedMutex.RLock()
+	defer fake.generatedMutex.RUnlock()
+	return len(fake.generatedArgsForCall)
+}
+
+func (fake *FakeBlockNode) GeneratedCalls(stub func() bool) {
+	fake.generatedMutex.Lock()
+	defer fake.generatedMutex.Unlock()
+	fake.GeneratedStub = stub
+}
+
+func (fake *FakeBlockNode) GeneratedReturns(result1 bool) {
+	fake.generatedMutex.Lock()
+	defer fake.generatedMutex.Unlock()
+	fake.GeneratedStub = nil
+	fake.generatedReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeBlockNode) GeneratedReturnsOnCall(i int, result1 bool) {
+	fake.generatedMutex.Lock()
+	defer fake.generatedMutex.Unlock()
+	fake.GeneratedStub = nil
+	if fake.generatedReturnsOnCall == nil {
+		fake.generatedReturnsOnCall = make(map[int]struct {
+			result1 bool
+		})
+	}
+	fake.generatedReturnsOnCall[i] = struct {
+		result1 bool
 	}{result1}
 }
 
@@ -680,6 +747,37 @@ func (fake *FakeBlockNode) ReaderPosReturnsOnCall(i int, result1 parsley.Pos) {
 	}{result1}
 }
 
+func (fake *FakeBlockNode) SetDescriptor(arg1 basil.BlockDescriptor) {
+	fake.setDescriptorMutex.Lock()
+	fake.setDescriptorArgsForCall = append(fake.setDescriptorArgsForCall, struct {
+		arg1 basil.BlockDescriptor
+	}{arg1})
+	fake.recordInvocation("SetDescriptor", []interface{}{arg1})
+	fake.setDescriptorMutex.Unlock()
+	if fake.SetDescriptorStub != nil {
+		fake.SetDescriptorStub(arg1)
+	}
+}
+
+func (fake *FakeBlockNode) SetDescriptorCallCount() int {
+	fake.setDescriptorMutex.RLock()
+	defer fake.setDescriptorMutex.RUnlock()
+	return len(fake.setDescriptorArgsForCall)
+}
+
+func (fake *FakeBlockNode) SetDescriptorCalls(stub func(basil.BlockDescriptor)) {
+	fake.setDescriptorMutex.Lock()
+	defer fake.setDescriptorMutex.Unlock()
+	fake.SetDescriptorStub = stub
+}
+
+func (fake *FakeBlockNode) SetDescriptorArgsForCall(i int) basil.BlockDescriptor {
+	fake.setDescriptorMutex.RLock()
+	defer fake.setDescriptorMutex.RUnlock()
+	argsForCall := fake.setDescriptorArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeBlockNode) Token() string {
 	fake.tokenMutex.Lock()
 	ret, specificReturn := fake.tokenReturnsOnCall[len(fake.tokenArgsForCall)]
@@ -858,6 +956,8 @@ func (fake *FakeBlockNode) Invocations() map[string][][]interface{} {
 	defer fake.dependenciesMutex.RUnlock()
 	fake.evalStageMutex.RLock()
 	defer fake.evalStageMutex.RUnlock()
+	fake.generatedMutex.RLock()
+	defer fake.generatedMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	fake.interpreterMutex.RLock()
@@ -870,6 +970,8 @@ func (fake *FakeBlockNode) Invocations() map[string][][]interface{} {
 	defer fake.providesMutex.RUnlock()
 	fake.readerPosMutex.RLock()
 	defer fake.readerPosMutex.RUnlock()
+	fake.setDescriptorMutex.RLock()
+	defer fake.setDescriptorMutex.RUnlock()
 	fake.tokenMutex.RLock()
 	defer fake.tokenMutex.RUnlock()
 	fake.typeMutex.RLock()

@@ -5,27 +5,37 @@ type NodeContainer struct {
 	node         Node
 	dependencies map[ID]Container
 	missingDeps  int
+	ready        func(c *NodeContainer)
+	runCount     int
 }
 
 // NewNodeContainer creates a new node container
-func NewNodeContainer(node Node, dependencies map[ID]Container) *NodeContainer {
+func NewNodeContainer(node Node, dependencies map[ID]Container, ready func(c *NodeContainer)) *NodeContainer {
 	return &NodeContainer{
 		node:         node,
 		dependencies: dependencies,
 		missingDeps:  len(dependencies),
+		ready:        ready,
 	}
+}
+
+// ID returns with the node id
+func (n *NodeContainer) ID() ID {
+	return n.node.ID()
 }
 
 // SetDependency stores the given container
 // It returns true if the node has all dependencies satisfied
-func (n *NodeContainer) SetDependency(c Container) bool {
+func (n *NodeContainer) SetDependency(c Container) {
 	if n.dependencies[c.ID()] == nil {
 		n.missingDeps--
 	}
 
 	n.dependencies[c.ID()] = c
 
-	return n.missingDeps == 0
+	if n.missingDeps == 0 {
+		n.ready(n)
+	}
 }
 
 // Node returns with the node
@@ -51,4 +61,14 @@ func (n *NodeContainer) EvalContext(ctx EvalContext) EvalContext {
 	}
 
 	return ctx.WithDependencies(dependencies)
+}
+
+// RunCount will return with the run count
+func (n *NodeContainer) RunCount() int {
+	return n.runCount
+}
+
+// IncRunCount will increase the run count by one
+func (n *NodeContainer) IncRunCount() {
+	n.runCount++
 }

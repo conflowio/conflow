@@ -97,7 +97,7 @@ func parseField(astField *ast.Field) (*Field, error) {
 		Name:        name,
 		ParamName:   paramName,
 		IsRequired:  tags.GetBool(basil.BlockTagRequired),
-		Stage:       tags.GetWithDefault(basil.BlockTagStage, "default"),
+		Stage:       tags.GetWithDefault(basil.BlockTagStage, "main"),
 		IsID:        isID,
 		IsValue:     tags.GetBool(basil.BlockTagValue),
 		IsReference: tags.GetBool(basil.BlockTagReference),
@@ -111,6 +111,10 @@ func parseField(astField *ast.Field) (*Field, error) {
 		field.IsBlock = true
 		field.IsRequired = true
 		field.IsOutput = true
+	}
+
+	if field.IsOutput {
+		field.Stage = "close"
 	}
 
 	return field, nil

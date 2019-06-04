@@ -34,7 +34,7 @@ func (i {{.Name}}Interpreter) CreateBlock(id basil.ID) basil.Block {
 	return &{{.Name}}{
 		{{.IDField.Name}}: id,
 		{{ range filterChannels .Fields -}}
-		{{ .Name }}: make(chan {{ .Type}}, 1),
+		{{ .Name }}: make(chan {{ .Type}}, 0),
 		{{ end -}}
 	}
 }
@@ -44,7 +44,12 @@ func (i {{.Name}}Interpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	{{ if filterNonID (filterParams .Fields) -}}
 	return map[basil.ID]basil.ParameterDescriptor{
 		{{ range (filterNonID (filterParams .Fields)) -}}
-		"{{.ParamName}}": { Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}},
+		"{{.ParamName}}": {
+			Type: "{{.Type}}",
+			EvalStage: basil.EvalStages["{{.Stage}}"],
+			IsRequired: {{.IsRequired}},
+			IsOutput: {{.IsOutput}},
+		},
 		{{ end -}}
 	}
 	{{ else -}}
@@ -57,7 +62,13 @@ func (i {{.Name}}Interpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	{{ if filterBlocks .Fields -}}
 	return map[basil.ID]basil.BlockDescriptor{
 		{{ range (filterBlocks .Fields) -}}
-		"{{.ParamName}}": { Type: "{{.Type}}", IsRequired: {{.IsRequired}}, IsOutput: {{.IsOutput}}, IsMany: {{ .IsMany }} },
+		"{{.ParamName}}": {
+			Type: "{{.Type}}",
+			EvalStage: basil.EvalStages["{{.Stage}}"],
+			IsRequired: {{.IsRequired}},
+			IsOutput: {{.IsOutput}},
+			IsMany: {{ .IsMany }},
+		},
 		{{ end -}}
 	}
 	{{ else -}}
@@ -127,6 +138,28 @@ func (i {{.Name}}Interpreter) SetBlock(block basil.Block, name basil.ID, value i
 	}
 	{{ end -}}
 	return nil
+}
+
+func (i {{.Name}}Interpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+	{{ if filterChannels .Fields -}}
+		b := blockContainer.Block().(*{{$root.Name}})
+		{{ range filterChannels .Fields -}}
+		go func() {
+			for cb := range b.{{ .Name }} {
+				blockContainer.PublishBlock("{{ .ParamName }}", cb)
+			}
+		}()
+		{{ end -}}
+	{{ end -}}
+}
+
+func (i {{.Name}}Interpreter) CloseChannels(blockContainer basil.BlockContainer) {
+	{{ if filterChannels .Fields -}}
+		b := blockContainer.Block().(*{{$root.Name}})
+		{{ range filterChannels .Fields -}}
+		close(b.{{ .Name }})
+		{{ end -}}
+	{{ end -}}
 }
 
 `

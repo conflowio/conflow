@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/opsidian/parsley/parsley"
@@ -46,7 +47,7 @@ type Container struct {
 	stateChan     chan containerState
 	childrenChan  chan basil.Container
 	errChan       chan parsley.Error
-	remainingJobs int
+	remainingJobs int64
 	children      map[basil.ID]*basil.NodeContainer
 	cancel        context.CancelFunc
 }
@@ -62,10 +63,13 @@ func NewContainer(
 	}
 
 	return &Container{
-		ctx:       ctx,
-		node:      node,
-		block:     block,
-		evalStage: basil.EvalStageInit,
+		ctx:          ctx,
+		node:         node,
+		block:        block,
+		evalStage:    basil.EvalStageInit,
+		stateChan:    make(chan containerState, 1),
+		childrenChan: make(chan basil.Container, 0), // We need tight synchronisation here
+		errChan:      make(chan parsley.Error, 1),
 	}
 }
 
@@ -77,6 +81,11 @@ func (c *Container) ID() basil.ID {
 // Node returns with the block node
 func (c *Container) Node() basil.BlockNode {
 	return c.node
+}
+
+// Block returns with the block instance
+func (c *Container) Block() basil.Block {
+	return c.block
 }
 
 // Value returns with the block or the error if any occurred
@@ -98,29 +107,34 @@ func (c *Container) Param(name basil.ID) interface{} {
 }
 
 func (c *Container) Run() {
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("started")
+	defer func() {
+		c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("finished")
+	}()
+
 	defer func() {
 		if c.cancel != nil {
 			c.cancel()
 		}
 	}()
 
-	c.stateChan = make(chan containerState, 1)
-	c.childrenChan = make(chan basil.Container, 1)
-	c.errChan = make(chan parsley.Error, 1)
-
 	c.stateChan <- containerStateNext
 	c.mainLoop()
 
+	// TODO: call context cancel here, but we need to initialise our own context+cancel
+
+	c.node.Interpreter().CloseChannels(c)
+
 	// Check the jobs that we never started
-	if c.remainingJobs > 0 {
+	if atomic.LoadInt64(&c.remainingJobs) > 0 {
 		for _, container := range c.children {
-			if container.Node().EvalStage() == c.evalStage && !container.Ready() {
-				c.remainingJobs--
+			if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
+				atomic.AddInt64(&c.remainingJobs, -1)
 			}
 		}
 	}
 
-	if c.remainingJobs > 0 {
+	if atomic.LoadInt64(&c.remainingJobs) > 0 {
 		c.shutdownLoop()
 	}
 }
@@ -132,13 +146,15 @@ func (c *Container) mainLoop() {
 			c.setState(state)
 
 		case child := <-c.childrenChan:
+			atomic.AddInt64(&c.remainingJobs, -1)
+
 			if err := c.setChild(child); err != nil {
 				c.setState(containerStateErrored)
 				c.err = parsley.NewError(c.node.Pos(), err)
 				return
 			}
 
-			if c.remainingJobs == 0 && c.state < containerStateFinished {
+			if atomic.LoadInt64(&c.remainingJobs) == 0 && c.state < containerStateFinished {
 				c.stateChan <- containerStateNext
 			}
 
@@ -165,17 +181,17 @@ func (c *Container) shutdownLoop() {
 	for {
 		select {
 		case child := <-c.childrenChan:
+			atomic.AddInt64(&c.remainingJobs, -1)
 			if _, err := child.Value(); err != nil {
 				// TODO: what to do with errors while shutting down?
 			}
-			c.remainingJobs--
 		case <-c.errChan:
 			// TODO: what to do with additional errors?
 		case <-shutdownTimer.C:
 			return
 		}
 
-		if c.remainingJobs == 0 {
+		if atomic.LoadInt64(&c.remainingJobs) == 0 {
 			return
 		}
 	}
@@ -196,6 +212,7 @@ func (c *Container) setState(state containerState) {
 		for _, node := range c.node.Children() {
 			c.children[node.ID()] = c.createNodeContainer(node)
 		}
+		c.node.Interpreter().ProcessChannels(c)
 
 		c.evalStage = basil.EvalStageInit
 		c.evaluateChildren()
@@ -203,6 +220,7 @@ func (c *Container) setState(state containerState) {
 		c.setBlockContext()
 
 		if _, ok := c.block.(basil.BlockInitialiser); ok {
+			atomic.AddInt64(&c.remainingJobs, 1)
 			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), basil.JobFunc(c.init)))
 		} else {
 			c.stateChan <- containerStateNext
@@ -211,7 +229,9 @@ func (c *Container) setState(state containerState) {
 		c.evalStage = basil.EvalStageMain
 		c.evaluateChildren()
 	case containerStateMain:
+		// TODO: if the block is a generator, then run the main job in a goroutine instead on the main job queue
 		if _, ok := c.block.(basil.BlockRunner); ok {
+			atomic.AddInt64(&c.remainingJobs, 1)
 			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), basil.JobFunc(c.main)))
 		} else {
 			c.stateChan <- containerStateNext
@@ -221,6 +241,7 @@ func (c *Container) setState(state containerState) {
 		c.evaluateChildren()
 	case containerStateClose:
 		if _, ok := c.block.(basil.BlockCloser); ok {
+			atomic.AddInt64(&c.remainingJobs, 1)
 			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), basil.JobFunc(c.close)))
 		} else {
 			c.stateChan <- containerStateNext
@@ -250,10 +271,10 @@ func (c *Container) createNodeContainer(node basil.Node) *basil.NodeContainer {
 		}
 	}
 
-	container := basil.NewNodeContainer(node, dependencies)
+	container := basil.NewNodeContainer(node, dependencies, c.scheduleChildJob)
 
 	for id := range dependencies {
-		c.ctx.Subscribe(id, container, c.scheduleChildJob)
+		c.ctx.Subscribe(id, container)
 	}
 
 	return container
@@ -272,10 +293,24 @@ func (c *Container) setBlockContext() {
 		userCtx = b.UserContext(userCtx)
 	}
 
-	c.ctx.SetBlockContext(basil.NewBlockContext(ctx, userCtx))
+	logger := c.ctx.BlockContext().Logger()
+	if b, ok := c.block.(basil.Loggerer); ok {
+		logger = b.Logger(logger)
+	}
+
+	c.ctx.SetBlockContext(basil.NewBlockContext(ctx, userCtx, logger))
 }
 
 func (c *Container) init() {
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("init started")
+	defer func() {
+		c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("init finished")
+	}()
+
+	defer func() {
+		atomic.AddInt64(&c.remainingJobs, -1)
+	}()
+
 	start, err := c.block.(basil.BlockInitialiser).Init(c.ctx.BlockContext())
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
@@ -290,6 +325,15 @@ func (c *Container) init() {
 }
 
 func (c *Container) main() {
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("main started")
+	defer func() {
+		c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("main finished")
+	}()
+
+	defer func() {
+		atomic.AddInt64(&c.remainingJobs, -1)
+	}()
+
 	if err := c.block.(basil.BlockRunner).Main(c.ctx.BlockContext()); err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
@@ -299,6 +343,15 @@ func (c *Container) main() {
 }
 
 func (c *Container) close() {
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("close started")
+	defer func() {
+		c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("close finished")
+	}()
+
+	defer func() {
+		atomic.AddInt64(&c.remainingJobs, -1)
+	}()
+
 	if err := c.block.(basil.BlockCloser).Close(c.ctx.BlockContext()); err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
@@ -309,20 +362,19 @@ func (c *Container) close() {
 
 func (c *Container) evaluateChildren() {
 	for _, container := range c.children {
-		if container.Node().EvalStage() == c.evalStage {
-			c.remainingJobs++
+		if container.Node().EvalStage() == c.evalStage && container.Ready() {
+			// TODO: check if we started no jobs
 			c.scheduleChildJob(container)
 		}
 	}
 
-	if c.remainingJobs == 0 {
+	if atomic.LoadInt64(&c.remainingJobs) == 0 {
 		c.stateChan <- containerStateNext
 	}
 }
 
 func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
-	// We have to make sure nodes are only evaluated in the correct evaluation stage
-	if nodeContainer.Node().EvalStage() != c.evalStage || !nodeContainer.Ready() {
+	if nodeContainer.Node().EvalStage() != c.evalStage || nodeContainer.Node().Generated() {
 		return
 	}
 
@@ -338,6 +390,11 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
 		panic(fmt.Errorf("invalid node type: %T", n))
 	}
 
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID(), "id": nodeContainer.ID()}).Msg("scheduled")
+
+	atomic.AddInt64(&c.remainingJobs, 1)
+	nodeContainer.IncRunCount()
+
 	// A block's main loop is lightweight, and evaluating parameters is cheap, so we start a goroutine only
 	// Also we don't want to block the main loop or the main job queue
 	go func() {
@@ -347,7 +404,11 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
 }
 
 func (c *Container) setChild(result basil.Container) parsley.Error {
-	c.remainingJobs--
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{
+		"blockID":       c.ID(),
+		"id":            result.ID(),
+		"remainingJobs": atomic.LoadInt64(&c.remainingJobs),
+	}).Msg("set child")
 
 	value, err := result.Value()
 	if err != nil {
@@ -389,4 +450,18 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 	c.ctx.Publish(result)
 
 	return nil
+}
+
+func (c *Container) PublishBlock(blockType basil.ID, block basil.Block) {
+	atomic.AddInt64(&c.remainingJobs, 1)
+	c.children[blockType].IncRunCount()
+
+	nodeContainer := c.children[blockType]
+	ctx := nodeContainer.EvalContext(c.ctx)
+
+	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), block)
+	container.Run()
+
+	c.childrenChan <- container
+	c.ctx.Logger().Print("CHILD SENT")
 }

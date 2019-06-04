@@ -69,3 +69,9 @@ func (i BlockWithReferenceInterpreter) SetParam(block basil.Block, name basil.ID
 func (i BlockWithReferenceInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i BlockWithReferenceInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
+}
+
+func (i BlockWithReferenceInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
+}

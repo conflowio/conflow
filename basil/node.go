@@ -10,6 +10,7 @@ type Node interface {
 	EvalStage() EvalStage
 	Dependencies() Dependencies
 	Provides() []ID
+	Generated() bool
 }
 
 // Dependencies is a variable list

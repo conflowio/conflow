@@ -44,7 +44,7 @@ var _ = Describe("ParseFields", func() {
 					ParamName: "id",
 					Type:      "string",
 					IsID:      true,
-					Stage:     "default",
+					Stage:     "main",
 				},
 			}))
 		})
@@ -74,49 +74,49 @@ var _ = Describe("ParseFields", func() {
 					ParamName: "id",
 					Type:      "string",
 					IsID:      true,
-					Stage:     "default",
+					Stage:     "main",
 				},
 				{
 					Name:      "field_string",
 					ParamName: "field_string",
 					Type:      "string",
-					Stage:     "default",
+					Stage:     "main",
 				},
 				{
 					Name:      "field_integer",
 					ParamName: "field_integer",
 					Type:      "int64",
-					Stage:     "default",
+					Stage:     "main",
 				},
 				{
 					Name:      "field_float",
 					ParamName: "field_float",
 					Type:      "float64",
-					Stage:     "default",
+					Stage:     "main",
 				},
 				{
 					Name:      "field_bool",
 					ParamName: "field_bool",
 					Type:      "bool",
-					Stage:     "default",
+					Stage:     "main",
 				},
 				{
 					Name:      "field_array",
 					ParamName: "field_array",
 					Type:      "[]interface{}",
-					Stage:     "default",
+					Stage:     "main",
 				},
 				{
 					Name:      "field_map",
 					ParamName: "field_map",
 					Type:      "map[string]interface{}",
-					Stage:     "default",
+					Stage:     "main",
 				},
 				{
 					Name:      "field_time_duration",
 					ParamName: "field_time_duration",
 					Type:      "time.Duration",
-					Stage:     "default",
+					Stage:     "main",
 				},
 			}))
 		})

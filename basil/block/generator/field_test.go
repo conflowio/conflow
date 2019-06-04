@@ -16,7 +16,7 @@ var _ = Describe("Field", func() {
 			ParamName:   "param_foo",
 			Type:        "string",
 			IsRequired:  false,
-			Stage:       "default",
+			Stage:       "main",
 			IsID:        false,
 			IsValue:     false,
 			IsReference: false,
