@@ -116,9 +116,6 @@ func (c *Container) Param(name basil.ID) interface{} {
 
 func (c *Container) Run() {
 	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("started")
-	defer func() {
-		c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("finished")
-	}()
 
 	defer func() {
 		if c.cancel != nil {
@@ -156,7 +153,10 @@ func (c *Container) mainLoop() {
 		case child := <-c.childrenChan:
 			atomic.AddInt64(&c.remainingJobs, -1)
 
-			if err := c.setChild(child); err != nil {
+			err := c.setChild(child)
+			child.Close()
+
+			if err != nil {
 				c.setState(containerStateErrored)
 				c.err = parsley.NewError(c.node.Pos(), err)
 				return
@@ -312,20 +312,24 @@ func (c *Container) setBlockContext() {
 }
 
 func (c *Container) init() {
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("init started")
 	defer func() {
-		c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("init finished")
+		if r := recover(); r != nil {
+			c.errChan <- parsley.NewErrorf(c.node.Pos(), "init stage panicked in %q: %s", c.ID(), r)
+		}
 	}()
 
-	defer func() {
-		atomic.AddInt64(&c.remainingJobs, -1)
-	}()
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("init stage started")
 
 	start, err := c.block.(basil.BlockInitialiser).Init(c.ctx.BlockContext())
+	atomic.AddInt64(&c.remainingJobs, -1)
+
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("init stage finished")
+
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
 	}
+
 	if !start {
 		c.stateChan <- containerStateSkipped
 		return
@@ -335,16 +339,20 @@ func (c *Container) init() {
 }
 
 func (c *Container) main() {
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("main started")
 	defer func() {
-		c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("main finished")
+		if r := recover(); r != nil {
+			c.errChan <- parsley.NewErrorf(c.node.Pos(), "main stage panicked in %q: %s", c.ID(), r)
+		}
 	}()
 
-	defer func() {
-		atomic.AddInt64(&c.remainingJobs, -1)
-	}()
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("main stage started")
 
-	if err := c.block.(basil.BlockRunner).Main(c.ctx.BlockContext()); err != nil {
+	err := c.block.(basil.BlockRunner).Main(c.ctx.BlockContext())
+	atomic.AddInt64(&c.remainingJobs, -1)
+
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("main stage finished")
+
+	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
 	}
@@ -353,16 +361,20 @@ func (c *Container) main() {
 }
 
 func (c *Container) close() {
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("close started")
 	defer func() {
-		c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("close finished")
+		if r := recover(); r != nil {
+			c.errChan <- parsley.NewErrorf(c.node.Pos(), "close stage panicked in %q: %s", c.ID(), r)
+		}
 	}()
 
-	defer func() {
-		atomic.AddInt64(&c.remainingJobs, -1)
-	}()
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("close stage started")
 
-	if err := c.block.(basil.BlockCloser).Close(c.ctx.BlockContext()); err != nil {
+	err := c.block.(basil.BlockCloser).Close(c.ctx.BlockContext())
+	atomic.AddInt64(&c.remainingJobs, -1)
+
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("close stage finished")
+
+	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
 	}
@@ -414,8 +426,6 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
 }
 
 func (c *Container) setChild(result basil.Container) parsley.Error {
-	defer result.Close()
-
 	c.ctx.Logger().Debug().Fields(map[string]interface{}{
 		"blockID":       c.ID(),
 		"id":            result.ID(),
@@ -491,6 +501,7 @@ func (c *Container) Close() {
 	for _, wg := range c.wgs {
 		wg.Done()
 	}
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("finished")
 }
 
 // WaitGroups returns nil

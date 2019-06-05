@@ -1,5 +1,5 @@
 ticker second_ticker {
-    interval = 1s
+    interval = 100ms
     count = 3
 
     tick tick {
