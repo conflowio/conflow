@@ -1,4 +1,4 @@
-ticker ticker {
+ticker second_ticker {
     interval = 1s
     count = 3
 
@@ -7,12 +7,12 @@ ticker ticker {
     }
 }
 
-print time {
+print {
     value = tick.prefix + string(tick.time)
     newline = true
 }
 
-print number_of_ticks {
-    value = "Number of ticks: " + string(ticker.ticks)
+print {
+    value = "Number of ticks: " + string(second_ticker.ticks)
     newline = true
 }

@@ -39,7 +39,6 @@ type Block interface {
 
 // BlockDescriptor describes a block
 type BlockDescriptor struct {
-	Type       string
 	EvalStage  EvalStage
 	IsRequired bool
 	IsOutput   bool
@@ -50,10 +49,9 @@ type BlockDescriptor struct {
 //go:generate counterfeiter . BlockContainer
 type BlockContainer interface {
 	Container
-	Node() BlockNode
 	Block() Block
 	Param(ID) interface{}
-	PublishBlock(blockType ID, block Block)
+	PublishBlock(blockType ID, block BlockMessage)
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage

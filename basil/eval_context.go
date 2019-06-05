@@ -22,13 +22,13 @@ var EvalStages = map[string]EvalStage{
 }
 
 type EvalContext interface {
-	WithDependencies(dependencies map[ID]BlockContainer) EvalContext
+	WithDependencies(map[ID]BlockContainer) EvalContext
 	BlockContext() BlockContext
-	SetBlockContext(blockContext BlockContext)
-	BlockContainer(id ID) (BlockContainer, bool)
-	ScheduleJob(job Job)
-	Subscribe(id ID, container *NodeContainer)
-	Publish(c Container)
+	SetBlockContext(BlockContext)
+	BlockContainer(ID) (BlockContainer, bool)
+	ScheduleJob(Job)
+	Subscribe(*NodeContainer, ID)
+	Publish(Container)
 	Logger() Logger
 }
 
@@ -88,8 +88,8 @@ func (e *evalContext) ScheduleJob(job Job) {
 	e.scheduler.Schedule(job)
 }
 
-func (e *evalContext) Subscribe(id ID, container *NodeContainer) {
-	e.pubsub.Subscribe(id, container)
+func (e *evalContext) Subscribe(container *NodeContainer, id ID) {
+	e.pubsub.Subscribe(container, id)
 }
 
 func (e *evalContext) Publish(c Container) {
@@ -101,32 +101,33 @@ func (e *evalContext) Logger() Logger {
 }
 
 type pubsub struct {
-	subscriptions     map[ID][]*NodeContainer
-	subscriptionsLock *sync.RWMutex
+	subs       map[ID][]*NodeContainer
+	generators map[ID][]*NodeContainer
+	mu         *sync.RWMutex
 }
 
 func newPubSub() *pubsub {
 	return &pubsub{
-		subscriptions:     make(map[ID][]*NodeContainer, 32),
-		subscriptionsLock: &sync.RWMutex{},
+		subs:       make(map[ID][]*NodeContainer),
+		generators: make(map[ID][]*NodeContainer),
+		mu:         &sync.RWMutex{},
 	}
 }
 
 // Subscribe will subscribe the given node container for the given dependency
-func (p *pubsub) Subscribe(id ID, container *NodeContainer) {
-	p.subscriptionsLock.Lock()
-	defer p.subscriptionsLock.Unlock()
-
-	p.subscriptions[id] = append(p.subscriptions[id], container)
+func (p *pubsub) Subscribe(container *NodeContainer, id ID) {
+	p.mu.Lock()
+	p.subs[id] = append(p.subs[id], container)
+	p.mu.Unlock()
 }
 
 // Publish will notify all node containers which are subscribed for the dependency
 // The ready function will run on any containers which have all dependencies satisfied
 func (p *pubsub) Publish(c Container) {
-	p.subscriptionsLock.RLock()
-	defer p.subscriptionsLock.RUnlock()
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 
-	for _, container := range p.subscriptions[c.ID()] {
+	for _, container := range p.subs[c.ID()] {
 		container.SetDependency(c)
 	}
 }

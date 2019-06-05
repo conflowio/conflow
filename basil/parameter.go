@@ -23,6 +23,5 @@ type ParameterNode interface {
 // ParameterContainer is a parameter container
 type ParameterContainer interface {
 	Container
-	Node() ParameterNode
-	Parent() BlockContainer
+	BlockContainer() BlockContainer
 }

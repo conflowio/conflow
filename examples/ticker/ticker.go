@@ -12,9 +12,9 @@ import (
 type Ticker struct {
 	id       basil.ID      `basil:"id"`
 	interval time.Duration `basil:"required"`
-	ticks    int64         `basil:"output"`
-	tick     chan *Tick    `basil:"block,output"`
 	count    int64
+	ticks    int64                   `basil:"output"`
+	tick     chan basil.BlockMessage `basil:"block,output"`
 }
 
 func (t *Ticker) Main(ctx basil.BlockContext) error {
@@ -23,12 +23,16 @@ func (t *Ticker) Main(ctx basil.BlockContext) error {
 
 	for {
 		select {
-		case time := <-ticker.C:
-			// We do a non-blocking send here, the tick will sent again at the next interval
+		case tickerTime := <-ticker.C:
+			message := basil.NewBlockMessage(&Tick{time: tickerTime})
+
+			// We do a non-blocking send here, the tick will be sent again at the next interval
 			select {
-			case t.tick <- &Tick{time: time}:
+			case t.tick <- message:
+				<-message.Done()
 			default:
 			}
+
 			t.ticks++
 			if t.count > 0 && t.ticks >= t.count {
 				return nil

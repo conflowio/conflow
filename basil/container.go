@@ -1,10 +1,17 @@
 package basil
 
-import "github.com/opsidian/parsley/parsley"
+import (
+	"sync"
+
+	"github.com/opsidian/parsley/parsley"
+)
 
 // Container is a basil object container
 type Container interface {
 	Identifiable
 	Job
+	Node() Node
 	Value() (interface{}, parsley.Error)
+	WaitGroups() []*sync.WaitGroup
+	Close()
 }

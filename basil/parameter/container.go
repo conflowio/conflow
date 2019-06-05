@@ -1,6 +1,8 @@
 package parameter
 
 import (
+	"sync"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -9,19 +11,19 @@ var _ basil.ParameterContainer = &Container{}
 
 // Container is a parameter container
 type Container struct {
-	evalCtx basil.EvalContext
-	node    basil.ParameterNode
-	parent  basil.BlockContainer
-	value   interface{}
-	err     parsley.Error
+	evalCtx        basil.EvalContext
+	node           basil.ParameterNode
+	blockContainer basil.BlockContainer
+	value          interface{}
+	err            parsley.Error
 }
 
 // NewContainer creates a new parameter container
-func NewContainer(evalCtx basil.EvalContext, node basil.ParameterNode, parent basil.BlockContainer) *Container {
+func NewContainer(evalCtx basil.EvalContext, node basil.ParameterNode, blockContainer basil.BlockContainer) *Container {
 	return &Container{
-		evalCtx: evalCtx,
-		node:    node,
-		parent:  parent,
+		evalCtx:        evalCtx,
+		node:           node,
+		blockContainer: blockContainer,
 	}
 }
 
@@ -31,13 +33,13 @@ func (c *Container) ID() basil.ID {
 }
 
 // Node returns with the parameter node
-func (c *Container) Node() basil.ParameterNode {
+func (c *Container) Node() basil.Node {
 	return c.node
 }
 
-// Parent returns with the parent block container
-func (c *Container) Parent() basil.BlockContainer {
-	return c.parent
+// BlockContainer returns with the parent block container
+func (c *Container) BlockContainer() basil.BlockContainer {
+	return c.blockContainer
 }
 
 // Value returns with the parameter value or an evaluation error
@@ -52,4 +54,12 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 // Run evaluates the parameter
 func (c *Container) Run() {
 	c.value, c.err = c.node.Value(c.evalCtx)
+}
+
+// Close does nothing
+func (c *Container) Close() {}
+
+// WaitGroups returns nil
+func (c *Container) WaitGroups() []*sync.WaitGroup {
+	return nil
 }

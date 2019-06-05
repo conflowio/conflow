@@ -14,7 +14,7 @@ type TickerInterpreter struct{}
 func (i TickerInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &Ticker{
 		id:   id,
-		tick: make(chan *Tick, 0),
+		tick: make(chan basil.BlockMessage, 0),
 	}
 }
 
@@ -27,17 +27,17 @@ func (i TickerInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 			IsRequired: true,
 			IsOutput:   false,
 		},
-		"ticks": {
-			Type:       "int64",
-			EvalStage:  basil.EvalStages["close"],
-			IsRequired: false,
-			IsOutput:   true,
-		},
 		"count": {
 			Type:       "int64",
 			EvalStage:  basil.EvalStages["main"],
 			IsRequired: false,
 			IsOutput:   false,
+		},
+		"ticks": {
+			Type:       "int64",
+			EvalStage:  basil.EvalStages["close"],
+			IsRequired: false,
+			IsOutput:   true,
 		},
 	}
 }
@@ -46,7 +46,6 @@ func (i TickerInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 func (i TickerInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"tick": {
-			Type:       "*Tick",
 			EvalStage:  basil.EvalStages["close"],
 			IsRequired: true,
 			IsOutput:   true,
@@ -81,10 +80,10 @@ func (i TickerInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 		return b.(*Ticker).id
 	case "interval":
 		return b.(*Ticker).interval
-	case "ticks":
-		return b.(*Ticker).ticks
 	case "count":
 		return b.(*Ticker).count
+	case "ticks":
+		return b.(*Ticker).ticks
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Ticker", name))
 	}
@@ -111,8 +110,8 @@ func (i TickerInterpreter) SetBlock(block basil.Block, name basil.ID, value inte
 func (i TickerInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
 	b := blockContainer.Block().(*Ticker)
 	go func() {
-		for cb := range b.tick {
-			blockContainer.PublishBlock("tick", cb)
+		for blockMessage := range b.tick {
+			blockContainer.PublishBlock("tick", blockMessage)
 		}
 	}()
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -50,6 +51,7 @@ type Container struct {
 	remainingJobs int64
 	children      map[basil.ID]*basil.NodeContainer
 	cancel        context.CancelFunc
+	wgs           []*sync.WaitGroup
 }
 
 // NewContainer creates a new block container instance
@@ -57,15 +59,21 @@ func NewContainer(
 	ctx basil.EvalContext,
 	node basil.BlockNode,
 	block basil.Block,
+	wgs []*sync.WaitGroup,
 ) *Container {
 	if block == nil {
 		block = node.Interpreter().CreateBlock(node.ID())
+	}
+
+	for _, wg := range wgs {
+		wg.Add(1)
 	}
 
 	return &Container{
 		ctx:          ctx,
 		node:         node,
 		block:        block,
+		wgs:          wgs,
 		evalStage:    basil.EvalStageInit,
 		stateChan:    make(chan containerState, 1),
 		childrenChan: make(chan basil.Container, 0), // We need tight synchronisation here
@@ -79,7 +87,7 @@ func (c *Container) ID() basil.ID {
 }
 
 // Node returns with the block node
-func (c *Container) Node() basil.BlockNode {
+func (c *Container) Node() basil.Node {
 	return c.node
 }
 
@@ -181,7 +189,9 @@ func (c *Container) shutdownLoop() {
 	for {
 		select {
 		case child := <-c.childrenChan:
+			child.Close()
 			atomic.AddInt64(&c.remainingJobs, -1)
+
 			if _, err := child.Value(); err != nil {
 				// TODO: what to do with errors while shutting down?
 			}
@@ -274,7 +284,7 @@ func (c *Container) createNodeContainer(node basil.Node) *basil.NodeContainer {
 	container := basil.NewNodeContainer(node, dependencies, c.scheduleChildJob)
 
 	for id := range dependencies {
-		c.ctx.Subscribe(id, container)
+		c.ctx.Subscribe(container, id)
 	}
 
 	return container
@@ -383,7 +393,7 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
 
 	switch n := nodeContainer.Node().(type) {
 	case basil.BlockNode:
-		container = NewContainer(ctx, n, nil)
+		container = NewContainer(ctx, n, nil, nodeContainer.WaitGroups())
 	case basil.ParameterNode:
 		container = parameter.NewContainer(ctx, n, c)
 	default:
@@ -404,6 +414,8 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
 }
 
 func (c *Container) setChild(result basil.Container) parsley.Error {
+	defer result.Close()
+
 	c.ctx.Logger().Debug().Fields(map[string]interface{}{
 		"blockID":       c.ID(),
 		"id":            result.ID(),
@@ -417,9 +429,10 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 
 	switch r := result.(type) {
 	case *parameter.Container:
-		name := r.Node().Name()
+		node := r.Node().(basil.ParameterNode)
+		name := node.Name()
 
-		if r.Node().IsDeclaration() {
+		if node.IsDeclaration() {
 			if c.extraParams == nil {
 				c.extraParams = make(map[basil.ID]interface{})
 			}
@@ -430,15 +443,16 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 
 			c.extraParams[name] = value
 		} else {
-			if err := c.node.Interpreter().SetParam(c.block, r.Node().Name(), value); err != nil {
+			if err := c.node.Interpreter().SetParam(c.block, node.Name(), value); err != nil {
 				return parsley.NewError(r.Node().Pos(), err)
 			}
 		}
 	case *Container:
+		node := r.Node().(basil.BlockNode)
 		if r.state == containerStateSkipped {
 			return nil
 		}
-		name := r.Node().BlockType()
+		name := node.BlockType()
 
 		if err := c.node.Interpreter().SetBlock(c.block, name, value); err != nil {
 			return parsley.NewError(r.Node().Pos(), err)
@@ -452,16 +466,34 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 	return nil
 }
 
-func (c *Container) PublishBlock(blockType basil.ID, block basil.Block) {
+func (c *Container) PublishBlock(blockType basil.ID, blockMessage basil.BlockMessage) {
 	atomic.AddInt64(&c.remainingJobs, 1)
-	c.children[blockType].IncRunCount()
 
+	// TODO: blockType is incorrect here as the keys are IDs
 	nodeContainer := c.children[blockType]
+	nodeContainer.IncRunCount()
+
 	ctx := nodeContainer.EvalContext(c.ctx)
 
-	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), block)
+	wg := &sync.WaitGroup{}
+	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), blockMessage.Block(), []*sync.WaitGroup{wg})
 	container.Run()
 
 	c.childrenChan <- container
-	c.ctx.Logger().Print("CHILD SENT")
+
+	// We have to wait for all containers to finish which depend on the generated block directly or indirectly
+	wg.Wait()
+	blockMessage.Close(nil)
+}
+
+// Close does nothing
+func (c *Container) Close() {
+	for _, wg := range c.wgs {
+		wg.Done()
+	}
+}
+
+// WaitGroups returns nil
+func (c *Container) WaitGroups() []*sync.WaitGroup {
+	return c.wgs
 }

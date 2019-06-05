@@ -19,6 +19,10 @@ type FakeBlockContainer struct {
 	blockReturnsOnCall map[int]struct {
 		result1 basil.Block
 	}
+	CloseStub        func()
+	closeMutex       sync.RWMutex
+	closeArgsForCall []struct {
+	}
 	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
 	iDArgsForCall []struct {
@@ -29,15 +33,15 @@ type FakeBlockContainer struct {
 	iDReturnsOnCall map[int]struct {
 		result1 basil.ID
 	}
-	NodeStub        func() basil.BlockNode
+	NodeStub        func() basil.Node
 	nodeMutex       sync.RWMutex
 	nodeArgsForCall []struct {
 	}
 	nodeReturns struct {
-		result1 basil.BlockNode
+		result1 basil.Node
 	}
 	nodeReturnsOnCall map[int]struct {
-		result1 basil.BlockNode
+		result1 basil.Node
 	}
 	ParamStub        func(basil.ID) interface{}
 	paramMutex       sync.RWMutex
@@ -50,11 +54,11 @@ type FakeBlockContainer struct {
 	paramReturnsOnCall map[int]struct {
 		result1 interface{}
 	}
-	PublishBlockStub        func(basil.ID, basil.Block)
+	PublishBlockStub        func(basil.ID, basil.BlockMessage)
 	publishBlockMutex       sync.RWMutex
 	publishBlockArgsForCall []struct {
 		arg1 basil.ID
-		arg2 basil.Block
+		arg2 basil.BlockMessage
 	}
 	RunStub        func()
 	runMutex       sync.RWMutex
@@ -71,6 +75,16 @@ type FakeBlockContainer struct {
 	valueReturnsOnCall map[int]struct {
 		result1 interface{}
 		result2 parsley.Error
+	}
+	WaitGroupsStub        func() []*sync.WaitGroup
+	waitGroupsMutex       sync.RWMutex
+	waitGroupsArgsForCall []struct {
+	}
+	waitGroupsReturns struct {
+		result1 []*sync.WaitGroup
+	}
+	waitGroupsReturnsOnCall map[int]struct {
+		result1 []*sync.WaitGroup
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -128,6 +142,29 @@ func (fake *FakeBlockContainer) BlockReturnsOnCall(i int, result1 basil.Block) {
 	}{result1}
 }
 
+func (fake *FakeBlockContainer) Close() {
+	fake.closeMutex.Lock()
+	fake.closeArgsForCall = append(fake.closeArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Close", []interface{}{})
+	fake.closeMutex.Unlock()
+	if fake.CloseStub != nil {
+		fake.CloseStub()
+	}
+}
+
+func (fake *FakeBlockContainer) CloseCallCount() int {
+	fake.closeMutex.RLock()
+	defer fake.closeMutex.RUnlock()
+	return len(fake.closeArgsForCall)
+}
+
+func (fake *FakeBlockContainer) CloseCalls(stub func()) {
+	fake.closeMutex.Lock()
+	defer fake.closeMutex.Unlock()
+	fake.CloseStub = stub
+}
+
 func (fake *FakeBlockContainer) ID() basil.ID {
 	fake.iDMutex.Lock()
 	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
@@ -180,7 +217,7 @@ func (fake *FakeBlockContainer) IDReturnsOnCall(i int, result1 basil.ID) {
 	}{result1}
 }
 
-func (fake *FakeBlockContainer) Node() basil.BlockNode {
+func (fake *FakeBlockContainer) Node() basil.Node {
 	fake.nodeMutex.Lock()
 	ret, specificReturn := fake.nodeReturnsOnCall[len(fake.nodeArgsForCall)]
 	fake.nodeArgsForCall = append(fake.nodeArgsForCall, struct {
@@ -203,32 +240,32 @@ func (fake *FakeBlockContainer) NodeCallCount() int {
 	return len(fake.nodeArgsForCall)
 }
 
-func (fake *FakeBlockContainer) NodeCalls(stub func() basil.BlockNode) {
+func (fake *FakeBlockContainer) NodeCalls(stub func() basil.Node) {
 	fake.nodeMutex.Lock()
 	defer fake.nodeMutex.Unlock()
 	fake.NodeStub = stub
 }
 
-func (fake *FakeBlockContainer) NodeReturns(result1 basil.BlockNode) {
+func (fake *FakeBlockContainer) NodeReturns(result1 basil.Node) {
 	fake.nodeMutex.Lock()
 	defer fake.nodeMutex.Unlock()
 	fake.NodeStub = nil
 	fake.nodeReturns = struct {
-		result1 basil.BlockNode
+		result1 basil.Node
 	}{result1}
 }
 
-func (fake *FakeBlockContainer) NodeReturnsOnCall(i int, result1 basil.BlockNode) {
+func (fake *FakeBlockContainer) NodeReturnsOnCall(i int, result1 basil.Node) {
 	fake.nodeMutex.Lock()
 	defer fake.nodeMutex.Unlock()
 	fake.NodeStub = nil
 	if fake.nodeReturnsOnCall == nil {
 		fake.nodeReturnsOnCall = make(map[int]struct {
-			result1 basil.BlockNode
+			result1 basil.Node
 		})
 	}
 	fake.nodeReturnsOnCall[i] = struct {
-		result1 basil.BlockNode
+		result1 basil.Node
 	}{result1}
 }
 
@@ -292,11 +329,11 @@ func (fake *FakeBlockContainer) ParamReturnsOnCall(i int, result1 interface{}) {
 	}{result1}
 }
 
-func (fake *FakeBlockContainer) PublishBlock(arg1 basil.ID, arg2 basil.Block) {
+func (fake *FakeBlockContainer) PublishBlock(arg1 basil.ID, arg2 basil.BlockMessage) {
 	fake.publishBlockMutex.Lock()
 	fake.publishBlockArgsForCall = append(fake.publishBlockArgsForCall, struct {
 		arg1 basil.ID
-		arg2 basil.Block
+		arg2 basil.BlockMessage
 	}{arg1, arg2})
 	fake.recordInvocation("PublishBlock", []interface{}{arg1, arg2})
 	fake.publishBlockMutex.Unlock()
@@ -311,13 +348,13 @@ func (fake *FakeBlockContainer) PublishBlockCallCount() int {
 	return len(fake.publishBlockArgsForCall)
 }
 
-func (fake *FakeBlockContainer) PublishBlockCalls(stub func(basil.ID, basil.Block)) {
+func (fake *FakeBlockContainer) PublishBlockCalls(stub func(basil.ID, basil.BlockMessage)) {
 	fake.publishBlockMutex.Lock()
 	defer fake.publishBlockMutex.Unlock()
 	fake.PublishBlockStub = stub
 }
 
-func (fake *FakeBlockContainer) PublishBlockArgsForCall(i int) (basil.ID, basil.Block) {
+func (fake *FakeBlockContainer) PublishBlockArgsForCall(i int) (basil.ID, basil.BlockMessage) {
 	fake.publishBlockMutex.RLock()
 	defer fake.publishBlockMutex.RUnlock()
 	argsForCall := fake.publishBlockArgsForCall[i]
@@ -402,11 +439,65 @@ func (fake *FakeBlockContainer) ValueReturnsOnCall(i int, result1 interface{}, r
 	}{result1, result2}
 }
 
+func (fake *FakeBlockContainer) WaitGroups() []*sync.WaitGroup {
+	fake.waitGroupsMutex.Lock()
+	ret, specificReturn := fake.waitGroupsReturnsOnCall[len(fake.waitGroupsArgsForCall)]
+	fake.waitGroupsArgsForCall = append(fake.waitGroupsArgsForCall, struct {
+	}{})
+	fake.recordInvocation("WaitGroups", []interface{}{})
+	fake.waitGroupsMutex.Unlock()
+	if fake.WaitGroupsStub != nil {
+		return fake.WaitGroupsStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.waitGroupsReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContainer) WaitGroupsCallCount() int {
+	fake.waitGroupsMutex.RLock()
+	defer fake.waitGroupsMutex.RUnlock()
+	return len(fake.waitGroupsArgsForCall)
+}
+
+func (fake *FakeBlockContainer) WaitGroupsCalls(stub func() []*sync.WaitGroup) {
+	fake.waitGroupsMutex.Lock()
+	defer fake.waitGroupsMutex.Unlock()
+	fake.WaitGroupsStub = stub
+}
+
+func (fake *FakeBlockContainer) WaitGroupsReturns(result1 []*sync.WaitGroup) {
+	fake.waitGroupsMutex.Lock()
+	defer fake.waitGroupsMutex.Unlock()
+	fake.WaitGroupsStub = nil
+	fake.waitGroupsReturns = struct {
+		result1 []*sync.WaitGroup
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) WaitGroupsReturnsOnCall(i int, result1 []*sync.WaitGroup) {
+	fake.waitGroupsMutex.Lock()
+	defer fake.waitGroupsMutex.Unlock()
+	fake.WaitGroupsStub = nil
+	if fake.waitGroupsReturnsOnCall == nil {
+		fake.waitGroupsReturnsOnCall = make(map[int]struct {
+			result1 []*sync.WaitGroup
+		})
+	}
+	fake.waitGroupsReturnsOnCall[i] = struct {
+		result1 []*sync.WaitGroup
+	}{result1}
+}
+
 func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.blockMutex.RLock()
 	defer fake.blockMutex.RUnlock()
+	fake.closeMutex.RLock()
+	defer fake.closeMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	fake.nodeMutex.RLock()
@@ -419,6 +510,8 @@ func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	defer fake.runMutex.RUnlock()
 	fake.valueMutex.RLock()
 	defer fake.valueMutex.RUnlock()
+	fake.waitGroupsMutex.RLock()
+	defer fake.waitGroupsMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

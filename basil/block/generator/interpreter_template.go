@@ -63,7 +63,6 @@ func (i {{.Name}}Interpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		{{ range (filterBlocks .Fields) -}}
 		"{{.ParamName}}": {
-			Type: "{{.Type}}",
 			EvalStage: basil.EvalStages["{{.Stage}}"],
 			IsRequired: {{.IsRequired}},
 			IsOutput: {{.IsOutput}},
@@ -145,8 +144,8 @@ func (i {{.Name}}Interpreter) ProcessChannels(blockContainer basil.BlockContaine
 		b := blockContainer.Block().(*{{$root.Name}})
 		{{ range filterChannels .Fields -}}
 		go func() {
-			for cb := range b.{{ .Name }} {
-				blockContainer.PublishBlock("{{ .ParamName }}", cb)
+			for blockMessage := range b.{{ .Name }} {
+				blockContainer.PublishBlock("{{ .ParamName }}", blockMessage)
 			}
 		}()
 		{{ end -}}

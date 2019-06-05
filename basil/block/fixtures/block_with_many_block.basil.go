@@ -26,7 +26,6 @@ func (i BlockWithManyBlockInterpreter) Params() map[basil.ID]basil.ParameterDesc
 func (i BlockWithManyBlockInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"block_simple": {
-			Type:       "*BlockSimple",
 			EvalStage:  basil.EvalStages["main"],
 			IsRequired: false,
 			IsOutput:   false,

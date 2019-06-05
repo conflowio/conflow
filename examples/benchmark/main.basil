@@ -1,0 +1,20 @@
+benchmark b {
+    duration = 5s
+
+    run run {
+    }
+}
+
+noop {
+    cnt := run.cnt
+}
+
+print {
+    value = "Count: " + string(b.counter)
+    newline = true
+}
+
+print {
+    value = "Elapsed: " + string(b.elapsed)
+    newline = true
+}
