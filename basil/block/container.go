@@ -38,20 +38,21 @@ var _ basil.BlockContainer = &Container{}
 
 // Container is a block container
 type Container struct {
-	ctx           basil.EvalContext
-	node          basil.BlockNode
-	block         basil.Block
-	err           parsley.Error
-	extraParams   map[basil.ID]interface{}
-	state         containerState
-	evalStage     basil.EvalStage
-	stateChan     chan containerState
-	childrenChan  chan basil.Container
-	errChan       chan parsley.Error
-	remainingJobs int64
-	children      map[basil.ID]*basil.NodeContainer
-	cancel        context.CancelFunc
-	wgs           []*sync.WaitGroup
+	ctx               basil.EvalContext
+	node              basil.BlockNode
+	block             basil.Block
+	err               parsley.Error
+	extraParams       map[basil.ID]interface{}
+	state             containerState
+	evalStage         basil.EvalStage
+	stateChan         chan containerState
+	childrenChan      chan basil.Container
+	errChan           chan parsley.Error
+	remainingJobs     int64
+	children          map[basil.ID]*basil.NodeContainer
+	generatedChildren map[basil.ID]*basil.NodeContainer
+	cancel            context.CancelFunc
+	wgs               []*sync.WaitGroup
 }
 
 // NewContainer creates a new block container instance
@@ -220,7 +221,14 @@ func (c *Container) setState(state containerState) {
 	case containerStatePreInit:
 		c.children = make(map[basil.ID]*basil.NodeContainer, len(c.node.Children()))
 		for _, node := range c.node.Children() {
-			c.children[node.ID()] = c.createNodeContainer(node)
+			if node.Generated() {
+				if c.generatedChildren == nil {
+					c.generatedChildren = make(map[basil.ID]*basil.NodeContainer, 1)
+				}
+				c.generatedChildren[node.(basil.BlockNode).BlockType()] = c.createNodeContainer(node)
+			} else {
+				c.children[node.ID()] = c.createNodeContainer(node)
+			}
 		}
 		c.node.Interpreter().ProcessChannels(c)
 
@@ -396,7 +404,7 @@ func (c *Container) evaluateChildren() {
 }
 
 func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
-	if nodeContainer.Node().EvalStage() != c.evalStage || nodeContainer.Node().Generated() {
+	if nodeContainer.Node().EvalStage() != c.evalStage {
 		return
 	}
 
@@ -479,8 +487,7 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 func (c *Container) PublishBlock(blockType basil.ID, blockMessage basil.BlockMessage) {
 	atomic.AddInt64(&c.remainingJobs, 1)
 
-	// TODO: blockType is incorrect here as the keys are IDs
-	nodeContainer := c.children[blockType]
+	nodeContainer := c.generatedChildren[blockType]
 	nodeContainer.IncRunCount()
 
 	ctx := nodeContainer.EvalContext(c.ctx)
