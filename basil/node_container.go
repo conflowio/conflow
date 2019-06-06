@@ -11,6 +11,7 @@ type NodeContainer struct {
 	runCount     int
 	generated    bool
 	waitGroups   []*sync.WaitGroup
+	mu           *sync.Mutex
 }
 
 // NewNodeContainer creates a new node container
@@ -25,6 +26,7 @@ func NewNodeContainer(
 		missingDeps:  len(dependencies),
 		ready:        ready,
 		generated:    node.Generated(),
+		mu:           &sync.Mutex{},
 	}
 }
 
@@ -35,6 +37,9 @@ func (n *NodeContainer) ID() ID {
 
 // SetDependency stores the given container
 func (n *NodeContainer) SetDependency(c Container) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+
 	if n.dependencies[c.ID()] == nil {
 		n.missingDeps--
 	}
@@ -58,7 +63,10 @@ func (n *NodeContainer) Node() Node {
 
 // Ready returns true if the node doesn't have any unsatisfied dependencies
 func (n *NodeContainer) Ready() bool {
-	return n.missingDeps == 0
+	n.mu.Lock()
+	ready := n.missingDeps == 0
+	n.mu.Unlock()
+	return ready
 }
 
 // Generated returns true if the node is generated (either directly or indirectly)
