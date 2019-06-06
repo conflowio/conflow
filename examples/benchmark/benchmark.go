@@ -32,7 +32,7 @@ func (b *Benchmark) Main(ctx basil.BlockContext) error {
 			b.counter++
 			msg := basil.NewBlockMessage(&BenchmarkRun{cnt: b.counter})
 			b.run <- msg
-			<-msg.Done()
+			<-msg.WaitGroup().Wait()
 		}
 	}
 }

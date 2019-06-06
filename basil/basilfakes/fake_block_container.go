@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -76,15 +77,15 @@ type FakeBlockContainer struct {
 		result1 interface{}
 		result2 parsley.Error
 	}
-	WaitGroupsStub        func() []*sync.WaitGroup
+	WaitGroupsStub        func() []*util.WaitGroup
 	waitGroupsMutex       sync.RWMutex
 	waitGroupsArgsForCall []struct {
 	}
 	waitGroupsReturns struct {
-		result1 []*sync.WaitGroup
+		result1 []*util.WaitGroup
 	}
 	waitGroupsReturnsOnCall map[int]struct {
-		result1 []*sync.WaitGroup
+		result1 []*util.WaitGroup
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -439,7 +440,7 @@ func (fake *FakeBlockContainer) ValueReturnsOnCall(i int, result1 interface{}, r
 	}{result1, result2}
 }
 
-func (fake *FakeBlockContainer) WaitGroups() []*sync.WaitGroup {
+func (fake *FakeBlockContainer) WaitGroups() []*util.WaitGroup {
 	fake.waitGroupsMutex.Lock()
 	ret, specificReturn := fake.waitGroupsReturnsOnCall[len(fake.waitGroupsArgsForCall)]
 	fake.waitGroupsArgsForCall = append(fake.waitGroupsArgsForCall, struct {
@@ -462,32 +463,32 @@ func (fake *FakeBlockContainer) WaitGroupsCallCount() int {
 	return len(fake.waitGroupsArgsForCall)
 }
 
-func (fake *FakeBlockContainer) WaitGroupsCalls(stub func() []*sync.WaitGroup) {
+func (fake *FakeBlockContainer) WaitGroupsCalls(stub func() []*util.WaitGroup) {
 	fake.waitGroupsMutex.Lock()
 	defer fake.waitGroupsMutex.Unlock()
 	fake.WaitGroupsStub = stub
 }
 
-func (fake *FakeBlockContainer) WaitGroupsReturns(result1 []*sync.WaitGroup) {
+func (fake *FakeBlockContainer) WaitGroupsReturns(result1 []*util.WaitGroup) {
 	fake.waitGroupsMutex.Lock()
 	defer fake.waitGroupsMutex.Unlock()
 	fake.WaitGroupsStub = nil
 	fake.waitGroupsReturns = struct {
-		result1 []*sync.WaitGroup
+		result1 []*util.WaitGroup
 	}{result1}
 }
 
-func (fake *FakeBlockContainer) WaitGroupsReturnsOnCall(i int, result1 []*sync.WaitGroup) {
+func (fake *FakeBlockContainer) WaitGroupsReturnsOnCall(i int, result1 []*util.WaitGroup) {
 	fake.waitGroupsMutex.Lock()
 	defer fake.waitGroupsMutex.Unlock()
 	fake.WaitGroupsStub = nil
 	if fake.waitGroupsReturnsOnCall == nil {
 		fake.waitGroupsReturnsOnCall = make(map[int]struct {
-			result1 []*sync.WaitGroup
+			result1 []*util.WaitGroup
 		})
 	}
 	fake.waitGroupsReturnsOnCall[i] = struct {
-		result1 []*sync.WaitGroup
+		result1 []*util.WaitGroup
 	}{result1}
 }
 

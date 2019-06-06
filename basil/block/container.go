@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/opsidian/basil/util"
 
 	"github.com/opsidian/parsley/parsley"
 
@@ -52,7 +53,7 @@ type Container struct {
 	children          map[basil.ID]*basil.NodeContainer
 	generatedChildren map[basil.ID]*basil.NodeContainer
 	cancel            context.CancelFunc
-	wgs               []*sync.WaitGroup
+	wgs               []*util.WaitGroup
 }
 
 // NewContainer creates a new block container instance
@@ -60,14 +61,10 @@ func NewContainer(
 	ctx basil.EvalContext,
 	node basil.BlockNode,
 	block basil.Block,
-	wgs []*sync.WaitGroup,
+	wgs []*util.WaitGroup,
 ) *Container {
 	if block == nil {
 		block = node.Interpreter().CreateBlock(node.ID())
-	}
-
-	for _, wg := range wgs {
-		wg.Add(1)
 	}
 
 	return &Container{
@@ -136,6 +133,7 @@ func (c *Container) Run() {
 		for _, container := range c.children {
 			if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
 				atomic.AddInt64(&c.remainingJobs, -1)
+				container.Close()
 			}
 		}
 	}
@@ -190,8 +188,8 @@ func (c *Container) shutdownLoop() {
 	for {
 		select {
 		case child := <-c.childrenChan:
-			child.Close()
 			atomic.AddInt64(&c.remainingJobs, -1)
+			child.Close()
 
 			if _, err := child.Value(); err != nil {
 				// TODO: what to do with errors while shutting down?
@@ -394,7 +392,7 @@ func (c *Container) evaluateChildren() {
 	for _, container := range c.children {
 		if container.Node().EvalStage() == c.evalStage && container.Ready() {
 			// TODO: check if we started no jobs
-			c.scheduleChildJob(container)
+			c.scheduleChildJob(container, nil)
 		}
 	}
 
@@ -403,7 +401,7 @@ func (c *Container) evaluateChildren() {
 	}
 }
 
-func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
+func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*util.WaitGroup) {
 	if nodeContainer.Node().EvalStage() != c.evalStage {
 		return
 	}
@@ -413,17 +411,21 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer) {
 
 	switch n := nodeContainer.Node().(type) {
 	case basil.BlockNode:
-		container = NewContainer(ctx, n, nil, nodeContainer.WaitGroups())
+		container = NewContainer(ctx, n, nil, wgs)
 	case basil.ParameterNode:
 		container = parameter.NewContainer(ctx, n, c)
 	default:
 		panic(fmt.Errorf("invalid node type: %T", n))
 	}
 
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID(), "id": nodeContainer.ID()}).Msg("scheduled")
-
 	atomic.AddInt64(&c.remainingJobs, 1)
 	nodeContainer.IncRunCount()
+
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{
+		"blockID":       c.ID(),
+		"id":            nodeContainer.ID(),
+		"remainingJobs": atomic.LoadInt64(&c.remainingJobs),
+	}).Msg("scheduled")
 
 	// A block's main loop is lightweight, and evaluating parameters is cheap, so we start a goroutine only
 	// Also we don't want to block the main loop or the main job queue
@@ -492,26 +494,25 @@ func (c *Container) PublishBlock(blockType basil.ID, blockMessage basil.BlockMes
 
 	ctx := nodeContainer.EvalContext(c.ctx)
 
-	wg := &sync.WaitGroup{}
-	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), blockMessage.Block(), []*sync.WaitGroup{wg})
+	wgs := []*util.WaitGroup{blockMessage.WaitGroup()}
+	blockMessage.WaitGroup().Add(1)
+	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), blockMessage.Block(), wgs)
 	container.Run()
 
 	c.childrenChan <- container
 
-	// We have to wait for all containers to finish which depend on the generated block directly or indirectly
-	wg.Wait()
-	blockMessage.Close(nil)
+	blockMessage.WaitGroup().Wait()
 }
 
 // Close does nothing
 func (c *Container) Close() {
 	for _, wg := range c.wgs {
-		wg.Done()
+		wg.Done(c.err)
 	}
 	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("finished")
 }
 
 // WaitGroups returns nil
-func (c *Container) WaitGroups() []*sync.WaitGroup {
+func (c *Container) WaitGroups() []*util.WaitGroup {
 	return c.wgs
 }

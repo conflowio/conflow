@@ -1,9 +1,8 @@
 package parameter
 
 import (
-	"sync"
-
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -60,6 +59,6 @@ func (c *Container) Run() {
 func (c *Container) Close() {}
 
 // WaitGroups returns nil
-func (c *Container) WaitGroups() []*sync.WaitGroup {
+func (c *Container) WaitGroups() []*util.WaitGroup {
 	return nil
 }

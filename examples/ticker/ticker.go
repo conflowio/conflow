@@ -29,7 +29,7 @@ func (t *Ticker) Main(ctx basil.BlockContext) error {
 			// We do a non-blocking send here, the tick will be sent again at the next interval
 			select {
 			case t.tick <- message:
-				<-message.Done()
+				<-message.WaitGroup().Wait()
 			default:
 			}
 

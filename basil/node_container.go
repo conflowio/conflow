@@ -1,16 +1,21 @@
 package basil
 
-import "sync"
+import (
+	"errors"
+	"sync"
+
+	"github.com/opsidian/basil/util"
+)
 
 // NodeContainer wraps a node and registers the dependencies as they become available
 type NodeContainer struct {
 	node         Node
 	dependencies map[ID]Container
 	missingDeps  int
-	ready        func(*NodeContainer)
+	ready        func(*NodeContainer, []*util.WaitGroup)
 	runCount     int
 	generated    bool
-	waitGroups   []*sync.WaitGroup
+	waitGroups   []*util.WaitGroup
 	mu           *sync.Mutex
 }
 
@@ -18,7 +23,7 @@ type NodeContainer struct {
 func NewNodeContainer(
 	node Node,
 	dependencies map[ID]Container,
-	ready func(*NodeContainer),
+	ready func(*NodeContainer, []*util.WaitGroup),
 ) *NodeContainer {
 	return &NodeContainer{
 		node:         node,
@@ -47,11 +52,12 @@ func (n *NodeContainer) SetDependency(c Container) {
 	n.dependencies[c.ID()] = c
 
 	for _, wg := range c.WaitGroups() {
+		wg.Add(1)
 		n.waitGroups = append(n.waitGroups, wg)
 	}
 
 	if n.missingDeps == 0 {
-		n.ready(n)
+		n.ready(n, n.waitGroups)
 		n.waitGroups = nil
 	}
 }
@@ -99,7 +105,10 @@ func (n *NodeContainer) IncRunCount() {
 	n.runCount++
 }
 
-// WaitGroups returns with the registered wait groups
-func (n *NodeContainer) WaitGroups() []*sync.WaitGroup {
-	return n.waitGroups
+func (n *NodeContainer) Close() {
+	n.mu.Lock()
+	for _, wg := range n.waitGroups {
+		wg.Done(errors.New("aborted"))
+	}
+	n.mu.Unlock()
 }
