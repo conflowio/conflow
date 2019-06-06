@@ -158,7 +158,7 @@ func TransformChildren(
 				return nil, nil, err
 			}
 			blockNode := res.(basil.BlockNode)
-			blockNode.SetDescriptor(blocks[blockNode.ID()])
+			blockNode.SetDescriptor(blocks[blockNode.BlockType()])
 			basilNodes = append(basilNodes, blockNode)
 		} else if node.Token() == TokenParameter {
 			paramNode, err := parameter.TransformNode(parseCtx, node, blockID, paramNames)
