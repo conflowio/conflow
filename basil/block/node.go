@@ -78,7 +78,7 @@ func (n *Node) Generated() bool {
 // SetDescriptor applies the descriptor parameters to the node
 func (n *Node) SetDescriptor(descriptor basil.BlockDescriptor) {
 	n.evalStage = descriptor.EvalStage
-	n.generated = descriptor.IsOutput
+	n.generated = descriptor.IsGenerated
 }
 
 // Provides returns with the all the defined blocked node ids inside this block

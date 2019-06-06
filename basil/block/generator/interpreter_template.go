@@ -64,9 +64,9 @@ func (i {{.Name}}Interpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 		{{ range (filterBlocks .Fields) -}}
 		"{{.ParamName}}": {
 			EvalStage: basil.EvalStages["{{.Stage}}"],
+			IsGenerated: {{.IsChannel}},
 			IsRequired: {{.IsRequired}},
-			IsOutput: {{.IsOutput}},
-			IsMany: {{ .IsMany }},
+			IsMany: {{.IsMany}},
 		},
 		{{ end -}}
 	}

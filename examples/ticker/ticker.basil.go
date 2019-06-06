@@ -46,10 +46,10 @@ func (i TickerInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 func (i TickerInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"tick": {
-			EvalStage:  basil.EvalStages["close"],
-			IsRequired: true,
-			IsOutput:   true,
-			IsMany:     false,
+			EvalStage:   basil.EvalStages["close"],
+			IsGenerated: true,
+			IsRequired:  true,
+			IsMany:      false,
 		},
 	}
 }

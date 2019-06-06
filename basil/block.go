@@ -39,10 +39,10 @@ type Block interface {
 
 // BlockDescriptor describes a block
 type BlockDescriptor struct {
-	EvalStage  EvalStage
-	IsRequired bool
-	IsOutput   bool
-	IsMany     bool
+	EvalStage   EvalStage
+	IsRequired  bool
+	IsGenerated bool
+	IsMany      bool
 }
 
 // BlockContainer is a simple wrapper around a block object

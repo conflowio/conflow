@@ -110,7 +110,6 @@ func parseField(astField *ast.Field) (*Field, error) {
 	if field.IsChannel {
 		field.IsBlock = true
 		field.IsRequired = true
-		field.IsOutput = true
 	}
 
 	if field.IsOutput {

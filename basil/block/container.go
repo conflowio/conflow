@@ -74,7 +74,7 @@ func NewContainer(
 		wgs:          wgs,
 		evalStage:    basil.EvalStageInit,
 		stateChan:    make(chan containerState, 1),
-		childrenChan: make(chan basil.Container, 0), // We need tight synchronisation here
+		childrenChan: make(chan basil.Container, 8),
 		errChan:      make(chan parsley.Error, 1),
 	}
 }
@@ -128,13 +128,15 @@ func (c *Container) Run() {
 
 	c.node.Interpreter().CloseChannels(c)
 
-	// Check the jobs that we never started
-	if atomic.LoadInt64(&c.remainingJobs) > 0 {
-		for _, container := range c.children {
-			if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
-				atomic.AddInt64(&c.remainingJobs, -1)
-				container.Close()
-			}
+	for _, container := range c.generatedChildren {
+		container.Close()
+	}
+
+	for _, container := range c.children {
+		container.Close()
+		if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
+			c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("started")
+			atomic.AddInt64(&c.remainingJobs, -1)
 		}
 	}
 
@@ -150,7 +152,13 @@ func (c *Container) mainLoop() {
 			c.setState(state)
 
 		case child := <-c.childrenChan:
-			atomic.AddInt64(&c.remainingJobs, -1)
+			remainingJobs := atomic.AddInt64(&c.remainingJobs, -1)
+
+			c.ctx.Logger().Debug().Fields(map[string]interface{}{
+				"blockID":       c.ID(),
+				"id":            child.ID(),
+				"remainingJobs": remainingJobs,
+			}).Msg("child received")
 
 			err := c.setChild(child)
 			child.Close()
@@ -171,6 +179,10 @@ func (c *Container) mainLoop() {
 			return
 
 		case <-c.ctx.BlockContext().Context().Done():
+			c.ctx.Logger().Debug().Fields(map[string]interface{}{
+				"blockID": c.ID(),
+			}).Msg("aborting")
+
 			c.setState(containerStateAborted)
 			c.err = parsley.NewError(c.node.Pos(), errors.New("aborted"))
 			return
@@ -183,12 +195,25 @@ func (c *Container) mainLoop() {
 }
 
 func (c *Container) shutdownLoop() {
+	c.ctx.Logger().Debug().Fields(map[string]interface{}{
+		"blockID":       c.ID(),
+		"remainingJobs": atomic.LoadInt64(&c.remainingJobs),
+	}).Msg("graceful shutdown")
+
 	shutdownTimer := time.NewTimer(time.Duration(ContainerGracefulTimeoutSec) * time.Second)
 
 	for {
 		select {
+		case <-c.stateChan:
 		case child := <-c.childrenChan:
-			atomic.AddInt64(&c.remainingJobs, -1)
+			remainingJobs := atomic.AddInt64(&c.remainingJobs, -1)
+
+			c.ctx.Logger().Debug().Fields(map[string]interface{}{
+				"blockID":       c.ID(),
+				"id":            child.ID(),
+				"remainingJobs": remainingJobs,
+			}).Msg("child received")
+
 			child.Close()
 
 			if _, err := child.Value(); err != nil {
@@ -436,12 +461,6 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*
 }
 
 func (c *Container) setChild(result basil.Container) parsley.Error {
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{
-		"blockID":       c.ID(),
-		"id":            result.ID(),
-		"remainingJobs": atomic.LoadInt64(&c.remainingJobs),
-	}).Msg("set child")
-
 	value, err := result.Value()
 	if err != nil {
 		return err
@@ -501,7 +520,10 @@ func (c *Container) PublishBlock(blockType basil.ID, blockMessage basil.BlockMes
 
 	c.childrenChan <- container
 
-	blockMessage.WaitGroup().Wait()
+	select {
+	case <-blockMessage.WaitGroup().Wait():
+	case <-c.ctx.BlockContext().Context().Done():
+	}
 }
 
 // Close does nothing

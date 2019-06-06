@@ -81,10 +81,10 @@ func (i TestBlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 func (i TestBlockInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"testblock": {
-			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
-			IsOutput:   false,
-			IsMany:     true,
+			EvalStage:   basil.EvalStages["main"],
+			IsGenerated: false,
+			IsRequired:  false,
+			IsMany:      true,
 		},
 	}
 }

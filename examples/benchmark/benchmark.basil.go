@@ -46,10 +46,10 @@ func (i BenchmarkInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 func (i BenchmarkInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"run": {
-			EvalStage:  basil.EvalStages["close"],
-			IsRequired: true,
-			IsOutput:   true,
-			IsMany:     false,
+			EvalStage:   basil.EvalStages["close"],
+			IsGenerated: true,
+			IsRequired:  true,
+			IsMany:      false,
 		},
 	}
 }
