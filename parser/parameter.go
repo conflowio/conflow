@@ -22,6 +22,7 @@ func Parameter(p parsley.Parser) *combinator.Sequence {
 	parameterValue := combinator.Choice(
 		Array(p, text.WsSpacesNl),
 		Map(p),
+		MultilineText(),
 		p,
 	)
 	return combinator.SeqOf(
