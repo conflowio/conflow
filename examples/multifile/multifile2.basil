@@ -1,4 +1,3 @@
-print {
+println {
     value = "foo was defined in a separate file and has a value: " + main.foo
-    newline = true
 }

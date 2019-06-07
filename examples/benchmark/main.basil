@@ -9,12 +9,10 @@ noop {
     cnt := run.cnt
 }
 
-print {
+println {
     value = "Count: " + string(b.counter)
-    newline = true
 }
 
-print {
+println {
     value = "Elapsed: " + string(b.elapsed)
-    newline = true
 }

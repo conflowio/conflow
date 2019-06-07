@@ -7,12 +7,10 @@ ticker second_ticker {
     }
 }
 
-print {
+println {
     value = tick.prefix + string(tick.time)
-    newline = true
 }
 
-print {
+println {
     value = "Number of ticks: " + string(second_ticker.ticks)
-    newline = true
 }

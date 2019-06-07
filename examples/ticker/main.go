@@ -19,8 +19,9 @@ type Main struct {
 func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"ticker": TickerInterpreter{},
-			"print":  common.PrintInterpreter{},
+			"ticker":  TickerInterpreter{},
+			"print":   common.PrintInterpreter{},
+			"println": common.PrintlnInterpreter{},
 		},
 		FunctionTransformerRegistry: function.Registry(),
 	}

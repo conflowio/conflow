@@ -22,6 +22,7 @@ func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 			"benchmark": BenchmarkInterpreter{},
 			"noop":      common.NoopInterpreter{},
 			"print":     common.PrintInterpreter{},
+			"println":   common.PrintlnInterpreter{},
 		},
 		FunctionTransformerRegistry: function.Registry(),
 	}
