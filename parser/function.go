@@ -23,7 +23,7 @@ import (
 //          -> P ("," P)*
 func Function(p parsley.Parser) *combinator.Sequence {
 	return combinator.SeqOf(
-		ID(),
+		ID(basil.FunctionNameRegExpPattern),
 		terminal.Rune('('),
 		text.LeftTrim(SepByComma(p, text.WsSpaces), text.WsSpaces),
 		text.LeftTrim(terminal.Rune(')'), text.WsSpaces),

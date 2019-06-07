@@ -61,7 +61,7 @@ func Block(expr parsley.Parser) *combinator.Sequence {
 	).Name("block value")
 
 	p = *combinator.SeqTry(
-		combinator.SeqTry(ID(), text.LeftTrim(ID(), text.WsSpaces)),
+		combinator.SeqTry(ID(basil.IDRegExpPattern), text.LeftTrim(ID(basil.IDRegExpPattern), text.WsSpaces)),
 		text.LeftTrim(blockValue, text.WsSpaces),
 	).Name("block definition").Token(block.TokenBlock).Bind(blockInterpreter{})
 

@@ -29,9 +29,9 @@ func ParseCtx(
 ) *parsley.Context {
 	if functionRegistry == nil {
 		functionRegistry = function.InterpreterRegistry{
-			"test_func0": TestFunc0Interpreter{},
-			"test_func1": TestFunc1Interpreter{},
-			"test_func2": TestFunc2Interpreter{},
+			"test.func0": TestFunc0Interpreter{},
+			"test.func1": TestFunc1Interpreter{},
+			"test.func2": TestFunc2Interpreter{},
 		}
 	}
 

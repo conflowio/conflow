@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
@@ -18,7 +19,7 @@ func Parameter(p parsley.Parser) *combinator.Sequence {
 		p,
 	)
 	return combinator.SeqOf(
-		ID(),
+		ID(basil.IDRegExpPattern),
 		text.LeftTrim(combinator.Choice(terminal.Rune('='), terminal.Op(":=")), text.WsSpaces),
 		text.LeftTrim(parameterValue, text.WsSpaces),
 	).Token(block.TokenParameter)

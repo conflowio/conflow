@@ -12,7 +12,7 @@ import (
 
 var _ = Describe("ID", func() {
 
-	p := parser.ID()
+	p := parser.ID(basil.IDRegExpPattern)
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {

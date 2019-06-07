@@ -4,6 +4,9 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
+// FunctionNameRegExpPattern defines a valid function name
+const FunctionNameRegExpPattern = IDRegExpPattern + "(?:\\." + IDRegExpPattern + ")?"
+
 // FunctionNode is the AST node for a function
 //go:generate counterfeiter . FunctionNode
 type FunctionNode interface {

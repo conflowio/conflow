@@ -44,7 +44,7 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`1h30m`, time.Hour+30*time.Minute),
 
 		// Function
-		test.TableEntry(`test_func1(test_func1("fOO"))`, "FOO"),
+		test.TableEntry(`test.func1(test.func1("fOO"))`, "FOO"),
 
 		// Boolean not
 		test.TableEntry("!true", !true),

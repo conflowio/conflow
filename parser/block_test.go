@@ -189,7 +189,7 @@ var _ = Describe("Block parser", func() {
 		Entry(
 			"function call in parameter value",
 			`testblock {
-				field_string = test_func2("foo", "bar")
+				field_string = test.func2("foo", "bar")
 			}`,
 			&test.TestBlock{IDField: "0", FieldString: "foobar"},
 		),

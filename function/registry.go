@@ -1,29 +1,34 @@
 package function
 
-import "github.com/opsidian/basil/basil/function"
+import (
+	"github.com/opsidian/basil/basil/function"
+	"github.com/opsidian/basil/function/json"
+	"github.com/opsidian/basil/function/math"
+	"github.com/opsidian/basil/function/strings"
+)
 
 func Registry() function.InterpreterRegistry {
 	return function.InterpreterRegistry{
-		"abs":             AbsInterpreter{},
-		"array_contains":  ArrayContainsInterpreter{},
-		"ceil":            CeilInterpreter{},
-		"floor":           FloorInterpreter{},
-		"has_prefix":      HasPrefixInterpreter{},
-		"has_suffix":      HasSuffixInterpreter{},
-		"is_empty":        IsEmptyInterpreter{},
-		"join":            JoinInterpreter{},
-		"json_decode":     JSONDecodeInterpreter{},
-		"json_encode":     JSONEncodeInterpreter{},
-		"len":             LenInterpreter{},
-		"lower":           LowerInterpreter{},
-		"replace":         ReplaceInterpreter{},
-		"split":           SplitInterpreter{},
-		"string":          StringInterpreter{},
-		"string_contains": StringContainsInterpreter{},
-		"title":           TitleInterpreter{},
-		"trim_prefix":     TrimPrefixInterpreter{},
-		"trim_space":      TrimSpaceInterpreter{},
-		"trim_suffix":     TrimSuffixInterpreter{},
-		"upper":           UpperInterpreter{},
+		"array_contains":          ArrayContainsInterpreter{},
+		"is_empty":                IsEmptyInterpreter{},
+		"len":                     LenInterpreter{},
+		"string":                  StringInterpreter{},
+		"math.abs":                math.AbsInterpreter{},
+		"math.ceil":               math.CeilInterpreter{},
+		"math.floor":              math.FloorInterpreter{},
+		"strings.has_prefix":      strings.HasPrefixInterpreter{},
+		"strings.has_suffix":      strings.HasSuffixInterpreter{},
+		"strings.join":            strings.JoinInterpreter{},
+		"strings.lower":           strings.LowerInterpreter{},
+		"strings.replace":         strings.ReplaceInterpreter{},
+		"strings.split":           strings.SplitInterpreter{},
+		"strings.string_contains": strings.ContainsInterpreter{},
+		"strings.title":           strings.TitleInterpreter{},
+		"strings.trim_prefix":     strings.TrimPrefixInterpreter{},
+		"strings.trim_space":      strings.TrimSpaceInterpreter{},
+		"strings.trim_suffix":     strings.TrimSuffixInterpreter{},
+		"strings.upper":           strings.UpperInterpreter{},
+		"json_decode":             json.DecodeInterpreter{},
+		"json_encode":             json.EncodeInterpreter{},
 	}
 }
