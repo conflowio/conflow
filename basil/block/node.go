@@ -141,6 +141,8 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			if param.IsRequired {
 				requiredParams[c.Name()] = true
 			}
+		default:
+			panic(fmt.Errorf("invalid node type: %T", child))
 		}
 	}
 

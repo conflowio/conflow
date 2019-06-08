@@ -8,6 +8,7 @@ package block
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/opsidian/basil/basil/dependency"
 	"github.com/opsidian/basil/basil/parameter"
@@ -169,6 +170,8 @@ func TransformChildren(
 				paramNode.SetDescriptor(parameters[paramNode.ID()])
 			}
 			basilNodes = append(basilNodes, paramNode)
+		} else {
+			panic(fmt.Errorf("invalid block child node: %T", node))
 		}
 	}
 
