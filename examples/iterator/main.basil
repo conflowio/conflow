@@ -1,0 +1,20 @@
+colors := ["green", "red", "blue"]
+shapes := ["circle", "rectangle", "triangle"]
+
+iterator {
+    count = len(main.colors)
+    it i1
+}
+
+do print_colors {
+    color := main.colors[i1.value]
+
+    iterator {
+        count = len(main.shapes)
+        it i2
+    }
+
+    println {
+        value = print_colors.color + " " + main.shapes[i2.value]
+    }
+}
