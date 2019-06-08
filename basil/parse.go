@@ -9,6 +9,8 @@ package basil
 import (
 	"fmt"
 
+	"github.com/opsidian/parsley/combinator"
+
 	"github.com/opsidian/parsley/ast"
 
 	"github.com/opsidian/parsley/parsley"
@@ -32,7 +34,7 @@ func ParseFile(ctx *ParseContext, p parsley.Parser, path string) error {
 	parsleyCtx.RegisterKeywords(keywords...)
 	parsleyCtx.SetUserContext(ctx)
 
-	if _, err := parsley.Parse(parsleyCtx, p); err != nil {
+	if _, err := parsley.Parse(parsleyCtx, combinator.Sentence(p)); err != nil {
 		return err
 	}
 
@@ -61,7 +63,7 @@ func ParseFiles(
 		parsleyCtx.RegisterKeywords(Keywords...)
 		parsleyCtx.SetUserContext(ctx)
 
-		node, parseErr := parsley.Parse(parsleyCtx, p)
+		node, parseErr := parsley.Parse(parsleyCtx, combinator.Sentence(p))
 		if parseErr != nil {
 			return parseErr
 		}
