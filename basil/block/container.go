@@ -119,7 +119,7 @@ func (c *Container) Param(name basil.ID) interface{} {
 }
 
 func (c *Container) Run() {
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("started")
+	c.debug().Msg("starting")
 
 	defer func() {
 		if c.cancel != nil {
@@ -141,7 +141,6 @@ func (c *Container) Run() {
 	for _, container := range c.children {
 		container.Close()
 		if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
-			c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("started")
 			atomic.AddInt64(&c.remainingJobs, -1)
 		}
 	}
@@ -158,13 +157,9 @@ func (c *Container) mainLoop() {
 			c.setState(state)
 
 		case child := <-c.childrenChan:
-			remainingJobs := atomic.AddInt64(&c.remainingJobs, -1)
+			atomic.AddInt64(&c.remainingJobs, -1)
 
-			c.ctx.Logger().Debug().Fields(map[string]interface{}{
-				"blockID":       c.ID(),
-				"id":            child.ID(),
-				"remainingJobs": remainingJobs,
-			}).Msg("child received")
+			c.debug().ID("childID", child.ID()).Msg("child received")
 
 			err := c.setChild(child)
 			child.Close()
@@ -185,10 +180,6 @@ func (c *Container) mainLoop() {
 			return
 
 		case <-c.ctx.BlockContext().Context().Done():
-			c.ctx.Logger().Debug().Fields(map[string]interface{}{
-				"blockID": c.ID(),
-			}).Msg("aborting")
-
 			c.setState(containerStateAborted)
 			c.err = parsley.NewError(c.node.Pos(), errors.New("aborted"))
 			return
@@ -201,10 +192,7 @@ func (c *Container) mainLoop() {
 }
 
 func (c *Container) shutdownLoop() {
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{
-		"blockID":       c.ID(),
-		"remainingJobs": atomic.LoadInt64(&c.remainingJobs),
-	}).Msg("graceful shutdown")
+	c.debug().Msg("starting graceful shutdown")
 
 	shutdownTimer := time.NewTimer(time.Duration(ContainerGracefulTimeoutSec) * time.Second)
 
@@ -212,21 +200,17 @@ func (c *Container) shutdownLoop() {
 		select {
 		case <-c.stateChan:
 		case child := <-c.childrenChan:
-			remainingJobs := atomic.AddInt64(&c.remainingJobs, -1)
+			atomic.AddInt64(&c.remainingJobs, -1)
 
-			c.ctx.Logger().Debug().Fields(map[string]interface{}{
-				"blockID":       c.ID(),
-				"id":            child.ID(),
-				"remainingJobs": remainingJobs,
-			}).Msg("child received")
+			c.debug().ID("childID", child.ID()).Msg("child received")
 
 			child.Close()
 
 			if _, err := child.Value(); err != nil {
-				// TODO: what to do with errors while shutting down?
+				c.logError(err).ID("childID", child.ID()).Msg("")
 			}
-		case <-c.errChan:
-			// TODO: what to do with additional errors?
+		case err := <-c.errChan:
+			c.logError(err).Msg("")
 		case <-shutdownTimer.C:
 			return
 		}
@@ -295,10 +279,13 @@ func (c *Container) setState(state containerState) {
 		}
 	case containerStateFinished:
 	case containerStateSkipped:
+		c.debug().Msg("skipped")
 		// TODO: notify block about skipped task
 	case containerStateErrored:
+		c.logError(c.err)
 		// TODO: notify block about error
 	case containerStateAborted:
+		c.logError(c.err)
 		// TODO: notify block about abort
 	default:
 		panic("invalid container state")
@@ -355,12 +342,12 @@ func (c *Container) init() {
 		}
 	}()
 
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("init stage started")
+	c.debug().Msg("init stage started")
 
 	start, err := c.block.(basil.BlockInitialiser).Init(c.ctx.BlockContext())
 	atomic.AddInt64(&c.remainingJobs, -1)
 
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("init stage finished")
+	c.debug().Msg("init stage finished")
 
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
@@ -382,12 +369,12 @@ func (c *Container) main() {
 		}
 	}()
 
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("main stage started")
+	c.debug().Msg("main stage started")
 
 	err := c.block.(basil.BlockRunner).Main(c.ctx.BlockContext())
 	atomic.AddInt64(&c.remainingJobs, -1)
 
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("main stage finished")
+	c.debug().Msg("main stage finished")
 
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
@@ -404,12 +391,12 @@ func (c *Container) close() {
 		}
 	}()
 
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("close stage started")
+	c.debug().Msg("close stage started")
 
 	err := c.block.(basil.BlockCloser).Close(c.ctx.BlockContext())
 	atomic.AddInt64(&c.remainingJobs, -1)
 
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("close stage finished")
+	c.debug().Msg("close stage finished")
 
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
@@ -452,11 +439,7 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*
 	atomic.AddInt64(&c.remainingJobs, 1)
 	nodeContainer.IncRunCount()
 
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{
-		"blockID":       c.ID(),
-		"id":            nodeContainer.ID(),
-		"remainingJobs": atomic.LoadInt64(&c.remainingJobs),
-	}).Msg("scheduled")
+	c.debug().ID("childID", nodeContainer.ID()).Msg("child scheduled")
 
 	// A block's main loop is lightweight, and evaluating parameters is cheap, so we start a goroutine only
 	// Also we don't want to block the main loop or the main job queue
@@ -537,10 +520,27 @@ func (c *Container) Close() {
 	for _, wg := range c.wgs {
 		wg.Done(c.err)
 	}
-	c.ctx.Logger().Debug().Fields(map[string]interface{}{"blockID": c.ID()}).Msg("finished")
+	c.debug().Msg("finished")
 }
 
 // WaitGroups returns nil
 func (c *Container) WaitGroups() []*util.WaitGroup {
 	return c.wgs
+}
+
+func (c *Container) debug() basil.LogEvent {
+	return c.ctx.Logger().Debug().
+		ID("id", c.ID()).
+		ID("type", c.node.BlockType()).
+		Uint8("state", uint8(c.state)).
+		Int64("remainingJobs", atomic.LoadInt64(&c.remainingJobs))
+}
+
+func (c *Container) logError(err error) basil.LogEvent {
+	return c.ctx.Logger().Error().
+		ID("id", c.ID()).
+		ID("type", c.node.BlockType()).
+		Uint8("state", uint8(c.state)).
+		Int64("remainingJobs", atomic.LoadInt64(&c.remainingJobs)).
+		Err(err)
 }
