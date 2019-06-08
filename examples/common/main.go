@@ -23,7 +23,6 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 		level = zerolog.DebugLevel
 	}
 
-	zerolog.TimeFieldFormat = basil.LogTimeFormat
 	zl := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "15:04:05.000"}).With().
 		Timestamp().
 		Logger().
