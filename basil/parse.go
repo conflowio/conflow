@@ -68,6 +68,7 @@ func ParseFiles(
 			return parseErr
 		}
 
+		node = node.(*ast.NonTerminalNode).Children()[0]
 		children = append(children, node.(*ast.NonTerminalNode).Children()...)
 	}
 
