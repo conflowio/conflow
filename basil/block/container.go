@@ -311,6 +311,8 @@ func (c *Container) createNodeContainer(node basil.Node) *basil.NodeContainer {
 		c.ctx.Subscribe(container, id)
 	}
 
+	// TODO: we might want to unsubscribe when finished?
+
 	return container
 }
 

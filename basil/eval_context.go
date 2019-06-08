@@ -107,23 +107,24 @@ func (e *evalContext) Logger() Logger {
 }
 
 type pubsub struct {
-	subs       map[ID][]*NodeContainer
-	generators map[ID][]*NodeContainer
-	mu         *sync.RWMutex
+	subs map[ID]map[ID]*NodeContainer
+	mu   *sync.RWMutex
 }
 
 func newPubSub() *pubsub {
 	return &pubsub{
-		subs:       make(map[ID][]*NodeContainer),
-		generators: make(map[ID][]*NodeContainer),
-		mu:         &sync.RWMutex{},
+		subs: make(map[ID]map[ID]*NodeContainer),
+		mu:   &sync.RWMutex{},
 	}
 }
 
 // Subscribe will subscribe the given node container for the given dependency
 func (p *pubsub) Subscribe(container *NodeContainer, id ID) {
 	p.mu.Lock()
-	p.subs[id] = append(p.subs[id], container)
+	if _, ok := p.subs[id]; !ok {
+		p.subs[id] = make(map[ID]*NodeContainer)
+	}
+	p.subs[id][container.ID()] = container
 	p.mu.Unlock()
 }
 
