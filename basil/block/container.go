@@ -238,9 +238,9 @@ func (c *Container) setState(state containerState) {
 				if c.generatedChildren == nil {
 					c.generatedChildren = make(map[basil.ID]*basil.NodeContainer, 1)
 				}
-				c.generatedChildren[node.(basil.BlockNode).BlockType()] = c.createNodeContainer(node)
+				c.generatedChildren[node.(basil.BlockNode).BlockType()] = c.createChildNodeContainer(node)
 			} else {
-				c.children[node.ID()] = c.createNodeContainer(node)
+				c.children[node.ID()] = c.createChildNodeContainer(node)
 			}
 		}
 		c.node.Interpreter().ProcessChannels(c)
@@ -292,7 +292,7 @@ func (c *Container) setState(state containerState) {
 	}
 }
 
-func (c *Container) createNodeContainer(node basil.Node) *basil.NodeContainer {
+func (c *Container) createChildNodeContainer(node basil.Node) *basil.NodeContainer {
 	dependencies := make(map[basil.ID]basil.Container, len(node.Dependencies()))
 	for _, v := range node.Dependencies() {
 		if _, ok := c.Node().Dependencies()[v.ID()]; ok {
