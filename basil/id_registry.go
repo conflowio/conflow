@@ -53,7 +53,7 @@ func (i *idRegistry) GenerateID() ID {
 
 	tries := 0
 	for {
-		id := ID(util.RandHexString(i.minLength, true))
+		id := ID("0x" + util.RandHexString(i.minLength, true))
 		err := i.RegisterID(id)
 		if err == nil {
 			return id

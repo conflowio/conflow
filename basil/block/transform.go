@@ -34,7 +34,6 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 			return nil, parsley.NewError(typeNode.ReaderPos(), errors.New("identifier must be set"))
 		}
 
-		// TODO: there is a chance the id generator will generate an existing, manually defined id
 		id := parseCtx.GenerateID()
 		idNode = basil.NewIDNode(id, typeNode.ReaderPos(), typeNode.ReaderPos())
 	}
