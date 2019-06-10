@@ -6,10 +6,6 @@
 
 package basil
 
-import (
-	"sync"
-)
-
 // EvalStage means an evaluation stage (default, pre or post)
 type EvalStage int8
 
@@ -34,6 +30,7 @@ type EvalContext interface {
 	BlockContainer(ID) (BlockContainer, bool)
 	ScheduleJob(Job)
 	Subscribe(*NodeContainer, ID)
+	Unsubscribe(*NodeContainer, ID)
 	Publish(Container)
 	Logger() Logger
 }
@@ -44,7 +41,7 @@ type evalContext struct {
 	blockCtx     BlockContext
 	scheduler    Scheduler
 	dependencies map[ID]BlockContainer
-	pubsub       *pubsub
+	pubsub       *PubSub
 }
 
 // NewEvalContext returns with a new evaluation context
@@ -52,7 +49,7 @@ func NewEvalContext(blockCtx BlockContext, scheduler Scheduler) EvalContext {
 	return &evalContext{
 		blockCtx:  blockCtx,
 		scheduler: scheduler,
-		pubsub:    newPubSub(),
+		pubsub:    NewPubSub(),
 	}
 }
 
@@ -98,43 +95,14 @@ func (e *evalContext) Subscribe(container *NodeContainer, id ID) {
 	e.pubsub.Subscribe(container, id)
 }
 
+func (e *evalContext) Unsubscribe(container *NodeContainer, id ID) {
+	e.pubsub.Unsubscribe(container, id)
+}
+
 func (e *evalContext) Publish(c Container) {
 	e.pubsub.Publish(c)
 }
 
 func (e *evalContext) Logger() Logger {
 	return e.blockCtx.Logger()
-}
-
-type pubsub struct {
-	subs map[ID]map[ID]*NodeContainer
-	mu   *sync.RWMutex
-}
-
-func newPubSub() *pubsub {
-	return &pubsub{
-		subs: make(map[ID]map[ID]*NodeContainer),
-		mu:   &sync.RWMutex{},
-	}
-}
-
-// Subscribe will subscribe the given node container for the given dependency
-func (p *pubsub) Subscribe(container *NodeContainer, id ID) {
-	p.mu.Lock()
-	if _, ok := p.subs[id]; !ok {
-		p.subs[id] = make(map[ID]*NodeContainer)
-	}
-	p.subs[id][container.ID()] = container
-	p.mu.Unlock()
-}
-
-// Publish will notify all node containers which are subscribed for the dependency
-// The ready function will run on any containers which have all dependencies satisfied
-func (p *pubsub) Publish(c Container) {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-
-	for _, container := range p.subs[c.ID()] {
-		container.SetDependency(c)
-	}
 }

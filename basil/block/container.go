@@ -135,11 +135,11 @@ func (c *Container) Run() {
 	c.node.Interpreter().CloseChannels(c)
 
 	for _, container := range c.generatedChildren {
-		container.Close()
+		container.Close(c.ctx)
 	}
 
 	for _, container := range c.children {
-		container.Close()
+		container.Close(c.ctx)
 		if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
 			atomic.AddInt64(&c.remainingJobs, -1)
 		}
@@ -305,15 +305,7 @@ func (c *Container) createChildNodeContainer(node basil.Node) *basil.NodeContain
 		}
 	}
 
-	container := basil.NewNodeContainer(node, dependencies, c.scheduleChildJob)
-
-	for id := range dependencies {
-		c.ctx.Subscribe(container, id)
-	}
-
-	// TODO: we might want to unsubscribe when finished?
-
-	return container
+	return basil.NewNodeContainer(c.ctx, node, dependencies, c.scheduleChildJob)
 }
 
 func (c *Container) setBlockContext() {

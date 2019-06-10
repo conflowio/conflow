@@ -27,11 +27,12 @@ type NodeContainer struct {
 
 // NewNodeContainer creates a new node container
 func NewNodeContainer(
+	ctx EvalContext,
 	node Node,
 	dependencies map[ID]Container,
 	ready func(*NodeContainer, []*util.WaitGroup),
 ) *NodeContainer {
-	return &NodeContainer{
+	n := &NodeContainer{
 		node:         node,
 		dependencies: dependencies,
 		missingDeps:  len(dependencies),
@@ -39,6 +40,12 @@ func NewNodeContainer(
 		generated:    node.Generated(),
 		mu:           &sync.Mutex{},
 	}
+
+	for id := range dependencies {
+		ctx.Subscribe(n, id)
+	}
+
+	return n
 }
 
 // ID returns with the node id
@@ -111,10 +118,12 @@ func (n *NodeContainer) IncRunCount() {
 	n.runCount++
 }
 
-func (n *NodeContainer) Close() {
-	n.mu.Lock()
+func (n *NodeContainer) Close(ctx EvalContext) {
+	for id := range n.dependencies {
+		ctx.Unsubscribe(n, id)
+	}
+
 	for _, wg := range n.waitGroups {
 		wg.Done(errors.New("aborted"))
 	}
-	n.mu.Unlock()
 }
