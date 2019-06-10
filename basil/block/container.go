@@ -409,11 +409,19 @@ func (c *Container) close() {
 }
 
 func (c *Container) evaluateChildren() {
+	var jobCount, runCount int
 	for _, container := range c.children {
-		if container.Node().EvalStage() == c.evalStage && container.Ready() {
-			// TODO: check if we started no jobs
-			c.scheduleChildJob(container, nil)
+		if container.Node().EvalStage() == c.evalStage {
+			jobCount++
+			if container.Run() {
+				runCount++
+			}
 		}
+	}
+
+	if jobCount > 0 && runCount == 0 {
+		c.errChan <- parsley.NewErrorf(c.node.Pos(), "%q is deadlocked as no children could be evaluated", c.ID())
+		return
 	}
 
 	if atomic.LoadInt64(&c.remainingJobs) == 0 {
@@ -421,9 +429,9 @@ func (c *Container) evaluateChildren() {
 	}
 }
 
-func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*util.WaitGroup) {
+func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*util.WaitGroup) bool {
 	if nodeContainer.Node().EvalStage() != c.evalStage {
-		return
+		return false
 	}
 
 	ctx := nodeContainer.EvalContext(c.ctx)
@@ -444,6 +452,8 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*
 	c.debug().ID("childID", nodeContainer.ID()).Msg("child scheduled")
 
 	ctx.ScheduleJob(container)
+
+	return true
 }
 
 func (c *Container) SetChild(container basil.Container) {

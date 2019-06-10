@@ -18,7 +18,7 @@ type NodeContainer struct {
 	node         Node
 	dependencies map[ID]Container
 	missingDeps  int
-	ready        func(*NodeContainer, []*util.WaitGroup)
+	run          func(*NodeContainer, []*util.WaitGroup) bool
 	runCount     int
 	generated    bool
 	waitGroups   []*util.WaitGroup
@@ -30,13 +30,13 @@ func NewNodeContainer(
 	ctx EvalContext,
 	node Node,
 	dependencies map[ID]Container,
-	ready func(*NodeContainer, []*util.WaitGroup),
+	run func(*NodeContainer, []*util.WaitGroup) bool,
 ) *NodeContainer {
 	n := &NodeContainer{
 		node:         node,
 		dependencies: dependencies,
 		missingDeps:  len(dependencies),
-		ready:        ready,
+		run:          run,
 		generated:    node.Generated(),
 		mu:           &sync.Mutex{},
 	}
@@ -53,7 +53,13 @@ func (n *NodeContainer) ID() ID {
 	return n.node.ID()
 }
 
+// Node returns with the node
+func (n *NodeContainer) Node() Node {
+	return n.node
+}
+
 // SetDependency stores the given container
+// If all dependencies are set on the node then it will schedule the node for running.
 func (n *NodeContainer) SetDependency(c Container) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -70,22 +76,26 @@ func (n *NodeContainer) SetDependency(c Container) {
 	}
 
 	if n.missingDeps == 0 {
-		n.ready(n, n.waitGroups)
-		n.waitGroups = nil
+		if n.run(n, n.waitGroups) {
+			n.waitGroups = nil
+		}
 	}
 }
 
-// Node returns with the node
-func (n *NodeContainer) Node() Node {
-	return n.node
-}
-
-// Ready returns true if the node doesn't have any unsatisfied dependencies
-func (n *NodeContainer) Ready() bool {
+// Run will schedule the node for running if it's ready. If it is then it returns true.
+func (n *NodeContainer) Run() bool {
 	n.mu.Lock()
-	ready := n.missingDeps == 0
+
+	var run bool
+	if n.missingDeps == 0 {
+		if n.run(n, n.waitGroups) {
+			run = true
+			n.waitGroups = nil
+		}
+	}
+
 	n.mu.Unlock()
-	return ready
+	return run
 }
 
 // Generated returns true if the node is generated (either directly or indirectly)
