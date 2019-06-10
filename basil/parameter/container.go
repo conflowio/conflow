@@ -16,19 +16,19 @@ var _ basil.ParameterContainer = &Container{}
 
 // Container is a parameter container
 type Container struct {
-	evalCtx        basil.EvalContext
-	node           basil.ParameterNode
-	blockContainer basil.BlockContainer
-	value          interface{}
-	err            parsley.Error
+	ctx    basil.EvalContext
+	node   basil.ParameterNode
+	parent basil.BlockContainer
+	value  interface{}
+	err    parsley.Error
 }
 
 // NewContainer creates a new parameter container
-func NewContainer(evalCtx basil.EvalContext, node basil.ParameterNode, blockContainer basil.BlockContainer) *Container {
+func NewContainer(ctx basil.EvalContext, node basil.ParameterNode, parent basil.BlockContainer) *Container {
 	return &Container{
-		evalCtx:        evalCtx,
-		node:           node,
-		blockContainer: blockContainer,
+		ctx:    ctx,
+		node:   node,
+		parent: parent,
 	}
 }
 
@@ -44,7 +44,7 @@ func (c *Container) Node() basil.Node {
 
 // BlockContainer returns with the parent block container
 func (c *Container) BlockContainer() basil.BlockContainer {
-	return c.blockContainer
+	return c.parent
 }
 
 // Value returns with the parameter value or an evaluation error
@@ -58,7 +58,12 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 
 // Run evaluates the parameter
 func (c *Container) Run() {
-	c.value, c.err = c.node.Value(c.evalCtx)
+	c.value, c.err = c.node.Value(c.ctx)
+	c.parent.SetChild(c)
+}
+
+func (c *Container) Lightweight() bool {
+	return true
 }
 
 // Close does nothing

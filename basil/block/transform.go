@@ -79,14 +79,14 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 		}
 	}
 
-	res := &Node{
-		idNode:       idNode,
-		typeNode:     typeNode,
-		children:     children,
-		interpreter:  interpreter,
-		readerPos:    node.ReaderPos(),
-		dependencies: dependencies,
-	}
+	res := NewNode(
+		idNode,
+		typeNode,
+		children,
+		node.ReaderPos(),
+		interpreter,
+		dependencies,
+	)
 
 	if !interpreter.HasForeignID() {
 		if err := parseCtx.AddBlockNode(res); err != nil {
@@ -120,13 +120,14 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 		}
 	}
 
-	res := &Node{
-		idNode:      basil.NewIDNode(id, node.Pos(), node.Pos()),
-		typeNode:    basil.NewIDNode(basil.ID("main"), node.Pos(), node.Pos()),
-		children:    children,
-		interpreter: interpreter,
-		readerPos:   node.ReaderPos(),
-	}
+	res := NewNode(
+		basil.NewIDNode(id, node.Pos(), node.Pos()),
+		basil.NewIDNode(basil.ID("main"), node.Pos(), node.Pos()),
+		children,
+		node.ReaderPos(),
+		interpreter,
+		nil,
+	)
 
 	if err := parseCtx.AddBlockNode(res); err != nil {
 		panic("failed to register the main block node")

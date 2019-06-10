@@ -53,6 +53,10 @@ func (s *Scheduler) Stop() {
 
 // Schedule schedules a new job
 func (s *Scheduler) Schedule(job basil.Job) {
+	if job.Lightweight() {
+		go job.Run()
+		return
+	}
 	s.jobQueue <- job
 }
 

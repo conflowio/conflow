@@ -9,27 +9,23 @@ package basil
 // Job is a unit of work the scheduler can schedule and run
 type Job interface {
 	Run()
-}
-
-// JobFunc is a function which implements the job interface
-type JobFunc func()
-
-func (f JobFunc) Run() {
-	f()
+	Lightweight() bool
 }
 
 type job struct {
-	ctx EvalContext
-	id  ID
-	job Job
+	ctx         EvalContext
+	id          ID
+	lightweight bool
+	f           func()
 }
 
 // NewJob creates a new job
-func NewJob(ctx EvalContext, id ID, j Job) Job {
+func NewJob(ctx EvalContext, id ID, lightweight bool, f func()) Job {
 	return &job{
-		ctx: ctx,
-		id:  id,
-		job: j,
+		ctx:         ctx,
+		id:          id,
+		lightweight: lightweight,
+		f:           f,
 	}
 }
 
@@ -44,5 +40,11 @@ func (j *job) Run() {
 		return
 	}
 
-	j.job.Run()
+	j.f()
+}
+
+// Lightweight returns true if the job doesn't need to be scheduled on the main job queue
+// These jobs will usually run in a goroutine.
+func (j *job) Lightweight() bool {
+	return j.lightweight
 }

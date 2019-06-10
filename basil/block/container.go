@@ -47,6 +47,7 @@ var _ basil.BlockContainer = &Container{}
 type Container struct {
 	ctx               basil.EvalContext
 	node              basil.BlockNode
+	parent            basil.BlockContainer
 	block             basil.Block
 	err               parsley.Error
 	extraParams       map[basil.ID]interface{}
@@ -66,6 +67,7 @@ type Container struct {
 func NewContainer(
 	ctx basil.EvalContext,
 	node basil.BlockNode,
+	parent basil.BlockContainer,
 	block basil.Block,
 	wgs []*util.WaitGroup,
 ) *Container {
@@ -76,6 +78,7 @@ func NewContainer(
 	return &Container{
 		ctx:          ctx,
 		node:         node,
+		parent:       parent,
 		block:        block,
 		wgs:          wgs,
 		evalStage:    basil.EvalStageInit,
@@ -121,12 +124,6 @@ func (c *Container) Param(name basil.ID) interface{} {
 func (c *Container) Run() {
 	c.debug().Msg("starting")
 
-	defer func() {
-		if c.cancel != nil {
-			c.cancel()
-		}
-	}()
-
 	c.stateChan <- containerStateNext
 	c.mainLoop()
 
@@ -148,6 +145,18 @@ func (c *Container) Run() {
 	if atomic.LoadInt64(&c.remainingJobs) > 0 {
 		c.shutdownLoop()
 	}
+
+	if c.parent != nil {
+		c.parent.SetChild(c)
+	}
+
+	if c.cancel != nil {
+		c.cancel()
+	}
+}
+
+func (c *Container) Lightweight() bool {
+	return true
 }
 
 func (c *Container) mainLoop() {
@@ -252,7 +261,7 @@ func (c *Container) setState(state containerState) {
 
 		if _, ok := c.block.(basil.BlockInitialiser); ok {
 			atomic.AddInt64(&c.remainingJobs, 1)
-			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), basil.JobFunc(c.init)))
+			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), false, c.init))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -260,10 +269,9 @@ func (c *Container) setState(state containerState) {
 		c.evalStage = basil.EvalStageMain
 		c.evaluateChildren()
 	case containerStateMain:
-		// TODO: if the block is a generator, then run the main job in a goroutine instead on the main job queue
 		if _, ok := c.block.(basil.BlockRunner); ok {
 			atomic.AddInt64(&c.remainingJobs, 1)
-			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), basil.JobFunc(c.main)))
+			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), c.node.Generator(), c.main))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -273,7 +281,7 @@ func (c *Container) setState(state containerState) {
 	case containerStateClose:
 		if _, ok := c.block.(basil.BlockCloser); ok {
 			atomic.AddInt64(&c.remainingJobs, 1)
-			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), basil.JobFunc(c.close)))
+			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), false, c.close))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -423,7 +431,7 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*
 
 	switch n := nodeContainer.Node().(type) {
 	case basil.BlockNode:
-		container = NewContainer(ctx, n, nil, wgs)
+		container = NewContainer(ctx, n, c, nil, wgs)
 	case basil.ParameterNode:
 		container = parameter.NewContainer(ctx, n, c)
 	default:
@@ -435,12 +443,11 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*
 
 	c.debug().ID("childID", nodeContainer.ID()).Msg("child scheduled")
 
-	// A block's main loop is lightweight, and evaluating parameters is cheap, so we start a goroutine only
-	// Also we don't want to block the main loop or the main job queue
-	go func() {
-		container.Run()
-		c.childrenChan <- container
-	}()
+	ctx.ScheduleJob(container)
+}
+
+func (c *Container) SetChild(container basil.Container) {
+	c.childrenChan <- container
 }
 
 func (c *Container) setChild(result basil.Container) parsley.Error {
@@ -498,10 +505,8 @@ func (c *Container) PublishBlock(blockType basil.ID, blockMessage basil.BlockMes
 
 	wgs := []*util.WaitGroup{blockMessage.WaitGroup()}
 	blockMessage.WaitGroup().Add(1)
-	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), blockMessage.Block(), wgs)
+	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), c, blockMessage.Block(), wgs)
 	container.Run()
-
-	c.childrenChan <- container
 
 	select {
 	case <-blockMessage.WaitGroup().Wait():

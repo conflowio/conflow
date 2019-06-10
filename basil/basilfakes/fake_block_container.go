@@ -34,6 +34,16 @@ type FakeBlockContainer struct {
 	iDReturnsOnCall map[int]struct {
 		result1 basil.ID
 	}
+	LightweightStub        func() bool
+	lightweightMutex       sync.RWMutex
+	lightweightArgsForCall []struct {
+	}
+	lightweightReturns struct {
+		result1 bool
+	}
+	lightweightReturnsOnCall map[int]struct {
+		result1 bool
+	}
 	NodeStub        func() basil.Node
 	nodeMutex       sync.RWMutex
 	nodeArgsForCall []struct {
@@ -64,6 +74,11 @@ type FakeBlockContainer struct {
 	RunStub        func()
 	runMutex       sync.RWMutex
 	runArgsForCall []struct {
+	}
+	SetChildStub        func(basil.Container)
+	setChildMutex       sync.RWMutex
+	setChildArgsForCall []struct {
+		arg1 basil.Container
 	}
 	ValueStub        func() (interface{}, parsley.Error)
 	valueMutex       sync.RWMutex
@@ -215,6 +230,58 @@ func (fake *FakeBlockContainer) IDReturnsOnCall(i int, result1 basil.ID) {
 	}
 	fake.iDReturnsOnCall[i] = struct {
 		result1 basil.ID
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) Lightweight() bool {
+	fake.lightweightMutex.Lock()
+	ret, specificReturn := fake.lightweightReturnsOnCall[len(fake.lightweightArgsForCall)]
+	fake.lightweightArgsForCall = append(fake.lightweightArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Lightweight", []interface{}{})
+	fake.lightweightMutex.Unlock()
+	if fake.LightweightStub != nil {
+		return fake.LightweightStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.lightweightReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContainer) LightweightCallCount() int {
+	fake.lightweightMutex.RLock()
+	defer fake.lightweightMutex.RUnlock()
+	return len(fake.lightweightArgsForCall)
+}
+
+func (fake *FakeBlockContainer) LightweightCalls(stub func() bool) {
+	fake.lightweightMutex.Lock()
+	defer fake.lightweightMutex.Unlock()
+	fake.LightweightStub = stub
+}
+
+func (fake *FakeBlockContainer) LightweightReturns(result1 bool) {
+	fake.lightweightMutex.Lock()
+	defer fake.lightweightMutex.Unlock()
+	fake.LightweightStub = nil
+	fake.lightweightReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) LightweightReturnsOnCall(i int, result1 bool) {
+	fake.lightweightMutex.Lock()
+	defer fake.lightweightMutex.Unlock()
+	fake.LightweightStub = nil
+	if fake.lightweightReturnsOnCall == nil {
+		fake.lightweightReturnsOnCall = make(map[int]struct {
+			result1 bool
+		})
+	}
+	fake.lightweightReturnsOnCall[i] = struct {
+		result1 bool
 	}{result1}
 }
 
@@ -385,6 +452,37 @@ func (fake *FakeBlockContainer) RunCalls(stub func()) {
 	fake.RunStub = stub
 }
 
+func (fake *FakeBlockContainer) SetChild(arg1 basil.Container) {
+	fake.setChildMutex.Lock()
+	fake.setChildArgsForCall = append(fake.setChildArgsForCall, struct {
+		arg1 basil.Container
+	}{arg1})
+	fake.recordInvocation("SetChild", []interface{}{arg1})
+	fake.setChildMutex.Unlock()
+	if fake.SetChildStub != nil {
+		fake.SetChildStub(arg1)
+	}
+}
+
+func (fake *FakeBlockContainer) SetChildCallCount() int {
+	fake.setChildMutex.RLock()
+	defer fake.setChildMutex.RUnlock()
+	return len(fake.setChildArgsForCall)
+}
+
+func (fake *FakeBlockContainer) SetChildCalls(stub func(basil.Container)) {
+	fake.setChildMutex.Lock()
+	defer fake.setChildMutex.Unlock()
+	fake.SetChildStub = stub
+}
+
+func (fake *FakeBlockContainer) SetChildArgsForCall(i int) basil.Container {
+	fake.setChildMutex.RLock()
+	defer fake.setChildMutex.RUnlock()
+	argsForCall := fake.setChildArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeBlockContainer) Value() (interface{}, parsley.Error) {
 	fake.valueMutex.Lock()
 	ret, specificReturn := fake.valueReturnsOnCall[len(fake.valueArgsForCall)]
@@ -501,6 +599,8 @@ func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	defer fake.closeMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
+	fake.lightweightMutex.RLock()
+	defer fake.lightweightMutex.RUnlock()
 	fake.nodeMutex.RLock()
 	defer fake.nodeMutex.RUnlock()
 	fake.paramMutex.RLock()
@@ -509,6 +609,8 @@ func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	defer fake.publishBlockMutex.RUnlock()
 	fake.runMutex.RLock()
 	defer fake.runMutex.RUnlock()
+	fake.setChildMutex.RLock()
+	defer fake.setChildMutex.RUnlock()
 	fake.valueMutex.RLock()
 	defer fake.valueMutex.RUnlock()
 	fake.waitGroupsMutex.RLock()
