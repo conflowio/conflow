@@ -20,7 +20,6 @@ type NodeContainer struct {
 	missingDeps  int
 	run          func(*NodeContainer, []*util.WaitGroup) bool
 	runCount     int
-	generated    bool
 	waitGroups   []*util.WaitGroup
 	mu           *sync.Mutex
 }
@@ -37,7 +36,6 @@ func NewNodeContainer(
 		dependencies: dependencies,
 		missingDeps:  len(dependencies),
 		run:          run,
-		generated:    node.Generated(),
 		mu:           &sync.Mutex{},
 	}
 
@@ -96,11 +94,6 @@ func (n *NodeContainer) Run() bool {
 
 	n.mu.Unlock()
 	return run
-}
-
-// Generated returns true if the node is generated (either directly or indirectly)
-func (n *NodeContainer) Generated() bool {
-	return n.generated
 }
 
 // EvalContext returns with a new evaluation context

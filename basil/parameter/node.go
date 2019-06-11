@@ -83,8 +83,13 @@ func (n *Node) Dependencies() basil.Dependencies {
 	return n.dependencies
 }
 
-// Provides returns with nil as a parameter node doesn't define any other nodes
+// Provides returns with nil as a parameter node doesn't define other nodes
 func (n *Node) Provides() []basil.ID {
+	return nil
+}
+
+// Generates returns with nil as a parameter node doesn't generate other nodes
+func (n *Node) Generates() []basil.ID {
 	return nil
 }
 

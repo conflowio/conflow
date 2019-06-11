@@ -59,15 +59,15 @@ type FakeBlockNode struct {
 	generatedReturnsOnCall map[int]struct {
 		result1 bool
 	}
-	GeneratorStub        func() bool
-	generatorMutex       sync.RWMutex
-	generatorArgsForCall []struct {
+	GeneratesStub        func() []basil.ID
+	generatesMutex       sync.RWMutex
+	generatesArgsForCall []struct {
 	}
-	generatorReturns struct {
-		result1 bool
+	generatesReturns struct {
+		result1 []basil.ID
 	}
-	generatorReturnsOnCall map[int]struct {
-		result1 bool
+	generatesReturnsOnCall map[int]struct {
+		result1 []basil.ID
 	}
 	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
@@ -434,55 +434,55 @@ func (fake *FakeBlockNode) GeneratedReturnsOnCall(i int, result1 bool) {
 	}{result1}
 }
 
-func (fake *FakeBlockNode) Generator() bool {
-	fake.generatorMutex.Lock()
-	ret, specificReturn := fake.generatorReturnsOnCall[len(fake.generatorArgsForCall)]
-	fake.generatorArgsForCall = append(fake.generatorArgsForCall, struct {
+func (fake *FakeBlockNode) Generates() []basil.ID {
+	fake.generatesMutex.Lock()
+	ret, specificReturn := fake.generatesReturnsOnCall[len(fake.generatesArgsForCall)]
+	fake.generatesArgsForCall = append(fake.generatesArgsForCall, struct {
 	}{})
-	fake.recordInvocation("Generator", []interface{}{})
-	fake.generatorMutex.Unlock()
-	if fake.GeneratorStub != nil {
-		return fake.GeneratorStub()
+	fake.recordInvocation("Generates", []interface{}{})
+	fake.generatesMutex.Unlock()
+	if fake.GeneratesStub != nil {
+		return fake.GeneratesStub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.generatorReturns
+	fakeReturns := fake.generatesReturns
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockNode) GeneratorCallCount() int {
-	fake.generatorMutex.RLock()
-	defer fake.generatorMutex.RUnlock()
-	return len(fake.generatorArgsForCall)
+func (fake *FakeBlockNode) GeneratesCallCount() int {
+	fake.generatesMutex.RLock()
+	defer fake.generatesMutex.RUnlock()
+	return len(fake.generatesArgsForCall)
 }
 
-func (fake *FakeBlockNode) GeneratorCalls(stub func() bool) {
-	fake.generatorMutex.Lock()
-	defer fake.generatorMutex.Unlock()
-	fake.GeneratorStub = stub
+func (fake *FakeBlockNode) GeneratesCalls(stub func() []basil.ID) {
+	fake.generatesMutex.Lock()
+	defer fake.generatesMutex.Unlock()
+	fake.GeneratesStub = stub
 }
 
-func (fake *FakeBlockNode) GeneratorReturns(result1 bool) {
-	fake.generatorMutex.Lock()
-	defer fake.generatorMutex.Unlock()
-	fake.GeneratorStub = nil
-	fake.generatorReturns = struct {
-		result1 bool
+func (fake *FakeBlockNode) GeneratesReturns(result1 []basil.ID) {
+	fake.generatesMutex.Lock()
+	defer fake.generatesMutex.Unlock()
+	fake.GeneratesStub = nil
+	fake.generatesReturns = struct {
+		result1 []basil.ID
 	}{result1}
 }
 
-func (fake *FakeBlockNode) GeneratorReturnsOnCall(i int, result1 bool) {
-	fake.generatorMutex.Lock()
-	defer fake.generatorMutex.Unlock()
-	fake.GeneratorStub = nil
-	if fake.generatorReturnsOnCall == nil {
-		fake.generatorReturnsOnCall = make(map[int]struct {
-			result1 bool
+func (fake *FakeBlockNode) GeneratesReturnsOnCall(i int, result1 []basil.ID) {
+	fake.generatesMutex.Lock()
+	defer fake.generatesMutex.Unlock()
+	fake.GeneratesStub = nil
+	if fake.generatesReturnsOnCall == nil {
+		fake.generatesReturnsOnCall = make(map[int]struct {
+			result1 []basil.ID
 		})
 	}
-	fake.generatorReturnsOnCall[i] = struct {
-		result1 bool
+	fake.generatesReturnsOnCall[i] = struct {
+		result1 []basil.ID
 	}{result1}
 }
 
@@ -1020,8 +1020,8 @@ func (fake *FakeBlockNode) Invocations() map[string][][]interface{} {
 	defer fake.evalStageMutex.RUnlock()
 	fake.generatedMutex.RLock()
 	defer fake.generatedMutex.RUnlock()
-	fake.generatorMutex.RLock()
-	defer fake.generatorMutex.RUnlock()
+	fake.generatesMutex.RLock()
+	defer fake.generatesMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	fake.interpreterMutex.RLock()

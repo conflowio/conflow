@@ -33,7 +33,8 @@ type Node struct {
 	dependencies basil.Dependencies
 	evalStage    basil.EvalStage
 	generated    bool
-	generator    bool
+	provides     []basil.ID
+	generates    []basil.ID
 }
 
 // NewNode creates a new block node
@@ -45,11 +46,18 @@ func NewNode(
 	interpreter basil.BlockInterpreter,
 	dependencies basil.Dependencies,
 ) *Node {
-	generator := false
-	for _, child := range children {
-		if child.Generated() {
-			generator = true
-			break
+	var provides []basil.ID
+	var generates []basil.ID
+	for _, c := range children {
+		if b, ok := c.(basil.BlockNode); ok {
+			if b.Generated() {
+				generates = append(generates, b.ID())
+				generates = append(generates, b.Provides()...)
+			} else {
+				provides = append(provides, b.ID())
+				provides = append(provides, b.Provides()...)
+			}
+			generates = append(generates, b.Generates()...)
 		}
 	}
 
@@ -60,7 +68,8 @@ func NewNode(
 		interpreter:  interpreter,
 		readerPos:    readerPos,
 		dependencies: dependencies,
-		generator:    generator,
+		generates:    generates,
+		provides:     provides,
 	}
 }
 
@@ -105,26 +114,19 @@ func (n *Node) Generated() bool {
 }
 
 // Generator returns true if any of the child blocks are generated
-func (n *Node) Generator() bool {
-	return n.generator
+func (n *Node) Generates() []basil.ID {
+	return n.generates
+}
+
+// Provides returns with the all the defined blocked node ids inside this block
+func (n *Node) Provides() []basil.ID {
+	return n.provides
 }
 
 // SetDescriptor applies the descriptor parameters to the node
 func (n *Node) SetDescriptor(descriptor basil.BlockDescriptor) {
 	n.evalStage = descriptor.EvalStage
 	n.generated = descriptor.IsGenerated
-}
-
-// Provides returns with the all the defined blocked node ids inside this block
-func (n *Node) Provides() []basil.ID {
-	var providedBlockIDs []basil.ID
-	for _, c := range n.children {
-		if b, ok := c.(basil.BlockNode); ok {
-			providedBlockIDs = append(providedBlockIDs, b.ID())
-			providedBlockIDs = append(providedBlockIDs, b.Provides()...)
-		}
-	}
-	return providedBlockIDs
 }
 
 // StaticCheck runs static analysis on the node

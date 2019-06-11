@@ -87,7 +87,6 @@ type BlockNode interface {
 	ParamType(ID) (string, bool)
 	Interpreter() BlockInterpreter
 	SetDescriptor(BlockDescriptor)
-	Generator() bool
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks

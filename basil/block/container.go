@@ -271,7 +271,7 @@ func (c *Container) setState(state containerState) {
 	case containerStateMain:
 		if _, ok := c.block.(basil.BlockRunner); ok {
 			atomic.AddInt64(&c.remainingJobs, 1)
-			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), c.node.Generator(), c.main))
+			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), len(c.node.Generates()) > 0, c.main))
 		} else {
 			c.stateChan <- containerStateNext
 		}

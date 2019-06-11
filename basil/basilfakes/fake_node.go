@@ -39,6 +39,16 @@ type FakeNode struct {
 	generatedReturnsOnCall map[int]struct {
 		result1 bool
 	}
+	GeneratesStub        func() []basil.ID
+	generatesMutex       sync.RWMutex
+	generatesArgsForCall []struct {
+	}
+	generatesReturns struct {
+		result1 []basil.ID
+	}
+	generatesReturnsOnCall map[int]struct {
+		result1 []basil.ID
+	}
 	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
 	iDArgsForCall []struct {
@@ -269,6 +279,58 @@ func (fake *FakeNode) GeneratedReturnsOnCall(i int, result1 bool) {
 	}
 	fake.generatedReturnsOnCall[i] = struct {
 		result1 bool
+	}{result1}
+}
+
+func (fake *FakeNode) Generates() []basil.ID {
+	fake.generatesMutex.Lock()
+	ret, specificReturn := fake.generatesReturnsOnCall[len(fake.generatesArgsForCall)]
+	fake.generatesArgsForCall = append(fake.generatesArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Generates", []interface{}{})
+	fake.generatesMutex.Unlock()
+	if fake.GeneratesStub != nil {
+		return fake.GeneratesStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.generatesReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeNode) GeneratesCallCount() int {
+	fake.generatesMutex.RLock()
+	defer fake.generatesMutex.RUnlock()
+	return len(fake.generatesArgsForCall)
+}
+
+func (fake *FakeNode) GeneratesCalls(stub func() []basil.ID) {
+	fake.generatesMutex.Lock()
+	defer fake.generatesMutex.Unlock()
+	fake.GeneratesStub = stub
+}
+
+func (fake *FakeNode) GeneratesReturns(result1 []basil.ID) {
+	fake.generatesMutex.Lock()
+	defer fake.generatesMutex.Unlock()
+	fake.GeneratesStub = nil
+	fake.generatesReturns = struct {
+		result1 []basil.ID
+	}{result1}
+}
+
+func (fake *FakeNode) GeneratesReturnsOnCall(i int, result1 []basil.ID) {
+	fake.generatesMutex.Lock()
+	defer fake.generatesMutex.Unlock()
+	fake.GeneratesStub = nil
+	if fake.generatesReturnsOnCall == nil {
+		fake.generatesReturnsOnCall = make(map[int]struct {
+			result1 []basil.ID
+		})
+	}
+	fake.generatesReturnsOnCall[i] = struct {
+		result1 []basil.ID
 	}{result1}
 }
 
@@ -656,6 +718,8 @@ func (fake *FakeNode) Invocations() map[string][][]interface{} {
 	defer fake.evalStageMutex.RUnlock()
 	fake.generatedMutex.RLock()
 	defer fake.generatedMutex.RUnlock()
+	fake.generatesMutex.RLock()
+	defer fake.generatesMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	fake.posMutex.RLock()

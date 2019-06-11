@@ -7,6 +7,7 @@
 package dependency
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/opsidian/parsley/parsley"
@@ -19,21 +20,23 @@ import (
 //
 // It uses Tarjan's strongly connected components algorithm to detect cycles.
 type Resolver struct {
-	id            basil.ID
-	nodes         map[basil.ID]*node
-	providedNodes map[basil.ID]basil.ID
-	index         int
-	stack         stack
-	result        []basil.Node
-	dependencies  basil.Dependencies
+	id             basil.ID
+	nodes          map[basil.ID]*node
+	providedNodes  map[basil.ID]basil.ID
+	generatedNodes map[basil.ID]basil.ID
+	index          int
+	stack          stack
+	result         []basil.Node
+	dependencies   basil.Dependencies
 }
 
 // NewResolver creates a new dependency resolver
 func NewResolver(id basil.ID, nodes ...basil.Node) *Resolver {
 	r := &Resolver{
-		id:            id,
-		nodes:         make(map[basil.ID]*node),
-		providedNodes: make(map[basil.ID]basil.ID),
+		id:             id,
+		nodes:          make(map[basil.ID]*node),
+		providedNodes:  make(map[basil.ID]basil.ID),
+		generatedNodes: make(map[basil.ID]basil.ID),
 	}
 	r.AddNodes(nodes...)
 	return r
@@ -46,14 +49,49 @@ func (r *Resolver) AddNodes(nodes ...basil.Node) {
 			Node:  n,
 			Index: -1,
 		}
-		for _, provided := range n.Provides() {
-			r.providedNodes[provided] = n.ID()
+		for _, id := range n.Provides() {
+			r.providedNodes[id] = n.ID()
+		}
+
+		// If the node is a generator then we create an extra node so we have separate nodes for start and finish
+		// Nodes depending on any of the generated nodes should depend on the start node
+		// Nodes referencing any fields on the generator node should depend on the finish (original) node
+		// We need to do this to avoid circular dependencies
+		if len(n.Generates()) > 0 {
+			for _, id := range n.Generates() {
+				r.generatedNodes[id] = n.ID()
+			}
+			r.nodes[n.ID()+"-start"] = &node{
+				Node:  n,
+				Index: -1,
+			}
+			r.nodes[n.ID()].skip = true
+			r.nodes[n.ID()].extraDependencies = []basil.ID{n.ID() + "-start"}
 		}
 	}
 }
 
 // Resolve will resolve the dependency graph
 func (r *Resolver) Resolve() (result []basil.Node, dependencies basil.Dependencies, err parsley.Error) {
+	// We want to detect if a node depends on a generator node and any of its generated blocks
+	// In this case we should return with a circular dependency error
+	if len(r.generatedNodes) > 0 {
+		for _, v := range r.nodes {
+			if v.Index == -1 {
+				r.generatorDependencies(v)
+			}
+		}
+		for id, v := range r.nodes {
+			v.Index = -1 // reset the Index for strongConnect
+			for _, generatorID := range v.generatorDependencies {
+				if _, isParam := v.Node.(basil.ParameterNode); isParam {
+					return nil, nil, parsley.NewError(v.Node.Pos(), errors.New("a parameter can not depend on a node generated in the same block"))
+				}
+				r.nodes[generatorID].extraDependencies = append(r.nodes[generatorID].extraDependencies, id)
+			}
+		}
+	}
+
 	for _, v := range r.nodes {
 		if v.Index == -1 {
 			if err := r.strongConnect(v); err != nil {
@@ -62,6 +100,32 @@ func (r *Resolver) Resolve() (result []basil.Node, dependencies basil.Dependenci
 		}
 	}
 	return r.result, r.dependencies, nil
+}
+
+func (r *Resolver) generatorDependencies(v *node) []basil.ID {
+	if v.Index == 0 {
+		return v.generatorDependencies
+	}
+
+	var res []basil.ID
+	for _, d := range v.Node.Dependencies() {
+		if generatorID, ok := r.generatedNodes[d.ParentID()]; ok {
+			res = append(res, generatorID)
+		}
+		w, found := r.nodes[d.ParentID()]
+		if !found {
+			if providerID, ok := r.providedNodes[d.ParentID()]; ok {
+				w = r.nodes[providerID]
+				found = true
+			}
+		}
+		if found {
+			res = append(res, r.generatorDependencies(w)...)
+		}
+	}
+	v.Index = 0
+	v.generatorDependencies = res
+	return res
 }
 
 // strongConnect will find all the strongly connected components in the dependency graph based on Tarjan's algorithm
@@ -87,6 +151,13 @@ func (r *Resolver) strongConnect(v *node) parsley.Error {
 		}
 
 		if !found {
+			if generatorID, ok := r.generatedNodes[d.ParentID()]; ok {
+				w = r.nodes[generatorID+"-start"]
+				found = true
+			}
+		}
+
+		if !found {
 			if r.dependencies == nil {
 				r.dependencies = make(basil.Dependencies, 0)
 			}
@@ -102,6 +173,14 @@ func (r *Resolver) strongConnect(v *node) parsley.Error {
 			return err
 		}
 	}
+
+	for _, id := range v.extraDependencies {
+		w := r.nodes[id]
+		if err := r.processEdge(v, w); err != nil {
+			return err
+		}
+	}
+
 	if v.LowLink == v.Index {
 		if err := r.createComponent(v); err != nil {
 			return err
@@ -125,9 +204,13 @@ func (r *Resolver) processEdge(v, w *node) parsley.Error {
 
 func (r *Resolver) createComponent(v *node) parsley.Error {
 	var component []basil.Node
+	var hasSkipped bool
 	for {
 		w := r.stack.Pop()
 		component = append(component, w.Node)
+		if w.skip {
+			hasSkipped = true
+		}
 		if w.Node.ID() == v.Node.ID() {
 			break
 		}
@@ -141,7 +224,9 @@ func (r *Resolver) createComponent(v *node) parsley.Error {
 		return parsley.NewErrorf(component[0].Pos(), "circular dependency detected: %s", strings.Join(ids, ", "))
 	}
 
-	r.result = append(r.result, component[0])
+	if !hasSkipped {
+		r.result = append(r.result, component[0])
+	}
 
 	return nil
 }

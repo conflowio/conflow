@@ -11,8 +11,11 @@ import (
 )
 
 type node struct {
-	Node    basil.Node
-	Index   int
-	LowLink int
-	OnStack bool
+	Node                  basil.Node
+	Index                 int
+	LowLink               int
+	OnStack               bool
+	skip                  bool
+	extraDependencies     []basil.ID
+	generatorDependencies []basil.ID
 }
