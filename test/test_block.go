@@ -30,6 +30,10 @@ type TestBlock struct {
 	TestBlock []*TestBlock `basil:"block,name=testblock"`
 }
 
+func (t *TestBlock) ID() basil.ID {
+	return t.IDField
+}
+
 func (t *TestBlock) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{

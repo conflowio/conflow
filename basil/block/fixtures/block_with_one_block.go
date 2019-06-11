@@ -17,6 +17,10 @@ type BlockWithOneBlock struct {
 	BlockSimple *BlockSimple `basil:"block"`
 }
 
+func (b *BlockWithOneBlock) ID() basil.ID {
+	return b.IDField
+}
+
 func (b *BlockWithOneBlock) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{

@@ -21,6 +21,10 @@ type Iterator struct {
 	it    chan basil.BlockMessage `basil:"output,block"`
 }
 
+func (i *Iterator) ID() basil.ID {
+	return i.id
+}
+
 func (it *Iterator) Main(ctx basil.BlockContext) error {
 	for i := int64(0); i < it.count; i++ {
 		message := basil.NewBlockMessage(&It{value: i})
@@ -49,4 +53,8 @@ func (it *Iterator) ParseContextOverride() basil.ParseContextOverride {
 type It struct {
 	id    basil.ID `basil:"id"`
 	value int64    `basil:"output"`
+}
+
+func (i *It) ID() basil.ID {
+	return i.id
 }

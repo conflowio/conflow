@@ -21,6 +21,10 @@ type Licensify struct {
 	license string   `basil:"required"`
 }
 
+func (l *Licensify) ID() basil.ID {
+	return l.id
+}
+
 func (l *Licensify) Main(ctx basil.BlockContext) error {
 	content, err := ioutil.ReadFile(l.path)
 	if err != nil {

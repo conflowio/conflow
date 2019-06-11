@@ -12,3 +12,7 @@ import "github.com/opsidian/basil/basil"
 type BlockWithReference struct {
 	IDField basil.ID `basil:"id,reference"`
 }
+
+func (b *BlockWithReference) ID() basil.ID {
+	return b.IDField
+}

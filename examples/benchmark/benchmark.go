@@ -23,6 +23,10 @@ type Benchmark struct {
 	run      chan basil.BlockMessage `basil:"block,output"`
 }
 
+func (b *Benchmark) ID() basil.ID {
+	return b.id
+}
+
 func (b *Benchmark) Main(ctx basil.BlockContext) error {
 	timer := time.NewTimer(b.duration)
 	defer timer.Stop()
@@ -55,4 +59,8 @@ func (b *Benchmark) ParseContextOverride() basil.ParseContextOverride {
 type BenchmarkRun struct {
 	id  basil.ID `basil:"id"`
 	cnt int64    `basil:"output"`
+}
+
+func (b *BenchmarkRun) ID() basil.ID {
+	return b.id
 }

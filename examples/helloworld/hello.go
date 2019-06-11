@@ -23,6 +23,10 @@ type Hello struct {
 	r        *rand.Rand `basil:"ignore"`
 }
 
+func (h *Hello) ID() basil.ID {
+	return h.id
+}
+
 // Init will initialise the random generator
 func (h *Hello) Init(ctx basil.BlockContext) (bool, error) {
 	h.r = rand.New(rand.NewSource(time.Now().Unix()))

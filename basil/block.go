@@ -41,6 +41,7 @@ var BlockTags = map[string]string{
 // Block is an interface for a block object
 //go:generate counterfeiter . Block
 type Block interface {
+	Identifiable
 }
 
 // BlockDescriptor describes a block

@@ -19,6 +19,10 @@ type Print struct {
 	value interface{} `basil:"value,required"`
 }
 
+func (p *Print) ID() basil.ID {
+	return p.id
+}
+
 func (p *Print) Main(ctx basil.BlockContext) error {
 	fmt.Print(p.value)
 	return nil

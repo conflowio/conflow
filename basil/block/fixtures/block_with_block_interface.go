@@ -22,6 +22,10 @@ type BlockWithBlockInterface struct {
 	BlockSimple []BlockInterface `basil:"block"`
 }
 
+func (b *BlockWithBlockInterface) ID() basil.ID {
+	return b.IDField
+}
+
 func (b *BlockWithBlockInterface) ParseContextOverride(ctx *basil.ParseContext) basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{

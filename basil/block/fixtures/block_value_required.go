@@ -13,3 +13,7 @@ type BlockValueRequired struct {
 	IDField basil.ID    `basil:"id"`
 	Value   interface{} `basil:"value,required"`
 }
+
+func (b *BlockValueRequired) ID() basil.ID {
+	return b.IDField
+}

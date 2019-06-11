@@ -21,6 +21,10 @@ type Main struct {
 	id basil.ID `basil:"id"`
 }
 
+func (m *Main) ID() basil.ID {
+	return m.id
+}
+
 func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{

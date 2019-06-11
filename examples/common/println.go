@@ -19,6 +19,10 @@ type Println struct {
 	value interface{} `basil:"value,required"`
 }
 
+func (p *Println) ID() basil.ID {
+	return p.id
+}
+
 func (p *Println) Main(ctx basil.BlockContext) error {
 	fmt.Println(p.value)
 	return nil

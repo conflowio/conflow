@@ -12,3 +12,7 @@ import "github.com/opsidian/basil/basil"
 type Noop struct {
 	id basil.ID `basil:"id"`
 }
+
+func (n *Noop) ID() basil.ID {
+	return n.id
+}

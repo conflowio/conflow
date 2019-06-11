@@ -23,6 +23,10 @@ type Ticker struct {
 	tick     chan basil.BlockMessage `basil:"block,output"`
 }
 
+func (t *Ticker) ID() basil.ID {
+	return t.id
+}
+
 func (t *Ticker) Main(ctx basil.BlockContext) error {
 	ticker := time.NewTicker(t.interval)
 	defer ticker.Stop()
@@ -61,4 +65,8 @@ func (t *Ticker) ParseContextOverride() basil.ParseContextOverride {
 type Tick struct {
 	id   basil.ID  `basil:"id"`
 	time time.Time `basil:"output"`
+}
+
+func (t *Tick) ID() basil.ID {
+	return t.id
 }

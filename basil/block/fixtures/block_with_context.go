@@ -18,6 +18,10 @@ type BlockWithContext struct {
 	IDField basil.ID `basil:"id"`
 }
 
+func (b *BlockWithContext) ID() basil.ID {
+	return b.IDField
+}
+
 func (b *BlockWithContext) Context(ctx context.Context) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(ctx, 1*time.Second)
 }

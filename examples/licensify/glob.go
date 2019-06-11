@@ -25,6 +25,10 @@ type Glob struct {
 	file    chan basil.BlockMessage `basil:"block,output"`
 }
 
+func (g *Glob) ID() basil.ID {
+	return g.id
+}
+
 func (g *Glob) Main(ctx basil.BlockContext) error {
 	regexp, err := regexp.Compile(g.pattern)
 	if err != nil {
@@ -57,4 +61,8 @@ func (g *Glob) ParseContextOverride() basil.ParseContextOverride {
 type File struct {
 	id   basil.ID `basil:"id"`
 	path string
+}
+
+func (f *File) ID() basil.ID {
+	return f.id
 }
