@@ -10,7 +10,6 @@ type InterpreterTemplateParams struct {
 	Package            string
 	Type               string
 	Name               string
-	Stages             []string
 	Fields             Fields
 	IDField            *Field
 	HasForeignID       bool

@@ -48,17 +48,10 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 	if err != nil {
 		return nil, err
 	}
+
 	var idField, valueField *Field
 	var hasForeignID bool
-
-	var stages []string
 	for _, field := range fields {
-		if field.Stage != "-" {
-			if !util.StringSliceContains(stages, field.Stage) {
-				stages = append(stages, field.Stage)
-			}
-		}
-
 		switch {
 		case field.IsID:
 			idField = field
@@ -71,7 +64,6 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 	return &InterpreterTemplateParams{
 		Package:            pkgName,
 		Name:               name,
-		Stages:             stages,
 		Fields:             fields,
 		IDField:            idField,
 		ValueField:         valueField,
