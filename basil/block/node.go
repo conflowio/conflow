@@ -199,7 +199,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value creates a new block
 func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	container := NewContainer(userCtx.(basil.EvalContext), n, nil, nil, nil)
+	container := NewContainer(userCtx.(*basil.EvalContext), n, nil, nil, nil)
 	container.Run()
 
 	return container.Value()

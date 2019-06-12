@@ -38,9 +38,6 @@ type {{.Name}}Interpreter struct {}
 func (i {{.Name}}Interpreter) CreateBlock(id basil.ID) basil.Block {
 	return &{{.Name}}{
 		{{.IDField.Name}}: id,
-		{{ range filterChannels .Fields -}}
-		{{ .Name }}: make(chan {{ .Type}}, 0),
-		{{ end -}}
 	}
 }
 
@@ -69,7 +66,7 @@ func (i {{.Name}}Interpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 		{{ range (filterBlocks .Fields) -}}
 		"{{.ParamName}}": {
 			EvalStage: basil.EvalStages["{{.Stage}}"],
-			IsGenerated: {{.IsChannel}},
+			IsGenerated: {{.IsGenerated}},
 			IsRequired: {{.IsRequired}},
 			IsMany: {{.IsMany}},
 		},
@@ -142,28 +139,6 @@ func (i {{.Name}}Interpreter) SetBlock(block basil.Block, name basil.ID, value i
 	}
 	{{ end -}}
 	return nil
-}
-
-func (i {{.Name}}Interpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-	{{ if filterChannels .Fields -}}
-		b := blockContainer.Block().(*{{$root.Name}})
-		{{ range filterChannels .Fields -}}
-		go func() {
-			for blockMessage := range b.{{ .Name }} {
-				blockContainer.PublishBlock("{{ .ParamName }}", blockMessage)
-			}
-		}()
-		{{ end -}}
-	{{ end -}}
-}
-
-func (i {{.Name}}Interpreter) CloseChannels(blockContainer basil.BlockContainer) {
-	{{ if filterChannels .Fields -}}
-		b := blockContainer.Block().(*{{$root.Name}})
-		{{ range filterChannels .Fields -}}
-		close(b.{{ .Name }})
-		{{ end -}}
-	{{ end -}}
 }
 
 `

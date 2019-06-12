@@ -34,7 +34,9 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 
 	if _, err := basil.Evaluate(
 		parseCtx,
-		basil.NewBlockContext(ctx, nil, logger.NewZeroLogLogger(zl)),
+		ctx,
+		nil,
+		logger.NewZeroLogLogger(zl),
 		scheduler,
 		"main",
 	); err != nil {

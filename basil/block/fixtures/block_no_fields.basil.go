@@ -69,9 +69,3 @@ func (i BlockNoFieldsInterpreter) SetParam(block basil.Block, name basil.ID, val
 func (i BlockNoFieldsInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
-
-func (i BlockNoFieldsInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i BlockNoFieldsInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}

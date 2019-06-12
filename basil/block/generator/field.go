@@ -26,7 +26,7 @@ type Field struct {
 	IsReference bool
 	IsBlock     bool
 	IsOutput    bool
-	IsChannel   bool
+	IsGenerated bool
 	IsMany      bool
 }
 
@@ -89,7 +89,7 @@ func (f *Field) hasMultipleKinds() bool {
 	if f.IsBlock {
 		typeCnt++
 	}
-	if f.IsChannel {
+	if f.IsGenerated {
 		typeCnt++
 	}
 	return typeCnt > 1

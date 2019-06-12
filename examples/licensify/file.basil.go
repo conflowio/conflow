@@ -80,9 +80,3 @@ func (i FileInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i FileInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
-
-func (i FileInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i FileInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}

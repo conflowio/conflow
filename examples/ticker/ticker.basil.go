@@ -13,8 +13,7 @@ type TickerInterpreter struct{}
 // Create creates a new Ticker block
 func (i TickerInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &Ticker{
-		id:   id,
-		tick: make(chan basil.BlockMessage, 0),
+		id: id,
 	}
 }
 
@@ -46,7 +45,7 @@ func (i TickerInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 func (i TickerInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"tick": {
-			EvalStage:   basil.EvalStages["close"],
+			EvalStage:   basil.EvalStages["init"],
 			IsGenerated: true,
 			IsRequired:  true,
 			IsMany:      false,
@@ -104,19 +103,10 @@ func (i TickerInterpreter) SetParam(block basil.Block, name basil.ID, value inte
 }
 
 func (i TickerInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	b := block.(*Ticker)
+	switch name {
+	case "tick":
+		b.tick = value.(*Tick)
+	}
 	return nil
-}
-
-func (i TickerInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-	b := blockContainer.Block().(*Ticker)
-	go func() {
-		for blockMessage := range b.tick {
-			blockContainer.PublishBlock("tick", blockMessage)
-		}
-	}()
-}
-
-func (i TickerInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-	b := blockContainer.Block().(*Ticker)
-	close(b.tick)
 }

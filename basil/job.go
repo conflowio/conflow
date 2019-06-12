@@ -13,14 +13,14 @@ type Job interface {
 }
 
 type job struct {
-	ctx         EvalContext
+	ctx         *EvalContext
 	id          ID
 	lightweight bool
 	f           func()
 }
 
 // NewJob creates a new job
-func NewJob(ctx EvalContext, id ID, lightweight bool, f func()) Job {
+func NewJob(ctx *EvalContext, id ID, lightweight bool, f func()) Job {
 	return &job{
 		ctx:         ctx,
 		id:          id,
@@ -36,7 +36,7 @@ func (j *job) ID() ID {
 
 // Run runs the wrapped job if it wasn't cancelled
 func (j *job) Run() {
-	if j.ctx.BlockContext().Context().Err() != nil {
+	if j.ctx.Context.Err() != nil {
 		return
 	}
 

@@ -26,7 +26,7 @@ type NodeContainer struct {
 
 // NewNodeContainer creates a new node container
 func NewNodeContainer(
-	ctx EvalContext,
+	ctx *EvalContext,
 	node Node,
 	dependencies map[ID]Container,
 	run func(*NodeContainer, []*util.WaitGroup) bool,
@@ -97,7 +97,7 @@ func (n *NodeContainer) Run() bool {
 }
 
 // EvalContext returns with a new evaluation context
-func (n *NodeContainer) EvalContext(ctx EvalContext) EvalContext {
+func (n *NodeContainer) EvalContext(ctx *EvalContext) *EvalContext {
 	dependencies := make(map[ID]BlockContainer, len(n.dependencies))
 	for id, cont := range n.dependencies {
 		switch c := cont.(type) {
@@ -121,7 +121,7 @@ func (n *NodeContainer) IncRunCount() {
 	n.runCount++
 }
 
-func (n *NodeContainer) Close(ctx EvalContext) {
+func (n *NodeContainer) Close(ctx *EvalContext) {
 	for id := range n.dependencies {
 		ctx.Unsubscribe(n, id)
 	}

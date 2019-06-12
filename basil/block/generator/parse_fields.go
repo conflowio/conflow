@@ -109,13 +109,15 @@ func parseField(astField *ast.Field) (*Field, error) {
 		IsReference: tags.GetBool(basil.BlockTagReference),
 		IsBlock:     tags.GetBool(basil.BlockTagBlock),
 		IsOutput:    tags.GetBool(basil.BlockTagOutput),
+		IsGenerated: tags.GetBool(basil.BlockTagGenerated),
 	}
 
 	setFieldType(astField.Type, field)
 
-	if field.IsChannel {
+	if field.IsGenerated {
 		field.IsBlock = true
 		field.IsRequired = true
+		field.Stage = "init"
 	}
 
 	if field.IsOutput {
@@ -129,10 +131,6 @@ func setFieldType(typeNode ast.Expr, field *Field) {
 	switch t := typeNode.(type) {
 	case *ast.Ident:
 		field.Type = t.String()
-		return
-	case *ast.ChanType:
-		field.IsChannel = true
-		setFieldType(t.Value, field)
 		return
 	case *ast.ArrayType:
 		if field.IsBlock {

@@ -7,8 +7,6 @@
 package main
 
 import (
-	"errors"
-
 	"github.com/opsidian/basil/basil/block"
 
 	"github.com/opsidian/basil/basil"
@@ -16,9 +14,9 @@ import (
 
 //go:generate basil generate
 type Iterator struct {
-	id    basil.ID                `basil:"id"`
-	count int64                   `basil:"required"`
-	it    chan basil.BlockMessage `basil:"output,block"`
+	id    basil.ID `basil:"id"`
+	count int64    `basil:"required"`
+	it    *It      `basil:"generated"`
 }
 
 func (i *Iterator) ID() basil.ID {
@@ -27,15 +25,10 @@ func (i *Iterator) ID() basil.ID {
 
 func (it *Iterator) Main(ctx basil.BlockContext) error {
 	for i := int64(0); i < it.count; i++ {
-		message := basil.NewBlockMessage(&It{value: i})
-		it.it <- message
-		ctx.Logger().Debug().ID("id", it.id).Int64("i", i).Msg("ITERATOR WAITING")
-		select {
-		case <-message.WaitGroup().Wait():
-		case <-ctx.Context().Done():
-			return errors.New("aborted")
-		}
-		ctx.Logger().Debug().ID("id", it.id).Int64("i", i).Msg("ITERATOR FINISHED")
+		_ = ctx.PublishBlock(&It{
+			id:    it.it.id,
+			value: i,
+		})
 	}
 
 	return nil

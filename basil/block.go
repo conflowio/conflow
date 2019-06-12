@@ -14,6 +14,7 @@ import (
 const (
 	BlockTagBlock      = "block"
 	BlockTagDeprecated = "deprecated"
+	BlockTagGenerated  = "generated"
 	BlockTagID         = "id"
 	BlockTagIgnore     = "ignore"
 	BlockTagName       = "name"
@@ -28,6 +29,7 @@ const (
 var BlockTags = map[string]string{
 	BlockTagBlock:      "marks an array field which should store child blocks",
 	BlockTagDeprecated: "marks the field as deprecated (for documentation purposes)",
+	BlockTagGenerated:  "marks the block as generated",
 	BlockTagID:         "marks the id field in the block",
 	BlockTagIgnore:     "the field is ignored when processing the block",
 	BlockTagName:       "overrides the parameter name, otherwise the field name will be converted to under_score",
@@ -59,7 +61,7 @@ type BlockContainer interface {
 	Block() Block
 	Param(ID) interface{}
 	SetChild(Container)
-	PublishBlock(blockType ID, block BlockMessage)
+	PublishBlock(Block) error
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
@@ -113,6 +115,4 @@ type BlockInterpreter interface {
 	ValueParamName() ID
 	HasForeignID() bool
 	ParseContext(*ParseContext) *ParseContext
-	ProcessChannels(blockContainer BlockContainer)
-	CloseChannels(blockContainer BlockContainer)
 }

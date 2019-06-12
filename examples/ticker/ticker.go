@@ -19,8 +19,8 @@ type Ticker struct {
 	id       basil.ID      `basil:"id"`
 	interval time.Duration `basil:"required"`
 	count    int64
-	ticks    int64                   `basil:"output"`
-	tick     chan basil.BlockMessage `basil:"block,output"`
+	ticks    int64 `basil:"output"`
+	tick     *Tick `basil:"generated"`
 }
 
 func (t *Ticker) ID() basil.ID {
@@ -34,14 +34,10 @@ func (t *Ticker) Main(ctx basil.BlockContext) error {
 	for {
 		select {
 		case tickerTime := <-ticker.C:
-			message := basil.NewBlockMessage(&Tick{time: tickerTime})
-
-			// We do a non-blocking send here, the tick will be sent again at the next interval
-			select {
-			case t.tick <- message:
-				<-message.WaitGroup().Wait()
-			default:
-			}
+			_ = ctx.PublishBlock(&Tick{
+				id:   t.tick.id,
+				time: tickerTime,
+			})
 
 			t.ticks++
 			if t.count > 0 && t.ticks >= t.count {

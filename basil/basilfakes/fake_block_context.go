@@ -29,6 +29,17 @@ type FakeBlockContext struct {
 	loggerReturnsOnCall map[int]struct {
 		result1 basil.Logger
 	}
+	PublishBlockStub        func(basil.Block) error
+	publishBlockMutex       sync.RWMutex
+	publishBlockArgsForCall []struct {
+		arg1 basil.Block
+	}
+	publishBlockReturns struct {
+		result1 error
+	}
+	publishBlockReturnsOnCall map[int]struct {
+		result1 error
+	}
 	UserContextStub        func() interface{}
 	userContextMutex       sync.RWMutex
 	userContextArgsForCall []struct {
@@ -147,6 +158,66 @@ func (fake *FakeBlockContext) LoggerReturnsOnCall(i int, result1 basil.Logger) {
 	}{result1}
 }
 
+func (fake *FakeBlockContext) PublishBlock(arg1 basil.Block) error {
+	fake.publishBlockMutex.Lock()
+	ret, specificReturn := fake.publishBlockReturnsOnCall[len(fake.publishBlockArgsForCall)]
+	fake.publishBlockArgsForCall = append(fake.publishBlockArgsForCall, struct {
+		arg1 basil.Block
+	}{arg1})
+	fake.recordInvocation("PublishBlock", []interface{}{arg1})
+	fake.publishBlockMutex.Unlock()
+	if fake.PublishBlockStub != nil {
+		return fake.PublishBlockStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.publishBlockReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContext) PublishBlockCallCount() int {
+	fake.publishBlockMutex.RLock()
+	defer fake.publishBlockMutex.RUnlock()
+	return len(fake.publishBlockArgsForCall)
+}
+
+func (fake *FakeBlockContext) PublishBlockCalls(stub func(basil.Block) error) {
+	fake.publishBlockMutex.Lock()
+	defer fake.publishBlockMutex.Unlock()
+	fake.PublishBlockStub = stub
+}
+
+func (fake *FakeBlockContext) PublishBlockArgsForCall(i int) basil.Block {
+	fake.publishBlockMutex.RLock()
+	defer fake.publishBlockMutex.RUnlock()
+	argsForCall := fake.publishBlockArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeBlockContext) PublishBlockReturns(result1 error) {
+	fake.publishBlockMutex.Lock()
+	defer fake.publishBlockMutex.Unlock()
+	fake.PublishBlockStub = nil
+	fake.publishBlockReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeBlockContext) PublishBlockReturnsOnCall(i int, result1 error) {
+	fake.publishBlockMutex.Lock()
+	defer fake.publishBlockMutex.Unlock()
+	fake.PublishBlockStub = nil
+	if fake.publishBlockReturnsOnCall == nil {
+		fake.publishBlockReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.publishBlockReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *FakeBlockContext) UserContext() interface{} {
 	fake.userContextMutex.Lock()
 	ret, specificReturn := fake.userContextReturnsOnCall[len(fake.userContextArgsForCall)]
@@ -206,6 +277,8 @@ func (fake *FakeBlockContext) Invocations() map[string][][]interface{} {
 	defer fake.contextMutex.RUnlock()
 	fake.loggerMutex.RLock()
 	defer fake.loggerMutex.RUnlock()
+	fake.publishBlockMutex.RLock()
+	defer fake.publishBlockMutex.RUnlock()
 	fake.userContextMutex.RLock()
 	defer fake.userContextMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

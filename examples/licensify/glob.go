@@ -7,7 +7,6 @@
 package main
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -19,10 +18,10 @@ import (
 
 //go:generate basil generate
 type Glob struct {
-	id      basil.ID                `basil:"id"`
-	path    string                  `basil:"required"`
-	pattern string                  `basil:"required"`
-	file    chan basil.BlockMessage `basil:"block,output"`
+	id      basil.ID `basil:"id"`
+	path    string   `basil:"required"`
+	pattern string   `basil:"required"`
+	file    *File    `basil:"generated"`
 }
 
 func (g *Glob) ID() basil.ID {
@@ -38,14 +37,7 @@ func (g *Glob) Main(ctx basil.BlockContext) error {
 		if !regexp.MatchString(path) {
 			return nil
 		}
-		message := basil.NewBlockMessage(&File{path: path})
-		select {
-		case g.file <- message:
-			<-message.WaitGroup().Wait()
-		case <-ctx.Context().Done():
-			return errors.New("aborted")
-		}
-		return nil
+		return ctx.PublishBlock(&File{id: g.file.id, path: path})
 	})
 }
 

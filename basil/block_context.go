@@ -14,6 +14,7 @@ type BlockContext interface {
 	Context() context.Context
 	UserContext() interface{}
 	Logger() Logger
+	PublishBlock(Block) error
 }
 
 // Context defines an interface about creating a new context
@@ -32,28 +33,33 @@ type Loggerer interface {
 }
 
 // NewBlockContext creates a new block context
-func NewBlockContext(context context.Context, userContext interface{}, logger Logger) BlockContext {
+func NewBlockContext(
+	evalContext *EvalContext,
+	container BlockContainer,
+) BlockContext {
 	return &blockContext{
-		context:     context,
-		userContext: userContext,
-		logger:      logger,
+		evalContext: evalContext,
+		container:   container,
 	}
 }
 
 type blockContext struct {
-	context     context.Context
-	userContext interface{}
-	logger      Logger
+	evalContext *EvalContext
+	container   BlockContainer
 }
 
 func (b *blockContext) Context() context.Context {
-	return b.context
+	return b.evalContext.Context
 }
 
 func (b *blockContext) UserContext() interface{} {
-	return b.userContext
+	return b.evalContext.UserContext
 }
 
 func (b *blockContext) Logger() Logger {
-	return b.logger
+	return b.evalContext.Logger
+}
+
+func (b *blockContext) PublishBlock(block Block) error {
+	return b.container.PublishBlock(block)
 }

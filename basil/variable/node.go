@@ -79,7 +79,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value returns with the result of the function
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
-	blockContainer, ok := ctx.(basil.EvalContext).BlockContainer(n.blockIDNode.ID())
+	blockContainer, ok := ctx.(*basil.EvalContext).BlockContainer(n.blockIDNode.ID())
 	if !ok {
 		panic(parsley.NewErrorf(n.Pos(), "%q was referenced before it was evaluated", n.blockIDNode.ID()))
 	}

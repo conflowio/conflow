@@ -29,7 +29,7 @@ var _ = Describe("Variable", func() {
 	var p = parser.Variable()
 	var parsleyContext *parsley.Context
 	var parseCtx *basil.ParseContext
-	var evalCtx basil.EvalContext
+	var evalCtx *basil.EvalContext
 	var res parsley.Node
 	var parseErr, evalErr error
 	var value interface{}
@@ -39,8 +39,7 @@ var _ = Describe("Variable", func() {
 	BeforeEach(func() {
 		parseCtx = basil.NewParseContext(basil.NewIDRegistry(8, 16))
 		logger := logger.NewZeroLogLogger(zerolog.New(os.Stderr).Level(zerolog.Disabled))
-		blockContext := basil.NewBlockContext(context.Background(), nil, logger)
-		evalCtx = basil.NewEvalContext(blockContext, test.Scheduler{})
+		evalCtx = basil.NewEvalContext(context.Background(), nil, logger, test.Scheduler{})
 		parseErr = nil
 		evalErr = nil
 		value = nil

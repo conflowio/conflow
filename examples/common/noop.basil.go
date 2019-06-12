@@ -69,9 +69,3 @@ func (i NoopInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i NoopInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
-
-func (i NoopInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i NoopInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}

@@ -172,9 +172,3 @@ func (i TestBlockInterpreter) SetBlock(block basil.Block, name basil.ID, value i
 	}
 	return nil
 }
-
-func (i TestBlockInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i TestBlockInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}

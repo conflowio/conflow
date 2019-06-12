@@ -78,9 +78,3 @@ func (i TickInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i TickInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
-
-func (i TickInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i TickInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}

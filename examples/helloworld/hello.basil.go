@@ -88,9 +88,3 @@ func (i HelloInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 func (i HelloInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
-
-func (i HelloInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i HelloInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}

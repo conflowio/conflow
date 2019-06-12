@@ -18,11 +18,6 @@ type FakeBlockInterpreter struct {
 	blocksReturnsOnCall map[int]struct {
 		result1 map[basil.ID]basil.BlockDescriptor
 	}
-	CloseChannelsStub        func(basil.BlockContainer)
-	closeChannelsMutex       sync.RWMutex
-	closeChannelsArgsForCall []struct {
-		arg1 basil.BlockContainer
-	}
 	CreateBlockStub        func(basil.ID) basil.Block
 	createBlockMutex       sync.RWMutex
 	createBlockArgsForCall []struct {
@@ -76,11 +71,6 @@ type FakeBlockInterpreter struct {
 	}
 	parseContextReturnsOnCall map[int]struct {
 		result1 *basil.ParseContext
-	}
-	ProcessChannelsStub        func(basil.BlockContainer)
-	processChannelsMutex       sync.RWMutex
-	processChannelsArgsForCall []struct {
-		arg1 basil.BlockContainer
 	}
 	SetBlockStub        func(basil.Block, basil.ID, interface{}) error
 	setBlockMutex       sync.RWMutex
@@ -172,37 +162,6 @@ func (fake *FakeBlockInterpreter) BlocksReturnsOnCall(i int, result1 map[basil.I
 	fake.blocksReturnsOnCall[i] = struct {
 		result1 map[basil.ID]basil.BlockDescriptor
 	}{result1}
-}
-
-func (fake *FakeBlockInterpreter) CloseChannels(arg1 basil.BlockContainer) {
-	fake.closeChannelsMutex.Lock()
-	fake.closeChannelsArgsForCall = append(fake.closeChannelsArgsForCall, struct {
-		arg1 basil.BlockContainer
-	}{arg1})
-	fake.recordInvocation("CloseChannels", []interface{}{arg1})
-	fake.closeChannelsMutex.Unlock()
-	if fake.CloseChannelsStub != nil {
-		fake.CloseChannelsStub(arg1)
-	}
-}
-
-func (fake *FakeBlockInterpreter) CloseChannelsCallCount() int {
-	fake.closeChannelsMutex.RLock()
-	defer fake.closeChannelsMutex.RUnlock()
-	return len(fake.closeChannelsArgsForCall)
-}
-
-func (fake *FakeBlockInterpreter) CloseChannelsCalls(stub func(basil.BlockContainer)) {
-	fake.closeChannelsMutex.Lock()
-	defer fake.closeChannelsMutex.Unlock()
-	fake.CloseChannelsStub = stub
-}
-
-func (fake *FakeBlockInterpreter) CloseChannelsArgsForCall(i int) basil.BlockContainer {
-	fake.closeChannelsMutex.RLock()
-	defer fake.closeChannelsMutex.RUnlock()
-	argsForCall := fake.closeChannelsArgsForCall[i]
-	return argsForCall.arg1
 }
 
 func (fake *FakeBlockInterpreter) CreateBlock(arg1 basil.ID) basil.Block {
@@ -490,37 +449,6 @@ func (fake *FakeBlockInterpreter) ParseContextReturnsOnCall(i int, result1 *basi
 	}{result1}
 }
 
-func (fake *FakeBlockInterpreter) ProcessChannels(arg1 basil.BlockContainer) {
-	fake.processChannelsMutex.Lock()
-	fake.processChannelsArgsForCall = append(fake.processChannelsArgsForCall, struct {
-		arg1 basil.BlockContainer
-	}{arg1})
-	fake.recordInvocation("ProcessChannels", []interface{}{arg1})
-	fake.processChannelsMutex.Unlock()
-	if fake.ProcessChannelsStub != nil {
-		fake.ProcessChannelsStub(arg1)
-	}
-}
-
-func (fake *FakeBlockInterpreter) ProcessChannelsCallCount() int {
-	fake.processChannelsMutex.RLock()
-	defer fake.processChannelsMutex.RUnlock()
-	return len(fake.processChannelsArgsForCall)
-}
-
-func (fake *FakeBlockInterpreter) ProcessChannelsCalls(stub func(basil.BlockContainer)) {
-	fake.processChannelsMutex.Lock()
-	defer fake.processChannelsMutex.Unlock()
-	fake.ProcessChannelsStub = stub
-}
-
-func (fake *FakeBlockInterpreter) ProcessChannelsArgsForCall(i int) basil.BlockContainer {
-	fake.processChannelsMutex.RLock()
-	defer fake.processChannelsMutex.RUnlock()
-	argsForCall := fake.processChannelsArgsForCall[i]
-	return argsForCall.arg1
-}
-
 func (fake *FakeBlockInterpreter) SetBlock(arg1 basil.Block, arg2 basil.ID, arg3 interface{}) error {
 	fake.setBlockMutex.Lock()
 	ret, specificReturn := fake.setBlockReturnsOnCall[len(fake.setBlockArgsForCall)]
@@ -702,8 +630,6 @@ func (fake *FakeBlockInterpreter) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.blocksMutex.RLock()
 	defer fake.blocksMutex.RUnlock()
-	fake.closeChannelsMutex.RLock()
-	defer fake.closeChannelsMutex.RUnlock()
 	fake.createBlockMutex.RLock()
 	defer fake.createBlockMutex.RUnlock()
 	fake.hasForeignIDMutex.RLock()
@@ -714,8 +640,6 @@ func (fake *FakeBlockInterpreter) Invocations() map[string][][]interface{} {
 	defer fake.paramsMutex.RUnlock()
 	fake.parseContextMutex.RLock()
 	defer fake.parseContextMutex.RUnlock()
-	fake.processChannelsMutex.RLock()
-	defer fake.processChannelsMutex.RUnlock()
 	fake.setBlockMutex.RLock()
 	defer fake.setBlockMutex.RUnlock()
 	fake.setParamMutex.RLock()

@@ -14,7 +14,6 @@ type IteratorInterpreter struct{}
 func (i IteratorInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &Iterator{
 		id: id,
-		it: make(chan basil.BlockMessage, 0),
 	}
 }
 
@@ -34,7 +33,7 @@ func (i IteratorInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 func (i IteratorInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"it": {
-			EvalStage:   basil.EvalStages["close"],
+			EvalStage:   basil.EvalStages["init"],
 			IsGenerated: true,
 			IsRequired:  true,
 			IsMany:      false,
@@ -86,19 +85,10 @@ func (i IteratorInterpreter) SetParam(block basil.Block, name basil.ID, value in
 }
 
 func (i IteratorInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	b := block.(*Iterator)
+	switch name {
+	case "it":
+		b.it = value.(*It)
+	}
 	return nil
-}
-
-func (i IteratorInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-	b := blockContainer.Block().(*Iterator)
-	go func() {
-		for blockMessage := range b.it {
-			blockContainer.PublishBlock("it", blockMessage)
-		}
-	}()
-}
-
-func (i IteratorInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-	b := blockContainer.Block().(*Iterator)
-	close(b.it)
 }

@@ -70,7 +70,7 @@ func ParseCtx(
 	return ctx
 }
 
-func EvalUserCtx() basil.EvalContext {
+func EvalUserCtx() *basil.EvalContext {
 	testBlock :=
 		&TestBlock{
 			FieldString: "bar",
@@ -97,12 +97,12 @@ func EvalUserCtx() basil.EvalContext {
 		"test": testBlockContainer,
 	}
 
-	blockContext := basil.NewBlockContext(
+	evalCtx := basil.NewEvalContext(
 		context.Background(),
 		"userCtx",
 		logger.NewZeroLogLogger(zerolog.New(os.Stderr).Level(zerolog.Disabled)),
-	)
-	evalCtx := basil.NewEvalContext(blockContext, Scheduler{}).WithDependencies(containers)
+		Scheduler{},
+	).WithDependencies(containers)
 
 	return evalCtx
 }

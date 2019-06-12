@@ -13,8 +13,7 @@ type GlobInterpreter struct{}
 // Create creates a new Glob block
 func (i GlobInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &Glob{
-		id:   id,
-		file: make(chan basil.BlockMessage, 0),
+		id: id,
 	}
 }
 
@@ -40,7 +39,7 @@ func (i GlobInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 func (i GlobInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"file": {
-			EvalStage:   basil.EvalStages["close"],
+			EvalStage:   basil.EvalStages["init"],
 			IsGenerated: true,
 			IsRequired:  true,
 			IsMany:      false,
@@ -96,19 +95,10 @@ func (i GlobInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 }
 
 func (i GlobInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	b := block.(*Glob)
+	switch name {
+	case "file":
+		b.file = value.(*File)
+	}
 	return nil
-}
-
-func (i GlobInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-	b := blockContainer.Block().(*Glob)
-	go func() {
-		for blockMessage := range b.file {
-			blockContainer.PublishBlock("file", blockMessage)
-		}
-	}()
-}
-
-func (i GlobInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-	b := blockContainer.Block().(*Glob)
-	close(b.file)
 }

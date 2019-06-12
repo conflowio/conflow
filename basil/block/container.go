@@ -45,27 +45,26 @@ var _ basil.BlockContainer = &Container{}
 
 // Container is a block container
 type Container struct {
-	ctx               basil.EvalContext
-	node              basil.BlockNode
-	parent            basil.BlockContainer
-	block             basil.Block
-	err               parsley.Error
-	extraParams       map[basil.ID]interface{}
-	state             containerState
-	evalStage         basil.EvalStage
-	stateChan         chan containerState
-	childrenChan      chan basil.Container
-	errChan           chan parsley.Error
-	remainingJobs     int64
-	children          map[basil.ID]*basil.NodeContainer
-	generatedChildren map[basil.ID]*basil.NodeContainer
-	cancel            context.CancelFunc
-	wgs               []*util.WaitGroup
+	evalContext   *basil.EvalContext
+	blockContext  basil.BlockContext
+	node          basil.BlockNode
+	parent        basil.BlockContainer
+	block         basil.Block
+	err           parsley.Error
+	extraParams   map[basil.ID]interface{}
+	state         containerState
+	evalStage     basil.EvalStage
+	stateChan     chan containerState
+	childrenChan  chan basil.Container
+	errChan       chan parsley.Error
+	remainingJobs int64
+	children      map[basil.ID]*basil.NodeContainer
+	wgs           []*util.WaitGroup
 }
 
 // NewContainer creates a new block container instance
 func NewContainer(
-	ctx basil.EvalContext,
+	ctx *basil.EvalContext,
 	node basil.BlockNode,
 	parent basil.BlockContainer,
 	block basil.Block,
@@ -76,7 +75,7 @@ func NewContainer(
 	}
 
 	return &Container{
-		ctx:          ctx,
+		evalContext:  ctx,
 		node:         node,
 		parent:       parent,
 		block:        block,
@@ -124,21 +123,18 @@ func (c *Container) Param(name basil.ID) interface{} {
 func (c *Container) Run() {
 	c.debug().Msg("starting")
 
+	c.evalContext.Context, c.evalContext.Cancel = context.WithCancel(c.evalContext.Context)
+	c.blockContext = basil.NewBlockContext(c.evalContext, c)
+
 	c.stateChan <- containerStateNext
 	c.mainLoop()
 
-	// TODO: call context cancel here, but we need to initialise our own context+cancel
-
-	c.node.Interpreter().CloseChannels(c)
-
-	for _, container := range c.generatedChildren {
-		container.Close(c.ctx)
-	}
-
 	for _, container := range c.children {
-		container.Close(c.ctx)
-		if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
-			atomic.AddInt64(&c.remainingJobs, -1)
+		container.Close(c.evalContext)
+		if !container.Node().Generated() {
+			if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
+				atomic.AddInt64(&c.remainingJobs, -1)
+			}
 		}
 	}
 
@@ -150,9 +146,7 @@ func (c *Container) Run() {
 		c.parent.SetChild(c)
 	}
 
-	if c.cancel != nil {
-		c.cancel()
-	}
+	c.evalContext.Cancel()
 }
 
 func (c *Container) Lightweight() bool {
@@ -188,7 +182,7 @@ func (c *Container) mainLoop() {
 			c.err = err
 			return
 
-		case <-c.ctx.BlockContext().Context().Done():
+		case <-c.evalContext.Context.Done():
 			c.setState(containerStateAborted)
 			c.err = parsley.NewError(c.node.Pos(), errors.New("aborted"))
 			return
@@ -243,25 +237,16 @@ func (c *Container) setState(state containerState) {
 	case containerStatePreInit:
 		c.children = make(map[basil.ID]*basil.NodeContainer, len(c.node.Children()))
 		for _, node := range c.node.Children() {
-			if node.Generated() {
-				if c.generatedChildren == nil {
-					c.generatedChildren = make(map[basil.ID]*basil.NodeContainer, 1)
-				}
-				c.generatedChildren[node.(basil.BlockNode).BlockType()] = c.createChildNodeContainer(node)
-			} else {
-				c.children[node.ID()] = c.createChildNodeContainer(node)
-			}
+			c.children[node.ID()] = c.createChildNodeContainer(node)
 		}
-		c.node.Interpreter().ProcessChannels(c)
-
 		c.evalStage = basil.EvalStageInit
 		c.evaluateChildren()
 	case containerStateInit:
-		c.setBlockContext()
+		c.updateEvalContext()
 
 		if _, ok := c.block.(basil.BlockInitialiser); ok {
 			atomic.AddInt64(&c.remainingJobs, 1)
-			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), false, c.init))
+			c.evalContext.ScheduleJob(basil.NewJob(c.evalContext, c.ID(), false, c.init))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -271,7 +256,7 @@ func (c *Container) setState(state containerState) {
 	case containerStateMain:
 		if _, ok := c.block.(basil.BlockRunner); ok {
 			atomic.AddInt64(&c.remainingJobs, 1)
-			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), len(c.node.Generates()) > 0, c.main))
+			c.evalContext.ScheduleJob(basil.NewJob(c.evalContext, c.ID(), len(c.node.Generates()) > 0, c.main))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -281,7 +266,7 @@ func (c *Container) setState(state containerState) {
 	case containerStateClose:
 		if _, ok := c.block.(basil.BlockCloser); ok {
 			atomic.AddInt64(&c.remainingJobs, 1)
-			c.ctx.ScheduleJob(basil.NewJob(c.ctx, c.ID(), false, c.close))
+			c.evalContext.ScheduleJob(basil.NewJob(c.evalContext, c.ID(), false, c.close))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -313,28 +298,25 @@ func (c *Container) createChildNodeContainer(node basil.Node) *basil.NodeContain
 		}
 	}
 
-	return basil.NewNodeContainer(c.ctx, node, dependencies, c.scheduleChildJob)
+	return basil.NewNodeContainer(c.evalContext, node, dependencies, c.scheduleChildJob)
 }
 
-func (c *Container) setBlockContext() {
-	var ctx context.Context
+func (c *Container) updateEvalContext() {
 	if b, ok := c.block.(basil.Contexter); ok {
-		ctx, c.cancel = b.Context(c.ctx.BlockContext().Context())
+		// we want to cancel the previous context in this case which was created in Run()
+		c.evalContext.Cancel()
+		c.evalContext.Context, c.evalContext.Cancel = b.Context(c.evalContext.Context)
 	} else {
-		ctx, c.cancel = context.WithCancel(c.ctx.BlockContext().Context())
+		c.evalContext.Context, c.evalContext.Cancel = context.WithCancel(c.evalContext.Context)
 	}
 
-	userCtx := c.ctx.BlockContext().UserContext()
 	if b, ok := c.block.(basil.UserContexter); ok {
-		userCtx = b.UserContext(userCtx)
+		c.evalContext.UserContext = b.UserContext(c.evalContext.UserContext)
 	}
 
-	logger := c.ctx.BlockContext().Logger()
 	if b, ok := c.block.(basil.Loggerer); ok {
-		logger = b.Logger(logger)
+		c.evalContext.Logger = b.Logger(c.evalContext.Logger)
 	}
-
-	c.ctx.SetBlockContext(basil.NewBlockContext(ctx, userCtx, logger))
 }
 
 func (c *Container) init() {
@@ -346,7 +328,7 @@ func (c *Container) init() {
 
 	c.debug().Msg("init stage started")
 
-	start, err := c.block.(basil.BlockInitialiser).Init(c.ctx.BlockContext())
+	start, err := c.block.(basil.BlockInitialiser).Init(c.blockContext)
 	atomic.AddInt64(&c.remainingJobs, -1)
 
 	c.debug().Msg("init stage finished")
@@ -373,7 +355,7 @@ func (c *Container) main() {
 
 	c.debug().Msg("main stage started")
 
-	err := c.block.(basil.BlockRunner).Main(c.ctx.BlockContext())
+	err := c.block.(basil.BlockRunner).Main(c.blockContext)
 	atomic.AddInt64(&c.remainingJobs, -1)
 
 	c.debug().Msg("main stage finished")
@@ -395,7 +377,7 @@ func (c *Container) close() {
 
 	c.debug().Msg("close stage started")
 
-	err := c.block.(basil.BlockCloser).Close(c.ctx.BlockContext())
+	err := c.block.(basil.BlockCloser).Close(c.blockContext)
 	atomic.AddInt64(&c.remainingJobs, -1)
 
 	c.debug().Msg("close stage finished")
@@ -424,7 +406,7 @@ func (c *Container) evaluateChildren() {
 		return
 	}
 
-	if atomic.LoadInt64(&c.remainingJobs) == 0 {
+	if jobCount == 0 {
 		c.stateChan <- containerStateNext
 	}
 }
@@ -434,7 +416,7 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*
 		return false
 	}
 
-	ctx := nodeContainer.EvalContext(c.ctx)
+	ctx := nodeContainer.EvalContext(c.evalContext)
 	var container basil.Container
 
 	switch n := nodeContainer.Node().(type) {
@@ -500,27 +482,37 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 		panic(fmt.Errorf("unknown container type: %T", result))
 	}
 
-	c.ctx.Publish(result)
+	// Do not publish the empty generated node
+	if result.Node().Generated() && c.evalStage == basil.EvalStageInit {
+		return nil
+	}
+
+	c.evalContext.Publish(result)
 
 	return nil
 }
 
-func (c *Container) PublishBlock(blockType basil.ID, blockMessage basil.BlockMessage) {
+func (c *Container) PublishBlock(block basil.Block) error {
 	atomic.AddInt64(&c.remainingJobs, 1)
 
-	nodeContainer := c.generatedChildren[blockType]
+	nodeContainer, ok := c.children[block.ID()]
+	if !ok || !nodeContainer.Node().Generated() {
+		panic(fmt.Errorf("%q block does not exist or is not marked as generated", block.ID()))
+	}
 	nodeContainer.IncRunCount()
 
-	ctx := nodeContainer.EvalContext(c.ctx)
+	ctx := nodeContainer.EvalContext(c.evalContext)
 
-	wgs := []*util.WaitGroup{blockMessage.WaitGroup()}
-	blockMessage.WaitGroup().Add(1)
-	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), c, blockMessage.Block(), wgs)
+	wg := &util.WaitGroup{}
+	wg.Add(1)
+	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), c, block, []*util.WaitGroup{wg})
 	container.Run()
 
 	select {
-	case <-blockMessage.WaitGroup().Wait():
-	case <-c.ctx.BlockContext().Context().Done():
+	case <-wg.Wait():
+		return wg.Err()
+	case <-c.evalContext.Context.Done():
+		return fmt.Errorf("%q was aborted", c.ID())
 	}
 }
 
@@ -538,7 +530,7 @@ func (c *Container) WaitGroups() []*util.WaitGroup {
 }
 
 func (c *Container) debug() basil.LogEvent {
-	return c.ctx.Logger().Debug().
+	return c.evalContext.Logger.Debug().
 		ID("id", c.ID()).
 		ID("type", c.node.BlockType()).
 		Uint8("state", uint8(c.state)).
@@ -546,7 +538,7 @@ func (c *Container) debug() basil.LogEvent {
 }
 
 func (c *Container) logError(err error) basil.LogEvent {
-	return c.ctx.Logger().Error().
+	return c.evalContext.Logger.Error().
 		ID("id", c.ID()).
 		ID("type", c.node.BlockType()).
 		Uint8("state", uint8(c.state)).

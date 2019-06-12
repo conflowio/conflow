@@ -134,9 +134,3 @@ func (i ExecInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i ExecInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
-
-func (i ExecInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i ExecInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}

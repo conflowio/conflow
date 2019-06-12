@@ -19,8 +19,8 @@ type Benchmark struct {
 	id       basil.ID      `basil:"id"`
 	duration time.Duration `basil:"required"`
 	elapsed  time.Duration
-	counter  int64                   `basil:"output"`
-	run      chan basil.BlockMessage `basil:"block,output"`
+	counter  int64         `basil:"output"`
+	run      *BenchmarkRun `basil:"generated"`
 }
 
 func (b *Benchmark) ID() basil.ID {
@@ -40,9 +40,10 @@ func (b *Benchmark) Main(ctx basil.BlockContext) error {
 			return nil
 		default:
 			b.counter++
-			msg := basil.NewBlockMessage(&BenchmarkRun{cnt: b.counter})
-			b.run <- msg
-			<-msg.WaitGroup().Wait()
+			_ = ctx.PublishBlock(&BenchmarkRun{
+				id:  b.run.id,
+				cnt: b.counter,
+			})
 		}
 	}
 }

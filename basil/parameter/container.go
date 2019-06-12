@@ -16,7 +16,7 @@ var _ basil.ParameterContainer = &Container{}
 
 // Container is a parameter container
 type Container struct {
-	ctx    basil.EvalContext
+	ctx    *basil.EvalContext
 	node   basil.ParameterNode
 	parent basil.BlockContainer
 	value  interface{}
@@ -24,7 +24,7 @@ type Container struct {
 }
 
 // NewContainer creates a new parameter container
-func NewContainer(ctx basil.EvalContext, node basil.ParameterNode, parent basil.BlockContainer) *Container {
+func NewContainer(ctx *basil.EvalContext, node basil.ParameterNode, parent basil.BlockContainer) *Container {
 	return &Container{
 		ctx:    ctx,
 		node:   node,

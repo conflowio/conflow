@@ -80,9 +80,3 @@ func (i PrintInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 func (i PrintInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
-
-func (i PrintInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i PrintInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}

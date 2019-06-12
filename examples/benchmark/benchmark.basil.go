@@ -13,8 +13,7 @@ type BenchmarkInterpreter struct{}
 // Create creates a new Benchmark block
 func (i BenchmarkInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &Benchmark{
-		id:  id,
-		run: make(chan basil.BlockMessage, 0),
+		id: id,
 	}
 }
 
@@ -46,7 +45,7 @@ func (i BenchmarkInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 func (i BenchmarkInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"run": {
-			EvalStage:   basil.EvalStages["close"],
+			EvalStage:   basil.EvalStages["init"],
 			IsGenerated: true,
 			IsRequired:  true,
 			IsMany:      false,
@@ -104,19 +103,10 @@ func (i BenchmarkInterpreter) SetParam(block basil.Block, name basil.ID, value i
 }
 
 func (i BenchmarkInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	b := block.(*Benchmark)
+	switch name {
+	case "run":
+		b.run = value.(*BenchmarkRun)
+	}
 	return nil
-}
-
-func (i BenchmarkInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-	b := blockContainer.Block().(*Benchmark)
-	go func() {
-		for blockMessage := range b.run {
-			blockContainer.PublishBlock("run", blockMessage)
-		}
-	}()
-}
-
-func (i BenchmarkInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-	b := blockContainer.Block().(*Benchmark)
-	close(b.run)
 }

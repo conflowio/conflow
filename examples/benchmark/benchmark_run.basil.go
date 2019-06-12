@@ -78,9 +78,3 @@ func (i BenchmarkRunInterpreter) SetParam(block basil.Block, name basil.ID, valu
 func (i BenchmarkRunInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
-
-func (i BenchmarkRunInterpreter) ProcessChannels(blockContainer basil.BlockContainer) {
-}
-
-func (i BenchmarkRunInterpreter) CloseChannels(blockContainer basil.BlockContainer) {
-}
