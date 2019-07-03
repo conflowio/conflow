@@ -1,5 +1,7 @@
 # Basil - Domain specific language generator and workflow engine
 
+:exclamation: This project is a technology preview and heavily under development. If you would like to have a chat or contribute, please open an issue or drop an email to andras@[this github org].co.uk.
+
 ## Introduction
 
 Basil is able to **generate, parse and evaluate your own domain specific language (DSL)**. Your DSL can be used purely for configuration or you can define **complex workflows** with custom business logic. It's **written in Go** and similar to the Go language's syntax where applicable.
