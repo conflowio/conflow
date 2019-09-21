@@ -96,8 +96,8 @@ func (n *NodeContainer) Run() bool {
 	return run
 }
 
-// EvalContext returns with a new evaluation context
-func (n *NodeContainer) EvalContext(ctx *EvalContext) *EvalContext {
+// CreateEvalContext returns with a new evaluation context
+func (n *NodeContainer) CreateEvalContext(ctx *EvalContext) *EvalContext {
 	dependencies := make(map[ID]BlockContainer, len(n.dependencies))
 	for id, cont := range n.dependencies {
 		switch c := cont.(type) {
@@ -122,6 +122,8 @@ func (n *NodeContainer) IncRunCount() {
 }
 
 func (n *NodeContainer) Close(ctx *EvalContext) {
+	ctx.Cancel()
+
 	for id := range n.dependencies {
 		ctx.Unsubscribe(n, id)
 	}

@@ -39,13 +39,15 @@ type EvalContext struct {
 
 // NewEvalContext returns with a new evaluation context
 func NewEvalContext(
-	context context.Context,
+	ctx context.Context,
 	userContext interface{},
 	logger Logger,
 	scheduler Scheduler,
 ) *EvalContext {
+	ctx, cancel := context.WithCancel(ctx)
 	return &EvalContext{
-		Context:     context,
+		Context:     ctx,
+		Cancel:      cancel,
 		UserContext: userContext,
 		Logger:      logger,
 		scheduler:   scheduler,
@@ -55,8 +57,10 @@ func NewEvalContext(
 
 // WithDependencies returns a copy of parent with the given dependencies
 func (e *EvalContext) WithDependencies(dependencies map[ID]BlockContainer) *EvalContext {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &EvalContext{
-		Context:      e.Context,
+		Context:      ctx,
+		Cancel:       cancel,
 		UserContext:  e.UserContext,
 		Logger:       e.Logger,
 		parentCtx:    e,

@@ -13,13 +13,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/opsidian/basil/util"
-
-	"github.com/opsidian/parsley/parsley"
-
-	"github.com/opsidian/basil/basil/parameter"
-
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/parameter"
+	"github.com/opsidian/basil/util"
+	"github.com/opsidian/parsley/parsley"
 )
 
 type containerState uint8
@@ -121,9 +118,10 @@ func (c *Container) Param(name basil.ID) interface{} {
 }
 
 func (c *Container) Run() {
+	defer c.evalContext.Cancel()
+
 	c.debug().Msg("starting")
 
-	c.evalContext.Context, c.evalContext.Cancel = context.WithCancel(c.evalContext.Context)
 	c.blockContext = basil.NewBlockContext(c.evalContext, c)
 
 	c.stateChan <- containerStateNext
@@ -145,8 +143,6 @@ func (c *Container) Run() {
 	if c.parent != nil {
 		c.parent.SetChild(c)
 	}
-
-	c.evalContext.Cancel()
 }
 
 func (c *Container) Lightweight() bool {
@@ -184,7 +180,12 @@ func (c *Container) mainLoop() {
 
 		case <-c.evalContext.Context.Done():
 			c.setState(containerStateAborted)
-			c.err = parsley.NewError(c.node.Pos(), errors.New("aborted"))
+			switch c.evalContext.Context.Err() {
+			case context.DeadlineExceeded:
+				c.err = parsley.NewError(c.node.Pos(), fmt.Errorf("timeout reached in %s", c.ID()))
+			default:
+				c.err = parsley.NewError(c.node.Pos(), errors.New("aborted"))
+			}
 			return
 		}
 
@@ -195,7 +196,7 @@ func (c *Container) mainLoop() {
 }
 
 func (c *Container) shutdownLoop() {
-	c.debug().Msg("starting graceful shutdown")
+	c.debug().Msg("graceful shutdown")
 
 	shutdownTimer := time.NewTimer(time.Duration(ContainerGracefulTimeoutSec) * time.Second)
 
@@ -303,11 +304,7 @@ func (c *Container) createChildNodeContainer(node basil.Node) *basil.NodeContain
 
 func (c *Container) updateEvalContext() {
 	if b, ok := c.block.(basil.Contexter); ok {
-		// we want to cancel the previous context in this case which was created in Run()
-		c.evalContext.Cancel()
 		c.evalContext.Context, c.evalContext.Cancel = b.Context(c.evalContext.Context)
-	} else {
-		c.evalContext.Context, c.evalContext.Cancel = context.WithCancel(c.evalContext.Context)
 	}
 
 	if b, ok := c.block.(basil.UserContexter); ok {
@@ -416,7 +413,7 @@ func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*
 		return false
 	}
 
-	ctx := nodeContainer.EvalContext(c.evalContext)
+	ctx := nodeContainer.CreateEvalContext(c.evalContext)
 	var container basil.Container
 
 	switch n := nodeContainer.Node().(type) {
@@ -501,7 +498,7 @@ func (c *Container) PublishBlock(block basil.Block) error {
 	}
 	nodeContainer.IncRunCount()
 
-	ctx := nodeContainer.EvalContext(c.evalContext)
+	ctx := nodeContainer.CreateEvalContext(c.evalContext)
 
 	wg := &util.WaitGroup{}
 	wg.Add(1)
