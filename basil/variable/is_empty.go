@@ -23,7 +23,7 @@ func IsEmpty(value interface{}) bool {
 	case []interface{}:
 		return len(v) == 0
 	case bool:
-		return v == false
+		return !v
 	case float64:
 		return v == 0.0
 	case basil.ID:
