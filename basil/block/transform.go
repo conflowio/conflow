@@ -167,7 +167,7 @@ func TransformChildren(
 				return nil, nil, err
 			}
 			if !paramNode.IsDeclaration() {
-				paramNode.SetDescriptor(parameters[paramNode.ID()])
+				paramNode.SetDescriptor(parameters[paramNode.Name()])
 			}
 			basilNodes = append(basilNodes, paramNode)
 		} else {
