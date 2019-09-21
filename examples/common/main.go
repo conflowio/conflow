@@ -8,6 +8,7 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"runtime"
 
@@ -19,8 +20,12 @@ import (
 
 func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 	level := zerolog.InfoLevel
-	if os.Getenv("DEBUG") == "1" {
-		level = zerolog.DebugLevel
+	if envLevel := os.Getenv("BASIL_LOG"); envLevel != "" {
+		var err error
+		level, err = zerolog.ParseLevel(envLevel)
+		if err != nil {
+			panic(fmt.Errorf("invalid log level %q", envLevel))
+		}
 	}
 
 	zl := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "15:04:05.000"}).With().
