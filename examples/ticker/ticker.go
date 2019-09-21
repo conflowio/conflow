@@ -43,7 +43,7 @@ func (t *Ticker) Main(ctx basil.BlockContext) error {
 			if t.count > 0 && t.ticks >= t.count {
 				return nil
 			}
-		case <-ctx.Context().Done():
+		case <-ctx.Done():
 			return nil
 		}
 	}

@@ -2,22 +2,44 @@
 package basilfakes
 
 import (
-	"context"
 	"sync"
+	"time"
 
 	"github.com/opsidian/basil/basil"
 )
 
 type FakeBlockContext struct {
-	ContextStub        func() context.Context
-	contextMutex       sync.RWMutex
-	contextArgsForCall []struct {
+	DeadlineStub        func() (time.Time, bool)
+	deadlineMutex       sync.RWMutex
+	deadlineArgsForCall []struct {
 	}
-	contextReturns struct {
-		result1 context.Context
+	deadlineReturns struct {
+		result1 time.Time
+		result2 bool
 	}
-	contextReturnsOnCall map[int]struct {
-		result1 context.Context
+	deadlineReturnsOnCall map[int]struct {
+		result1 time.Time
+		result2 bool
+	}
+	DoneStub        func() <-chan struct{}
+	doneMutex       sync.RWMutex
+	doneArgsForCall []struct {
+	}
+	doneReturns struct {
+		result1 <-chan struct{}
+	}
+	doneReturnsOnCall map[int]struct {
+		result1 <-chan struct{}
+	}
+	ErrStub        func() error
+	errMutex       sync.RWMutex
+	errArgsForCall []struct {
+	}
+	errReturns struct {
+		result1 error
+	}
+	errReturnsOnCall map[int]struct {
+		result1 error
 	}
 	LoggerStub        func() basil.Logger
 	loggerMutex       sync.RWMutex
@@ -50,59 +72,177 @@ type FakeBlockContext struct {
 	userContextReturnsOnCall map[int]struct {
 		result1 interface{}
 	}
+	ValueStub        func(interface{}) interface{}
+	valueMutex       sync.RWMutex
+	valueArgsForCall []struct {
+		arg1 interface{}
+	}
+	valueReturns struct {
+		result1 interface{}
+	}
+	valueReturnsOnCall map[int]struct {
+		result1 interface{}
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlockContext) Context() context.Context {
-	fake.contextMutex.Lock()
-	ret, specificReturn := fake.contextReturnsOnCall[len(fake.contextArgsForCall)]
-	fake.contextArgsForCall = append(fake.contextArgsForCall, struct {
+func (fake *FakeBlockContext) Deadline() (time.Time, bool) {
+	fake.deadlineMutex.Lock()
+	ret, specificReturn := fake.deadlineReturnsOnCall[len(fake.deadlineArgsForCall)]
+	fake.deadlineArgsForCall = append(fake.deadlineArgsForCall, struct {
 	}{})
-	fake.recordInvocation("Context", []interface{}{})
-	fake.contextMutex.Unlock()
-	if fake.ContextStub != nil {
-		return fake.ContextStub()
+	fake.recordInvocation("Deadline", []interface{}{})
+	fake.deadlineMutex.Unlock()
+	if fake.DeadlineStub != nil {
+		return fake.DeadlineStub()
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.deadlineReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeBlockContext) DeadlineCallCount() int {
+	fake.deadlineMutex.RLock()
+	defer fake.deadlineMutex.RUnlock()
+	return len(fake.deadlineArgsForCall)
+}
+
+func (fake *FakeBlockContext) DeadlineCalls(stub func() (time.Time, bool)) {
+	fake.deadlineMutex.Lock()
+	defer fake.deadlineMutex.Unlock()
+	fake.DeadlineStub = stub
+}
+
+func (fake *FakeBlockContext) DeadlineReturns(result1 time.Time, result2 bool) {
+	fake.deadlineMutex.Lock()
+	defer fake.deadlineMutex.Unlock()
+	fake.DeadlineStub = nil
+	fake.deadlineReturns = struct {
+		result1 time.Time
+		result2 bool
+	}{result1, result2}
+}
+
+func (fake *FakeBlockContext) DeadlineReturnsOnCall(i int, result1 time.Time, result2 bool) {
+	fake.deadlineMutex.Lock()
+	defer fake.deadlineMutex.Unlock()
+	fake.DeadlineStub = nil
+	if fake.deadlineReturnsOnCall == nil {
+		fake.deadlineReturnsOnCall = make(map[int]struct {
+			result1 time.Time
+			result2 bool
+		})
+	}
+	fake.deadlineReturnsOnCall[i] = struct {
+		result1 time.Time
+		result2 bool
+	}{result1, result2}
+}
+
+func (fake *FakeBlockContext) Done() <-chan struct{} {
+	fake.doneMutex.Lock()
+	ret, specificReturn := fake.doneReturnsOnCall[len(fake.doneArgsForCall)]
+	fake.doneArgsForCall = append(fake.doneArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Done", []interface{}{})
+	fake.doneMutex.Unlock()
+	if fake.DoneStub != nil {
+		return fake.DoneStub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.contextReturns
+	fakeReturns := fake.doneReturns
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockContext) ContextCallCount() int {
-	fake.contextMutex.RLock()
-	defer fake.contextMutex.RUnlock()
-	return len(fake.contextArgsForCall)
+func (fake *FakeBlockContext) DoneCallCount() int {
+	fake.doneMutex.RLock()
+	defer fake.doneMutex.RUnlock()
+	return len(fake.doneArgsForCall)
 }
 
-func (fake *FakeBlockContext) ContextCalls(stub func() context.Context) {
-	fake.contextMutex.Lock()
-	defer fake.contextMutex.Unlock()
-	fake.ContextStub = stub
+func (fake *FakeBlockContext) DoneCalls(stub func() <-chan struct{}) {
+	fake.doneMutex.Lock()
+	defer fake.doneMutex.Unlock()
+	fake.DoneStub = stub
 }
 
-func (fake *FakeBlockContext) ContextReturns(result1 context.Context) {
-	fake.contextMutex.Lock()
-	defer fake.contextMutex.Unlock()
-	fake.ContextStub = nil
-	fake.contextReturns = struct {
-		result1 context.Context
+func (fake *FakeBlockContext) DoneReturns(result1 <-chan struct{}) {
+	fake.doneMutex.Lock()
+	defer fake.doneMutex.Unlock()
+	fake.DoneStub = nil
+	fake.doneReturns = struct {
+		result1 <-chan struct{}
 	}{result1}
 }
 
-func (fake *FakeBlockContext) ContextReturnsOnCall(i int, result1 context.Context) {
-	fake.contextMutex.Lock()
-	defer fake.contextMutex.Unlock()
-	fake.ContextStub = nil
-	if fake.contextReturnsOnCall == nil {
-		fake.contextReturnsOnCall = make(map[int]struct {
-			result1 context.Context
+func (fake *FakeBlockContext) DoneReturnsOnCall(i int, result1 <-chan struct{}) {
+	fake.doneMutex.Lock()
+	defer fake.doneMutex.Unlock()
+	fake.DoneStub = nil
+	if fake.doneReturnsOnCall == nil {
+		fake.doneReturnsOnCall = make(map[int]struct {
+			result1 <-chan struct{}
 		})
 	}
-	fake.contextReturnsOnCall[i] = struct {
-		result1 context.Context
+	fake.doneReturnsOnCall[i] = struct {
+		result1 <-chan struct{}
+	}{result1}
+}
+
+func (fake *FakeBlockContext) Err() error {
+	fake.errMutex.Lock()
+	ret, specificReturn := fake.errReturnsOnCall[len(fake.errArgsForCall)]
+	fake.errArgsForCall = append(fake.errArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Err", []interface{}{})
+	fake.errMutex.Unlock()
+	if fake.ErrStub != nil {
+		return fake.ErrStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.errReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContext) ErrCallCount() int {
+	fake.errMutex.RLock()
+	defer fake.errMutex.RUnlock()
+	return len(fake.errArgsForCall)
+}
+
+func (fake *FakeBlockContext) ErrCalls(stub func() error) {
+	fake.errMutex.Lock()
+	defer fake.errMutex.Unlock()
+	fake.ErrStub = stub
+}
+
+func (fake *FakeBlockContext) ErrReturns(result1 error) {
+	fake.errMutex.Lock()
+	defer fake.errMutex.Unlock()
+	fake.ErrStub = nil
+	fake.errReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeBlockContext) ErrReturnsOnCall(i int, result1 error) {
+	fake.errMutex.Lock()
+	defer fake.errMutex.Unlock()
+	fake.ErrStub = nil
+	if fake.errReturnsOnCall == nil {
+		fake.errReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.errReturnsOnCall[i] = struct {
+		result1 error
 	}{result1}
 }
 
@@ -270,17 +410,83 @@ func (fake *FakeBlockContext) UserContextReturnsOnCall(i int, result1 interface{
 	}{result1}
 }
 
+func (fake *FakeBlockContext) Value(arg1 interface{}) interface{} {
+	fake.valueMutex.Lock()
+	ret, specificReturn := fake.valueReturnsOnCall[len(fake.valueArgsForCall)]
+	fake.valueArgsForCall = append(fake.valueArgsForCall, struct {
+		arg1 interface{}
+	}{arg1})
+	fake.recordInvocation("Value", []interface{}{arg1})
+	fake.valueMutex.Unlock()
+	if fake.ValueStub != nil {
+		return fake.ValueStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.valueReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContext) ValueCallCount() int {
+	fake.valueMutex.RLock()
+	defer fake.valueMutex.RUnlock()
+	return len(fake.valueArgsForCall)
+}
+
+func (fake *FakeBlockContext) ValueCalls(stub func(interface{}) interface{}) {
+	fake.valueMutex.Lock()
+	defer fake.valueMutex.Unlock()
+	fake.ValueStub = stub
+}
+
+func (fake *FakeBlockContext) ValueArgsForCall(i int) interface{} {
+	fake.valueMutex.RLock()
+	defer fake.valueMutex.RUnlock()
+	argsForCall := fake.valueArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeBlockContext) ValueReturns(result1 interface{}) {
+	fake.valueMutex.Lock()
+	defer fake.valueMutex.Unlock()
+	fake.ValueStub = nil
+	fake.valueReturns = struct {
+		result1 interface{}
+	}{result1}
+}
+
+func (fake *FakeBlockContext) ValueReturnsOnCall(i int, result1 interface{}) {
+	fake.valueMutex.Lock()
+	defer fake.valueMutex.Unlock()
+	fake.ValueStub = nil
+	if fake.valueReturnsOnCall == nil {
+		fake.valueReturnsOnCall = make(map[int]struct {
+			result1 interface{}
+		})
+	}
+	fake.valueReturnsOnCall[i] = struct {
+		result1 interface{}
+	}{result1}
+}
+
 func (fake *FakeBlockContext) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.contextMutex.RLock()
-	defer fake.contextMutex.RUnlock()
+	fake.deadlineMutex.RLock()
+	defer fake.deadlineMutex.RUnlock()
+	fake.doneMutex.RLock()
+	defer fake.doneMutex.RUnlock()
+	fake.errMutex.RLock()
+	defer fake.errMutex.RUnlock()
 	fake.loggerMutex.RLock()
 	defer fake.loggerMutex.RUnlock()
 	fake.publishBlockMutex.RLock()
 	defer fake.publishBlockMutex.RUnlock()
 	fake.userContextMutex.RLock()
 	defer fake.userContextMutex.RUnlock()
+	fake.valueMutex.RLock()
+	defer fake.valueMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

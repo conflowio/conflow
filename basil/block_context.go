@@ -6,12 +6,15 @@
 
 package basil
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // BlockContext is passed to the block objects during evaluation
 //go:generate counterfeiter . BlockContext
 type BlockContext interface {
-	Context() context.Context
+	context.Context
 	UserContext() interface{}
 	Logger() Logger
 	PublishBlock(Block) error
@@ -48,8 +51,20 @@ type blockContext struct {
 	container   BlockContainer
 }
 
-func (b *blockContext) Context() context.Context {
-	return b.evalContext.Context
+func (b *blockContext) Deadline() (deadline time.Time, ok bool) {
+	return b.evalContext.Context.Deadline()
+}
+
+func (b *blockContext) Done() <-chan struct{} {
+	return b.evalContext.Context.Done()
+}
+
+func (b *blockContext) Err() error {
+	return b.evalContext.Context.Err()
+}
+
+func (b *blockContext) Value(key interface{}) interface{} {
+	return b.evalContext.Context.Value(key)
 }
 
 func (b *blockContext) UserContext() interface{} {
