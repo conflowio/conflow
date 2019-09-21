@@ -15,13 +15,13 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/pkg/errors"
+	"golang.org/x/xerrors"
 )
 
 func writeFile(name string, filename string, path string, content []byte) error {
 	err := ioutil.WriteFile(path, content, 0644)
 	if err != nil {
-		return errors.Wrapf(err, "failed to write %s to %s", name, getRelativePath(path))
+		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(path), err)
 	}
 
 	formatted, err := format.Source(content)
@@ -31,17 +31,17 @@ func writeFile(name string, filename string, path string, content []byte) error 
 
 	err = ioutil.WriteFile(path, formatted, 0644)
 	if err != nil {
-		return errors.Wrapf(err, "failed to write %s to %s", name, getRelativePath(path))
+		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(path), err)
 	}
 
 	goimportsCmd := exec.Command("goimports", filename)
 	out, err := goimportsCmd.CombinedOutput()
 	if err != nil {
-		return errors.Wrapf(err, "failed to run goimports on %s", getRelativePath(path))
+		return xerrors.Errorf("failed to run goimports on %s: %w", getRelativePath(path), err)
 	}
 	err = ioutil.WriteFile(path, out, 0644)
 	if err != nil {
-		return errors.Wrapf(err, "failed to write %s to %s", name, getRelativePath(path))
+		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(path), err)
 	}
 
 	fmt.Printf("Wrote `%s` to `%s`\n", name, getRelativePath(path))

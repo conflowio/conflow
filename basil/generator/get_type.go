@@ -27,6 +27,10 @@ func getType(filename string, line int) (*ast.File, ast.Node, string, error) {
 	var name string
 
 	file, err := parser.ParseFile(fs, filename, nil, parser.AllErrors)
+	if err != nil {
+		return nil, nil, "", err
+	}
+
 	ast.Inspect(file, func(node ast.Node) bool {
 		if node != nil && node.Pos().IsValid() {
 			if fs.Position(node.Pos()).Line == line+1 {
