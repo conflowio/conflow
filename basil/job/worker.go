@@ -12,14 +12,16 @@ import (
 
 // Worker is a goroutine processing jobs
 type Worker struct {
+	logger     basil.Logger
 	workerPool chan chan basil.Job
 	jobChannel chan basil.Job
 	quit       chan bool
 }
 
 // NewWorker creates a new worker instance
-func NewWorker(workerPool chan chan basil.Job) Worker {
+func NewWorker(logger basil.Logger, workerPool chan chan basil.Job) Worker {
 	return Worker{
+		logger:     logger,
 		workerPool: workerPool,
 		jobChannel: make(chan basil.Job),
 		quit:       make(chan bool),
@@ -33,7 +35,15 @@ func (w Worker) Start() {
 			w.workerPool <- w.jobChannel
 			select {
 			case job := <-w.jobChannel:
+				w.logger.Debug().
+					ID("jobID", job.ID()).
+					Msg("job starting")
+
 				job.Run()
+
+				w.logger.Debug().
+					ID("jobID", job.ID()).
+					Msg("job finished")
 			case <-w.quit:
 				return
 			}

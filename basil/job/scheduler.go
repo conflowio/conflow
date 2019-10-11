@@ -12,28 +12,37 @@ import (
 
 // Scheduler handles workers and schedules jobs
 type Scheduler struct {
-	maxWorkers int
-	workers    []basil.Worker
-	workerPool chan chan basil.Job
-	jobQueue   chan basil.Job
-	quit       chan bool
+	logger       basil.Logger
+	maxWorkers   int
+	maxQueueSize int
+	workers      []basil.Worker
+	workerPool   chan chan basil.Job
+	jobQueue     chan basil.Job
+	quit         chan bool
 }
 
 // NewScheduler creates a new scheduler instance
-func NewScheduler(maxWorkers int, maxQueueSize int) *Scheduler {
+func NewScheduler(logger basil.Logger, maxWorkers int, maxQueueSize int) *Scheduler {
 	return &Scheduler{
-		workers:    make([]basil.Worker, maxWorkers),
-		workerPool: make(chan chan basil.Job, maxWorkers),
-		maxWorkers: maxWorkers,
-		jobQueue:   make(chan basil.Job, maxQueueSize),
-		quit:       make(chan bool),
+		logger:       logger,
+		workers:      make([]basil.Worker, maxWorkers),
+		workerPool:   make(chan chan basil.Job, maxWorkers),
+		maxWorkers:   maxWorkers,
+		maxQueueSize: maxQueueSize,
+		jobQueue:     make(chan basil.Job, maxQueueSize),
+		quit:         make(chan bool),
 	}
 }
 
 // Start creates and starts the workers
 func (s *Scheduler) Start() {
+	s.logger.Debug().
+		Int("workers", s.maxWorkers).
+		Int("queueSize", s.maxQueueSize).
+		Msg("job scheduler starting")
+
 	for i := 0; i < s.maxWorkers; i++ {
-		s.workers[i] = NewWorker(s.workerPool)
+		s.workers[i] = NewWorker(s.logger, s.workerPool)
 		s.workers[i].Start()
 	}
 
@@ -49,11 +58,16 @@ func (s *Scheduler) Stop() {
 	for i := 0; i < s.maxWorkers; i++ {
 		s.workers[i].Stop()
 	}
+
+	s.logger.Debug().Msg("job scheduler stopped")
 }
 
 // Schedule schedules a new job
 func (s *Scheduler) Schedule(job basil.Job) {
 	if job.Lightweight() {
+		s.logger.Debug().
+			ID("jobID", job.ID()).
+			Msg("job running")
 		go job.Run()
 		return
 	}

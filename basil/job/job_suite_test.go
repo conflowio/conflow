@@ -4,18 +4,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package basil
+package job_test
 
-// Scheduler is the job scheduler
-//go:generate counterfeiter . Scheduler
-type Scheduler interface {
-	Start()
-	Stop()
-	Schedule(Job)
-}
+import (
+	"testing"
 
-// Worker is an interface for a job queue processor
-type Worker interface {
-	Start()
-	Stop()
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
+
+func TestJob(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Job Suite")
 }
