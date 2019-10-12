@@ -12,29 +12,25 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/opsidian/basil/logger/zerolog"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/basil/logger"
-	"github.com/rs/zerolog"
+	uzerolog "github.com/rs/zerolog"
 )
 
 func Main(ctx context.Context, parseCtx *basil.ParseContext) {
-	level := zerolog.InfoLevel
+	level := uzerolog.InfoLevel
 	if envLevel := os.Getenv("BASIL_LOG"); envLevel != "" {
 		var err error
-		level, err = zerolog.ParseLevel(envLevel)
+		level, err = uzerolog.ParseLevel(envLevel)
 		if err != nil {
 			panic(fmt.Errorf("invalid log level %q", envLevel))
 		}
 	}
 
-	zl := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: "15:04:05.000"}).With().
-		Timestamp().
-		Logger().
-		Level(level)
-	l := logger.NewZeroLogLogger(zl)
-
-	scheduler := job.NewScheduler(l, runtime.NumCPU()*2, 100)
+	logger := zerolog.NewConsoleLogger(level)
+	scheduler := job.NewScheduler(logger, runtime.NumCPU()*2, 100)
 	scheduler.Start()
 	defer scheduler.Stop()
 
@@ -42,7 +38,7 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 		parseCtx,
 		ctx,
 		nil,
-		l,
+		logger,
 		scheduler,
 		"main",
 	); err != nil {

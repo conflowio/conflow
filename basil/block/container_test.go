@@ -9,21 +9,16 @@ package block_test
 import (
 	"context"
 	"errors"
-	"io/ioutil"
-
-	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/basil/logger"
-	"github.com/rs/zerolog"
-
-	"github.com/opsidian/basil/test/testfakes"
-
-	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/parsley/parsley"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/basilfakes"
 	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/basil/job"
+	"github.com/opsidian/basil/logger/zerolog"
+	"github.com/opsidian/basil/test/testfakes"
+	"github.com/opsidian/parsley/parsley"
 )
 
 var _ = Describe("Container", func() {
@@ -56,10 +51,10 @@ var _ = Describe("Container", func() {
 	JustBeforeEach(func() {
 		interpreter.CreateBlockReturns(b)
 
-		l := logger.NewZeroLogLogger(zerolog.New(zerolog.ConsoleWriter{Out: ioutil.Discard}))
-		scheduler = job.NewScheduler(l, 1, 10)
+		logger := zerolog.NewDisabledLogger()
+		scheduler = job.NewScheduler(logger, 1, 10)
 		scheduler.Start()
-		evalCtx = basil.NewEvalContext(ctx, nil, l, scheduler)
+		evalCtx = basil.NewEvalContext(ctx, nil, logger, scheduler)
 
 		container = block.NewContainer(evalCtx, blockNode, nil, nil, nil)
 		container.Run()

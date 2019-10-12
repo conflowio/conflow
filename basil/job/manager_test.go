@@ -7,18 +7,15 @@
 package job_test
 
 import (
-	"io/ioutil"
 	"sync/atomic"
 	"time"
-
-	"github.com/opsidian/basil/logger"
-	"github.com/rs/zerolog"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
 	"github.com/opsidian/basil/basil/job"
+	"github.com/opsidian/basil/logger/zerolog"
 )
 
 var _ = Describe("Manager", func() {
@@ -27,8 +24,8 @@ var _ = Describe("Manager", func() {
 
 	BeforeEach(func() {
 		scheduler = &basilfakes.FakeScheduler{}
-		l := logger.NewZeroLogLogger(zerolog.New(zerolog.ConsoleWriter{Out: ioutil.Discard}))
-		manager = job.NewManager("test_manager", scheduler, l)
+		logger := zerolog.NewDisabledLogger()
+		manager = job.NewManager("test_manager", scheduler, logger)
 	})
 
 	AfterEach(func() {

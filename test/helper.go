@@ -9,11 +9,8 @@ package test
 import (
 	"context"
 	"fmt"
-	"os"
 
-	"github.com/rs/zerolog"
-
-	"github.com/opsidian/basil/logger"
+	"github.com/opsidian/basil/logger/zerolog"
 
 	"github.com/opsidian/basil/basil/basilfakes"
 
@@ -100,7 +97,7 @@ func EvalUserCtx() *basil.EvalContext {
 	evalCtx := basil.NewEvalContext(
 		context.Background(),
 		"userCtx",
-		logger.NewZeroLogLogger(zerolog.New(os.Stderr).Level(zerolog.Disabled)),
+		zerolog.NewDisabledLogger(),
 		Scheduler{},
 	).New(containers)
 

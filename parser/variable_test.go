@@ -8,20 +8,16 @@ package parser_test
 
 import (
 	"context"
-	"os"
-
-	"github.com/opsidian/basil/logger"
-	"github.com/rs/zerolog"
-
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/test"
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parsley"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/basilfakes"
+	"github.com/opsidian/basil/logger/zerolog"
 	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/test"
+	"github.com/opsidian/parsley/combinator"
+	"github.com/opsidian/parsley/parsley"
 )
 
 var _ = Describe("Variable", func() {
@@ -38,7 +34,7 @@ var _ = Describe("Variable", func() {
 
 	BeforeEach(func() {
 		parseCtx = basil.NewParseContext(basil.NewIDRegistry(8, 16))
-		logger := logger.NewZeroLogLogger(zerolog.New(os.Stderr).Level(zerolog.Disabled))
+		logger := zerolog.NewDisabledLogger()
 		evalCtx = basil.NewEvalContext(context.Background(), nil, logger, test.Scheduler{})
 		parseErr = nil
 		evalErr = nil
