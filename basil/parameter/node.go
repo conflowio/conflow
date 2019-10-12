@@ -71,7 +71,7 @@ func (n *Node) Dependencies() basil.Dependencies {
 		return n.dependencies
 	}
 
-	n.dependencies = make(basil.Dependencies, 0)
+	n.dependencies = make(basil.Dependencies)
 
 	parsley.Walk(n.valueNode, func(node parsley.Node) bool {
 		if v, ok := node.(basil.VariableNode); ok {

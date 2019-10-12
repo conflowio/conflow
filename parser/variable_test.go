@@ -80,7 +80,7 @@ var _ = Describe("Variable", func() {
 			cont.ParamReturnsOnCall(0, "bar")
 			cont.NodeReturns(blockNode)
 
-			evalCtx = evalCtx.WithDependencies(map[basil.ID]basil.BlockContainer{"foo": cont})
+			evalCtx = evalCtx.New(map[basil.ID]basil.BlockContainer{"foo": cont})
 		})
 
 		Context("with an existing parameter", func() {

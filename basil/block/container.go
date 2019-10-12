@@ -14,15 +14,15 @@ import (
 	"time"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/basil/parameter"
 	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
 )
 
-type containerState uint8
-
 const (
-	containerStateNext containerState = iota
+	containerStateWaiting int64 = iota
+	containerStateRunning
 	containerStatePreInit
 	containerStateInit
 	containerStatePreMain
@@ -33,6 +33,8 @@ const (
 	containerStateSkipped
 	containerStateErrored
 	containerStateAborted
+	containerStateCancelled
+	containerStateNext
 )
 
 // ContainerGracefulTimeoutSec is the graceful timeout in seconds
@@ -42,26 +44,26 @@ var _ basil.BlockContainer = &Container{}
 
 // Container is a block container
 type Container struct {
-	evalContext   *basil.EvalContext
-	blockContext  basil.BlockContext
-	node          basil.BlockNode
-	parent        basil.BlockContainer
-	block         basil.Block
-	err           parsley.Error
-	extraParams   map[basil.ID]interface{}
-	state         containerState
-	evalStage     basil.EvalStage
-	stateChan     chan containerState
-	childrenChan  chan basil.Container
-	errChan       chan parsley.Error
-	remainingJobs int64
-	children      map[basil.ID]*basil.NodeContainer
-	wgs           []*util.WaitGroup
+	evalCtx     *basil.EvalContext
+	blockCtx    basil.BlockContext
+	node        basil.BlockNode
+	parent      basil.BlockContainer
+	block       basil.Block
+	err         parsley.Error
+	extraParams map[basil.ID]interface{}
+	state       int64
+	evalStage   basil.EvalStage
+	stateChan   chan int64
+	resultChan  chan basil.Container
+	errChan     chan parsley.Error
+	jobManager  *job.Manager
+	children    map[basil.ID]*basil.NodeContainer
+	wgs         []*util.WaitGroup
 }
 
 // NewContainer creates a new block container instance
 func NewContainer(
-	ctx *basil.EvalContext,
+	evalCtx *basil.EvalContext,
 	node basil.BlockNode,
 	parent basil.BlockContainer,
 	block basil.Block,
@@ -72,15 +74,16 @@ func NewContainer(
 	}
 
 	return &Container{
-		evalContext:  ctx,
-		node:         node,
-		parent:       parent,
-		block:        block,
-		wgs:          wgs,
-		evalStage:    basil.EvalStageInit,
-		stateChan:    make(chan containerState, 1),
-		childrenChan: make(chan basil.Container, 8),
-		errChan:      make(chan parsley.Error, 1),
+		evalCtx:    evalCtx,
+		node:       node,
+		parent:     parent,
+		block:      block,
+		wgs:        wgs,
+		evalStage:  basil.EvalStageInit,
+		stateChan:  make(chan int64, 1),
+		resultChan: make(chan basil.Container, 8),
+		errChan:    make(chan parsley.Error, 1),
+		jobManager: job.NewManager(node.ID(), evalCtx.Scheduler(), evalCtx.Logger),
 	}
 }
 
@@ -100,9 +103,14 @@ func (c *Container) Block() basil.Block {
 }
 
 // Value returns with the block or the error if any occurred
+// If the block was skipped then a nil value is returned
 func (c *Container) Value() (interface{}, parsley.Error) {
 	if c.err != nil {
 		return nil, c.err
+	}
+
+	if c.state == containerStateSkipped {
+		return nil, nil
 	}
 
 	return c.block, nil
@@ -118,31 +126,33 @@ func (c *Container) Param(name basil.ID) interface{} {
 }
 
 func (c *Container) Run() {
-	defer c.evalContext.Cancel()
+	if !atomic.CompareAndSwapInt64(&c.state, containerStateWaiting, containerStateRunning) {
+		return
+	}
 
-	c.debug().Msg("starting")
-
-	c.blockContext = basil.NewBlockContext(c.evalContext, c)
+	c.blockCtx = basil.NewBlockContext(c.evalCtx, c)
 
 	c.stateChan <- containerStateNext
 	c.mainLoop()
 
+	c.evalCtx.Cancel()
+
 	for _, container := range c.children {
-		container.Close(c.evalContext)
-		if !container.Node().Generated() {
-			if container.Node().EvalStage() == c.evalStage && container.RunCount() == 0 {
-				atomic.AddInt64(&c.remainingJobs, -1)
-			}
-		}
+		container.Close(c.evalCtx)
 	}
 
-	if atomic.LoadInt64(&c.remainingJobs) > 0 {
+	if c.jobManager.Stop() > 0 {
 		c.shutdownLoop()
 	}
 
 	if c.parent != nil {
 		c.parent.SetChild(c)
 	}
+}
+
+func (c *Container) Cancel() bool {
+	c.evalCtx.Cancel()
+	return atomic.CompareAndSwapInt64(&c.state, containerStateWaiting, containerStateCancelled)
 }
 
 func (c *Container) Lightweight() bool {
@@ -155,37 +165,36 @@ func (c *Container) mainLoop() {
 		case state := <-c.stateChan:
 			c.setState(state)
 
-		case child := <-c.childrenChan:
-			atomic.AddInt64(&c.remainingJobs, -1)
-
-			c.debug().ID("childID", child.ID()).Msg("child received")
+		case child := <-c.resultChan:
+			c.jobManager.Finished(child.ID())
 
 			err := c.setChild(child)
 			child.Close()
 
 			if err != nil {
-				c.setState(containerStateErrored)
 				c.err = parsley.NewError(c.node.Pos(), err)
+				c.logError(err).ID("childID", child.ID()).Msg("evaluating child failed")
+				c.setState(containerStateErrored)
 				return
 			}
 
-			if atomic.LoadInt64(&c.remainingJobs) == 0 && c.state < containerStateFinished {
+			if c.jobManager.RemainingJobCount() == 0 && c.state < containerStateFinished {
 				c.stateChan <- containerStateNext
 			}
 
 		case err := <-c.errChan:
-			c.setState(containerStateErrored)
 			c.err = err
+			c.setState(containerStateErrored)
 			return
 
-		case <-c.evalContext.Context.Done():
-			c.setState(containerStateAborted)
-			switch c.evalContext.Context.Err() {
+		case <-c.evalCtx.Context.Done():
+			switch c.evalCtx.Context.Err() {
 			case context.DeadlineExceeded:
-				c.err = parsley.NewError(c.node.Pos(), fmt.Errorf("timeout reached in %s", c.ID()))
+				c.err = parsley.NewError(c.node.Pos(), fmt.Errorf("timeout reached in %s.%s", c.Node().Type(), c.ID()))
 			default:
 				c.err = parsley.NewError(c.node.Pos(), errors.New("aborted"))
 			}
+			c.setState(containerStateAborted)
 			return
 		}
 
@@ -203,29 +212,27 @@ func (c *Container) shutdownLoop() {
 	for {
 		select {
 		case <-c.stateChan:
-		case child := <-c.childrenChan:
-			atomic.AddInt64(&c.remainingJobs, -1)
-
-			c.debug().ID("childID", child.ID()).Msg("child received")
+		case child := <-c.resultChan:
+			c.jobManager.Finished(child.ID())
 
 			child.Close()
 
 			if _, err := child.Value(); err != nil {
-				c.logError(err).ID("childID", child.ID()).Msg("")
+				c.logError(err).ID("childID", child.ID()).Msg("evaluating child failed")
 			}
 		case err := <-c.errChan:
-			c.logError(err).Msg("")
+			c.logError(err).Err(err)
 		case <-shutdownTimer.C:
 			return
 		}
 
-		if atomic.LoadInt64(&c.remainingJobs) == 0 {
+		if c.jobManager.RemainingJobCount() == 0 {
 			return
 		}
 	}
 }
 
-func (c *Container) setState(state containerState) {
+func (c *Container) setState(state int64) {
 	if c.state < containerStateFinished {
 		if state == containerStateNext {
 			c.state++
@@ -238,7 +245,7 @@ func (c *Container) setState(state containerState) {
 	case containerStatePreInit:
 		c.children = make(map[basil.ID]*basil.NodeContainer, len(c.node.Children()))
 		for _, node := range c.node.Children() {
-			c.children[node.ID()] = c.createChildNodeContainer(node)
+			c.children[node.ID()] = basil.NewNodeContainer(c.evalCtx, c, node)
 		}
 		c.evalStage = basil.EvalStageInit
 		c.evaluateChildren()
@@ -246,8 +253,12 @@ func (c *Container) setState(state containerState) {
 		c.updateEvalContext()
 
 		if _, ok := c.block.(basil.BlockInitialiser); ok {
-			atomic.AddInt64(&c.remainingJobs, 1)
-			c.evalContext.ScheduleJob(basil.NewJob(c.evalContext, c.ID(), false, c.init))
+			c.jobManager.Schedule(basil.NewJob(
+				c.evalCtx,
+				c.ID().Concat("@init"),
+				false,
+				c.runInitStage,
+			))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -256,8 +267,12 @@ func (c *Container) setState(state containerState) {
 		c.evaluateChildren()
 	case containerStateMain:
 		if _, ok := c.block.(basil.BlockRunner); ok {
-			atomic.AddInt64(&c.remainingJobs, 1)
-			c.evalContext.ScheduleJob(basil.NewJob(c.evalContext, c.ID(), len(c.node.Generates()) > 0, c.main))
+			c.jobManager.Schedule(basil.NewJob(
+				c.evalCtx,
+				c.ID().Concat("@main"),
+				len(c.node.Generates()) > 0,
+				c.runMainStage,
+			))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -266,8 +281,12 @@ func (c *Container) setState(state containerState) {
 		c.evaluateChildren()
 	case containerStateClose:
 		if _, ok := c.block.(basil.BlockCloser); ok {
-			atomic.AddInt64(&c.remainingJobs, 1)
-			c.evalContext.ScheduleJob(basil.NewJob(c.evalContext, c.ID(), false, c.close))
+			c.jobManager.Schedule(basil.NewJob(
+				c.evalCtx,
+				c.ID().Concat("@close"),
+				false,
+				c.runCloseStage,
+			))
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -276,87 +295,60 @@ func (c *Container) setState(state containerState) {
 		c.debug().Msg("skipped")
 		// TODO: notify block about skipped task
 	case containerStateErrored:
-		c.logError(c.err)
+		c.logError(c.err).Msg("failed")
 		// TODO: notify block about error
 	case containerStateAborted:
-		c.logError(c.err)
+		c.logError(c.err).Msg("aborted")
 		// TODO: notify block about abort
 	default:
 		panic("invalid container state")
 	}
 }
 
-func (c *Container) createChildNodeContainer(node basil.Node) *basil.NodeContainer {
-	dependencies := make(map[basil.ID]basil.Container, len(node.Dependencies()))
-	for _, v := range node.Dependencies() {
-		if _, ok := c.Node().Dependencies()[v.ID()]; ok {
-			continue
-		}
-		if c.ID() == v.ParentID() {
-			dependencies[v.ID()] = nil
-		} else {
-			dependencies[v.ParentID()] = nil
-		}
-	}
-
-	return basil.NewNodeContainer(c.evalContext, node, dependencies, c.scheduleChildJob)
-}
-
 func (c *Container) updateEvalContext() {
 	if b, ok := c.block.(basil.Contexter); ok {
-		c.evalContext.Context, c.evalContext.Cancel = b.Context(c.evalContext.Context)
+		c.evalCtx.Context, c.evalCtx.Cancel = b.Context(c.evalCtx.Context)
 	}
 
 	if b, ok := c.block.(basil.UserContexter); ok {
-		c.evalContext.UserContext = b.UserContext(c.evalContext.UserContext)
+		c.evalCtx.UserContext = b.UserContext(c.evalCtx.UserContext)
 	}
 
 	if b, ok := c.block.(basil.Loggerer); ok {
-		c.evalContext.Logger = b.Logger(c.evalContext.Logger)
+		c.evalCtx.Logger = b.Logger(c.evalCtx.Logger)
 	}
 }
 
-func (c *Container) init() {
+func (c *Container) runInitStage() {
 	defer func() {
 		if r := recover(); r != nil {
 			c.errChan <- parsley.NewErrorf(c.node.Pos(), "init stage panicked in %q: %s", c.ID(), r)
 		}
 	}()
 
-	c.debug().Msg("init stage started")
-
-	start, err := c.block.(basil.BlockInitialiser).Init(c.blockContext)
-	atomic.AddInt64(&c.remainingJobs, -1)
-
-	c.debug().Msg("init stage finished")
-
+	skipped, err := c.block.(basil.BlockInitialiser).Init(c.blockCtx)
+	c.jobManager.Finished(c.ID().Concat("@init"))
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
 	}
 
-	if !start {
+	if !skipped {
+		c.stateChan <- containerStateNext
+	} else {
 		c.stateChan <- containerStateSkipped
-		return
 	}
-
-	c.stateChan <- containerStateNext
 }
 
-func (c *Container) main() {
+func (c *Container) runMainStage() {
 	defer func() {
 		if r := recover(); r != nil {
 			c.errChan <- parsley.NewErrorf(c.node.Pos(), "main stage panicked in %q: %s", c.ID(), r)
 		}
 	}()
 
-	c.debug().Msg("main stage started")
-
-	err := c.block.(basil.BlockRunner).Main(c.blockContext)
-	atomic.AddInt64(&c.remainingJobs, -1)
-
-	c.debug().Msg("main stage finished")
-
+	err := c.block.(basil.BlockRunner).Main(c.blockCtx)
+	c.jobManager.Finished(c.ID().Concat("@main"))
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
@@ -365,20 +357,15 @@ func (c *Container) main() {
 	c.stateChan <- containerStateNext
 }
 
-func (c *Container) close() {
+func (c *Container) runCloseStage() {
 	defer func() {
 		if r := recover(); r != nil {
 			c.errChan <- parsley.NewErrorf(c.node.Pos(), "close stage panicked in %q: %s", c.ID(), r)
 		}
 	}()
 
-	c.debug().Msg("close stage started")
-
-	err := c.block.(basil.BlockCloser).Close(c.blockContext)
-	atomic.AddInt64(&c.remainingJobs, -1)
-
-	c.debug().Msg("close stage finished")
-
+	err := c.block.(basil.BlockCloser).Close(c.blockCtx)
+	c.jobManager.Finished(c.ID().Concat("@close"))
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
@@ -394,6 +381,8 @@ func (c *Container) evaluateChildren() {
 			jobCount++
 			if container.Run() {
 				runCount++
+			} else {
+				c.jobManager.Pending(container.ID())
 			}
 		}
 	}
@@ -408,41 +397,51 @@ func (c *Container) evaluateChildren() {
 	}
 }
 
-func (c *Container) scheduleChildJob(nodeContainer *basil.NodeContainer, wgs []*util.WaitGroup) bool {
-	if nodeContainer.Node().EvalStage() != c.evalStage {
+func (c *Container) EvaluateChild(nodeContainer *basil.NodeContainer) bool {
+	return c.evaluateChild(nodeContainer, nil, nodeContainer.WaitGroups())
+}
+
+func (c *Container) evaluateChild(nodeContainer *basil.NodeContainer, value interface{}, wgs []*util.WaitGroup) bool {
+	if value == nil && nodeContainer.Node().EvalStage() != c.evalStage {
 		return false
 	}
 
-	ctx := nodeContainer.CreateEvalContext(c.evalContext)
+	ctx := nodeContainer.CreateEvalContext(c.evalCtx)
 	var container basil.Container
 
 	switch n := nodeContainer.Node().(type) {
 	case basil.BlockNode:
-		container = NewContainer(ctx, n, c, nil, wgs)
+		var block basil.Block
+		if value != nil {
+			var ok bool
+			if block, ok = value.(basil.Block); !ok {
+				panic(fmt.Errorf("was expecting block, got %T", value))
+			}
+		}
+		container = NewContainer(ctx, n, c, block, wgs)
 	case basil.ParameterNode:
 		container = parameter.NewContainer(ctx, n, c)
 	default:
 		panic(fmt.Errorf("invalid node type: %T", n))
 	}
 
-	atomic.AddInt64(&c.remainingJobs, 1)
-	nodeContainer.IncRunCount()
-
-	c.debug().ID("childID", nodeContainer.ID()).Msg("child scheduled")
-
-	ctx.ScheduleJob(container)
+	c.jobManager.Schedule(container)
 
 	return true
 }
 
 func (c *Container) SetChild(container basil.Container) {
-	c.childrenChan <- container
+	c.resultChan <- container
 }
 
 func (c *Container) setChild(result basil.Container) parsley.Error {
 	value, err := result.Value()
 	if err != nil {
 		return err
+	}
+
+	if value == nil {
+		return nil
 	}
 
 	switch r := result.(type) {
@@ -467,9 +466,6 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 		}
 	case *Container:
 		node := r.Node().(basil.BlockNode)
-		if r.state == containerStateSkipped {
-			return nil
-		}
 		name := node.BlockType()
 
 		if err := c.node.Interpreter().SetBlock(c.block, name, value); err != nil {
@@ -484,36 +480,30 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 		return nil
 	}
 
-	c.evalContext.Publish(result)
+	c.evalCtx.Publish(result)
 
 	return nil
 }
 
 func (c *Container) PublishBlock(block basil.Block) error {
-	atomic.AddInt64(&c.remainingJobs, 1)
-
 	nodeContainer, ok := c.children[block.ID()]
 	if !ok || !nodeContainer.Node().Generated() {
-		panic(fmt.Errorf("%q block does not exist or is not marked as generated", block.ID()))
+		return fmt.Errorf("%q block does not exist or is not marked as generated", block.ID())
 	}
-	nodeContainer.IncRunCount()
-
-	ctx := nodeContainer.CreateEvalContext(c.evalContext)
 
 	wg := &util.WaitGroup{}
 	wg.Add(1)
-	container := NewContainer(ctx, nodeContainer.Node().(basil.BlockNode), c, block, []*util.WaitGroup{wg})
-	container.Run()
+	c.evaluateChild(nodeContainer, block, []*util.WaitGroup{wg})
 
 	select {
 	case <-wg.Wait():
 		return wg.Err()
-	case <-c.evalContext.Context.Done():
+	case <-c.evalCtx.Context.Done():
 		return fmt.Errorf("%q was aborted", c.ID())
 	}
 }
 
-// Close does nothing
+// Close notifies all wait groups
 func (c *Container) Close() {
 	for _, wg := range c.wgs {
 		wg.Done(c.err)
@@ -527,18 +517,24 @@ func (c *Container) WaitGroups() []*util.WaitGroup {
 }
 
 func (c *Container) debug() basil.LogEvent {
-	return c.evalContext.Logger.Debug().
-		ID("id", c.ID()).
-		ID("type", c.node.BlockType()).
-		Uint8("state", uint8(c.state)).
-		Int64("remainingJobs", atomic.LoadInt64(&c.remainingJobs))
+	e := c.evalCtx.Logger.Debug()
+	if e.Enabled() {
+		e = e.ID("id", c.ID()).
+			ID("type", c.node.BlockType()).
+			Uint8("state", uint8(c.state)).
+			Int("remainingJobs", c.jobManager.RemainingJobCount())
+	}
+	return e
 }
 
 func (c *Container) logError(err error) basil.LogEvent {
-	return c.evalContext.Logger.Error().
-		ID("id", c.ID()).
-		ID("type", c.node.BlockType()).
-		Uint8("state", uint8(c.state)).
-		Int64("remainingJobs", atomic.LoadInt64(&c.remainingJobs)).
-		Err(err)
+	e := c.evalCtx.Logger.Error()
+	if e.Enabled() {
+		e = e.ID("id", c.ID()).
+			ID("type", c.node.BlockType()).
+			Uint8("state", uint8(c.state)).
+			Int("remainingJobs", c.jobManager.RemainingJobCount()).
+			Err(err)
+	}
+	return e
 }

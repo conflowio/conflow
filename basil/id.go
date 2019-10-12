@@ -27,6 +27,10 @@ func (i ID) String() string {
 	return string(i)
 }
 
+func (i ID) Concat(s string) ID {
+	return ID(string(i) + s)
+}
+
 // Identifiable makes an object to have a string identifier and have an identifiable parent
 //go:generate counterfeiter . Identifiable
 type Identifiable interface {

@@ -7,6 +7,7 @@
 package common
 
 import (
+	"errors"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -23,6 +24,10 @@ func (s *Sleep) ID() basil.ID {
 }
 
 func (s *Sleep) Main(blockCtx basil.BlockContext) error {
-	time.Sleep(s.duration)
-	return nil
+	select {
+	case <-time.After(s.duration):
+		return nil
+	case <-blockCtx.Done():
+		return errors.New("aborted")
+	}
 }
