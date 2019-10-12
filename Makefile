@@ -10,9 +10,15 @@ test: ## Runs all tests
 	@./test.sh
 
 .PHONY: test
-generate: build ## Regenerates all files
+generate: bin/basil ## Regenerates all files
 	@PATH="$(PWD)/bin;${PATH}" go generate ./...
 
 .PHONY: build
-build:
-	go build -o bin/basil
+build: bin/basil
+
+bin/basil:
+	CGO_ENABLED=0 go build -ldflags="-s -w" -o bin/basil ./cmd/basil/
+
+.PHONY: clean
+clean:
+	rm -rf bin
