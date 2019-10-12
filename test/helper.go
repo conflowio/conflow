@@ -102,7 +102,7 @@ func EvalUserCtx() *basil.EvalContext {
 		"userCtx",
 		logger.NewZeroLogLogger(zerolog.New(os.Stderr).Level(zerolog.Disabled)),
 		Scheduler{},
-	).WithDependencies(containers)
+	).New(containers)
 
 	return evalCtx
 }

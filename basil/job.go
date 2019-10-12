@@ -6,15 +6,27 @@
 
 package basil
 
+import "sync/atomic"
+
+const (
+	jobStateWaiting int64 = iota
+	jobStateRunning
+	jobStateCanceled
+)
+
 // Job is a unit of work the scheduler can schedule and run
+//go:generate counterfeiter . Job
 type Job interface {
+	Identifiable
 	Run()
+	Cancel() bool
 	Lightweight() bool
 }
 
 type job struct {
 	ctx         *EvalContext
 	id          ID
+	state       int64
 	lightweight bool
 	f           func()
 }
@@ -36,11 +48,16 @@ func (j *job) ID() ID {
 
 // Run runs the wrapped job if it wasn't cancelled
 func (j *job) Run() {
-	if j.ctx.Context.Err() != nil {
+	if !atomic.CompareAndSwapInt64(&j.state, jobStateWaiting, jobStateRunning) {
 		return
 	}
 
 	j.f()
+}
+
+func (j *job) Cancel() bool {
+	j.ctx.Cancel()
+	return atomic.CompareAndSwapInt64(&j.state, jobStateWaiting, jobStateCanceled)
 }
 
 // Lightweight returns true if the job doesn't need to be scheduled on the main job queue

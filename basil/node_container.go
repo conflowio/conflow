@@ -15,11 +15,10 @@ import (
 
 // NodeContainer wraps a node and registers the dependencies as they become available
 type NodeContainer struct {
+	parent       BlockContainer
 	node         Node
 	dependencies map[ID]Container
 	missingDeps  int
-	run          func(*NodeContainer, []*util.WaitGroup) bool
-	runCount     int
 	waitGroups   []*util.WaitGroup
 	mu           *sync.Mutex
 }
@@ -27,19 +26,30 @@ type NodeContainer struct {
 // NewNodeContainer creates a new node container
 func NewNodeContainer(
 	ctx *EvalContext,
+	parent BlockContainer,
 	node Node,
-	dependencies map[ID]Container,
-	run func(*NodeContainer, []*util.WaitGroup) bool,
 ) *NodeContainer {
+	dependencies := make(map[ID]Container, len(node.Dependencies()))
+	for _, v := range node.Dependencies() {
+		if _, ok := parent.Node().Dependencies()[v.ID()]; ok {
+			continue
+		}
+		if parent.ID() == v.ParentID() {
+			dependencies[v.ID()] = nil
+		} else {
+			dependencies[v.ParentID()] = nil
+		}
+	}
+
 	n := &NodeContainer{
+		parent:       parent,
 		node:         node,
 		dependencies: dependencies,
 		missingDeps:  len(dependencies),
-		run:          run,
 		mu:           &sync.Mutex{},
 	}
 
-	for id := range dependencies {
+	for id := range n.dependencies {
 		ctx.Subscribe(n, id)
 	}
 
@@ -54,6 +64,10 @@ func (n *NodeContainer) ID() ID {
 // Node returns with the node
 func (n *NodeContainer) Node() Node {
 	return n.node
+}
+
+func (n *NodeContainer) WaitGroups() []*util.WaitGroup {
+	return n.waitGroups
 }
 
 // SetDependency stores the given container
@@ -73,27 +87,28 @@ func (n *NodeContainer) SetDependency(c Container) {
 		n.waitGroups = append(n.waitGroups, wg)
 	}
 
-	if n.missingDeps == 0 {
-		if n.run(n, n.waitGroups) {
-			n.waitGroups = nil
-		}
-	}
+	n.run()
 }
 
 // Run will schedule the node for running if it's ready. If it is then it returns true.
 func (n *NodeContainer) Run() bool {
 	n.mu.Lock()
+	defer n.mu.Unlock()
+	return n.run()
+}
 
-	var run bool
+func (n *NodeContainer) run() bool {
 	if n.missingDeps == 0 {
-		if n.run(n, n.waitGroups) {
-			run = true
+		if n.parent.EvaluateChild(n) {
 			n.waitGroups = nil
+			return true
 		}
 	}
+	return false
+}
 
-	n.mu.Unlock()
-	return run
+func (n *NodeContainer) Finished() {
+
 }
 
 // CreateEvalContext returns with a new evaluation context
@@ -108,22 +123,10 @@ func (n *NodeContainer) CreateEvalContext(ctx *EvalContext) *EvalContext {
 		}
 	}
 
-	return ctx.WithDependencies(dependencies)
-}
-
-// RunCount will return with the run count
-func (n *NodeContainer) RunCount() int {
-	return n.runCount
-}
-
-// IncRunCount will increase the run count by one
-func (n *NodeContainer) IncRunCount() {
-	n.runCount++
+	return ctx.New(dependencies)
 }
 
 func (n *NodeContainer) Close(ctx *EvalContext) {
-	ctx.Cancel()
-
 	for id := range n.dependencies {
 		ctx.Unsubscribe(n, id)
 	}

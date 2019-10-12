@@ -20,9 +20,30 @@ type FakeBlockContainer struct {
 	blockReturnsOnCall map[int]struct {
 		result1 basil.Block
 	}
+	CancelStub        func() bool
+	cancelMutex       sync.RWMutex
+	cancelArgsForCall []struct {
+	}
+	cancelReturns struct {
+		result1 bool
+	}
+	cancelReturnsOnCall map[int]struct {
+		result1 bool
+	}
 	CloseStub        func()
 	closeMutex       sync.RWMutex
 	closeArgsForCall []struct {
+	}
+	EvaluateChildStub        func(*basil.NodeContainer) bool
+	evaluateChildMutex       sync.RWMutex
+	evaluateChildArgsForCall []struct {
+		arg1 *basil.NodeContainer
+	}
+	evaluateChildReturns struct {
+		result1 bool
+	}
+	evaluateChildReturnsOnCall map[int]struct {
+		result1 bool
 	}
 	IDStub        func() basil.ID
 	iDMutex       sync.RWMutex
@@ -163,6 +184,58 @@ func (fake *FakeBlockContainer) BlockReturnsOnCall(i int, result1 basil.Block) {
 	}{result1}
 }
 
+func (fake *FakeBlockContainer) Cancel() bool {
+	fake.cancelMutex.Lock()
+	ret, specificReturn := fake.cancelReturnsOnCall[len(fake.cancelArgsForCall)]
+	fake.cancelArgsForCall = append(fake.cancelArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Cancel", []interface{}{})
+	fake.cancelMutex.Unlock()
+	if fake.CancelStub != nil {
+		return fake.CancelStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.cancelReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContainer) CancelCallCount() int {
+	fake.cancelMutex.RLock()
+	defer fake.cancelMutex.RUnlock()
+	return len(fake.cancelArgsForCall)
+}
+
+func (fake *FakeBlockContainer) CancelCalls(stub func() bool) {
+	fake.cancelMutex.Lock()
+	defer fake.cancelMutex.Unlock()
+	fake.CancelStub = stub
+}
+
+func (fake *FakeBlockContainer) CancelReturns(result1 bool) {
+	fake.cancelMutex.Lock()
+	defer fake.cancelMutex.Unlock()
+	fake.CancelStub = nil
+	fake.cancelReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) CancelReturnsOnCall(i int, result1 bool) {
+	fake.cancelMutex.Lock()
+	defer fake.cancelMutex.Unlock()
+	fake.CancelStub = nil
+	if fake.cancelReturnsOnCall == nil {
+		fake.cancelReturnsOnCall = make(map[int]struct {
+			result1 bool
+		})
+	}
+	fake.cancelReturnsOnCall[i] = struct {
+		result1 bool
+	}{result1}
+}
+
 func (fake *FakeBlockContainer) Close() {
 	fake.closeMutex.Lock()
 	fake.closeArgsForCall = append(fake.closeArgsForCall, struct {
@@ -184,6 +257,66 @@ func (fake *FakeBlockContainer) CloseCalls(stub func()) {
 	fake.closeMutex.Lock()
 	defer fake.closeMutex.Unlock()
 	fake.CloseStub = stub
+}
+
+func (fake *FakeBlockContainer) EvaluateChild(arg1 *basil.NodeContainer) bool {
+	fake.evaluateChildMutex.Lock()
+	ret, specificReturn := fake.evaluateChildReturnsOnCall[len(fake.evaluateChildArgsForCall)]
+	fake.evaluateChildArgsForCall = append(fake.evaluateChildArgsForCall, struct {
+		arg1 *basil.NodeContainer
+	}{arg1})
+	fake.recordInvocation("EvaluateChild", []interface{}{arg1})
+	fake.evaluateChildMutex.Unlock()
+	if fake.EvaluateChildStub != nil {
+		return fake.EvaluateChildStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.evaluateChildReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContainer) EvaluateChildCallCount() int {
+	fake.evaluateChildMutex.RLock()
+	defer fake.evaluateChildMutex.RUnlock()
+	return len(fake.evaluateChildArgsForCall)
+}
+
+func (fake *FakeBlockContainer) EvaluateChildCalls(stub func(*basil.NodeContainer) bool) {
+	fake.evaluateChildMutex.Lock()
+	defer fake.evaluateChildMutex.Unlock()
+	fake.EvaluateChildStub = stub
+}
+
+func (fake *FakeBlockContainer) EvaluateChildArgsForCall(i int) *basil.NodeContainer {
+	fake.evaluateChildMutex.RLock()
+	defer fake.evaluateChildMutex.RUnlock()
+	argsForCall := fake.evaluateChildArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeBlockContainer) EvaluateChildReturns(result1 bool) {
+	fake.evaluateChildMutex.Lock()
+	defer fake.evaluateChildMutex.Unlock()
+	fake.EvaluateChildStub = nil
+	fake.evaluateChildReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) EvaluateChildReturnsOnCall(i int, result1 bool) {
+	fake.evaluateChildMutex.Lock()
+	defer fake.evaluateChildMutex.Unlock()
+	fake.EvaluateChildStub = nil
+	if fake.evaluateChildReturnsOnCall == nil {
+		fake.evaluateChildReturnsOnCall = make(map[int]struct {
+			result1 bool
+		})
+	}
+	fake.evaluateChildReturnsOnCall[i] = struct {
+		result1 bool
+	}{result1}
 }
 
 func (fake *FakeBlockContainer) ID() basil.ID {
@@ -628,8 +761,12 @@ func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.blockMutex.RLock()
 	defer fake.blockMutex.RUnlock()
+	fake.cancelMutex.RLock()
+	defer fake.cancelMutex.RUnlock()
 	fake.closeMutex.RLock()
 	defer fake.closeMutex.RUnlock()
+	fake.evaluateChildMutex.RLock()
+	defer fake.evaluateChildMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	fake.lightweightMutex.RLock()

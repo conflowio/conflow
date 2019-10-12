@@ -13,7 +13,6 @@ import (
 
 // Container is a basil object container
 type Container interface {
-	Identifiable
 	Job
 	Node() Node
 	Value() (interface{}, parsley.Error)

@@ -32,8 +32,9 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 		Timestamp().
 		Logger().
 		Level(level)
+	l := logger.NewZeroLogLogger(zl)
 
-	scheduler := job.NewScheduler(runtime.NumCPU()*2, 100)
+	scheduler := job.NewScheduler(l, runtime.NumCPU()*2, 100)
 	scheduler.Start()
 	defer scheduler.Stop()
 
@@ -41,7 +42,7 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 		parseCtx,
 		ctx,
 		nil,
-		logger.NewZeroLogLogger(zl),
+		l,
 		scheduler,
 		"main",
 	); err != nil {

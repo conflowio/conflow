@@ -33,7 +33,7 @@ func (e *Exec) ID() basil.ID {
 }
 
 func (e *Exec) Main(ctx basil.BlockContext) error {
-	cmd := exec.CommandContext(ctx.Context(), e.cmd, e.params...)
+	cmd := exec.CommandContext(ctx, e.cmd, e.params...)
 
 	if e.dir != "" {
 		cmd.Dir = e.dir

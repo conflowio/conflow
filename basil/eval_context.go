@@ -32,9 +32,9 @@ type EvalContext struct {
 	UserContext  interface{}
 	Logger       Logger
 	parentCtx    *EvalContext
+	pubsub       *PubSub
 	scheduler    Scheduler
 	dependencies map[ID]BlockContainer
-	pubsub       *PubSub
 }
 
 // NewEvalContext returns with a new evaluation context
@@ -55,8 +55,8 @@ func NewEvalContext(
 	}
 }
 
-// WithDependencies returns a copy of parent with the given dependencies
-func (e *EvalContext) WithDependencies(dependencies map[ID]BlockContainer) *EvalContext {
+// New creates a new eval context by copying the parent and overriding the provided values
+func (e *EvalContext) New(dependencies map[ID]BlockContainer) *EvalContext {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &EvalContext{
 		Context:      ctx,
@@ -64,8 +64,8 @@ func (e *EvalContext) WithDependencies(dependencies map[ID]BlockContainer) *Eval
 		UserContext:  e.UserContext,
 		Logger:       e.Logger,
 		parentCtx:    e,
-		scheduler:    e.scheduler,
 		pubsub:       e.pubsub,
+		scheduler:    e.scheduler,
 		dependencies: dependencies,
 	}
 }
@@ -83,8 +83,8 @@ func (e *EvalContext) BlockContainer(id ID) (BlockContainer, bool) {
 	return nil, false
 }
 
-func (e *EvalContext) ScheduleJob(job Job) {
-	e.scheduler.Schedule(job)
+func (e *EvalContext) Scheduler() Scheduler {
+	return e.scheduler
 }
 
 func (e *EvalContext) Subscribe(container *NodeContainer, id ID) {

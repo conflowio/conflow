@@ -7,6 +7,8 @@
 package parameter
 
 import (
+	"sync/atomic"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
@@ -14,21 +16,28 @@ import (
 
 var _ basil.ParameterContainer = &Container{}
 
+const (
+	containerStateWaiting int64 = iota
+	containerStateRunning
+	containerStateCancelled
+)
+
 // Container is a parameter container
 type Container struct {
-	ctx    *basil.EvalContext
-	node   basil.ParameterNode
-	parent basil.BlockContainer
-	value  interface{}
-	err    parsley.Error
+	evalCtx *basil.EvalContext
+	node    basil.ParameterNode
+	parent  basil.BlockContainer
+	value   interface{}
+	err     parsley.Error
+	state   int64
 }
 
 // NewContainer creates a new parameter container
-func NewContainer(ctx *basil.EvalContext, node basil.ParameterNode, parent basil.BlockContainer) *Container {
+func NewContainer(evalCtx *basil.EvalContext, node basil.ParameterNode, parent basil.BlockContainer) *Container {
 	return &Container{
-		ctx:    ctx,
-		node:   node,
-		parent: parent,
+		evalCtx: evalCtx,
+		node:    node,
+		parent:  parent,
 	}
 }
 
@@ -58,8 +67,17 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 
 // Run evaluates the parameter
 func (c *Container) Run() {
-	c.value, c.err = c.node.Value(c.ctx)
+	if !atomic.CompareAndSwapInt64(&c.state, containerStateWaiting, containerStateRunning) {
+		return
+	}
+
+	c.value, c.err = c.node.Value(c.evalCtx)
 	c.parent.SetChild(c)
+}
+
+func (c *Container) Cancel() bool {
+	c.evalCtx.Cancel()
+	return atomic.CompareAndSwapInt64(&c.state, containerStateWaiting, containerStateCancelled)
 }
 
 func (c *Container) Lightweight() bool {

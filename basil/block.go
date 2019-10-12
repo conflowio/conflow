@@ -61,13 +61,14 @@ type BlockContainer interface {
 	Block() Block
 	Param(ID) interface{}
 	SetChild(Container)
+	EvaluateChild(nodeContainer *NodeContainer) bool
 	PublishBlock(Block) error
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
-// If the boolean return value is false then the block won't be evaluated
+// If the skipped return value is true then the block won't be evaluated
 type BlockInitialiser interface {
-	Init(blockCtx BlockContext) (bool, error)
+	Init(blockCtx BlockContext) (skipped bool, err error)
 }
 
 // BlockRunner defines a Main() function which runs the main business logic
