@@ -9,6 +9,7 @@ package basil
 import (
 	"errors"
 	"sync"
+	"sync/atomic"
 
 	"github.com/opsidian/basil/util"
 )
@@ -19,6 +20,7 @@ type NodeContainer struct {
 	node         Node
 	dependencies map[ID]Container
 	missingDeps  int
+	pending      uint64
 	waitGroups   []*util.WaitGroup
 	mu           *sync.Mutex
 }
@@ -130,4 +132,12 @@ func (n *NodeContainer) Close(ctx *EvalContext) {
 	for _, wg := range n.waitGroups {
 		wg.Done(errors.New("aborted"))
 	}
+}
+
+func (n *NodeContainer) SetPending() {
+	atomic.StoreUint64(&n.pending, 1)
+}
+
+func (n *NodeContainer) RemovePending() bool {
+	return atomic.CompareAndSwapUint64(&n.pending, 1, 0)
 }
