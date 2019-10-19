@@ -107,10 +107,6 @@ func (n *NodeContainer) run() bool {
 	return false
 }
 
-func (n *NodeContainer) Finished() {
-
-}
-
 // CreateEvalContext returns with a new evaluation context
 func (n *NodeContainer) CreateEvalContext(ctx *EvalContext) *EvalContext {
 	dependencies := make(map[ID]BlockContainer, len(n.dependencies))
