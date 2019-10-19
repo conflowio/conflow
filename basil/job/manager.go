@@ -75,7 +75,7 @@ func (m *Manager) Stop() int {
 }
 
 // Schedule schedules a new job
-func (m *Manager) Schedule(job basil.Job) {
+func (m *Manager) Schedule(job basil.Job, decreasePending bool) {
 	m.mu.Lock()
 	if m.stopped {
 		m.mu.Unlock()
@@ -91,8 +91,11 @@ func (m *Manager) Schedule(job basil.Job) {
 		j.RetryTimer = nil
 	}
 
-	j.Tries++
+	if decreasePending {
+		m.pending--
+	}
 	m.running++
+	j.Tries++
 
 	m.debug().ID("jobID", job.JobID()).Msg("job scheduled")
 	m.scheduler.Schedule(job)

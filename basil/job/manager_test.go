@@ -38,7 +38,7 @@ var _ = Describe("Manager", func() {
 		BeforeEach(func() {
 			job = &basilfakes.FakeJob{}
 			job.JobIDReturns("job_id")
-			manager.Schedule(job)
+			manager.Schedule(job, false)
 		})
 
 		It("should call the scheduler", func() {
@@ -59,7 +59,7 @@ var _ = Describe("Manager", func() {
 			It("should further increase the running count", func() {
 				job2 := &basilfakes.FakeJob{}
 				job2.JobIDReturns("job_id_2")
-				manager.Schedule(job2)
+				manager.Schedule(job2, false)
 				Expect(manager.RunningJobCount()).To(Equal(2))
 			})
 		})
@@ -101,7 +101,7 @@ var _ = Describe("Manager", func() {
 
 			When("the job is scheduled again", func() {
 				BeforeEach(func() {
-					manager.Schedule(job)
+					manager.Schedule(job, false)
 				})
 
 				When("failing the second time", func() {
@@ -119,6 +119,18 @@ var _ = Describe("Manager", func() {
 					})
 				})
 			})
+		})
+	})
+
+	When("a pending job is scheduled", func() {
+		BeforeEach(func() {
+			manager.AddPending(2)
+			job := &basilfakes.FakeJob{}
+			job.JobIDReturns("job_id")
+			manager.Schedule(job, true)
+		})
+		It("should decrease the pending count", func() {
+			Expect(manager.PendingJobCount()).To(Equal(1))
 		})
 	})
 
@@ -140,7 +152,7 @@ var _ = Describe("Manager", func() {
 				job = &basilfakes.FakeJob{}
 				job.JobIDReturns("job_id")
 				job.CancelReturns(true)
-				manager.Schedule(job)
+				manager.Schedule(job, false)
 			})
 
 			It("should successfully cancel it", func() {
@@ -156,7 +168,7 @@ var _ = Describe("Manager", func() {
 				job = &basilfakes.FakeJob{}
 				job.JobIDReturns("job_id")
 				job.CancelReturns(false)
-				manager.Schedule(job)
+				manager.Schedule(job, false)
 			})
 
 			It("should not decrease the active job count", func() {
@@ -167,7 +179,7 @@ var _ = Describe("Manager", func() {
 
 		When("schedule is called", func() {
 			JustBeforeEach(func() {
-				manager.Schedule(&basilfakes.FakeJob{})
+				manager.Schedule(&basilfakes.FakeJob{}, false)
 			})
 
 			It("should not schedule the job", func() {
