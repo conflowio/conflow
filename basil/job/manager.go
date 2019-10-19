@@ -9,6 +9,7 @@ package job
 import (
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -23,6 +24,7 @@ type state struct {
 // JobManager tracks and schedules jobs
 type Manager struct {
 	id        basil.ID
+	lastID    uint64
 	scheduler basil.Scheduler
 	logger    basil.Logger
 	jobs      map[basil.ID]*state
@@ -43,6 +45,11 @@ func NewManager(id basil.ID, scheduler basil.Scheduler, logger basil.Logger) *Ma
 	}
 }
 
+// GenerateJobID generates a unique job identifier
+func (m *Manager) GenerateJobID(id basil.ID) basil.ID {
+	return basil.ID(fmt.Sprintf("%s@%d", id, atomic.AddUint64(&m.lastID, 1)))
+}
+
 // Stop cancels all remaining jobs
 // It can be called multiple times
 // It will return with the number of jobs which couldn't be cancelled
@@ -53,41 +60,18 @@ func (m *Manager) Stop() int {
 		m.debug().Msg("job manager stopping")
 		m.stopped = true
 
-		for _, job := range m.jobs {
-			if job == nil {
-				m.pending--
-				continue
-			}
-			if job.RetryTimer != nil && job.RetryTimer.Stop() {
-				m.pending--
-			}
+		for id, job := range m.jobs {
 			if job.Job.Cancel() {
-				m.debug().ID("jobID", job.Job.ID()).Msg("job cancelled")
+				m.debug().ID("jobID", id).Msg("job cancelled")
 				m.running--
 			}
 		}
 		m.debug().Msg("job manager stopped")
 	}
 
-	remaining := m.running + m.pending
+	active := m.running + m.pending
 	m.mu.Unlock()
-	return remaining
-}
-
-// Pending records a job which will run in the future
-func (m *Manager) Pending(id basil.ID) {
-	m.mu.Lock()
-	if m.stopped {
-		m.mu.Unlock()
-		return
-	}
-
-	m.pending++
-	m.jobs[id] = nil
-
-	m.debug().ID("jobID", id).Msg("job pending")
-
-	m.mu.Unlock()
+	return active
 }
 
 // Schedule schedules a new job
@@ -98,26 +82,19 @@ func (m *Manager) Schedule(job basil.Job) {
 		return
 	}
 
-	j, exists := m.jobs[job.ID()]
-
-	if exists && j == nil {
-		m.pending--
-	}
-
+	j := m.jobs[job.JobID()]
 	if j == nil {
-		m.jobs[job.ID()] = &state{Job: job}
+		j = &state{Job: job}
+		m.jobs[job.JobID()] = j
 	} else if j.RetryTimer != nil {
 		j.RetryTimer.Stop()
 		j.RetryTimer = nil
-		m.pending--
 	}
 
-	m.jobs[job.ID()].Tries++
-
+	j.Tries++
 	m.running++
 
-	m.debug().ID("jobID", job.ID()).Msg("job scheduled")
-
+	m.debug().ID("jobID", job.JobID()).Msg("job scheduled")
 	m.scheduler.Schedule(job)
 
 	m.mu.Unlock()
@@ -131,7 +108,7 @@ func (m *Manager) Finished(id basil.ID) {
 	if j != nil {
 		m.running--
 		delete(m.jobs, id)
-		m.debug().ID("jobID", j.Job.ID()).Msg("job finished")
+		m.debug().ID("jobID", j.Job.JobID()).Msg("job finished")
 	}
 
 	m.mu.Unlock()
@@ -140,7 +117,7 @@ func (m *Manager) Finished(id basil.ID) {
 	}
 }
 
-// FailedRetry must be called when a job failed but can be retried.
+// Retry must be called when a job failed but can be retried.
 // It schedules the job again if there are any retries left
 func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f func(job basil.Job) func()) bool {
 	m.mu.Lock()
@@ -152,9 +129,10 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 	}
 
 	m.running--
+
 	if j.Tries >= maxTries {
 		m.debug().
-			ID("jobID", j.Job.ID()).
+			ID("jobID", j.Job.JobID()).
 			Int("tries", j.Tries).
 			Int("max_tries", maxTries).
 			Msg("job failed permanently")
@@ -162,10 +140,8 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 		return false
 	}
 
-	m.pending++
-
 	m.debug().
-		ID("jobID", j.Job.ID()).
+		ID("jobID", j.Job.JobID()).
 		Int("tries", j.Tries).
 		Int("max_tries", maxTries).
 		Dur("retry_delay", retryDelay).
@@ -179,12 +155,18 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 	return true
 }
 
-// PendingJobCount returns with the number of pending jobs
-func (m *Manager) PendingJobCount() int {
+func (m *Manager) AddPending(cnt int) {
 	m.mu.Lock()
-	pending := m.pending
+	m.pending = m.pending + cnt
 	m.mu.Unlock()
-	return pending
+}
+
+// ActiveJobCount returns with the number of active (pending or running) jobs
+func (m *Manager) ActiveJobCount() int {
+	m.mu.Lock()
+	active := m.running + m.pending
+	m.mu.Unlock()
+	return active
 }
 
 // RunningJobCount returns with the number of running jobs
@@ -195,20 +177,14 @@ func (m *Manager) RunningJobCount() int {
 	return running
 }
 
-// RemainingJobCount returns with the number of pending and running jobs
-func (m *Manager) RemainingJobCount() int {
+// PendingJobCount returns with the number of pending jobs
+func (m *Manager) PendingJobCount() int {
 	m.mu.Lock()
-	remaining := m.pending + m.running
+	pending := m.pending
 	m.mu.Unlock()
-	return remaining
+	return pending
 }
 
 func (m *Manager) debug() basil.LogEvent {
-	e := m.logger.Debug()
-	if e.Enabled() {
-		e = e.
-			Int("pending", m.pending).
-			Int("running", m.running)
-	}
-	return e
+	return m.logger.Debug().Int("active_jobs", m.running)
 }
