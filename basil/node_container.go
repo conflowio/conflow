@@ -78,18 +78,39 @@ func (n *NodeContainer) SetDependency(c Container) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
+	firstRun := false
+
 	if n.dependencies[c.ID()] == nil {
 		n.missingDeps--
+		if n.missingDeps == 0 {
+			firstRun = true
+		}
+	}
+
+	trigger := false
+	if triggers := n.node.Triggers(); triggers == nil {
+		trigger = true
+	} else {
+		for _, triggerID := range triggers {
+			if c.ID() == triggerID {
+				trigger = true
+				break
+			}
+		}
 	}
 
 	n.dependencies[c.ID()] = c
 
-	for _, wg := range c.WaitGroups() {
-		wg.Add(1)
-		n.waitGroups = append(n.waitGroups, wg)
+	if trigger {
+		for _, wg := range c.WaitGroups() {
+			wg.Add(1)
+			n.waitGroups = append(n.waitGroups, wg)
+		}
 	}
 
-	n.run()
+	if trigger || firstRun {
+		n.run()
+	}
 }
 
 // Run will schedule the node for running if it's ready. If it is then it returns true.

@@ -47,6 +47,12 @@ func Block(expr parsley.Parser) *combinator.Sequence {
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
 	).Token(block.TokenBlockBody)
 
+	triggers := combinator.SeqOf(
+		terminal.Rune('('),
+		text.LeftTrim(SepByComma(ID(basil.IDRegExpPattern), text.WsSpaces), text.WsSpaces),
+		text.LeftTrim(terminal.Rune(')'), text.WsSpaces),
+	).Token(block.TokenBlockTriggers)
+
 	blockValue := combinator.Choice(
 		emptyBlockValue,
 		nonEmptyBlockValue,
@@ -62,6 +68,7 @@ func Block(expr parsley.Parser) *combinator.Sequence {
 
 	p = *combinator.SeqTry(
 		combinator.SeqTry(ID(basil.IDRegExpPattern), text.LeftTrim(ID(basil.IDRegExpPattern), text.WsSpaces)),
+		combinator.Optional(text.LeftTrim(triggers, text.WsSpaces)),
 		text.LeftTrim(blockValue, text.WsSpaces),
 	).Name("block definition").Token(block.TokenBlock).Bind(blockInterpreter{})
 

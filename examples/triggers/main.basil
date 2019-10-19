@@ -1,0 +1,23 @@
+iterator {
+    count = 10
+    it i1
+}
+
+iterator iterator2 {
+    count = 10
+    it i2
+}
+
+sleep sleep1 {
+    i1 := i1.value
+    duration = 50ms
+}
+
+sleep sleep2 {
+    i2 := i2.value
+    duration = 100ms
+}
+
+println (sleep2) {
+    value = string(sleep1.i1) + " " + string(sleep2.i2)
+}

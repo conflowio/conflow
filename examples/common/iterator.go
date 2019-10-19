@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package main
+package common
 
 import (
 	"github.com/opsidian/basil/basil/block"
@@ -25,10 +25,13 @@ func (i *Iterator) ID() basil.ID {
 
 func (it *Iterator) Main(ctx basil.BlockContext) error {
 	for i := int64(0); i < it.count; i++ {
-		_ = ctx.PublishBlock(&It{
+		err := ctx.PublishBlock(&It{
 			id:    it.it.id,
 			value: i,
 		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

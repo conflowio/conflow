@@ -15,6 +15,7 @@ type Node interface {
 	Identifiable
 	EvalStage() EvalStage
 	Dependencies() Dependencies
+	Triggers() []ID
 	Provides() []ID
 	Generates() []ID
 	Generated() bool

@@ -39,11 +39,21 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 	}
 
 	var children []basil.Node
-
 	var dependencies basil.Dependencies
-	if len(nodes) > 1 {
-		blockValueNode := nodes[1]
+	var triggers []basil.ID
 
+	if len(nodes) > 1 && nodes[1].Token() == TokenBlockTriggers {
+		triggersNode := nodes[1].(parsley.NonTerminalNode).Children()[1].(parsley.NonTerminalNode)
+		if len(triggersNode.Children()) > 0 {
+			triggers = make([]basil.ID, (len(triggersNode.Children())+1)/2)
+			for i := 0; i < len(triggersNode.Children()); i += 2 {
+				triggers[i/2] = triggersNode.Children()[i].(*basil.IDNode).ID()
+			}
+		}
+	}
+
+	if len(nodes) > 2 {
+		blockValueNode := nodes[2]
 		if blockValueNode.Token() == TokenBlockBody {
 			blockValueChildren := blockValueNode.(parsley.NonTerminalNode).Children()
 
@@ -86,6 +96,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 		node.ReaderPos(),
 		interpreter,
 		dependencies,
+		triggers,
 	)
 
 	if !interpreter.HasForeignID() {
@@ -126,6 +137,7 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 		children,
 		node.ReaderPos(),
 		interpreter,
+		nil,
 		nil,
 	)
 

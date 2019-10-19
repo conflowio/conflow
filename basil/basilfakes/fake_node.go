@@ -99,6 +99,16 @@ type FakeNode struct {
 	tokenReturnsOnCall map[int]struct {
 		result1 string
 	}
+	TriggersStub        func() []basil.ID
+	triggersMutex       sync.RWMutex
+	triggersArgsForCall []struct {
+	}
+	triggersReturns struct {
+		result1 []basil.ID
+	}
+	triggersReturnsOnCall map[int]struct {
+		result1 []basil.ID
+	}
 	TypeStub        func() string
 	typeMutex       sync.RWMutex
 	typeArgsForCall []struct {
@@ -594,6 +604,58 @@ func (fake *FakeNode) TokenReturnsOnCall(i int, result1 string) {
 	}{result1}
 }
 
+func (fake *FakeNode) Triggers() []basil.ID {
+	fake.triggersMutex.Lock()
+	ret, specificReturn := fake.triggersReturnsOnCall[len(fake.triggersArgsForCall)]
+	fake.triggersArgsForCall = append(fake.triggersArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Triggers", []interface{}{})
+	fake.triggersMutex.Unlock()
+	if fake.TriggersStub != nil {
+		return fake.TriggersStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.triggersReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeNode) TriggersCallCount() int {
+	fake.triggersMutex.RLock()
+	defer fake.triggersMutex.RUnlock()
+	return len(fake.triggersArgsForCall)
+}
+
+func (fake *FakeNode) TriggersCalls(stub func() []basil.ID) {
+	fake.triggersMutex.Lock()
+	defer fake.triggersMutex.Unlock()
+	fake.TriggersStub = stub
+}
+
+func (fake *FakeNode) TriggersReturns(result1 []basil.ID) {
+	fake.triggersMutex.Lock()
+	defer fake.triggersMutex.Unlock()
+	fake.TriggersStub = nil
+	fake.triggersReturns = struct {
+		result1 []basil.ID
+	}{result1}
+}
+
+func (fake *FakeNode) TriggersReturnsOnCall(i int, result1 []basil.ID) {
+	fake.triggersMutex.Lock()
+	defer fake.triggersMutex.Unlock()
+	fake.TriggersStub = nil
+	if fake.triggersReturnsOnCall == nil {
+		fake.triggersReturnsOnCall = make(map[int]struct {
+			result1 []basil.ID
+		})
+	}
+	fake.triggersReturnsOnCall[i] = struct {
+		result1 []basil.ID
+	}{result1}
+}
+
 func (fake *FakeNode) Type() string {
 	fake.typeMutex.Lock()
 	ret, specificReturn := fake.typeReturnsOnCall[len(fake.typeArgsForCall)]
@@ -730,6 +792,8 @@ func (fake *FakeNode) Invocations() map[string][][]interface{} {
 	defer fake.readerPosMutex.RUnlock()
 	fake.tokenMutex.RLock()
 	defer fake.tokenMutex.RUnlock()
+	fake.triggersMutex.RLock()
+	defer fake.triggersMutex.RUnlock()
 	fake.typeMutex.RLock()
 	defer fake.typeMutex.RUnlock()
 	fake.valueMutex.RLock()
