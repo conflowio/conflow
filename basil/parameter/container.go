@@ -9,6 +9,8 @@ package parameter
 import (
 	"sync/atomic"
 
+	"github.com/opsidian/basil/basil/job"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
@@ -30,20 +32,32 @@ type Container struct {
 	value   interface{}
 	err     parsley.Error
 	state   int64
+	jobID   basil.ID
 }
 
 // NewContainer creates a new parameter container
-func NewContainer(evalCtx *basil.EvalContext, node basil.ParameterNode, parent basil.BlockContainer) *Container {
+func NewContainer(
+	evalCtx *basil.EvalContext,
+	node basil.ParameterNode,
+	parent basil.BlockContainer,
+	jobManager *job.Manager,
+) *Container {
 	return &Container{
 		evalCtx: evalCtx,
 		node:    node,
 		parent:  parent,
+		jobID:   jobManager.GenerateJobID(node.ID()),
 	}
 }
 
 // ID returns with the parameter id
 func (c *Container) ID() basil.ID {
 	return c.node.ID()
+}
+
+// ID returns with the block id
+func (c *Container) JobID() basil.ID {
+	return c.jobID
 }
 
 // Node returns with the parameter node

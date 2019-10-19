@@ -55,6 +55,16 @@ type FakeBlockContainer struct {
 	iDReturnsOnCall map[int]struct {
 		result1 basil.ID
 	}
+	JobIDStub        func() basil.ID
+	jobIDMutex       sync.RWMutex
+	jobIDArgsForCall []struct {
+	}
+	jobIDReturns struct {
+		result1 basil.ID
+	}
+	jobIDReturnsOnCall map[int]struct {
+		result1 basil.ID
+	}
 	LightweightStub        func() bool
 	lightweightMutex       sync.RWMutex
 	lightweightArgsForCall []struct {
@@ -367,6 +377,58 @@ func (fake *FakeBlockContainer) IDReturnsOnCall(i int, result1 basil.ID) {
 		})
 	}
 	fake.iDReturnsOnCall[i] = struct {
+		result1 basil.ID
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) JobID() basil.ID {
+	fake.jobIDMutex.Lock()
+	ret, specificReturn := fake.jobIDReturnsOnCall[len(fake.jobIDArgsForCall)]
+	fake.jobIDArgsForCall = append(fake.jobIDArgsForCall, struct {
+	}{})
+	fake.recordInvocation("JobID", []interface{}{})
+	fake.jobIDMutex.Unlock()
+	if fake.JobIDStub != nil {
+		return fake.JobIDStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.jobIDReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContainer) JobIDCallCount() int {
+	fake.jobIDMutex.RLock()
+	defer fake.jobIDMutex.RUnlock()
+	return len(fake.jobIDArgsForCall)
+}
+
+func (fake *FakeBlockContainer) JobIDCalls(stub func() basil.ID) {
+	fake.jobIDMutex.Lock()
+	defer fake.jobIDMutex.Unlock()
+	fake.JobIDStub = stub
+}
+
+func (fake *FakeBlockContainer) JobIDReturns(result1 basil.ID) {
+	fake.jobIDMutex.Lock()
+	defer fake.jobIDMutex.Unlock()
+	fake.JobIDStub = nil
+	fake.jobIDReturns = struct {
+		result1 basil.ID
+	}{result1}
+}
+
+func (fake *FakeBlockContainer) JobIDReturnsOnCall(i int, result1 basil.ID) {
+	fake.jobIDMutex.Lock()
+	defer fake.jobIDMutex.Unlock()
+	fake.JobIDStub = nil
+	if fake.jobIDReturnsOnCall == nil {
+		fake.jobIDReturnsOnCall = make(map[int]struct {
+			result1 basil.ID
+		})
+	}
+	fake.jobIDReturnsOnCall[i] = struct {
 		result1 basil.ID
 	}{result1}
 }
@@ -769,6 +831,8 @@ func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	defer fake.evaluateChildMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
+	fake.jobIDMutex.RLock()
+	defer fake.jobIDMutex.RUnlock()
 	fake.lightweightMutex.RLock()
 	defer fake.lightweightMutex.RUnlock()
 	fake.nodeMutex.RLock()

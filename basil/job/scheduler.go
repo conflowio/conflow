@@ -66,7 +66,7 @@ func (s *Scheduler) Stop() {
 func (s *Scheduler) Schedule(job basil.Job) {
 	if job.Lightweight() {
 		s.logger.Debug().
-			ID("jobID", job.ID()).
+			ID("jobID", job.JobID()).
 			Msg("job running")
 		go job.Run()
 		return
