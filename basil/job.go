@@ -17,7 +17,7 @@ const (
 // Job is a unit of work the scheduler can schedule and run
 //go:generate counterfeiter . Job
 type Job interface {
-	Identifiable
+	JobID() ID
 	Run()
 	Cancel() bool
 	Lightweight() bool
@@ -41,8 +41,8 @@ func NewJob(ctx *EvalContext, id ID, lightweight bool, f func()) Job {
 	}
 }
 
-// ID returns the job id
-func (j *job) ID() ID {
+// JobID returns the job id
+func (j *job) JobID() ID {
 	return j.id
 }
 

@@ -30,9 +30,9 @@ func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"iterator": common.IteratorInterpreter{},
+			"sleep":    common.SleepInterpreter{},
 			"print":    common.PrintInterpreter{},
 			"println":  common.PrintlnInterpreter{},
-			"do":       MainInterpreter{},
 		},
 		FunctionTransformerRegistry: function.Registry(),
 	}

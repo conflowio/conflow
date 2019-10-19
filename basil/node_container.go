@@ -9,6 +9,7 @@ package basil
 import (
 	"errors"
 	"sync"
+	"sync/atomic"
 
 	"github.com/opsidian/basil/util"
 )
@@ -19,6 +20,7 @@ type NodeContainer struct {
 	node         Node
 	dependencies map[ID]Container
 	missingDeps  int
+	pending      uint64
 	waitGroups   []*util.WaitGroup
 	mu           *sync.Mutex
 }
@@ -76,18 +78,39 @@ func (n *NodeContainer) SetDependency(c Container) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
+	firstRun := false
+
 	if n.dependencies[c.ID()] == nil {
 		n.missingDeps--
+		if n.missingDeps == 0 {
+			firstRun = true
+		}
+	}
+
+	trigger := false
+	if triggers := n.node.Triggers(); triggers == nil {
+		trigger = true
+	} else {
+		for _, triggerID := range triggers {
+			if c.ID() == triggerID {
+				trigger = true
+				break
+			}
+		}
 	}
 
 	n.dependencies[c.ID()] = c
 
-	for _, wg := range c.WaitGroups() {
-		wg.Add(1)
-		n.waitGroups = append(n.waitGroups, wg)
+	if trigger {
+		for _, wg := range c.WaitGroups() {
+			wg.Add(1)
+			n.waitGroups = append(n.waitGroups, wg)
+		}
 	}
 
-	n.run()
+	if trigger || firstRun {
+		n.run()
+	}
 }
 
 // Run will schedule the node for running if it's ready. If it is then it returns true.
@@ -105,10 +128,6 @@ func (n *NodeContainer) run() bool {
 		}
 	}
 	return false
-}
-
-func (n *NodeContainer) Finished() {
-
 }
 
 // CreateEvalContext returns with a new evaluation context
@@ -134,4 +153,12 @@ func (n *NodeContainer) Close(ctx *EvalContext) {
 	for _, wg := range n.waitGroups {
 		wg.Done(errors.New("aborted"))
 	}
+}
+
+func (n *NodeContainer) SetPending() {
+	atomic.StoreUint64(&n.pending, 1)
+}
+
+func (n *NodeContainer) RemovePending() bool {
+	return atomic.CompareAndSwapUint64(&n.pending, 1, 0)
 }

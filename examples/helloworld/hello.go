@@ -30,7 +30,7 @@ func (h *Hello) ID() basil.ID {
 // Init will initialise the random generator
 func (h *Hello) Init(ctx basil.BlockContext) (bool, error) {
 	h.r = rand.New(rand.NewSource(time.Now().Unix()))
-	return true, nil
+	return false, nil
 }
 
 // Main will generate a random greeting

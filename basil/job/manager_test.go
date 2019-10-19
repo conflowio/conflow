@@ -32,54 +32,13 @@ var _ = Describe("Manager", func() {
 		manager.Stop()
 	})
 
-	When("a job is pending", func() {
-		BeforeEach(func() {
-			manager.Pending("job_id")
-		})
-
-		It("should increase the pending count", func() {
-			Expect(manager.PendingJobCount()).To(Equal(1))
-		})
-
-		It("should increase the remaining count", func() {
-			Expect(manager.RemainingJobCount()).To(Equal(1))
-		})
-
-		When("scheduled", func() {
-			BeforeEach(func() {
-				job := &basilfakes.FakeJob{}
-				job.IDReturns("job_id")
-				manager.Schedule(job)
-			})
-
-			It("should decrease the pending count", func() {
-				Expect(manager.PendingJobCount()).To(Equal(0))
-			})
-
-			It("should increase the running count", func() {
-				Expect(manager.RunningJobCount()).To(Equal(1))
-			})
-
-			It("should keep the remaining count", func() {
-				Expect(manager.RemainingJobCount()).To(Equal(1))
-			})
-		})
-
-		When("a second job is pending", func() {
-			It("should further increase the pending count", func() {
-				manager.Pending("job_id_2")
-				Expect(manager.PendingJobCount()).To(Equal(2))
-			})
-		})
-	})
-
 	When("a job is scheduled", func() {
 		var job *basilfakes.FakeJob
 
 		BeforeEach(func() {
 			job = &basilfakes.FakeJob{}
-			job.IDReturns("job_id")
-			manager.Schedule(job)
+			job.JobIDReturns("job_id")
+			manager.Schedule(job, false)
 		})
 
 		It("should call the scheduler", func() {
@@ -88,15 +47,19 @@ var _ = Describe("Manager", func() {
 			Expect(passedJob).To(Equal(job))
 		})
 
-		It("should increase the running count", func() {
+		It("should increase the running job count", func() {
 			Expect(manager.RunningJobCount()).To(Equal(1))
+		})
+
+		It("should increase the active job count", func() {
+			Expect(manager.ActiveJobCount()).To(Equal(1))
 		})
 
 		When("a second job is scheduled", func() {
 			It("should further increase the running count", func() {
 				job2 := &basilfakes.FakeJob{}
-				job2.IDReturns("job_id_2")
-				manager.Schedule(job2)
+				job2.JobIDReturns("job_id_2")
+				manager.Schedule(job2, false)
 				Expect(manager.RunningJobCount()).To(Equal(2))
 			})
 		})
@@ -105,7 +68,7 @@ var _ = Describe("Manager", func() {
 			BeforeEach(func() {
 				manager.Finished("job_id")
 			})
-			It("should decrease the running count", func() {
+			It("should decrease the running job count", func() {
 				Expect(manager.RunningJobCount()).To(Equal(0))
 			})
 		})
@@ -115,12 +78,8 @@ var _ = Describe("Manager", func() {
 				manager.Finished("job_id")
 			})
 
-			It("should decrease the running count", func() {
+			It("should decrease the running job count", func() {
 				Expect(manager.RunningJobCount()).To(Equal(0))
-			})
-
-			It("should not increase the pending count", func() {
-				Expect(manager.PendingJobCount()).To(Equal(0))
 			})
 		})
 
@@ -135,10 +94,6 @@ var _ = Describe("Manager", func() {
 				})
 			})
 
-			It("should increase the pending count", func() {
-				Expect(manager.PendingJobCount()).To(Equal(1))
-			})
-
 			It("should retry", func() {
 				Expect(retried1).To(BeTrue())
 				Eventually(func() int64 { return atomic.LoadInt64(&tries) }).Should(Equal(int64(1)))
@@ -146,11 +101,7 @@ var _ = Describe("Manager", func() {
 
 			When("the job is scheduled again", func() {
 				BeforeEach(func() {
-					manager.Schedule(job)
-				})
-
-				It("should decrease the pending count", func() {
-					Expect(manager.PendingJobCount()).To(Equal(0))
+					manager.Schedule(job, false)
 				})
 
 				When("failing the second time", func() {
@@ -165,22 +116,33 @@ var _ = Describe("Manager", func() {
 
 					It("should not retry", func() {
 						Expect(retried2).To(BeFalse())
-						Expect(manager.PendingJobCount()).To(Equal(0))
 					})
 				})
 			})
 		})
 	})
 
+	When("a pending job is scheduled", func() {
+		BeforeEach(func() {
+			manager.AddPending(2)
+			job := &basilfakes.FakeJob{}
+			job.JobIDReturns("job_id")
+			manager.Schedule(job, true)
+		})
+		It("should decrease the pending count", func() {
+			Expect(manager.PendingJobCount()).To(Equal(1))
+		})
+	})
+
 	When("stopped", func() {
-		var remaining int
+		var active int
 
 		JustBeforeEach(func() {
-			remaining = manager.Stop()
+			active = manager.Stop()
 		})
 
-		It("should return with 0 jobs remaining", func() {
-			Expect(remaining).To(Equal(0))
+		It("should return with 0 jobs active", func() {
+			Expect(active).To(Equal(0))
 		})
 
 		When("there is a job scheduled but not running", func() {
@@ -188,14 +150,14 @@ var _ = Describe("Manager", func() {
 
 			BeforeEach(func() {
 				job = &basilfakes.FakeJob{}
-				job.IDReturns("job_id")
+				job.JobIDReturns("job_id")
 				job.CancelReturns(true)
-				manager.Schedule(job)
+				manager.Schedule(job, false)
 			})
 
 			It("should successfully cancel it", func() {
 				Expect(job.CancelCallCount()).To(Equal(1))
-				Expect(remaining).To(Equal(0))
+				Expect(active).To(Equal(0))
 			})
 		})
 
@@ -204,87 +166,24 @@ var _ = Describe("Manager", func() {
 
 			BeforeEach(func() {
 				job = &basilfakes.FakeJob{}
-				job.IDReturns("job_id")
+				job.JobIDReturns("job_id")
 				job.CancelReturns(false)
-				manager.Schedule(job)
+				manager.Schedule(job, false)
 			})
 
-			It("should not decrease the running count", func() {
+			It("should not decrease the active job count", func() {
 				Expect(job.CancelCallCount()).To(Equal(1))
-				Expect(remaining).To(Equal(1))
-			})
-		})
-
-		When("there is a pending job", func() {
-			BeforeEach(func() {
-				manager.Pending("job_id")
-			})
-
-			It("should remove all pending jobs", func() {
-				Expect(manager.PendingJobCount()).To(Equal(0))
-			})
-
-		})
-
-		When("there is a job that will fail", func() {
-			BeforeEach(func() {
-				job := &basilfakes.FakeJob{}
-				job.IDReturns("job_id")
-				manager.Schedule(job)
-			})
-
-			When("the retry timer expired", func() {
-				var retried chan struct{}
-
-				BeforeEach(func() {
-					retried = make(chan struct{})
-					manager.Retry("job_id", 2, 0, func(j basil.Job) func() {
-						return func() {
-							retried <- struct{}{}
-						}
-					})
-					<-retried
-				})
-
-				It("should not decrease the pending count", func() {
-					Expect(manager.PendingJobCount()).To(Equal(1))
-				})
-			})
-
-			When("the retry timer is active", func() {
-				BeforeEach(func() {
-					manager.Retry("job_id", 2, 1*time.Minute, func(j basil.Job) func() {
-						return func() {}
-					})
-				})
-
-				It("should decrease the pending count", func() {
-					Expect(manager.PendingJobCount()).To(Equal(0))
-				})
-			})
-		})
-
-		When("pending is called", func() {
-			JustBeforeEach(func() {
-				manager.Pending("test_id")
-			})
-
-			It("should not increase the pending count", func() {
-				Expect(manager.PendingJobCount()).To(Equal(0))
+				Expect(active).To(Equal(1))
 			})
 		})
 
 		When("schedule is called", func() {
 			JustBeforeEach(func() {
-				manager.Schedule(&basilfakes.FakeJob{})
+				manager.Schedule(&basilfakes.FakeJob{}, false)
 			})
 
 			It("should not schedule the job", func() {
 				Expect(scheduler.ScheduleCallCount()).To(Equal(0))
-			})
-
-			It("should not increase the running count", func() {
-				Expect(manager.PendingJobCount()).To(Equal(0))
 			})
 		})
 	})
@@ -301,9 +200,27 @@ var _ = Describe("Manager", func() {
 		})
 	})
 
-	When("failedRetry is called for an unknown job", func() {
+	When("retry is called for an unknown job", func() {
 		It("should panic", func() {
 			Expect(func() { manager.Retry("non_existing", 1, 0, nil) }).To(Panic())
 		})
+	})
+
+	When("pending jobs are added", func() {
+		BeforeEach(func() {
+			manager.AddPending(2)
+		})
+		It("should increase the pending jobs count", func() {
+			Expect(manager.PendingJobCount()).To(Equal(2))
+		})
+		It("should increase the active jobs count", func() {
+			Expect(manager.ActiveJobCount()).To(Equal(2))
+		})
+	})
+
+	It("should generate unique job ids", func() {
+		id1 := manager.GenerateJobID("job_id")
+		id2 := manager.GenerateJobID("job_id")
+		Expect(id1).ToNot(Equal(id2))
 	})
 })

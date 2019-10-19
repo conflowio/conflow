@@ -37,6 +37,12 @@ const (
 	containerStateNext
 )
 
+const (
+	initJobID  = "@init"
+	mainJobID  = "@main"
+	closeJobID = "@close"
+)
+
 // ContainerGracefulTimeoutSec is the graceful timeout in seconds
 var ContainerGracefulTimeoutSec = 10
 
@@ -57,6 +63,7 @@ type Container struct {
 	resultChan  chan basil.Container
 	errChan     chan parsley.Error
 	jobManager  *job.Manager
+	jobID       basil.ID
 	children    map[basil.ID]*basil.NodeContainer
 	wgs         []*util.WaitGroup
 }
@@ -64,6 +71,7 @@ type Container struct {
 // NewContainer creates a new block container instance
 func NewContainer(
 	evalCtx *basil.EvalContext,
+	jobID basil.ID,
 	node basil.BlockNode,
 	parent basil.BlockContainer,
 	block basil.Block,
@@ -84,12 +92,18 @@ func NewContainer(
 		resultChan: make(chan basil.Container, 8),
 		errChan:    make(chan parsley.Error, 1),
 		jobManager: job.NewManager(node.ID(), evalCtx.Scheduler(), evalCtx.Logger),
+		jobID:      jobID,
 	}
 }
 
 // ID returns with the block id
 func (c *Container) ID() basil.ID {
 	return c.node.ID()
+}
+
+// JobID returns with the job id
+func (c *Container) JobID() basil.ID {
+	return c.jobID
 }
 
 // Node returns with the block node
@@ -166,7 +180,7 @@ func (c *Container) mainLoop() {
 			c.setState(state)
 
 		case child := <-c.resultChan:
-			c.jobManager.Finished(child.ID())
+			c.jobManager.Finished(child.JobID())
 
 			err := c.setChild(child)
 			child.Close()
@@ -178,7 +192,7 @@ func (c *Container) mainLoop() {
 				return
 			}
 
-			if c.jobManager.RemainingJobCount() == 0 && c.state < containerStateFinished {
+			if c.jobManager.ActiveJobCount() == 0 && c.state < containerStateFinished {
 				c.stateChan <- containerStateNext
 			}
 
@@ -213,7 +227,7 @@ func (c *Container) shutdownLoop() {
 		select {
 		case <-c.stateChan:
 		case child := <-c.resultChan:
-			c.jobManager.Finished(child.ID())
+			c.jobManager.Finished(child.JobID())
 
 			child.Close()
 
@@ -226,7 +240,7 @@ func (c *Container) shutdownLoop() {
 			return
 		}
 
-		if c.jobManager.RemainingJobCount() == 0 {
+		if c.jobManager.ActiveJobCount() == 0 {
 			return
 		}
 	}
@@ -255,10 +269,10 @@ func (c *Container) setState(state int64) {
 		if _, ok := c.block.(basil.BlockInitialiser); ok {
 			c.jobManager.Schedule(basil.NewJob(
 				c.evalCtx,
-				c.ID().Concat("@init"),
+				initJobID,
 				false,
 				c.runInitStage,
-			))
+			), false)
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -269,10 +283,10 @@ func (c *Container) setState(state int64) {
 		if _, ok := c.block.(basil.BlockRunner); ok {
 			c.jobManager.Schedule(basil.NewJob(
 				c.evalCtx,
-				c.ID().Concat("@main"),
+				mainJobID,
 				len(c.node.Generates()) > 0,
 				c.runMainStage,
-			))
+			), false)
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -283,10 +297,10 @@ func (c *Container) setState(state int64) {
 		if _, ok := c.block.(basil.BlockCloser); ok {
 			c.jobManager.Schedule(basil.NewJob(
 				c.evalCtx,
-				c.ID().Concat("@close"),
+				closeJobID,
 				false,
 				c.runCloseStage,
-			))
+			), false)
 		} else {
 			c.stateChan <- containerStateNext
 		}
@@ -327,7 +341,7 @@ func (c *Container) runInitStage() {
 	}()
 
 	skipped, err := c.block.(basil.BlockInitialiser).Init(c.blockCtx)
-	c.jobManager.Finished(c.ID().Concat("@init"))
+	c.jobManager.Finished(initJobID)
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
@@ -348,7 +362,7 @@ func (c *Container) runMainStage() {
 	}()
 
 	err := c.block.(basil.BlockRunner).Main(c.blockCtx)
-	c.jobManager.Finished(c.ID().Concat("@main"))
+	c.jobManager.Finished(mainJobID)
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
@@ -365,7 +379,7 @@ func (c *Container) runCloseStage() {
 	}()
 
 	err := c.block.(basil.BlockCloser).Close(c.blockCtx)
-	c.jobManager.Finished(c.ID().Concat("@close"))
+	c.jobManager.Finished(closeJobID)
 	if err != nil {
 		c.errChan <- parsley.NewError(c.node.Pos(), err)
 		return
@@ -375,39 +389,43 @@ func (c *Container) runCloseStage() {
 }
 
 func (c *Container) evaluateChildren() {
-	var jobCount, runCount int
+	var pending, running int
 	for _, container := range c.children {
 		if container.Node().EvalStage() == c.evalStage {
-			jobCount++
 			if container.Run() {
-				runCount++
+				running++
 			} else {
-				c.jobManager.Pending(container.ID())
+				container.SetPending()
+				pending++
 			}
 		}
 	}
 
-	if jobCount > 0 && runCount == 0 {
-		c.errChan <- parsley.NewErrorf(c.node.Pos(), "%q is deadlocked as no children could be evaluated", c.ID())
-		return
-	}
-
-	if jobCount == 0 {
+	if pending > 0 {
+		c.jobManager.AddPending(pending)
+		if running == 0 {
+			c.errChan <- parsley.NewErrorf(c.node.Pos(), "%q is deadlocked as no children could be evaluated", c.ID())
+			return
+		}
+	} else if running == 0 {
 		c.stateChan <- containerStateNext
 	}
 }
 
 func (c *Container) EvaluateChild(nodeContainer *basil.NodeContainer) bool {
-	return c.evaluateChild(nodeContainer, nil, nodeContainer.WaitGroups())
-}
-
-func (c *Container) evaluateChild(nodeContainer *basil.NodeContainer, value interface{}, wgs []*util.WaitGroup) bool {
-	if value == nil && nodeContainer.Node().EvalStage() != c.evalStage {
+	if nodeContainer.Node().EvalStage() != c.evalStage {
 		return false
 	}
 
+	c.evaluateChild(nodeContainer, nil, nodeContainer.WaitGroups())
+
+	return true
+}
+
+func (c *Container) evaluateChild(nodeContainer *basil.NodeContainer, value interface{}, wgs []*util.WaitGroup) {
 	ctx := nodeContainer.CreateEvalContext(c.evalCtx)
 	var container basil.Container
+	jobID := c.jobManager.GenerateJobID(nodeContainer.ID())
 
 	switch n := nodeContainer.Node().(type) {
 	case basil.BlockNode:
@@ -418,16 +436,14 @@ func (c *Container) evaluateChild(nodeContainer *basil.NodeContainer, value inte
 				panic(fmt.Errorf("was expecting block, got %T", value))
 			}
 		}
-		container = NewContainer(ctx, n, c, block, wgs)
+		container = NewContainer(ctx, jobID, n, c, block, wgs)
 	case basil.ParameterNode:
-		container = parameter.NewContainer(ctx, n, c)
+		container = parameter.NewContainer(ctx, jobID, n, c)
 	default:
 		panic(fmt.Errorf("invalid node type: %T", n))
 	}
 
-	c.jobManager.Schedule(container)
-
-	return true
+	c.jobManager.Schedule(container, nodeContainer.RemovePending())
 }
 
 func (c *Container) SetChild(container basil.Container) {
@@ -508,7 +524,6 @@ func (c *Container) Close() {
 	for _, wg := range c.wgs {
 		wg.Done(c.err)
 	}
-	c.debug().Msg("finished")
 }
 
 // WaitGroups returns nil
@@ -522,7 +537,7 @@ func (c *Container) debug() basil.LogEvent {
 		e = e.ID("id", c.ID()).
 			ID("type", c.node.BlockType()).
 			Uint8("state", uint8(c.state)).
-			Int("remainingJobs", c.jobManager.RemainingJobCount())
+			Int("active_jobs", c.jobManager.ActiveJobCount())
 	}
 	return e
 }
@@ -533,7 +548,7 @@ func (c *Container) logError(err error) basil.LogEvent {
 		e = e.ID("id", c.ID()).
 			ID("type", c.node.BlockType()).
 			Uint8("state", uint8(c.state)).
-			Int("remainingJobs", c.jobManager.RemainingJobCount()).
+			Int("active_jobs", c.jobManager.ActiveJobCount()).
 			Err(err)
 	}
 	return e

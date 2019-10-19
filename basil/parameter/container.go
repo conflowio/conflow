@@ -30,12 +30,19 @@ type Container struct {
 	value   interface{}
 	err     parsley.Error
 	state   int64
+	jobID   basil.ID
 }
 
 // NewContainer creates a new parameter container
-func NewContainer(evalCtx *basil.EvalContext, node basil.ParameterNode, parent basil.BlockContainer) *Container {
+func NewContainer(
+	evalCtx *basil.EvalContext,
+	jobID basil.ID,
+	node basil.ParameterNode,
+	parent basil.BlockContainer,
+) *Container {
 	return &Container{
 		evalCtx: evalCtx,
+		jobID:   jobID,
 		node:    node,
 		parent:  parent,
 	}
@@ -44,6 +51,11 @@ func NewContainer(evalCtx *basil.EvalContext, node basil.ParameterNode, parent b
 // ID returns with the parameter id
 func (c *Container) ID() basil.ID {
 	return c.node.ID()
+}
+
+// ID returns with the block id
+func (c *Container) JobID() basil.ID {
+	return c.jobID
 }
 
 // Node returns with the parameter node

@@ -108,14 +108,13 @@ print "Result was: " + test.stdout
 ```go
 //go:generate basil generate
 type SampleBlock struct {
-	id   basil.ID `basil:"id"`
-	when string   `basil:"stage=init"`
+	id      basil.ID `basil:"id"`
+	skipped bool     `basil:"stage=init"`
 }
 
 // basil.BlockInitialiser interface
 func (s *SampleBlock) Init(ctx basil.BlockContext) (bool, error) {
-	return s.when
-	, nil
+	return s.skipped, nil
 }
 
 // basil.BlockRunner interface
