@@ -33,7 +33,7 @@ var _ = Describe("Variable", func() {
 	var blockNode *basilfakes.FakeBlockNode
 
 	BeforeEach(func() {
-		parseCtx = basil.NewParseContext(basil.NewIDRegistry(8, 16))
+		parseCtx = basil.NewParseContext(basil.NewIDRegistry(8, 16), nil)
 		logger := zerolog.NewDisabledLogger()
 		evalCtx = basil.NewEvalContext(context.Background(), nil, logger, test.Scheduler{})
 		parseErr = nil

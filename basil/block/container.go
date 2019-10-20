@@ -38,9 +38,9 @@ const (
 )
 
 const (
-	initJobID  = "@init"
-	mainJobID  = "@main"
-	closeJobID = "@close"
+	initJobID  = "_init"
+	mainJobID  = "_main"
+	closeJobID = "_close"
 )
 
 // ContainerGracefulTimeoutSec is the graceful timeout in seconds
@@ -51,6 +51,7 @@ var _ basil.BlockContainer = &Container{}
 // Container is a block container
 type Container struct {
 	evalCtx     *basil.EvalContext
+	cancel      context.CancelFunc
 	blockCtx    basil.BlockContext
 	node        basil.BlockNode
 	parent      basil.BlockContainer
@@ -66,6 +67,8 @@ type Container struct {
 	jobID       basil.ID
 	children    map[basil.ID]*basil.NodeContainer
 	wgs         []*util.WaitGroup
+	retry       basil.Retryable
+	trigger     basil.ID
 }
 
 // NewContainer creates a new block container instance
@@ -75,6 +78,7 @@ func NewContainer(
 	node basil.BlockNode,
 	parent basil.BlockContainer,
 	block basil.Block,
+	trigger basil.ID,
 	wgs []*util.WaitGroup,
 ) *Container {
 	if block == nil {
@@ -82,17 +86,14 @@ func NewContainer(
 	}
 
 	return &Container{
-		evalCtx:    evalCtx,
-		node:       node,
-		parent:     parent,
-		block:      block,
-		wgs:        wgs,
-		evalStage:  basil.EvalStageInit,
-		stateChan:  make(chan int64, 1),
-		resultChan: make(chan basil.Container, 8),
-		errChan:    make(chan parsley.Error, 1),
-		jobManager: job.NewManager(node.ID(), evalCtx.Scheduler(), evalCtx.Logger),
-		jobID:      jobID,
+		evalCtx:   evalCtx,
+		node:      node,
+		parent:    parent,
+		block:     block,
+		trigger:   trigger,
+		wgs:       wgs,
+		evalStage: basil.EvalStageInit,
+		jobID:     jobID,
 	}
 }
 
@@ -140,16 +141,34 @@ func (c *Container) Param(name basil.ID) interface{} {
 }
 
 func (c *Container) Run() {
+	c.cancel = c.evalCtx.Cancel
+	defer func() {
+		c.cancel()
+
+		if c.parent != nil {
+			c.parent.SetChild(c)
+		}
+	}()
+
 	if !atomic.CompareAndSwapInt64(&c.state, containerStateWaiting, containerStateRunning) {
 		return
 	}
 
 	c.blockCtx = basil.NewBlockContext(c.evalCtx, c)
 
+	if err := c.evaluateDirectives(basil.EvalStageInit); err != nil {
+		c.err = err
+		c.setState(containerStateErrored)
+		return
+	}
+
+	c.stateChan = make(chan int64, 1)
+	c.resultChan = make(chan basil.Container, 8)
+	c.errChan = make(chan parsley.Error, 1)
+	c.jobManager = job.NewManager(c.node.ID(), c.evalCtx.Scheduler(), c.evalCtx.Logger)
+
 	c.stateChan <- containerStateNext
 	c.mainLoop()
-
-	c.evalCtx.Cancel()
 
 	for _, container := range c.children {
 		container.Close(c.evalCtx)
@@ -158,14 +177,10 @@ func (c *Container) Run() {
 	if c.jobManager.Stop() > 0 {
 		c.shutdownLoop()
 	}
-
-	if c.parent != nil {
-		c.parent.SetChild(c)
-	}
 }
 
 func (c *Container) Cancel() bool {
-	c.evalCtx.Cancel()
+	c.cancel()
 	return atomic.CompareAndSwapInt64(&c.state, containerStateWaiting, containerStateCancelled)
 }
 
@@ -388,6 +403,21 @@ func (c *Container) runCloseStage() {
 	c.stateChan <- containerStateNext
 }
 
+func (c *Container) evaluateDirectives(evalStage basil.EvalStage) parsley.Error {
+	for _, n := range c.node.Directives() {
+		nodeContainer := basil.NewNodeContainer(c.evalCtx, c, n)
+		evalContext := nodeContainer.CreateEvalContext(c.evalCtx)
+		directive, err := n.Value(evalContext)
+		if err != nil {
+			return err
+		}
+		if err := directive.(basil.Directive).ApplyDirective(c.blockCtx, c); err != nil {
+			return parsley.NewError(n.Pos(), err)
+		}
+	}
+	return nil
+}
+
 func (c *Container) evaluateChildren() {
 	var pending, running int
 	for _, container := range c.children {
@@ -412,17 +442,22 @@ func (c *Container) evaluateChildren() {
 	}
 }
 
-func (c *Container) EvaluateChild(nodeContainer *basil.NodeContainer) bool {
+func (c *Container) EvaluateChild(nodeContainer *basil.NodeContainer, trigger basil.ID) bool {
 	if nodeContainer.Node().EvalStage() != c.evalStage {
 		return false
 	}
 
-	c.evaluateChild(nodeContainer, nil, nodeContainer.WaitGroups())
+	c.evaluateChild(nodeContainer, trigger, nil, nodeContainer.WaitGroups())
 
 	return true
 }
 
-func (c *Container) evaluateChild(nodeContainer *basil.NodeContainer, value interface{}, wgs []*util.WaitGroup) {
+func (c *Container) evaluateChild(
+	nodeContainer *basil.NodeContainer,
+	trigger basil.ID,
+	value interface{},
+	wgs []*util.WaitGroup,
+) {
 	ctx := nodeContainer.CreateEvalContext(c.evalCtx)
 	var container basil.Container
 	jobID := c.jobManager.GenerateJobID(nodeContainer.ID())
@@ -436,7 +471,7 @@ func (c *Container) evaluateChild(nodeContainer *basil.NodeContainer, value inte
 				panic(fmt.Errorf("was expecting block, got %T", value))
 			}
 		}
-		container = NewContainer(ctx, jobID, n, c, block, wgs)
+		container = NewContainer(ctx, jobID, n, c, block, trigger, wgs)
 	case basil.ParameterNode:
 		container = parameter.NewContainer(ctx, jobID, n, c)
 	default:
@@ -509,7 +544,7 @@ func (c *Container) PublishBlock(block basil.Block) error {
 
 	wg := &util.WaitGroup{}
 	wg.Add(1)
-	c.evaluateChild(nodeContainer, block, []*util.WaitGroup{wg})
+	c.evaluateChild(nodeContainer, "", block, []*util.WaitGroup{wg})
 
 	select {
 	case <-wg.Wait():
@@ -531,6 +566,36 @@ func (c *Container) WaitGroups() []*util.WaitGroup {
 	return c.wgs
 }
 
+func (c *Container) Skip() {
+	c.setState(containerStateSkipped)
+}
+
+func (c *Container) SetTimeout(timeout time.Duration) {
+	c.evalCtx.Context, c.evalCtx.Cancel = context.WithTimeout(c.evalCtx.Context, timeout)
+}
+
+func (c *Container) SetRetry(retry basil.Retryable) {
+	c.retry = retry
+}
+
+func (c *Container) RetryCount() int {
+	if c.retry != nil {
+		return c.retry.RetryCount()
+	}
+	return 0
+}
+
+func (c *Container) RetryDelay(retryIndex int) time.Duration {
+	if c.retry != nil {
+		return c.retry.RetryDelay(retryIndex)
+	}
+	return 0
+}
+
+func (c *Container) Trigger() basil.ID {
+	return c.trigger
+}
+
 func (c *Container) debug() basil.LogEvent {
 	e := c.evalCtx.Logger.Debug()
 	if e.Enabled() {
@@ -544,12 +609,15 @@ func (c *Container) debug() basil.LogEvent {
 
 func (c *Container) logError(err error) basil.LogEvent {
 	e := c.evalCtx.Logger.Error()
-	if e.Enabled() {
-		e = e.ID("id", c.ID()).
-			ID("type", c.node.BlockType()).
-			Uint8("state", uint8(c.state)).
-			Int("active_jobs", c.jobManager.ActiveJobCount()).
-			Err(err)
+	if !e.Enabled() {
+		return e
 	}
-	return e
+	e.ID("id", c.ID()).
+		ID("type", c.node.BlockType()).
+		Uint8("state", uint8(c.state))
+
+	if c.jobManager != nil {
+		e.Int("active_jobs", c.jobManager.ActiveJobCount())
+	}
+	return e.Err(err)
 }

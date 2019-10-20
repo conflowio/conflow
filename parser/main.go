@@ -33,7 +33,7 @@ func NewMain(id basil.ID, interpreter basil.BlockInterpreter) *Main {
 	expr := Expression()
 
 	paramOrBlock := combinator.Choice(
-		Parameter(expr),
+		Parameter(expr, true),
 		Block(expr),
 	).Name("parameter or block definition")
 

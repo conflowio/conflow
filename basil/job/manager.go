@@ -52,7 +52,7 @@ func (m *Manager) GenerateJobID(id basil.ID) basil.ID {
 
 // Stop cancels all remaining jobs
 // It can be called multiple times
-// It will return with the number of jobs which couldn't be cancelled
+// It will return with the number of running jobs which couldn't be cancelled
 func (m *Manager) Stop() int {
 	m.mu.Lock()
 
@@ -69,9 +69,9 @@ func (m *Manager) Stop() int {
 		m.debug().Msg("job manager stopped")
 	}
 
-	active := m.running + m.pending
+	running := m.running
 	m.mu.Unlock()
-	return active
+	return running
 }
 
 // Schedule schedules a new job
@@ -189,5 +189,5 @@ func (m *Manager) PendingJobCount() int {
 }
 
 func (m *Manager) debug() basil.LogEvent {
-	return m.logger.Debug().Int("active_jobs", m.running)
+	return m.logger.Debug().Int("active_jobs", m.running+m.pending)
 }

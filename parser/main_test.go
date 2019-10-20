@@ -20,26 +20,28 @@ import (
 
 var _ = Describe("Main block parser", func() {
 
-	p := parser.NewMain("main", test.TestBlockInterpreter{})
+	p := parser.NewMain("main", test.BlockInterpreter{})
 
 	var registry = block.InterpreterRegistry{
-		"main":      test.TestBlockInterpreter{},
-		"testblock": test.TestBlockInterpreter{},
+		"main":      test.BlockInterpreter{},
+		"testblock": test.BlockInterpreter{},
 	}
 
 	DescribeTable("it evaluates the main block correctly",
-		func(input string, expected *test.TestBlock) {
-			test.ExpectBlockToEvaluate(p, registry)(input, expected, compareTestBlocks)
+		func(input string, expected *test.Block) {
+			test.ExpectBlockToEvaluate(p, registry)(input, expected, func(i interface{}, i2 interface{}, s string) {
+				i.(*test.Block).Compare(i2.(*test.Block), input)
+			})
 		},
 		Entry(
 			"empty",
 			``,
-			&test.TestBlock{IDField: "main"},
+			&test.Block{IDField: "main"},
 		),
 		Entry(
 			"a parameter defined",
 			`value = 1`,
-			&test.TestBlock{IDField: "main", Value: int64(1)},
+			&test.Block{IDField: "main", Value: int64(1)},
 		),
 		Entry(
 			"whitespaces and newlines",
@@ -48,7 +50,7 @@ var _ = Describe("Main block parser", func() {
 
 				field_string = "foo"
 			`,
-			&test.TestBlock{IDField: "main", Value: int64(1), FieldString: "foo"},
+			&test.Block{IDField: "main", Value: int64(1), FieldString: "foo"},
 		),
 		Entry(
 			"a block defined",
@@ -57,9 +59,9 @@ var _ = Describe("Main block parser", func() {
 					value = 1
 				}
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "c", Value: int64(1)},
 				},
 			},
@@ -72,10 +74,10 @@ var _ = Describe("Main block parser", func() {
 					value = 2
 				}
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
 				Value:   int64(1),
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "c", Value: int64(2)},
 				},
 			},
@@ -83,8 +85,10 @@ var _ = Describe("Main block parser", func() {
 	)
 
 	DescribeTable("it evaluates dependencies correctly",
-		func(input string, expected *test.TestBlock) {
-			test.ExpectBlockToEvaluate(p, registry)(input, expected, compareTestBlocks)
+		func(input string, expected *test.Block) {
+			test.ExpectBlockToEvaluate(p, registry)(input, expected, func(i interface{}, i2 interface{}, s string) {
+				i.(*test.Block).Compare(i2.(*test.Block), input)
+			})
 		},
 		Entry(
 			"a parameter depends on an other",
@@ -92,7 +96,7 @@ var _ = Describe("Main block parser", func() {
 				field_int = main.value + 1
 				value = 1
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField:  "main",
 				Value:    int64(1),
 				FieldInt: int64(2),
@@ -104,7 +108,7 @@ var _ = Describe("Main block parser", func() {
 				value = main.user_param + 1
 				user_param := 1
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
 				Value:   int64(2),
 			},
@@ -119,9 +123,9 @@ var _ = Describe("Main block parser", func() {
 					value = 1
 				}
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "c2", Value: int64(1)},
 					{IDField: "c1", Value: int64(2)},
 				},
@@ -135,10 +139,10 @@ var _ = Describe("Main block parser", func() {
 					value = 1
 				}
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
 				Value:   int64(2),
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "c", Value: int64(1)},
 				},
 			},
@@ -151,10 +155,10 @@ var _ = Describe("Main block parser", func() {
 					user_param := 1
 				}
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
 				Value:   int64(2),
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "c"},
 				},
 			},
@@ -167,10 +171,10 @@ var _ = Describe("Main block parser", func() {
 				}
 				value = 1
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
 				Value:   int64(1),
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "c", Value: int64(2)},
 				},
 			},
@@ -185,13 +189,13 @@ var _ = Describe("Main block parser", func() {
 				}
 				value = c2.value + 1
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
 				Value:   int64(2),
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{
 						IDField: "c1",
-						TestBlock: []*test.TestBlock{
+						Blocks: []*test.Block{
 							{
 								IDField: "c2",
 								Value:   int64(1),
@@ -215,12 +219,12 @@ var _ = Describe("Main block parser", func() {
 					}
 				}
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{
 						IDField: "c3",
-						TestBlock: []*test.TestBlock{
+						Blocks: []*test.Block{
 							{
 								IDField: "c4",
 								Value:   int64(1),
@@ -229,7 +233,7 @@ var _ = Describe("Main block parser", func() {
 					},
 					{
 						IDField: "c1",
-						TestBlock: []*test.TestBlock{
+						Blocks: []*test.Block{
 							{
 								IDField: "c2",
 								Value:   int64(2),
@@ -252,10 +256,10 @@ var _ = Describe("Main block parser", func() {
 					field_int = 2
 				}
 			`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "main",
 				Value:   int64(6),
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "c1", Value: int64(2), FieldInt: int64(1)},
 					{IDField: "c2", Value: int64(4), FieldInt: int64(2)},
 				},

@@ -6,7 +6,10 @@
 
 package basil
 
-import "sync/atomic"
+import (
+	"sync/atomic"
+	"time"
+)
 
 const (
 	jobStateWaiting int64 = iota
@@ -21,6 +24,12 @@ type Job interface {
 	Run()
 	Cancel() bool
 	Lightweight() bool
+}
+
+// Retryable is a simple interface for defining a retry mechanism
+type Retryable interface {
+	RetryCount() int
+	RetryDelay(int) time.Duration
 }
 
 type job struct {

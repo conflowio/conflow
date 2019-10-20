@@ -8,7 +8,6 @@ package parser_test
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -19,100 +18,67 @@ import (
 	"github.com/opsidian/basil/test"
 )
 
-func compareTestBlocks(b1i interface{}, b2i interface{}, input string) {
-	b1 := b1i.(*test.TestBlock)
-	b2 := b2i.(*test.TestBlock)
-
-	Expect(b1.IDField).To(Equal(b2.IDField), "id does not match, input: %s", input)
-
-	interpreter := test.TestBlockInterpreter{}
-
-	for paramName, _ := range interpreter.Params() {
-		v1 := interpreter.Param(b1, paramName)
-		v2 := interpreter.Param(b2, paramName)
-		if v2 != nil {
-			Expect(v1).To(Equal(v2), "%s does not match, input: %s", paramName, input)
-		} else {
-			Expect(v1).To(BeNil(), "%s does not match, input: %s", paramName, input)
-		}
-	}
-
-	Expect(len(b1.TestBlock)).To(Equal(len(b2.TestBlock)), "child block count does not match, input: %s", input)
-
-	for _, c1 := range b1.TestBlock {
-		found := false
-		for _, c2 := range b2.TestBlock {
-			if c1.IDField == c2.IDField {
-				compareTestBlocks(c1, c2, input)
-				found = true
-				break
-			}
-		}
-		if !found {
-			Fail(fmt.Sprintf("was expecting child block with identifier %q", c1.IDField))
-		}
-	}
-}
-
 var _ = Describe("Block parser", func() {
 
 	p := parser.Block(parser.Expression())
 
 	var registry = block.InterpreterRegistry{
-		"testblock": test.TestBlockInterpreter{},
+		"testblock": test.BlockInterpreter{},
 	}
 
 	DescribeTable("it evaluates the block correctly",
-		func(input string, expected *test.TestBlock) {
-			test.ExpectBlockToEvaluate(p, registry)(input, expected, compareTestBlocks)
+		func(input string, expected *test.Block) {
+			test.ExpectBlockToEvaluate(p, registry)(input, expected, func(i interface{}, i2 interface{}, s string) {
+				i.(*test.Block).Compare(i2.(*test.Block), input)
+			})
 		},
 		Entry(
 			"no id and body",
 			`testblock`,
-			&test.TestBlock{IDField: "0"},
+			&test.Block{IDField: "0"},
 		),
 		Entry(
 			"id but no body",
 			`testblock foo`,
-			&test.TestBlock{IDField: "foo"},
+			&test.Block{IDField: "foo"},
 		),
 		Entry(
 			"no id, empty body",
 			`testblock {}`,
-			&test.TestBlock{IDField: "0"},
+			&test.Block{IDField: "0"},
 		),
 		Entry(
 			"id and empty body",
 			`testblock foo {}`,
-			&test.TestBlock{IDField: "foo"},
+			&test.Block{IDField: "foo"},
 		),
 		Entry(
 			"a parameter defined",
 			`testblock {
 				field_string = "foo"
 			}`,
-			&test.TestBlock{IDField: "0", FieldString: "foo"},
+			&test.Block{IDField: "0", FieldString: "foo"},
 		),
 		Entry(
 			"a custom parameter defined",
 			`testblock {
 				user_param := "foo"
 			}`,
-			&test.TestBlock{IDField: "0"},
+			&test.Block{IDField: "0"},
 		),
 		Entry(
 			"value parameter defined",
 			`testblock {
 				value = 123
 			}`,
-			&test.TestBlock{IDField: "0", Value: int64(123)},
+			&test.Block{IDField: "0", Value: int64(123)},
 		),
 		Entry(
 			"extra parameter defined",
 			`testblock {
 				extra_value := 123
 			}`,
-			&test.TestBlock{IDField: "0"},
+			&test.Block{IDField: "0"},
 		),
 		Entry(
 			"all parameter types defined",
@@ -128,7 +94,7 @@ var _ = Describe("Block parser", func() {
 				}
 				field_time_duration = 1h30m
 			}`,
-			&test.TestBlock{
+			&test.Block{
 				IDField:           "0",
 				FieldString:       "a",
 				FieldInt:          int64(1),
@@ -150,14 +116,14 @@ var _ = Describe("Block parser", func() {
 				field_map = nil
 				field_time_duration = nil
 			}`,
-			&test.TestBlock{IDField: "0"},
+			&test.Block{IDField: "0"},
 		),
 		Entry(
 			"parameter with custom name defined",
 			`testblock {
 				custom_field = "bar"
 			}`,
-			&test.TestBlock{
+			&test.Block{
 				IDField:         "0",
 				FieldCustomName: "bar",
 			},
@@ -165,17 +131,17 @@ var _ = Describe("Block parser", func() {
 		Entry(
 			"short format with no id",
 			`testblock "value"`,
-			&test.TestBlock{IDField: "0", Value: "value"},
+			&test.Block{IDField: "0", Value: "value"},
 		),
 		Entry(
 			"short format with id",
 			`testblock foo "value"`,
-			&test.TestBlock{IDField: "foo", Value: "value"},
+			&test.Block{IDField: "foo", Value: "value"},
 		),
 		Entry(
 			"short format with array",
 			`testblock foo [1, 2]`,
-			&test.TestBlock{IDField: "foo", Value: []interface{}{int64(1), int64(2)}},
+			&test.Block{IDField: "foo", Value: []interface{}{int64(1), int64(2)}},
 		),
 		Entry(
 			"short format with multiline array",
@@ -183,36 +149,38 @@ var _ = Describe("Block parser", func() {
 				1,
 				2,
 			]`,
-			&test.TestBlock{IDField: "foo", Value: []interface{}{int64(1), int64(2)}},
+			&test.Block{IDField: "foo", Value: []interface{}{int64(1), int64(2)}},
 		),
 		Entry(
 			"short format with map",
 			`testblock foo map{
 				"a": "b",
 			}`,
-			&test.TestBlock{IDField: "foo", Value: map[string]interface{}{"a": "b"}},
+			&test.Block{IDField: "foo", Value: map[string]interface{}{"a": "b"}},
 		),
 		Entry(
 			"function call in parameter value",
 			`testblock {
 				field_string = test.func2("foo", "bar")
 			}`,
-			&test.TestBlock{IDField: "0", FieldString: "foobar"},
+			&test.Block{IDField: "0", FieldString: "foobar"},
 		),
 	)
 
 	DescribeTable("it evaluates a child block correctly",
-		func(input string, expected *test.TestBlock) {
-			test.ExpectBlockToEvaluate(p, registry)(input, expected, compareTestBlocks)
+		func(input string, expected *test.Block) {
+			test.ExpectBlockToEvaluate(p, registry)(input, expected, func(i interface{}, i2 interface{}, input string) {
+				i.(*test.Block).Compare(i2.(*test.Block), input)
+			})
 		},
 		Entry(
 			"child block without id and body",
 			`testblock {
 				testblock
 			}`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "0",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "1"},
 				},
 			},
@@ -222,9 +190,9 @@ var _ = Describe("Block parser", func() {
 			`testblock {
 				testblock foo
 			}`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "0",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "foo"},
 				},
 			},
@@ -235,9 +203,9 @@ var _ = Describe("Block parser", func() {
 				testblock {
 				}
 			}`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "0",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "1"},
 				},
 			},
@@ -249,9 +217,9 @@ var _ = Describe("Block parser", func() {
 					value = 1
 				}
 			}`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "0",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "1", Value: int64(1)},
 				},
 			},
@@ -266,9 +234,9 @@ var _ = Describe("Block parser", func() {
 					value = 2
 				}
 			}`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "0",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "1", Value: int64(1)},
 					{IDField: "2", Value: int64(2)},
 				},
@@ -284,13 +252,54 @@ var _ = Describe("Block parser", func() {
 					value = b1.value + 1
 				}
 			}`,
-			&test.TestBlock{
+			&test.Block{
 				IDField: "0",
-				TestBlock: []*test.TestBlock{
+				Blocks: []*test.Block{
 					{IDField: "b1", Value: int64(1)},
 					{IDField: "b2", Value: int64(2)},
 				},
 			},
+		),
+	)
+
+	DescribeTable("it evaluates directives correctly",
+		func(input string, expected *test.Block) {
+			test.ExpectBlockToEvaluate(p, registry)(input, expected, func(i interface{}, i2 interface{}, input string) {
+				i.(*test.Block).Compare(i2.(*test.Block), input)
+			})
+		},
+		Entry(
+			"a directive with no body",
+			`@testdirective
+				testblock {}`,
+			&test.Block{IDField: "1"},
+		),
+		Entry(
+			"a directive with a value",
+			`@testdirective "foo"
+				testblock {}`,
+			&test.Block{IDField: "1"},
+		),
+		Entry(
+			"a directive with an empty body",
+			`@testdirective {}
+				testblock {}`,
+			&test.Block{IDField: "1"},
+		),
+		Entry(
+			"a directive with a body",
+			`@testdirective {
+				value = "foo"
+			}
+			testblock {}`,
+			&test.Block{IDField: "1"},
+		),
+		Entry(
+			"multiple directives",
+			`@testdirective "foo"
+			@testdirective2 "bar"
+			testblock {}`,
+			&test.Block{IDField: "2"},
 		),
 	)
 
@@ -341,14 +350,14 @@ var _ = Describe("Block parser", func() {
 		Entry(
 			"unknown block type",
 			`unknownblock {}`,
-			errors.New("\"unknownblock\" type is invalid or not allowed here at testfile:1:1"),
+			errors.New("\"unknownblock\" block is unknown or not allowed at testfile:1:1"),
 		),
 		Entry(
 			"unknown child block type",
 			`testblock {
 				unknownblock {}
 			}`,
-			errors.New("\"unknownblock\" type is invalid or not allowed here at testfile:2:5"),
+			errors.New("\"unknownblock\" block is unknown or not allowed at testfile:2:5"),
 		),
 		Entry(
 			"same parameter defined multiple times",

@@ -37,7 +37,7 @@ func main() {
 	ctx, cancel := util.CreateDefaultContext()
 	defer cancel()
 
-	parseCtx := basil.NewParseContext(basil.NewIDRegistry(8, 16))
+	parseCtx := common.NewParseContext()
 
 	p := parser.NewMain("main", MainInterpreter{})
 

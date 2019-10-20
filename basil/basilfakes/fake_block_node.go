@@ -39,6 +39,16 @@ type FakeBlockNode struct {
 	dependenciesReturnsOnCall map[int]struct {
 		result1 basil.Dependencies
 	}
+	DirectivesStub        func() []basil.BlockNode
+	directivesMutex       sync.RWMutex
+	directivesArgsForCall []struct {
+	}
+	directivesReturns struct {
+		result1 []basil.BlockNode
+	}
+	directivesReturnsOnCall map[int]struct {
+		result1 []basil.BlockNode
+	}
 	EvalStageStub        func() basil.EvalStage
 	evalStageMutex       sync.RWMutex
 	evalStageArgsForCall []struct {
@@ -146,16 +156,6 @@ type FakeBlockNode struct {
 	}
 	tokenReturnsOnCall map[int]struct {
 		result1 string
-	}
-	TriggersStub        func() []basil.ID
-	triggersMutex       sync.RWMutex
-	triggersArgsForCall []struct {
-	}
-	triggersReturns struct {
-		result1 []basil.ID
-	}
-	triggersReturnsOnCall map[int]struct {
-		result1 []basil.ID
 	}
 	TypeStub        func() string
 	typeMutex       sync.RWMutex
@@ -337,6 +337,58 @@ func (fake *FakeBlockNode) DependenciesReturnsOnCall(i int, result1 basil.Depend
 	}
 	fake.dependenciesReturnsOnCall[i] = struct {
 		result1 basil.Dependencies
+	}{result1}
+}
+
+func (fake *FakeBlockNode) Directives() []basil.BlockNode {
+	fake.directivesMutex.Lock()
+	ret, specificReturn := fake.directivesReturnsOnCall[len(fake.directivesArgsForCall)]
+	fake.directivesArgsForCall = append(fake.directivesArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Directives", []interface{}{})
+	fake.directivesMutex.Unlock()
+	if fake.DirectivesStub != nil {
+		return fake.DirectivesStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.directivesReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockNode) DirectivesCallCount() int {
+	fake.directivesMutex.RLock()
+	defer fake.directivesMutex.RUnlock()
+	return len(fake.directivesArgsForCall)
+}
+
+func (fake *FakeBlockNode) DirectivesCalls(stub func() []basil.BlockNode) {
+	fake.directivesMutex.Lock()
+	defer fake.directivesMutex.Unlock()
+	fake.DirectivesStub = stub
+}
+
+func (fake *FakeBlockNode) DirectivesReturns(result1 []basil.BlockNode) {
+	fake.directivesMutex.Lock()
+	defer fake.directivesMutex.Unlock()
+	fake.DirectivesStub = nil
+	fake.directivesReturns = struct {
+		result1 []basil.BlockNode
+	}{result1}
+}
+
+func (fake *FakeBlockNode) DirectivesReturnsOnCall(i int, result1 []basil.BlockNode) {
+	fake.directivesMutex.Lock()
+	defer fake.directivesMutex.Unlock()
+	fake.DirectivesStub = nil
+	if fake.directivesReturnsOnCall == nil {
+		fake.directivesReturnsOnCall = make(map[int]struct {
+			result1 []basil.BlockNode
+		})
+	}
+	fake.directivesReturnsOnCall[i] = struct {
+		result1 []basil.BlockNode
 	}{result1}
 }
 
@@ -902,58 +954,6 @@ func (fake *FakeBlockNode) TokenReturnsOnCall(i int, result1 string) {
 	}{result1}
 }
 
-func (fake *FakeBlockNode) Triggers() []basil.ID {
-	fake.triggersMutex.Lock()
-	ret, specificReturn := fake.triggersReturnsOnCall[len(fake.triggersArgsForCall)]
-	fake.triggersArgsForCall = append(fake.triggersArgsForCall, struct {
-	}{})
-	fake.recordInvocation("Triggers", []interface{}{})
-	fake.triggersMutex.Unlock()
-	if fake.TriggersStub != nil {
-		return fake.TriggersStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.triggersReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeBlockNode) TriggersCallCount() int {
-	fake.triggersMutex.RLock()
-	defer fake.triggersMutex.RUnlock()
-	return len(fake.triggersArgsForCall)
-}
-
-func (fake *FakeBlockNode) TriggersCalls(stub func() []basil.ID) {
-	fake.triggersMutex.Lock()
-	defer fake.triggersMutex.Unlock()
-	fake.TriggersStub = stub
-}
-
-func (fake *FakeBlockNode) TriggersReturns(result1 []basil.ID) {
-	fake.triggersMutex.Lock()
-	defer fake.triggersMutex.Unlock()
-	fake.TriggersStub = nil
-	fake.triggersReturns = struct {
-		result1 []basil.ID
-	}{result1}
-}
-
-func (fake *FakeBlockNode) TriggersReturnsOnCall(i int, result1 []basil.ID) {
-	fake.triggersMutex.Lock()
-	defer fake.triggersMutex.Unlock()
-	fake.TriggersStub = nil
-	if fake.triggersReturnsOnCall == nil {
-		fake.triggersReturnsOnCall = make(map[int]struct {
-			result1 []basil.ID
-		})
-	}
-	fake.triggersReturnsOnCall[i] = struct {
-		result1 []basil.ID
-	}{result1}
-}
-
 func (fake *FakeBlockNode) Type() string {
 	fake.typeMutex.Lock()
 	ret, specificReturn := fake.typeReturnsOnCall[len(fake.typeArgsForCall)]
@@ -1078,6 +1078,8 @@ func (fake *FakeBlockNode) Invocations() map[string][][]interface{} {
 	defer fake.childrenMutex.RUnlock()
 	fake.dependenciesMutex.RLock()
 	defer fake.dependenciesMutex.RUnlock()
+	fake.directivesMutex.RLock()
+	defer fake.directivesMutex.RUnlock()
 	fake.evalStageMutex.RLock()
 	defer fake.evalStageMutex.RUnlock()
 	fake.generatedMutex.RLock()
@@ -1100,8 +1102,6 @@ func (fake *FakeBlockNode) Invocations() map[string][][]interface{} {
 	defer fake.setDescriptorMutex.RUnlock()
 	fake.tokenMutex.RLock()
 	defer fake.tokenMutex.RUnlock()
-	fake.triggersMutex.RLock()
-	defer fake.triggersMutex.RUnlock()
 	fake.typeMutex.RLock()
 	defer fake.typeMutex.RUnlock()
 	fake.valueMutex.RLock()

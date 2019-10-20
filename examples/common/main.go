@@ -12,12 +12,29 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/directive"
+
 	"github.com/opsidian/basil/logger/zerolog"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
 	uzerolog "github.com/rs/zerolog"
 )
+
+func NewParseContext() *basil.ParseContext {
+	directiveTransformerRegistry := block.InterpreterRegistry{
+		"deprecated": directive.DeprecatedInterpreter{},
+		"retry":      directive.RetryInterpreter{},
+		"skip":       directive.SkipInterpreter{},
+		"timeout":    directive.TimeoutInterpreter{},
+		"triggers":   directive.TriggersInterpreter{},
+		"todo":       directive.TodoInterpreter{},
+		"when":       directive.WhenInterpreter{},
+	}
+	idRegistry := basil.NewIDRegistry(8, 16)
+	return basil.NewParseContext(idRegistry, directiveTransformerRegistry)
+}
 
 func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 	level := uzerolog.InfoLevel

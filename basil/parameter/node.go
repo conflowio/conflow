@@ -15,6 +15,10 @@ import (
 
 var _ basil.ParameterNode = &Node{}
 
+const (
+	Token = "PARAMETER"
+)
+
 // Node is a block parameter
 type Node struct {
 	id            basil.ID
@@ -81,11 +85,6 @@ func (n *Node) Dependencies() basil.Dependencies {
 	})
 
 	return n.dependencies
-}
-
-// Triggers returns nil
-func (n *Node) Triggers() []basil.ID {
-	return nil
 }
 
 // Provides returns with nil as a parameter node doesn't define other nodes

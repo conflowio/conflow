@@ -18,6 +18,7 @@ sleep sleep2 {
     duration = 100ms
 }
 
-println (sleep2) {
+@triggers [sleep1]
+println {
     value = string(sleep1.i1) + " " + string(sleep2.i2)
 }
