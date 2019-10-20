@@ -10,6 +10,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/directive"
+
 	"github.com/opsidian/basil/logger/zerolog"
 
 	"github.com/opsidian/basil/basil/basilfakes"
@@ -41,7 +44,7 @@ func ParseCtx(
 	testBlockNode := &basilfakes.FakeBlockNode{}
 	testBlockNode.IDReturns(basil.ID("test"))
 	testBlockNode.ParamTypeCalls(func(id basil.ID) (s string, b bool) {
-		interpreter := TestBlockInterpreter{}
+		interpreter := BlockInterpreter{}
 		if param, ok := interpreter.Params()[id]; ok {
 			return param.Type, true
 		}
@@ -52,7 +55,19 @@ func ParseCtx(
 	fs := parsley.NewFileSet(f)
 	r := text.NewReader(f)
 
-	parseCtx := basil.NewParseContext(newIDRegistry()).New(basil.ParseContextOverride{
+	directiveTransformerRegistry := block.InterpreterRegistry{
+		"deprecated":     directive.DeprecatedInterpreter{},
+		"retry":          directive.RetryInterpreter{},
+		"skip":           directive.SkipInterpreter{},
+		"timeout":        directive.TimeoutInterpreter{},
+		"triggers":       directive.TriggersInterpreter{},
+		"todo":           directive.TodoInterpreter{},
+		"when":           directive.WhenInterpreter{},
+		"testdirective":  DirectiveInterpreter{},
+		"testdirective2": DirectiveInterpreter{},
+	}
+
+	parseCtx := basil.NewParseContext(newIDRegistry(), directiveTransformerRegistry).New(basil.ParseContextOverride{
 		BlockTransformerRegistry:    blockRegistry,
 		FunctionTransformerRegistry: functionRegistry,
 	})
@@ -69,7 +84,7 @@ func ParseCtx(
 
 func EvalUserCtx() *basil.EvalContext {
 	testBlock :=
-		&TestBlock{
+		&Block{
 			FieldString: "bar",
 			FieldMap: map[string]interface{}{
 				"key1": "value1",
@@ -87,7 +102,7 @@ func EvalUserCtx() *basil.EvalContext {
 
 	testBlockContainer := &basilfakes.FakeBlockContainer{}
 	testBlockContainer.ParamCalls(func(name basil.ID) interface{} {
-		return TestBlockInterpreter{}.Param(testBlock, name)
+		return BlockInterpreter{}.Param(testBlock, name)
 	})
 
 	containers := map[basil.ID]basil.BlockContainer{

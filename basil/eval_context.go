@@ -14,8 +14,9 @@ type EvalStage int8
 // Evaluation stages
 const (
 	EvalStageInit  EvalStage = -1
-	EvalStageMain  EvalStage = 0
-	EvalStageClose EvalStage = 1
+	EvalStageMain            = 0
+	EvalStageClose           = 1
+	EvalStageNone            = 2
 )
 
 // EvalStages returns with the evaluation stages

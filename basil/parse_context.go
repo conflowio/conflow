@@ -14,11 +14,12 @@ import (
 
 // ParseContext is the parsing context
 type ParseContext struct {
-	blockTransformerRegistry    parsley.NodeTransformerRegistry
-	functionTransformerRegistry parsley.NodeTransformerRegistry
-	idRegistry                  IDRegistry
-	blockNodes                  map[ID]BlockNode
-	fileSet                     *parsley.FileSet
+	directiveTransformerRegistry parsley.NodeTransformerRegistry
+	blockTransformerRegistry     parsley.NodeTransformerRegistry
+	functionTransformerRegistry  parsley.NodeTransformerRegistry
+	idRegistry                   IDRegistry
+	blockNodes                   map[ID]BlockNode
+	fileSet                      *parsley.FileSet
 }
 
 // ParseContextOverride stores override values for a parse context
@@ -32,12 +33,26 @@ type ParseContextOverrider interface {
 	ParseContextOverride() ParseContextOverride
 }
 
+type emptyNodeTransformer struct{}
+
+func (e emptyNodeTransformer) NodeTransformer(name string) (parsley.NodeTransformer, bool) {
+	return nil, false
+}
+
+var emptyRegistry = emptyNodeTransformer{}
+
 // NewParseContext returns with a new parsing context
-func NewParseContext(idRegistry IDRegistry) *ParseContext {
+func NewParseContext(idRegistry IDRegistry, directiveTransformerRegistry parsley.NodeTransformerRegistry) *ParseContext {
+	if directiveTransformerRegistry == nil {
+		directiveTransformerRegistry = emptyRegistry
+	}
 	return &ParseContext{
 		idRegistry: idRegistry,
 		blockNodes: make(map[ID]BlockNode, 32),
 		fileSet:    parsley.NewFileSet(),
+		directiveTransformerRegistry: directiveTransformerRegistry,
+		blockTransformerRegistry:     emptyRegistry,
+		functionTransformerRegistry:  emptyRegistry,
 	}
 }
 
@@ -47,19 +62,22 @@ func (p *ParseContext) New(config ParseContextOverride) *ParseContext {
 		idRegistry: p.idRegistry,
 		blockNodes: p.blockNodes,
 		fileSet:    p.fileSet,
+		directiveTransformerRegistry: p.directiveTransformerRegistry,
+		blockTransformerRegistry:     p.blockTransformerRegistry,
+		functionTransformerRegistry:  p.functionTransformerRegistry,
 	}
 	if config.BlockTransformerRegistry != nil {
 		ctx.blockTransformerRegistry = config.BlockTransformerRegistry
-	} else {
-		ctx.blockTransformerRegistry = p.blockTransformerRegistry
 	}
 	if config.FunctionTransformerRegistry != nil {
 		ctx.functionTransformerRegistry = config.FunctionTransformerRegistry
-	} else {
-		ctx.functionTransformerRegistry = p.functionTransformerRegistry
 	}
-
 	return ctx
+}
+
+// DirectiveTransformerRegistry returns with the directive node transformer registry
+func (p *ParseContext) DirectiveTransformerRegistry() parsley.NodeTransformerRegistry {
+	return p.directiveTransformerRegistry
 }
 
 // BlockTransformerRegistry returns with the block node transformer registry

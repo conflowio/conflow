@@ -15,7 +15,6 @@ type Node interface {
 	Identifiable
 	EvalStage() EvalStage
 	Dependencies() Dependencies
-	Triggers() []ID
 	Provides() []ID
 	Generates() []ID
 	Generated() bool
@@ -23,3 +22,9 @@ type Node interface {
 
 // Dependencies is a variable list
 type Dependencies map[ID]VariableNode
+
+func (d Dependencies) Add(d2 Dependencies) {
+	for k, v := range d2 {
+		d[k] = v
+	}
+}

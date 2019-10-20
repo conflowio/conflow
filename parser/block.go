@@ -9,6 +9,8 @@ package parser
 import (
 	"fmt"
 
+	"github.com/opsidian/parsley/parser"
+
 	"github.com/opsidian/basil/basil/block"
 
 	"github.com/opsidian/basil/basil"
@@ -18,7 +20,7 @@ import (
 	"github.com/opsidian/parsley/text/terminal"
 )
 
-// Block return a parser for parsing blocks
+// Block returns a parser for parsing blocks
 //   S     -> ID ID? {
 //              (ATTR|S)*
 //            }
@@ -29,33 +31,43 @@ import (
 //         -> ARRAY
 //         -> MAP
 func Block(expr parsley.Parser) *combinator.Sequence {
+	return blockWithOptions(expr, true, true, true)
+}
+
+func blockWithOptions(
+	expr parsley.Parser,
+	allowID bool,
+	allowCustomParameters bool,
+	allowDirectives bool,
+) *combinator.Sequence {
 	var p combinator.Sequence
 
-	paramOrBlock := combinator.Choice(
-		Parameter(expr),
-		&p,
-	).Name("parameter or block definition")
+	var directives parsley.Parser
+	if allowDirectives {
+		directives = combinator.Many(text.RightTrim(Directive(expr), text.WsSpacesForceNl))
+	} else {
+		directives = parser.Empty()
+	}
 
-	emptyBlockValue := combinator.SeqOf(
+	paramOrBlock := combinator.Choice(
+		Parameter(expr, allowCustomParameters),
+		&p,
+	).Name("parameter or block")
+
+	emptyBody := combinator.SeqOf(
 		terminal.Rune('{'),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
-	).Token(block.TokenBlockBody)
+	).Token(block.TokenBody)
 
-	nonEmptyBlockValue := combinator.SeqOf(
+	body := combinator.SeqOf(
 		terminal.Rune('{'),
 		combinator.Many(text.LeftTrim(paramOrBlock, text.WsSpacesForceNl)),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
-	).Token(block.TokenBlockBody)
-
-	triggers := combinator.SeqOf(
-		terminal.Rune('('),
-		text.LeftTrim(SepByComma(ID(basil.IDRegExpPattern), text.WsSpaces), text.WsSpaces),
-		text.LeftTrim(terminal.Rune(')'), text.WsSpaces),
-	).Token(block.TokenBlockTriggers)
+	).Token(block.TokenBody)
 
 	blockValue := combinator.Choice(
-		emptyBlockValue,
-		nonEmptyBlockValue,
+		emptyBody,
+		body,
 		terminal.TimeDuration(),
 		terminal.Float(),
 		terminal.Integer(),
@@ -64,13 +76,24 @@ func Block(expr parsley.Parser) *combinator.Sequence {
 		Array(expr, text.WsSpaces),
 		Array(expr, text.WsSpacesNl),
 		Map(expr),
+		parser.Empty(),
 	).Name("block value")
 
-	p = *combinator.SeqTry(
-		combinator.SeqTry(ID(basil.IDRegExpPattern), text.LeftTrim(ID(basil.IDRegExpPattern), text.WsSpaces)),
-		combinator.Optional(text.LeftTrim(triggers, text.WsSpaces)),
+	var id parsley.Parser
+	if allowID {
+		id = combinator.SeqTry(
+			ID(basil.IDRegExpPattern),
+			text.LeftTrim(ID(basil.IDRegExpPattern), text.WsSpaces),
+		).ReturnSingle()
+	} else {
+		id = ID(basil.IDRegExpPattern)
+	}
+
+	p = *combinator.SeqOf(
+		directives,
+		id,
 		text.LeftTrim(blockValue, text.WsSpaces),
-	).Name("block definition").Token(block.TokenBlock).Bind(blockInterpreter{})
+	).Name("block").Token(block.Token).Bind(blockInterpreter{})
 
 	return &p
 }
@@ -85,12 +108,20 @@ func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) 
 	registry := userCtx.(basil.BlockTransformerRegistryAware).BlockTransformerRegistry()
 
 	nodes := node.(parsley.NonTerminalNode).Children()
-	blockIDNodes := nodes[0].(parsley.NonTerminalNode).Children()
-	typeNode := blockIDNodes[0].(*basil.IDNode)
+
+	var typeNode *basil.IDNode
+	switch n := nodes[1].(type) {
+	case parsley.NonTerminalNode:
+		typeNode = n.Children()[0].(*basil.IDNode)
+	case *basil.IDNode:
+		typeNode = n
+	default:
+		panic(fmt.Errorf("unexpected node type: %T", nodes[1]))
+	}
 
 	transformer, exists := registry.NodeTransformer(string(typeNode.ID()))
 	if !exists {
-		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf("%q type is invalid or not allowed here", typeNode.ID()))
+		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf("%q block is unknown or not allowed", typeNode.ID()))
 	}
 
 	return transformer.TransformNode(userCtx, node)

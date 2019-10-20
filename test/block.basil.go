@@ -8,17 +8,17 @@ import (
 	"github.com/opsidian/basil/basil/variable"
 )
 
-type TestBlockInterpreter struct{}
+type BlockInterpreter struct{}
 
-// Create creates a new TestBlock block
-func (i TestBlockInterpreter) CreateBlock(id basil.ID) basil.Block {
-	return &TestBlock{
+// Create creates a new Block block
+func (i BlockInterpreter) CreateBlock(id basil.ID) basil.Block {
+	return &Block{
 		IDField: id,
 	}
 }
 
 // Params returns with the list of valid parameters
-func (i TestBlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
+func (i BlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return map[basil.ID]basil.ParameterDescriptor{
 		"value": {
 			Type:       "interface{}",
@@ -78,7 +78,7 @@ func (i TestBlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 }
 
 // Blocks returns with the list of valid blocks
-func (i TestBlockInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
+func (i BlockInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 	return map[basil.ID]basil.BlockDescriptor{
 		"testblock": {
 			EvalStage:   basil.EvalStages["main"],
@@ -90,18 +90,18 @@ func (i TestBlockInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
-func (i TestBlockInterpreter) HasForeignID() bool {
+func (i BlockInterpreter) HasForeignID() bool {
 	return false
 }
 
 // HasShortFormat returns true if the block can be defined in the short block format
-func (i TestBlockInterpreter) ValueParamName() basil.ID {
+func (i BlockInterpreter) ValueParamName() basil.ID {
 	return "value"
 }
 
 // ParseContext returns with the parse context for the block
-func (i TestBlockInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
-	var nilBlock *TestBlock
+func (i BlockInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+	var nilBlock *Block
 	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
@@ -109,36 +109,36 @@ func (i TestBlockInterpreter) ParseContext(ctx *basil.ParseContext) *basil.Parse
 	return ctx
 }
 
-func (i TestBlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i BlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
 	case "id":
-		return b.(*TestBlock).IDField
+		return b.(*Block).IDField
 	case "value":
-		return b.(*TestBlock).Value
+		return b.(*Block).Value
 	case "field_string":
-		return b.(*TestBlock).FieldString
+		return b.(*Block).FieldString
 	case "field_int":
-		return b.(*TestBlock).FieldInt
+		return b.(*Block).FieldInt
 	case "field_float":
-		return b.(*TestBlock).FieldFloat
+		return b.(*Block).FieldFloat
 	case "field_bool":
-		return b.(*TestBlock).FieldBool
+		return b.(*Block).FieldBool
 	case "field_array":
-		return b.(*TestBlock).FieldArray
+		return b.(*Block).FieldArray
 	case "field_map":
-		return b.(*TestBlock).FieldMap
+		return b.(*Block).FieldMap
 	case "field_time_duration":
-		return b.(*TestBlock).FieldTimeDuration
+		return b.(*Block).FieldTimeDuration
 	case "custom_field":
-		return b.(*TestBlock).FieldCustomName
+		return b.(*Block).FieldCustomName
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in TestBlock", name))
+		panic(fmt.Errorf("unexpected parameter %q in Block", name))
 	}
 }
 
-func (i TestBlockInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i BlockInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
 	var err error
-	b := block.(*TestBlock)
+	b := block.(*Block)
 	switch name {
 	case "id":
 		b.IDField, err = variable.IdentifierValue(value)
@@ -164,11 +164,11 @@ func (i TestBlockInterpreter) SetParam(block basil.Block, name basil.ID, value i
 	return err
 }
 
-func (i TestBlockInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
-	b := block.(*TestBlock)
+func (i BlockInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	b := block.(*Block)
 	switch name {
 	case "testblock":
-		b.TestBlock = append(b.TestBlock, value.(*TestBlock))
+		b.Blocks = append(b.Blocks, value.(*Block))
 	}
 	return nil
 }

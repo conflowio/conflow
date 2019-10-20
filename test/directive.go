@@ -9,13 +9,13 @@ package test
 import (
 	"time"
 
-	"github.com/opsidian/basil/basil/block"
-
+	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/block"
 )
 
 //go:generate basil generate
-type TestBlock struct {
+type Directive struct {
 	IDField           basil.ID    `basil:"id"`
 	Value             interface{} `basil:"value"`
 	FieldString       string
@@ -27,17 +27,29 @@ type TestBlock struct {
 	FieldTimeDuration time.Duration
 	FieldCustomName   string `basil:"name=custom_field"`
 
-	TestBlock []*TestBlock `basil:"block,name=testblock"`
+	Blocks []*Block `basil:"block,name=testblock"`
 }
 
-func (t *TestBlock) ID() basil.ID {
-	return t.IDField
+func (d *Directive) ID() basil.ID {
+	return d.IDField
 }
 
-func (t *TestBlock) ParseContextOverride() basil.ParseContextOverride {
+func (d *Directive) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"testblock": TestBlockInterpreter{},
+			"testblock": BlockInterpreter{},
 		},
+	}
+}
+
+func (d *Directive) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
+	return nil
+}
+
+func (d *Directive) Compare(d2 *Directive, input string) {
+	compareBlocks(d, d2, DirectiveInterpreter{}, input)
+	Expect(len(d.Blocks)).To(Equal(len(d2.Blocks)), "child block count does not match, input: %s", input)
+	for i, c := range d2.Blocks {
+		compareBlocks(c, d2.Blocks[i], BlockInterpreter{}, input)
 	}
 }

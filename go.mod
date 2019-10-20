@@ -5,7 +5,7 @@ require (
 	github.com/golang/protobuf v1.3.1 // indirect
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
-	github.com/opsidian/parsley v0.13.3
+	github.com/opsidian/parsley v0.13.4
 	github.com/rs/zerolog v1.14.3
 	github.com/stretchr/testify v1.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5

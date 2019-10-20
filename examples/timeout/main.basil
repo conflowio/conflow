@@ -1,7 +1,4 @@
-timeout {
-    timeout = 1s
-
-    sleep {
-        duration = 2s
-    }
+@timeout 1s
+sleep {
+    duration = 2s
 }

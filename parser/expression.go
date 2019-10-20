@@ -7,6 +7,7 @@
 package parser
 
 import (
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parser"
@@ -43,6 +44,7 @@ func Expression() parser.Func {
 		terminal.Bool("true", "false"),
 		terminal.Nil("nil"),
 		valueWithIndex,
+		ID(basil.IDRegExpPattern),
 		combinator.SeqOf(terminal.Rune('('), &p, terminal.Rune(')')).Bind(interpreter.Select(1)),
 	).Name("value")
 

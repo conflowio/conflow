@@ -16,10 +16,9 @@ import (
 
 // Node tokens
 const (
-	TokenBlock         = "BLOCK"
-	TokenBlockBody     = "BLOCK_BODY"
-	TokenBlockTriggers = "BLOCK_TRIGGERS"
-	TokenParameter     = "PARAMETER"
+	Token          = "BLOCK"
+	TokenBody      = "BLOCK_BODY"
+	TokenDirective = "BLOCK_DIRECTIVE"
 )
 
 var _ basil.BlockNode = &Node{}
@@ -29,12 +28,12 @@ type Node struct {
 	typeNode     *basil.IDNode
 	idNode       *basil.IDNode
 	children     []basil.Node
+	directives   []basil.BlockNode
 	readerPos    parsley.Pos
 	interpreter  basil.BlockInterpreter
 	dependencies basil.Dependencies
 	evalStage    basil.EvalStage
 	generated    bool
-	triggers     []basil.ID
 	provides     []basil.ID
 	generates    []basil.ID
 }
@@ -44,10 +43,10 @@ func NewNode(
 	idNode *basil.IDNode,
 	typeNode *basil.IDNode,
 	children []basil.Node,
+	directives []basil.BlockNode,
 	readerPos parsley.Pos,
 	interpreter basil.BlockInterpreter,
 	dependencies basil.Dependencies,
-	triggers []basil.ID,
 ) *Node {
 	var provides []basil.ID
 	var generates []basil.ID
@@ -68,10 +67,10 @@ func NewNode(
 		idNode:       idNode,
 		typeNode:     typeNode,
 		children:     children,
+		directives:   directives,
 		interpreter:  interpreter,
 		readerPos:    readerPos,
 		dependencies: dependencies,
-		triggers:     triggers,
 		generates:    generates,
 		provides:     provides,
 	}
@@ -107,11 +106,6 @@ func (n *Node) Dependencies() basil.Dependencies {
 	return n.dependencies
 }
 
-// Triggers returns with the list of dependencies which can trigger the block execution
-func (n *Node) Triggers() []basil.ID {
-	return n.triggers
-}
-
 // Interpreter returns with the interpreter
 func (n *Node) Interpreter() basil.BlockInterpreter {
 	return n.interpreter
@@ -145,19 +139,6 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	if n.interpreter.HasForeignID() {
 		if _, exists := parseCtx.BlockNode(n.ID()); !exists {
 			return parsley.NewErrorf(n.idNode.Pos(), "%q is referencing a non-existing block", n.ID())
-		}
-	}
-
-	for _, trigger := range n.triggers {
-		isDependency := false
-		for _, dep := range n.dependencies {
-			if dep.ParentID() == trigger {
-				isDependency = true
-				break
-			}
-		}
-		if !isDependency {
-			return parsley.NewErrorf(n.idNode.Pos(), "%q is not a dependency of %q", trigger, n.ID())
 		}
 	}
 
@@ -221,7 +202,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value creates a new block
 func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	container := NewContainer(userCtx.(*basil.EvalContext), n.ID(), n, nil, nil, nil)
+	container := NewContainer(userCtx.(*basil.EvalContext), n.ID(), n, nil, nil, "", nil)
 	container.Run()
 
 	return container.Value()
@@ -245,6 +226,11 @@ func (n *Node) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 // Children returns with the parameter and child block nodes
 func (n *Node) Children() []basil.Node {
 	return n.children
+}
+
+// Directives returns with the directive blocks
+func (n *Node) Directives() []basil.BlockNode {
+	return n.directives
 }
 
 // ParamType returns with the given parameter's type if it exists, otherwise it returns false
