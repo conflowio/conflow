@@ -1,16 +1,11 @@
-ticker second_ticker {
+ticker {
     interval = 100ms
-    count = 3
 
-    tick tick {
+    tick t {
         prefix := "Time is: "
     }
 }
 
 println {
-    value = tick.prefix + string(tick.time)
-}
-
-println {
-    value = "Number of ticks: " + string(second_ticker.ticks)
+    value = t.prefix + string(t.time)
 }

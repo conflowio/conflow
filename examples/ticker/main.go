@@ -7,6 +7,7 @@
 package main
 
 import (
+	"github.com/opsidian/basil/blocks"
 	"github.com/opsidian/basil/function"
 
 	"github.com/opsidian/basil/examples/common"
@@ -29,9 +30,9 @@ func (m *Main) ID() basil.ID {
 func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"ticker":  TickerInterpreter{},
-			"print":   common.PrintInterpreter{},
-			"println": common.PrintlnInterpreter{},
+			"ticker":  blocks.TickerInterpreter{},
+			"print":   blocks.PrintInterpreter{},
+			"println": blocks.PrintlnInterpreter{},
 		},
 		FunctionTransformerRegistry: function.Registry(),
 	}

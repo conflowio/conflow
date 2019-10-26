@@ -10,8 +10,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/directive"
+	"github.com/opsidian/basil/directives"
 
 	"github.com/opsidian/basil/logger/zerolog"
 
@@ -55,17 +54,9 @@ func ParseCtx(
 	fs := parsley.NewFileSet(f)
 	r := text.NewReader(f)
 
-	directiveTransformerRegistry := block.InterpreterRegistry{
-		"deprecated":     directive.DeprecatedInterpreter{},
-		"retry":          directive.RetryInterpreter{},
-		"skip":           directive.SkipInterpreter{},
-		"timeout":        directive.TimeoutInterpreter{},
-		"triggers":       directive.TriggersInterpreter{},
-		"todo":           directive.TodoInterpreter{},
-		"when":           directive.WhenInterpreter{},
-		"testdirective":  DirectiveInterpreter{},
-		"testdirective2": DirectiveInterpreter{},
-	}
+	directiveTransformerRegistry := directives.DefaultRegistry().
+		Register("testdirective", DirectiveInterpreter{}).
+		Register("testdirective2", DirectiveInterpreter{})
 
 	parseCtx := basil.NewParseContext(newIDRegistry(), directiveTransformerRegistry).New(basil.ParseContextOverride{
 		BlockTransformerRegistry:    blockRegistry,

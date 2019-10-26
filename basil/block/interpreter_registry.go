@@ -25,3 +25,8 @@ func (i InterpreterRegistry) NodeTransformer(name string) (parsley.NodeTransform
 		return TransformNode(userCtx, node, interpreter)
 	}), true
 }
+
+func (i InterpreterRegistry) Register(name string, interpreter basil.BlockInterpreter) InterpreterRegistry {
+	i[name] = interpreter
+	return i
+}

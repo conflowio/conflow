@@ -9,6 +9,8 @@ package main
 import (
 	"path/filepath"
 
+	"github.com/opsidian/basil/blocks"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/examples/common"
@@ -28,8 +30,8 @@ func (m *Main) ID() basil.ID {
 func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"print":   common.PrintInterpreter{},
-			"println": common.PrintlnInterpreter{},
+			"print":   blocks.PrintInterpreter{},
+			"println": blocks.PrintlnInterpreter{},
 		},
 	}
 }

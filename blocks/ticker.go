@@ -4,23 +4,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package main
+package blocks
 
 import (
 	"time"
 
-	"github.com/opsidian/basil/basil/block"
-
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/block"
 )
 
 //go:generate basil generate
 type Ticker struct {
 	id       basil.ID      `basil:"id"`
 	interval time.Duration `basil:"required"`
-	count    int64
-	ticks    int64 `basil:"output"`
-	tick     *Tick `basil:"generated"`
+	tick     *Tick         `basil:"generated"`
 }
 
 func (t *Ticker) ID() basil.ID {
@@ -34,14 +31,12 @@ func (t *Ticker) Main(ctx basil.BlockContext) error {
 	for {
 		select {
 		case tickerTime := <-ticker.C:
-			_ = ctx.PublishBlock(&Tick{
+			err := ctx.PublishBlock(&Tick{
 				id:   t.tick.id,
 				time: tickerTime,
 			})
-
-			t.ticks++
-			if t.count > 0 && t.ticks >= t.count {
-				return nil
+			if err != nil {
+				return err
 			}
 		case <-ctx.Done():
 			return nil

@@ -7,6 +7,7 @@
 package main
 
 import (
+	"github.com/opsidian/basil/blocks"
 	"github.com/opsidian/basil/function"
 
 	"github.com/opsidian/basil/examples/common"
@@ -30,9 +31,9 @@ func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"benchmark": BenchmarkInterpreter{},
-			"noop":      common.NoopInterpreter{},
-			"print":     common.PrintInterpreter{},
-			"println":   common.PrintlnInterpreter{},
+			"noop":      blocks.BasicInterpreter{},
+			"print":     blocks.PrintInterpreter{},
+			"println":   blocks.PrintlnInterpreter{},
 		},
 		FunctionTransformerRegistry: function.Registry(),
 	}
