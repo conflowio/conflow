@@ -10,9 +10,8 @@ import "github.com/opsidian/basil/basil"
 
 //go:generate basil generate
 type Skip struct {
-	id       basil.ID `basil:"id"`
-	when     bool     `basil:"value"`
-	triggers []interface{}
+	id   basil.ID `basil:"id"`
+	when bool     `basil:"value,default=true"`
 }
 
 func (s Skip) ID() basil.ID {
@@ -22,18 +21,6 @@ func (s Skip) ID() basil.ID {
 func (s Skip) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
 	if s.when {
 		container.Skip()
-		return nil
-	}
-
-	trigger := container.Trigger()
-	if trigger == "" {
-		return nil
-	}
-	for _, id := range s.triggers {
-		if trigger == id {
-			container.Skip()
-			return nil
-		}
 	}
 
 	return nil

@@ -41,7 +41,7 @@ func (i SleepInterpreter) HasForeignID() bool {
 
 // HasShortFormat returns true if the block can be defined in the short block format
 func (i SleepInterpreter) ValueParamName() basil.ID {
-	return ""
+	return "duration"
 }
 
 // ParseContext returns with the parse context for the block

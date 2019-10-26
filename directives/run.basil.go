@@ -13,7 +13,8 @@ type RunInterpreter struct{}
 // Create creates a new Run block
 func (i RunInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &Run{
-		id: id,
+		id:   id,
+		when: true,
 	}
 }
 
@@ -22,12 +23,6 @@ func (i RunInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return map[basil.ID]basil.ParameterDescriptor{
 		"when": {
 			Type:       "bool",
-			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
-			IsOutput:   false,
-		},
-		"triggers": {
-			Type:       "[]interface{}",
 			EvalStage:  basil.EvalStages["main"],
 			IsRequired: false,
 			IsOutput:   false,
@@ -66,8 +61,6 @@ func (i RunInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 		return b.(*Run).id
 	case "when":
 		return b.(*Run).when
-	case "triggers":
-		return b.(*Run).triggers
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Run", name))
 	}
@@ -81,8 +74,6 @@ func (i RunInterpreter) SetParam(block basil.Block, name basil.ID, value interfa
 		b.id, err = variable.IdentifierValue(value)
 	case "when":
 		b.when, err = variable.BoolValue(value)
-	case "triggers":
-		b.triggers, err = variable.ArrayValue(value)
 	}
 	return err
 }

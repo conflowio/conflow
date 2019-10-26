@@ -13,7 +13,8 @@ type SkipInterpreter struct{}
 // Create creates a new Skip block
 func (i SkipInterpreter) CreateBlock(id basil.ID) basil.Block {
 	return &Skip{
-		id: id,
+		id:   id,
+		when: true,
 	}
 }
 
@@ -22,12 +23,6 @@ func (i SkipInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 	return map[basil.ID]basil.ParameterDescriptor{
 		"when": {
 			Type:       "bool",
-			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
-			IsOutput:   false,
-		},
-		"triggers": {
-			Type:       "[]interface{}",
 			EvalStage:  basil.EvalStages["main"],
 			IsRequired: false,
 			IsOutput:   false,
@@ -66,8 +61,6 @@ func (i SkipInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 		return b.(*Skip).id
 	case "when":
 		return b.(*Skip).when
-	case "triggers":
-		return b.(*Skip).triggers
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Skip", name))
 	}
@@ -81,8 +74,6 @@ func (i SkipInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 		b.id, err = variable.IdentifierValue(value)
 	case "when":
 		b.when, err = variable.BoolValue(value)
-	case "triggers":
-		b.triggers, err = variable.ArrayValue(value)
 	}
 	return err
 }

@@ -229,7 +229,7 @@ var _ = Describe("Directive parser", func() {
 		Entry(
 			"defining an id",
 			`@testdirective foo {}`,
-			errors.New("was expecting the end of input at testfile:1:16"),
+			errors.New("was expecting \".\" at testfile:1:19"),
 		),
 		Entry(
 			"defining a custom parameter",

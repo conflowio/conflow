@@ -6,15 +6,12 @@
 
 package directives
 
-import (
-	"github.com/opsidian/basil/basil"
-)
+import "github.com/opsidian/basil/basil"
 
 //go:generate basil generate
 type Run struct {
-	id       basil.ID `basil:"id"`
-	when     bool     `basil:"value"`
-	triggers []interface{}
+	id   basil.ID `basil:"id"`
+	when bool     `basil:"value,default=true"`
 }
 
 func (r Run) ID() basil.ID {
@@ -25,18 +22,6 @@ func (r Run) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockCo
 	if !r.when {
 		container.Skip()
 	}
-
-	trigger := container.Trigger()
-	if trigger == "" {
-		return nil
-	}
-	for _, id := range r.triggers {
-		if trigger == id {
-			return nil
-		}
-	}
-
-	container.Skip()
 
 	return nil
 }

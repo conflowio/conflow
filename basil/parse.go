@@ -19,13 +19,22 @@ import (
 
 var keywords = []string{"true", "false", "nil", "map"}
 
+// ParseText parses the text input with the given parser
+func ParseText(ctx *ParseContext, p parsley.Parser, input string) error {
+	f := text.NewFile("", []byte(input))
+	return parseFile(ctx, p, f)
+}
+
 // ParseFile parses a file with the given parser
 func ParseFile(ctx *ParseContext, p parsley.Parser, path string) error {
 	f, err := text.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("failed to read %s", path)
 	}
+	return parseFile(ctx, p, f)
+}
 
+func parseFile(ctx *ParseContext, p parsley.Parser, f *text.File) error {
 	ctx.FileSet().AddFile(f)
 
 	parsleyCtx := parsley.NewContext(ctx.FileSet(), text.NewReader(f))

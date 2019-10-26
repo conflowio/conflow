@@ -18,5 +18,6 @@ func DefaultRegistry() block.InterpreterRegistry {
 		"skip":       SkipInterpreter{},
 		"timeout":    TimeoutInterpreter{},
 		"todo":       TodoInterpreter{},
+		"triggers":   TriggersInterpreter{},
 	}
 }

@@ -16,7 +16,7 @@ import (
 //go:generate basil generate
 type Sleep struct {
 	id       basil.ID      `basil:"id"`
-	duration time.Duration `basil:"required"`
+	duration time.Duration `basil:"value,required"`
 }
 
 func (s *Sleep) ID() basil.ID {
