@@ -65,11 +65,6 @@ var _ = Describe("Field", func() {
 			Expect(f.Validate()).To(MatchError("\"name\" tag is invalid on field \"foo\", it must be a valid identifier"))
 		})
 
-		It("returns error if block is not on an array field", func() {
-			f.IsBlock = true
-			Expect(f.Validate()).To(MatchError("field \"foo\" must be an array"))
-		})
-
 		It("returns an error for an invalid type", func() {
 			f.Type = "invalidtype"
 			Expect(f.Validate()).To(MatchError("invalid field type on field \"foo\", use valid type or use ignore tag"))

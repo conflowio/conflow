@@ -14,21 +14,22 @@ import (
 
 // Block field tag constants
 const (
-	BlockTagBlock      = "block"
-	BlockTagDeprecated = "deprecated"
-	BlockTagGenerated  = "generated"
-	BlockTagID         = "id"
-	BlockTagIgnore     = "ignore"
-	BlockTagName       = "name"
-	BlockTagOutput     = "output"
-	BlockTagReference  = "reference"
-	BlockTagRequired   = "required"
-	BlockTagStage      = "stage"
-	BlockTagValue      = "value"
+	BlockTagBlock      ID = "block"
+	BlockTagDeprecated    = "deprecated"
+	BlockTagGenerated     = "generated"
+	BlockTagID            = "id"
+	BlockTagIgnore        = "ignore"
+	BlockTagName          = "name"
+	BlockTagOutput        = "output"
+	BlockTagReference     = "reference"
+	BlockTagRequired      = "required"
+	BlockTagStage         = "stage"
+	BlockTagValue         = "value"
+	BlockTagDefault       = "default"
 )
 
 // BlockTags contains the valid block tags with descriptions
-var BlockTags = map[string]string{
+var BlockTags = map[ID]string{
 	BlockTagBlock:      "marks an array field which should store child blocks",
 	BlockTagDeprecated: "marks the field as deprecated (for documentation purposes)",
 	BlockTagGenerated:  "marks the block as generated",
@@ -40,6 +41,7 @@ var BlockTags = map[string]string{
 	BlockTagRequired:   "marks the field as required (must be set but can be empty)",
 	BlockTagStage:      "sets the evaluation stage for the field",
 	BlockTagValue:      "sets the field as the value field to be used for the short block format",
+	BlockTagDefault:    "sets the default value for the field",
 }
 
 // Block is an interface for a block object

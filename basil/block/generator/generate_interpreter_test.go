@@ -28,6 +28,7 @@ var _ = Describe("GenerateInterpreter", func() {
 		"block_with_many_block":      fixtures.BlockWithManyBlockInterpreter{},
 		"block_with_block_interface": fixtures.BlockWithBlockInterfaceInterpreter{},
 		"block_with_reference":       fixtures.BlockWithReferenceInterpreter{},
+		"block_with_default":         fixtures.BlockWithDefaultInterpreter{},
 	}
 
 	Context("fixtures/block_simple.go", func() {
@@ -116,11 +117,12 @@ var _ = Describe("GenerateInterpreter", func() {
 					{IDField: "bar"},
 					{IDField: "baz"},
 				}},
+
 				func(b1i interface{}, b2i interface{}, input string) {
 					b1 := b1i.(*fixtures.BlockWithManyBlock)
 					b2 := b2i.(*fixtures.BlockWithManyBlock)
 					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
-					Expect(b1.BlockSimple).To(Equal(b2.BlockSimple), "Blocks does not match, input was %s", input)
+					Expect(b1.BlockSimple).To(ConsistOf(b2.BlockSimple), "Blocks does not match, input was %s", input)
 				},
 			)
 		})
@@ -147,9 +149,24 @@ var _ = Describe("GenerateInterpreter", func() {
 
 	Context("fixtures/block_with_reference.go", func() {
 		It("should parse the input", func() {
-			test.ExpectBlockToHaveEvalError(p, registry)(
+			test.ExpectBlockToHaveParseError(p, registry)(
 				`block_with_reference foo {}`,
 				MatchError(errors.New("\"foo\" is referencing a non-existing block at testfile:1:22")),
+			)
+		})
+	})
+
+	Context("fixtures/block_with_default.go", func() {
+		It("should parse the input", func() {
+			test.ExpectBlockToEvaluate(p, registry)(
+				`block_with_default {}`,
+				&fixtures.BlockWithDefault{IDField: "0", Value: "foo"},
+				func(b1i interface{}, b2i interface{}, input string) {
+					b1 := b1i.(*fixtures.BlockWithDefault)
+					b2 := b2i.(*fixtures.BlockWithDefault)
+					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
+					Expect(b1.Value).To(Equal(b2.Value), "Value does not match, input was %s", input)
+				},
 			)
 		})
 	})

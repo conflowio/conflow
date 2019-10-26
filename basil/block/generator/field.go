@@ -20,6 +20,7 @@ type Field struct {
 	ParamName   string
 	Type        string
 	Stage       string
+	Default     interface{}
 	IsRequired  bool
 	IsID        bool
 	IsValue     bool

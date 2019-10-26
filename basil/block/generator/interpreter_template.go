@@ -38,6 +38,9 @@ type {{.Name}}Interpreter struct {}
 func (i {{.Name}}Interpreter) CreateBlock(id basil.ID) basil.Block {
 	return &{{.Name}}{
 		{{.IDField.Name}}: id,
+		{{ range (filterDefaults (filterParams .Fields)) -}}
+		{{.Name}}: {{printf "%#v" .Default}},
+		{{ end }}
 	}
 }
 

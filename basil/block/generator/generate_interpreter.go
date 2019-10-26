@@ -23,10 +23,11 @@ func GenerateInterpreter(str *ast.StructType, file *ast.File, pkgName string, na
 
 	tmpl := template.New("block_interpreter")
 	tmpl.Funcs(map[string]interface{}{
-		"filterInputs": func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsOutput }) },
-		"filterParams": func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsBlock }) },
-		"filterBlocks": func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return f.IsBlock }) },
-		"filterNonID":  func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsID }) },
+		"filterInputs":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsOutput }) },
+		"filterParams":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsBlock }) },
+		"filterBlocks":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return f.IsBlock }) },
+		"filterNonID":    func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsID }) },
+		"filterDefaults": func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return f.Default != nil }) },
 	})
 	if _, parseErr := tmpl.Parse(interpreterTemplate); parseErr != nil {
 		return nil, parseErr

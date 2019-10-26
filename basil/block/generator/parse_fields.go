@@ -18,8 +18,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/opsidian/basil/basil/variable"
+
+	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/parsley/parsley"
+	"github.com/opsidian/parsley/text"
+
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
 )
 
 // ParseFields parses all fields of a given go struct
@@ -80,36 +85,57 @@ func parseField(astField *ast.Field) (*Field, error) {
 		}
 	}
 
-	tags := util.ParseFieldTag(reflect.StructTag(tag), "basil", name)
+	params, err := parseFieldTag(reflect.StructTag(tag))
+	if err != nil {
+		return nil, err
+	}
 
-	for _, key := range tags.Keys() {
-		if _, validTag := basil.BlockTags[strings.ToLower(key)]; !validTag {
-			return nil, fmt.Errorf("invalid tag %q on field %q", key, name)
+	for k := range params {
+		if _, validTag := basil.BlockTags[k]; !validTag {
+			return nil, fmt.Errorf("invalid tag %q on field %q", k, name)
 		}
 	}
 
-	if tags.GetBool(basil.BlockTagIgnore) {
+	if params[basil.BlockTagIgnore] == true {
 		return nil, nil
 	}
 
-	paramName := tags.GetWithDefault(basil.BlockTagName, generateParamName(name))
+	var paramName basil.ID
+	if params[basil.BlockTagName] == nil {
+		paramName = generateParamName(name)
+	} else {
+		paramName, err = variable.IdentifierValue(params[basil.BlockTagName])
+		if err != nil {
+			return nil, fmt.Errorf("was expecting string value for tag %q on field %q", basil.BlockTagName, name)
+		}
+	}
+	var stage basil.ID
+	if params[basil.BlockTagStage] == nil {
+		stage = "main"
+	} else {
+		stage, err = variable.IdentifierValue(params[basil.BlockTagStage])
+		if err != nil {
+			return nil, fmt.Errorf("was expecting string value for tag %q on field %q", basil.BlockTagStage, name)
+		}
+	}
 
-	isID := tags.GetBool(basil.BlockTagID)
+	isID := params[basil.BlockTagID] == true
 	if isID {
 		paramName = "id"
 	}
 
 	field := &Field{
 		Name:        name,
-		ParamName:   paramName,
-		IsRequired:  tags.GetBool(basil.BlockTagRequired),
-		Stage:       tags.GetWithDefault(basil.BlockTagStage, "main"),
+		ParamName:   string(paramName),
+		IsRequired:  params[basil.BlockTagRequired] == true,
+		Stage:       string(stage),
+		Default:     params[basil.BlockTagDefault],
 		IsID:        isID,
-		IsValue:     tags.GetBool(basil.BlockTagValue),
-		IsReference: tags.GetBool(basil.BlockTagReference),
-		IsBlock:     tags.GetBool(basil.BlockTagBlock),
-		IsOutput:    tags.GetBool(basil.BlockTagOutput),
-		IsGenerated: tags.GetBool(basil.BlockTagGenerated),
+		IsValue:     params[basil.BlockTagValue] == true,
+		IsReference: params[basil.BlockTagReference] == true,
+		IsBlock:     params[basil.BlockTagBlock] == true,
+		IsOutput:    params[basil.BlockTagOutput] == true,
+		IsGenerated: params[basil.BlockTagGenerated] == true,
 	}
 
 	setFieldType(astField.Type, field)
@@ -147,10 +173,25 @@ func setFieldType(typeNode ast.Expr, field *Field) {
 	field.Type = b.String()
 }
 
-func generateParamName(name string) string {
+func parseFieldTag(tag reflect.StructTag) (map[basil.ID]interface{}, error) {
+	value := strings.TrimSpace(tag.Get("basil"))
+	if value == "" {
+		return nil, nil
+	}
+	f := text.NewFile("", []byte(value))
+	fs := parsley.NewFileSet(f)
+	ctx := parsley.NewContext(fs, text.NewReader(f))
+	val, err := parsley.Evaluate(ctx, parser.StructTag())
+	if err != nil {
+		return nil, err
+	}
+	return val.(map[basil.ID]interface{}), nil
+}
+
+func generateParamName(name string) basil.ID {
 	re := regexp.MustCompile("[A-Z][a-z0-9]*")
 	name = re.ReplaceAllStringFunc(name, func(str string) string {
 		return "_" + strings.ToLower(str)
 	})
-	return strings.TrimLeft(name, "_")
+	return basil.ID(strings.TrimLeft(name, "_"))
 }
