@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-type LogFields map[string]interface{}
-
 const LogTimeFormat = "2006-01-02T15:04:05.000Z07:00"
 
 // Logger is an interface for structured logging
