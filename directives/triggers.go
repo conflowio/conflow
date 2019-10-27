@@ -15,11 +15,11 @@ type Triggers struct {
 	blockIDs []interface{} `basil:"value,name=block_ids"`
 }
 
-func (t Triggers) ID() basil.ID {
+func (t *Triggers) ID() basil.ID {
 	return t.id
 }
 
-func (t Triggers) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
+func (t *Triggers) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
 	tid := container.Trigger()
 	if tid == "" {
 		return nil
@@ -33,4 +33,8 @@ func (t Triggers) ApplyDirective(blockCtx basil.BlockContext, container basil.Bl
 
 	container.Skip()
 	return nil
+}
+
+func (t *Triggers) EvalStage() basil.EvalStage {
+	return basil.EvalStageResolve
 }

@@ -69,3 +69,12 @@ func (i BlockNoFieldsInterpreter) SetParam(block basil.Block, name basil.ID, val
 func (i BlockNoFieldsInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i BlockNoFieldsInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *BlockNoFields
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

@@ -102,3 +102,12 @@ func (i GlobInterpreter) SetBlock(block basil.Block, name basil.ID, value interf
 	}
 	return nil
 }
+
+func (i GlobInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Glob
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

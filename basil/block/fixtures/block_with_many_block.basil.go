@@ -81,3 +81,12 @@ func (i BlockWithManyBlockInterpreter) SetBlock(block basil.Block, name basil.ID
 	}
 	return nil
 }
+
+func (i BlockWithManyBlockInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *BlockWithManyBlock
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

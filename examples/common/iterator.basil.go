@@ -92,3 +92,12 @@ func (i IteratorInterpreter) SetBlock(block basil.Block, name basil.ID, value in
 	}
 	return nil
 }
+
+func (i IteratorInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Iterator
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

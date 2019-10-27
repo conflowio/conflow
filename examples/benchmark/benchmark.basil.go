@@ -110,3 +110,12 @@ func (i BenchmarkInterpreter) SetBlock(block basil.Block, name basil.ID, value i
 	}
 	return nil
 }
+
+func (i BenchmarkInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Benchmark
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

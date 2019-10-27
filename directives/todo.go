@@ -14,10 +14,14 @@ type Todo struct {
 	description string   `basil:"value"`
 }
 
-func (t Todo) ID() basil.ID {
+func (t *Todo) ID() basil.ID {
 	return t.id
 }
 
-func (t Todo) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
+func (t *Todo) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
 	return nil
+}
+
+func (t *Todo) EvalStage() basil.EvalStage {
+	return basil.EvalStageIgnore
 }

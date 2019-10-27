@@ -18,13 +18,17 @@ type Timeout struct {
 	duration time.Duration `basil:"value"`
 }
 
-func (t Timeout) ID() basil.ID {
+func (t *Timeout) ID() basil.ID {
 	return t.id
 }
 
-func (t Timeout) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
+func (t *Timeout) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
 	if t.duration > 0 {
 		container.SetTimeout(t.duration)
 	}
 	return nil
+}
+
+func (t *Timeout) EvalStage() basil.EvalStage {
+	return basil.EvalStageInit
 }

@@ -29,6 +29,16 @@ type FakeBlockInterpreter struct {
 	createBlockReturnsOnCall map[int]struct {
 		result1 basil.Block
 	}
+	EvalStageStub        func() basil.EvalStage
+	evalStageMutex       sync.RWMutex
+	evalStageArgsForCall []struct {
+	}
+	evalStageReturns struct {
+		result1 basil.EvalStage
+	}
+	evalStageReturnsOnCall map[int]struct {
+		result1 basil.EvalStage
+	}
 	HasForeignIDStub        func() bool
 	hasForeignIDMutex       sync.RWMutex
 	hasForeignIDArgsForCall []struct {
@@ -221,6 +231,58 @@ func (fake *FakeBlockInterpreter) CreateBlockReturnsOnCall(i int, result1 basil.
 	}
 	fake.createBlockReturnsOnCall[i] = struct {
 		result1 basil.Block
+	}{result1}
+}
+
+func (fake *FakeBlockInterpreter) EvalStage() basil.EvalStage {
+	fake.evalStageMutex.Lock()
+	ret, specificReturn := fake.evalStageReturnsOnCall[len(fake.evalStageArgsForCall)]
+	fake.evalStageArgsForCall = append(fake.evalStageArgsForCall, struct {
+	}{})
+	fake.recordInvocation("EvalStage", []interface{}{})
+	fake.evalStageMutex.Unlock()
+	if fake.EvalStageStub != nil {
+		return fake.EvalStageStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.evalStageReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockInterpreter) EvalStageCallCount() int {
+	fake.evalStageMutex.RLock()
+	defer fake.evalStageMutex.RUnlock()
+	return len(fake.evalStageArgsForCall)
+}
+
+func (fake *FakeBlockInterpreter) EvalStageCalls(stub func() basil.EvalStage) {
+	fake.evalStageMutex.Lock()
+	defer fake.evalStageMutex.Unlock()
+	fake.EvalStageStub = stub
+}
+
+func (fake *FakeBlockInterpreter) EvalStageReturns(result1 basil.EvalStage) {
+	fake.evalStageMutex.Lock()
+	defer fake.evalStageMutex.Unlock()
+	fake.EvalStageStub = nil
+	fake.evalStageReturns = struct {
+		result1 basil.EvalStage
+	}{result1}
+}
+
+func (fake *FakeBlockInterpreter) EvalStageReturnsOnCall(i int, result1 basil.EvalStage) {
+	fake.evalStageMutex.Lock()
+	defer fake.evalStageMutex.Unlock()
+	fake.EvalStageStub = nil
+	if fake.evalStageReturnsOnCall == nil {
+		fake.evalStageReturnsOnCall = make(map[int]struct {
+			result1 basil.EvalStage
+		})
+	}
+	fake.evalStageReturnsOnCall[i] = struct {
+		result1 basil.EvalStage
 	}{result1}
 }
 
@@ -632,6 +694,8 @@ func (fake *FakeBlockInterpreter) Invocations() map[string][][]interface{} {
 	defer fake.blocksMutex.RUnlock()
 	fake.createBlockMutex.RLock()
 	defer fake.createBlockMutex.RUnlock()
+	fake.evalStageMutex.RLock()
+	defer fake.evalStageMutex.RUnlock()
 	fake.hasForeignIDMutex.RLock()
 	defer fake.hasForeignIDMutex.RUnlock()
 	fake.paramMutex.RLock()

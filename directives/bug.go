@@ -14,10 +14,14 @@ type Bug struct {
 	description string   `basil:"value"`
 }
 
-func (b Bug) ID() basil.ID {
+func (b *Bug) ID() basil.ID {
 	return b.id
 }
 
-func (b Bug) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
+func (b *Bug) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
 	return nil
+}
+
+func (b *Bug) EvalStage() basil.EvalStage {
+	return basil.EvalStageIgnore
 }

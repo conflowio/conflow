@@ -89,6 +89,10 @@ type BlockCloser interface {
 	Close(blockCtx BlockContext) error
 }
 
+type EvalStageAware interface {
+	EvalStage() EvalStage
+}
+
 // BlockNode is the AST node for a block
 //go:generate counterfeiter . BlockNode
 type BlockNode interface {
@@ -125,4 +129,5 @@ type BlockInterpreter interface {
 	ValueParamName() ID
 	HasForeignID() bool
 	ParseContext(*ParseContext) *ParseContext
+	EvalStageAware
 }

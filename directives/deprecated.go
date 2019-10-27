@@ -14,10 +14,14 @@ type Deprecated struct {
 	description string   `basil:"value"`
 }
 
-func (d Deprecated) ID() basil.ID {
+func (d *Deprecated) ID() basil.ID {
 	return d.id
 }
 
-func (d Deprecated) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
+func (d *Deprecated) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
 	return nil
+}
+
+func (d *Deprecated) EvalStage() basil.EvalStage {
+	return basil.EvalStageIgnore
 }

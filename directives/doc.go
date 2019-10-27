@@ -14,10 +14,14 @@ type Doc struct {
 	description string   `basil:"value"`
 }
 
-func (d Doc) ID() basil.ID {
+func (d *Doc) ID() basil.ID {
 	return d.id
 }
 
-func (d Doc) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
+func (d *Doc) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
 	return nil
+}
+
+func (d *Doc) EvalStage() basil.EvalStage {
+	return basil.EvalStageIgnore
 }

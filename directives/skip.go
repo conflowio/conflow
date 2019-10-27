@@ -14,14 +14,18 @@ type Skip struct {
 	when bool     `basil:"value,default=true"`
 }
 
-func (s Skip) ID() basil.ID {
+func (s *Skip) ID() basil.ID {
 	return s.id
 }
 
-func (s Skip) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
+func (s *Skip) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
 	if s.when {
 		container.Skip()
 	}
 
 	return nil
+}
+
+func (s *Skip) EvalStage() basil.EvalStage {
+	return basil.EvalStageInit
 }

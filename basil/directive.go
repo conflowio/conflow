@@ -12,6 +12,7 @@ import "github.com/opsidian/parsley/parsley"
 //go:generate counterfeiter . Directive
 type Directive interface {
 	Block
+	EvalStageAware
 	ApplyDirective(blockCtx BlockContext, container BlockContainer) error
 }
 

@@ -156,7 +156,7 @@ func (c *Container) Run() {
 
 	c.blockCtx = basil.NewBlockContext(c.evalCtx, c)
 
-	if err := c.evaluateDirectives(basil.EvalStageInit); err != nil {
+	if err := c.evaluateDirectives(); err != nil {
 		c.err = err
 		c.setState(containerStateErrored)
 		return
@@ -403,7 +403,7 @@ func (c *Container) runCloseStage() {
 	c.stateChan <- containerStateNext
 }
 
-func (c *Container) evaluateDirectives(evalStage basil.EvalStage) parsley.Error {
+func (c *Container) evaluateDirectives() parsley.Error {
 	for _, n := range c.node.Directives() {
 		nodeContainer := basil.NewNodeContainer(c.evalCtx, c, n)
 		evalContext := nodeContainer.CreateEvalContext(c.evalCtx)

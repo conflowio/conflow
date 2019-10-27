@@ -80,3 +80,12 @@ func (i RetryInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 func (i RetryInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i RetryInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Retry
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

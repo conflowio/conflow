@@ -92,3 +92,12 @@ func (i TickerInterpreter) SetBlock(block basil.Block, name basil.ID, value inte
 	}
 	return nil
 }
+
+func (i TickerInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Ticker
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

@@ -13,10 +13,12 @@ type EvalStage int8
 
 // Evaluation stages
 const (
-	EvalStageInit  EvalStage = -1
-	EvalStageMain            = 0
-	EvalStageClose           = 1
-	EvalStageNone            = 2
+	EvalStageUndefined EvalStage = iota
+	EvalStageResolve
+	EvalStageInit
+	EvalStageMain
+	EvalStageClose
+	EvalStageIgnore
 )
 
 // EvalStages returns with the evaluation stages

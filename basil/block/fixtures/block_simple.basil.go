@@ -80,3 +80,12 @@ func (i BlockSimpleInterpreter) SetParam(block basil.Block, name basil.ID, value
 func (i BlockSimpleInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i BlockSimpleInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *BlockSimple
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

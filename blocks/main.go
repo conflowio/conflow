@@ -61,3 +61,7 @@ func (m MainInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseConte
 		FunctionTransformerRegistry: m.FunctionTransformerRegistry,
 	})
 }
+
+func (m MainInterpreter) EvalStage() basil.EvalStage {
+	return basil.EvalStageMain
+}

@@ -69,3 +69,12 @@ func (i BlockWithReferenceInterpreter) SetParam(block basil.Block, name basil.ID
 func (i BlockWithReferenceInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i BlockWithReferenceInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *BlockWithReference
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

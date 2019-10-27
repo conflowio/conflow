@@ -80,3 +80,12 @@ func (i DeprecatedInterpreter) SetParam(block basil.Block, name basil.ID, value 
 func (i DeprecatedInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i DeprecatedInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Deprecated
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

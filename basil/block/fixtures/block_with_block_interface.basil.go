@@ -81,3 +81,12 @@ func (i BlockWithBlockInterfaceInterpreter) SetBlock(block basil.Block, name bas
 	}
 	return nil
 }
+
+func (i BlockWithBlockInterfaceInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *BlockWithBlockInterface
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

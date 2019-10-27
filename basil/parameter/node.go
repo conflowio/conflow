@@ -66,6 +66,9 @@ func (n *Node) Type() string {
 
 // EvalStage returns with the evaluation stage
 func (n *Node) EvalStage() basil.EvalStage {
+	if n.evalStage == basil.EvalStageUndefined {
+		return basil.EvalStageMain
+	}
 	return n.evalStage
 }
 
@@ -104,7 +107,9 @@ func (n *Node) IsDeclaration() bool {
 
 // SetDescriptor applies the descriptor parameters to the node
 func (n *Node) SetDescriptor(descriptor basil.ParameterDescriptor) {
-	n.evalStage = descriptor.EvalStage
+	if descriptor.EvalStage != basil.EvalStageUndefined {
+		n.evalStage = descriptor.EvalStage
+	}
 }
 
 // Generated returns true if the parameter's value contains a generator function

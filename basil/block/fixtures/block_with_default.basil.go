@@ -81,3 +81,12 @@ func (i BlockWithDefaultInterpreter) SetParam(block basil.Block, name basil.ID, 
 func (i BlockWithDefaultInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i BlockWithDefaultInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *BlockWithDefault
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}
