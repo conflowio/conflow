@@ -19,7 +19,6 @@ type Scheduler struct {
 	maxWorkers   int
 	maxQueueSize int
 	workers      []Worker
-	workerPool   chan chan basil.Job
 	jobQueue     chan basil.Job
 	quit         chan bool
 	lastID       uint64
@@ -30,7 +29,6 @@ func NewScheduler(logger basil.Logger, maxWorkers int, maxQueueSize int) *Schedu
 	return &Scheduler{
 		logger:       logger,
 		workers:      make([]Worker, maxWorkers),
-		workerPool:   make(chan chan basil.Job, maxWorkers),
 		maxWorkers:   maxWorkers,
 		maxQueueSize: maxQueueSize,
 		jobQueue:     make(chan basil.Job, maxQueueSize),
@@ -46,11 +44,9 @@ func (s *Scheduler) Start() {
 		Msg("job scheduler starting")
 
 	for i := 0; i < s.maxWorkers; i++ {
-		s.workers[i] = NewWorker(s.logger, s.workerPool)
+		s.workers[i] = NewWorker(s.logger, s.jobQueue)
 		s.workers[i].Start()
 	}
-
-	go s.dispatch()
 }
 
 // Stop stops all the workers and the dispatcher process
@@ -71,30 +67,19 @@ func (s *Scheduler) ScheduleJob(job basil.Job) basil.ID {
 	jobID := s.generateJobID(job.JobName())
 	job.SetJobID(jobID)
 
-	go func() {
-		if job.Lightweight() {
+	if job.Lightweight() {
+		go func() {
 			job.Run()
-		} else {
-			s.jobQueue <- job
-		}
-	}()
-
-	return jobID
-}
-
-func (s *Scheduler) dispatch() {
-	for {
+		}()
+	} else {
 		select {
-		case job := <-s.jobQueue:
-			// TODO: Remove, as this extra goroutine only helps if you have hundreds of workers
-			go func(job basil.Job) {
-				jobChannel := <-s.workerPool
-				jobChannel <- job
-			}(job)
+		case s.jobQueue <- job:
 		case <-s.quit:
-			return
+			return ""
 		}
 	}
+
+	return jobID
 }
 
 func (s *Scheduler) generateJobID(id basil.ID) basil.ID {
