@@ -7,8 +7,6 @@
 package basil
 
 import (
-	"time"
-
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -62,15 +60,11 @@ type BlockDescriptor struct {
 //go:generate counterfeiter . BlockContainer
 type BlockContainer interface {
 	Container
-	Block() Block
 	Param(ID) interface{}
 	SetChild(Container)
-	EvaluateChild(nodeContainer *NodeContainer, trigger ID) bool
+	SetError(parsley.Error)
+	ScheduleChild(c Container, pending bool) bool
 	PublishBlock(Block) error
-	Skip()
-	SetTimeout(time.Duration)
-	SetRetry(Retryable)
-	Trigger() ID
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
@@ -102,7 +96,6 @@ type BlockNode interface {
 	ParamType(ID) (string, bool)
 	Interpreter() BlockInterpreter
 	SetDescriptor(BlockDescriptor)
-	Directives() []BlockNode
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks

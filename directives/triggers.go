@@ -8,31 +8,25 @@ package directives
 
 import "github.com/opsidian/basil/basil"
 
-// TODO: introduce the []basil.ID type
 //go:generate basil generate
 type Triggers struct {
 	id       basil.ID      `basil:"id"`
-	blockIDs []interface{} `basil:"value,name=block_ids"`
+	blockIDs []interface{} `basil:"value,name=block_ids,required"`
 }
 
 func (t *Triggers) ID() basil.ID {
 	return t.id
 }
 
-func (t *Triggers) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	tid := container.Trigger()
-	if tid == "" {
-		return nil
+func (t *Triggers) RuntimeConfig() basil.RuntimeConfig {
+	// TODO: introduce the []basil.ID type for blockIDs
+	triggers := make([]basil.ID, len(t.blockIDs))
+	for i, id := range t.blockIDs {
+		triggers[i] = basil.ID(id.(string))
 	}
-
-	for _, id := range t.blockIDs {
-		if string(tid) == id {
-			return nil
-		}
+	return basil.RuntimeConfig{
+		Triggers: triggers,
 	}
-
-	container.Skip()
-	return nil
 }
 
 func (t *Triggers) EvalStage() basil.EvalStage {

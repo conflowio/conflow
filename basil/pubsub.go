@@ -63,7 +63,7 @@ func (p *PubSub) Publish(c Container) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
-	for sub := p.subs[c.ID()]; sub != nil; sub = sub.next {
+	for sub := p.subs[c.Node().ID()]; sub != nil; sub = sub.next {
 		sub.container.SetDependency(c)
 	}
 }

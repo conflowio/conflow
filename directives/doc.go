@@ -11,15 +11,15 @@ import "github.com/opsidian/basil/basil"
 //go:generate basil generate
 type Doc struct {
 	id          basil.ID `basil:"id"`
-	description string   `basil:"value"`
+	description string   `basil:"value,required"`
 }
 
 func (d *Doc) ID() basil.ID {
 	return d.id
 }
 
-func (d *Doc) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	return nil
+func (d *Doc) RuntimeConfig() basil.RuntimeConfig {
+	return basil.RuntimeConfig{}
 }
 
 func (d *Doc) EvalStage() basil.EvalStage {

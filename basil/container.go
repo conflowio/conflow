@@ -7,16 +7,16 @@
 package basil
 
 import (
-	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
 )
 
 // Container is a basil object container
+//go:generate counterfeiter . Container
 type Container interface {
-	Identifiable
 	Job
+	Cancellable
 	Node() Node
 	Value() (interface{}, parsley.Error)
-	WaitGroups() []*util.WaitGroup
+	WaitGroups() []WaitGroup
 	Close()
 }

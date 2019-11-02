@@ -11,15 +11,15 @@ import "github.com/opsidian/basil/basil"
 //go:generate basil generate
 type Deprecated struct {
 	id          basil.ID `basil:"id"`
-	description string   `basil:"value"`
+	description string   `basil:"value,required"`
 }
 
 func (d *Deprecated) ID() basil.ID {
 	return d.id
 }
 
-func (d *Deprecated) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	return nil
+func (d *Deprecated) RuntimeConfig() basil.RuntimeConfig {
+	return basil.RuntimeConfig{}
 }
 
 func (d *Deprecated) EvalStage() basil.EvalStage {

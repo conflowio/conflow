@@ -23,7 +23,7 @@ func (i TimeoutInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"duration": {
 			Type:       "time.Duration",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}

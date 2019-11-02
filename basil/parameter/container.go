@@ -7,20 +7,11 @@
 package parameter
 
 import (
-	"sync/atomic"
-
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
 	"github.com/opsidian/parsley/parsley"
 )
 
 var _ basil.ParameterContainer = &Container{}
-
-const (
-	containerStateWaiting int64 = iota
-	containerStateRunning
-	containerStateCancelled
-)
 
 // Container is a parameter container
 type Container struct {
@@ -29,22 +20,24 @@ type Container struct {
 	parent  basil.BlockContainer
 	value   interface{}
 	err     parsley.Error
-	state   int64
 	jobID   basil.ID
+	wgs     []basil.WaitGroup
 }
 
 // NewContainer creates a new parameter container
 func NewContainer(
 	evalCtx *basil.EvalContext,
-	jobID basil.ID,
 	node basil.ParameterNode,
 	parent basil.BlockContainer,
+	value interface{},
+	wgs []basil.WaitGroup,
 ) *Container {
 	return &Container{
 		evalCtx: evalCtx,
-		jobID:   jobID,
 		node:    node,
 		parent:  parent,
+		value:   value,
+		wgs:     wgs,
 	}
 }
 
@@ -53,9 +46,19 @@ func (c *Container) ID() basil.ID {
 	return c.node.ID()
 }
 
+// JobName returns with the job name
+func (c *Container) JobName() basil.ID {
+	return c.node.ID()
+}
+
 // ID returns with the block id
 func (c *Container) JobID() basil.ID {
 	return c.jobID
+}
+
+// SetJobID sets the job id
+func (c *Container) SetJobID(id basil.ID) {
+	c.jobID = id
 }
 
 // Node returns with the parameter node
@@ -79,7 +82,7 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 
 // Run evaluates the parameter
 func (c *Container) Run() {
-	if !atomic.CompareAndSwapInt64(&c.state, containerStateWaiting, containerStateRunning) {
+	if !c.evalCtx.Run() {
 		return
 	}
 
@@ -88,18 +91,21 @@ func (c *Container) Run() {
 }
 
 func (c *Container) Cancel() bool {
-	c.evalCtx.Cancel()
-	return atomic.CompareAndSwapInt64(&c.state, containerStateWaiting, containerStateCancelled)
+	return c.evalCtx.Cancel()
 }
 
 func (c *Container) Lightweight() bool {
 	return true
 }
 
-// Close does nothing
-func (c *Container) Close() {}
+// Close notifies all wait groups
+func (c *Container) Close() {
+	for _, wg := range c.wgs {
+		wg.Done(c.err)
+	}
+}
 
 // WaitGroups returns nil
-func (c *Container) WaitGroups() []*util.WaitGroup {
-	return nil
+func (c *Container) WaitGroups() []basil.WaitGroup {
+	return c.wgs
 }

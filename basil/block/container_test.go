@@ -28,7 +28,7 @@ var _ = Describe("Container", func() {
 	var b basil.Block
 	var ctx context.Context
 	var cancel context.CancelFunc
-	var scheduler basil.Scheduler
+	var scheduler *job.Scheduler
 	var interpreter *basilfakes.FakeBlockInterpreter
 	var value interface{}
 	var err parsley.Error
@@ -54,9 +54,9 @@ var _ = Describe("Container", func() {
 		logger := zerolog.NewDisabledLogger()
 		scheduler = job.NewScheduler(logger, 1, 10)
 		scheduler.Start()
-		evalCtx = basil.NewEvalContext(ctx, nil, logger, scheduler)
+		evalCtx = basil.NewEvalContext(ctx, nil, logger, scheduler, nil)
 
-		container = block.NewContainer(evalCtx, "test_job_id", blockNode, nil, nil, "", nil)
+		container = block.NewContainer(evalCtx, blockNode, nil, nil, nil)
 		container.Run()
 		value, err = container.Value()
 	})

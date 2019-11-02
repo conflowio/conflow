@@ -52,19 +52,19 @@ type blockContext struct {
 }
 
 func (b *blockContext) Deadline() (deadline time.Time, ok bool) {
-	return b.evalContext.Context.Deadline()
+	return b.evalContext.Deadline()
 }
 
 func (b *blockContext) Done() <-chan struct{} {
-	return b.evalContext.Context.Done()
+	return b.evalContext.Done()
 }
 
 func (b *blockContext) Err() error {
-	return b.evalContext.Context.Err()
+	return b.evalContext.Err()
 }
 
 func (b *blockContext) Value(key interface{}) interface{} {
-	return b.evalContext.Context.Value(key)
+	return b.evalContext.Value(key)
 }
 
 func (b *blockContext) UserContext() interface{} {

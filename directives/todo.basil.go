@@ -23,7 +23,7 @@ func (i TodoInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"description": {
 			Type:       "string",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}

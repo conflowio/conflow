@@ -34,16 +34,20 @@ func (d *Directive) ID() basil.ID {
 	return d.IDField
 }
 
+func (d *Directive) EvalStage() basil.EvalStage {
+	return basil.EvalStageInit
+}
+
+func (d *Directive) RuntimeConfig() basil.RuntimeConfig {
+	return basil.RuntimeConfig{}
+}
+
 func (d *Directive) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"testblock": BlockInterpreter{},
 		},
 	}
-}
-
-func (d *Directive) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	return nil
 }
 
 func (d *Directive) Compare(d2 *Directive, input string) {

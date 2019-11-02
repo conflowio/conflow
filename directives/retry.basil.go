@@ -23,7 +23,7 @@ func (i RetryInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"count": {
 			Type:       "int64",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}

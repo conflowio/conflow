@@ -23,7 +23,7 @@ func (i TriggersInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"block_ids": {
 			Type:       "[]interface{}",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}

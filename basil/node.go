@@ -6,7 +6,9 @@
 
 package basil
 
-import "github.com/opsidian/parsley/parsley"
+import (
+	"github.com/opsidian/parsley/parsley"
+)
 
 // Node is an identifiable node which has dependencies and has an evaluation stage
 //go:generate counterfeiter . Node
@@ -15,9 +17,11 @@ type Node interface {
 	Identifiable
 	EvalStage() EvalStage
 	Dependencies() Dependencies
+	Directives() []BlockNode
 	Provides() []ID
 	Generates() []ID
 	Generated() bool
+	CreateContainer(ctx *EvalContext, parent BlockContainer, value interface{}, wgs []WaitGroup) Container
 }
 
 // Dependencies is a variable list

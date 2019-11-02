@@ -17,7 +17,7 @@ func Evaluate(
 	context context.Context,
 	userContext interface{},
 	logger Logger,
-	scheduler Scheduler,
+	scheduler JobScheduler,
 	id ID,
 ) (interface{}, error) {
 	node, ok := parseCtx.BlockNode(id)
@@ -25,7 +25,7 @@ func Evaluate(
 		return nil, fmt.Errorf("block %q does not exist", id)
 	}
 
-	value, err := node.Value(NewEvalContext(context, userContext, logger, scheduler))
+	value, err := node.Value(NewEvalContext(context, userContext, logger, scheduler, nil))
 	if err != nil {
 		return nil, parseCtx.FileSet().ErrorWithPosition(err)
 	}

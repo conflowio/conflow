@@ -27,6 +27,7 @@ type ParameterNode interface {
 }
 
 // ParameterContainer is a parameter container
+//go:generate counterfeiter . ParameterContainer
 type ParameterContainer interface {
 	Container
 	BlockContainer() BlockContainer
