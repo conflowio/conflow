@@ -7,23 +7,33 @@
 package basil
 
 import (
-	"sync/atomic"
 	"time"
 )
 
-const (
-	jobStateWaiting int64 = iota
-	jobStateRunning
-	jobStateCanceled
-)
+// JobScheduler is the job scheduler
+//go:generate counterfeiter . JobScheduler
+type JobScheduler interface {
+	ScheduleJob(Job)
+}
 
 // Job is a unit of work the scheduler can schedule and run
 //go:generate counterfeiter . Job
 type Job interface {
-	JobID() ID
+	JobName() ID
+	JobID() int
+	SetJobID(int)
 	Run()
-	Cancel() bool
 	Lightweight() bool
+}
+
+type Cancellable interface {
+	Cancel() bool
+}
+
+//go:generate counterfeiter . CancellableJob
+type CancellableJob interface {
+	Job
+	Cancellable
 }
 
 // Retryable is a simple interface for defining a retry mechanism
@@ -32,45 +42,8 @@ type Retryable interface {
 	RetryDelay(int) time.Duration
 }
 
-type job struct {
-	ctx         *EvalContext
-	id          ID
-	state       int64
-	lightweight bool
-	f           func()
-}
-
-// NewJob creates a new job
-func NewJob(ctx *EvalContext, id ID, lightweight bool, f func()) Job {
-	return &job{
-		ctx:         ctx,
-		id:          id,
-		lightweight: lightweight,
-		f:           f,
-	}
-}
-
-// JobID returns the job id
-func (j *job) JobID() ID {
-	return j.id
-}
-
-// Run runs the wrapped job if it wasn't cancelled
-func (j *job) Run() {
-	if !atomic.CompareAndSwapInt64(&j.state, jobStateWaiting, jobStateRunning) {
-		return
-	}
-
-	j.f()
-}
-
-func (j *job) Cancel() bool {
-	j.ctx.Cancel()
-	return atomic.CompareAndSwapInt64(&j.state, jobStateWaiting, jobStateCanceled)
-}
-
-// Lightweight returns true if the job doesn't need to be scheduled on the main job queue
-// These jobs will usually run in a goroutine.
-func (j *job) Lightweight() bool {
-	return j.lightweight
+//go:generate counterfeiter . RetryableJob
+type RetryableJob interface {
+	Job
+	Retryable
 }

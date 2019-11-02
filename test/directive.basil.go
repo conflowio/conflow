@@ -172,3 +172,12 @@ func (i DirectiveInterpreter) SetBlock(block basil.Block, name basil.ID, value i
 	}
 	return nil
 }
+
+func (i DirectiveInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Directive
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

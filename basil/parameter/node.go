@@ -66,6 +66,9 @@ func (n *Node) Type() string {
 
 // EvalStage returns with the evaluation stage
 func (n *Node) EvalStage() basil.EvalStage {
+	if n.evalStage == basil.EvalStageUndefined {
+		return basil.EvalStageMain
+	}
 	return n.evalStage
 }
 
@@ -87,6 +90,11 @@ func (n *Node) Dependencies() basil.Dependencies {
 	return n.dependencies
 }
 
+// Directives returns nil as currently parameters don't support directives
+func (n *Node) Directives() []basil.BlockNode {
+	return nil
+}
+
 // Provides returns with nil as a parameter node doesn't define other nodes
 func (n *Node) Provides() []basil.ID {
 	return nil
@@ -104,7 +112,9 @@ func (n *Node) IsDeclaration() bool {
 
 // SetDescriptor applies the descriptor parameters to the node
 func (n *Node) SetDescriptor(descriptor basil.ParameterDescriptor) {
-	n.evalStage = descriptor.EvalStage
+	if descriptor.EvalStage != basil.EvalStageUndefined {
+		n.evalStage = descriptor.EvalStage
+	}
 }
 
 // Generated returns true if the parameter's value contains a generator function
@@ -140,12 +150,21 @@ func (n *Node) ReaderPos() parsley.Pos {
 	return n.valueNode.ReaderPos()
 }
 
-// String returns with a string representation of the node
-func (n *Node) String() string {
-	return fmt.Sprintf("%s{%s=%s, %d..%d}", n.Token(), n.nameNode, n.valueNode, n.Pos(), n.ReaderPos())
-}
-
 // Walk runs the given function on all child nodes
 func (n *Node) Walk(f func(n parsley.Node) bool) bool {
 	return parsley.Walk(n.valueNode, f)
+}
+
+func (n *Node) CreateContainer(
+	ctx *basil.EvalContext,
+	parent basil.BlockContainer,
+	value interface{},
+	wgs []basil.WaitGroup,
+) basil.Container {
+	return NewContainer(ctx, n, parent, value, wgs)
+}
+
+// String returns with a string representation of the node
+func (n *Node) String() string {
+	return fmt.Sprintf("%s{%s=%s, %d..%d}", n.Token(), n.nameNode, n.valueNode, n.Pos(), n.ReaderPos())
 }

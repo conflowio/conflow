@@ -6,17 +6,23 @@
 
 package basil
 
-import "context"
+import (
+	"context"
+	"sync/atomic"
+	"time"
+)
 
 // EvalStage means an evaluation stage (default, pre or post)
 type EvalStage int8
 
 // Evaluation stages
 const (
-	EvalStageInit  EvalStage = -1
-	EvalStageMain            = 0
-	EvalStageClose           = 1
-	EvalStageNone            = 2
+	EvalStageUndefined EvalStage = iota
+	EvalStageResolve
+	EvalStageInit
+	EvalStageMain
+	EvalStageClose
+	EvalStageIgnore
 )
 
 // EvalStages returns with the evaluation stages
@@ -28,14 +34,15 @@ var EvalStages = map[string]EvalStage{
 
 // EvalContext is the evaluation context
 type EvalContext struct {
-	Context      context.Context
-	Cancel       context.CancelFunc
+	ctx          context.Context
+	cancel       context.CancelFunc
 	UserContext  interface{}
 	Logger       Logger
+	Scheduler    JobScheduler
 	parentCtx    *EvalContext
-	pubsub       *PubSub
-	scheduler    Scheduler
+	pubSub       *PubSub
 	dependencies map[ID]BlockContainer
+	sem          int64
 }
 
 // NewEvalContext returns with a new evaluation context
@@ -43,31 +50,36 @@ func NewEvalContext(
 	ctx context.Context,
 	userContext interface{},
 	logger Logger,
-	scheduler Scheduler,
+	scheduler JobScheduler,
+	dependencies map[ID]BlockContainer,
 ) *EvalContext {
 	ctx, cancel := context.WithCancel(ctx)
 	return &EvalContext{
-		Context:     ctx,
-		Cancel:      cancel,
-		UserContext: userContext,
-		Logger:      logger,
-		scheduler:   scheduler,
-		pubsub:      NewPubSub(),
+		ctx:          ctx,
+		cancel:       cancel,
+		UserContext:  userContext,
+		Logger:       logger,
+		Scheduler:    scheduler,
+		pubSub:       NewPubSub(),
+		dependencies: dependencies,
 	}
 }
 
 // New creates a new eval context by copying the parent and overriding the provided values
-func (e *EvalContext) New(dependencies map[ID]BlockContainer) *EvalContext {
-	ctx, cancel := context.WithCancel(context.Background())
+func (e *EvalContext) New(
+	ctx context.Context,
+	cancel context.CancelFunc,
+	dependencies map[ID]BlockContainer,
+) *EvalContext {
 	return &EvalContext{
-		Context:      ctx,
-		Cancel:       cancel,
+		ctx:          ctx,
+		cancel:       cancel,
+		dependencies: dependencies,
 		UserContext:  e.UserContext,
 		Logger:       e.Logger,
+		Scheduler:    e.Scheduler,
+		pubSub:       e.pubSub,
 		parentCtx:    e,
-		pubsub:       e.pubsub,
-		scheduler:    e.scheduler,
-		dependencies: dependencies,
 	}
 }
 
@@ -84,18 +96,39 @@ func (e *EvalContext) BlockContainer(id ID) (BlockContainer, bool) {
 	return nil, false
 }
 
-func (e *EvalContext) Scheduler() Scheduler {
-	return e.scheduler
-}
-
 func (e *EvalContext) Subscribe(container *NodeContainer, id ID) {
-	e.pubsub.Subscribe(container, id)
+	e.pubSub.Subscribe(container, id)
 }
 
 func (e *EvalContext) Unsubscribe(container *NodeContainer, id ID) {
-	e.pubsub.Unsubscribe(container, id)
+	e.pubSub.Unsubscribe(container, id)
 }
 
 func (e *EvalContext) Publish(c Container) {
-	e.pubsub.Publish(c)
+	e.pubSub.Publish(c)
+}
+
+func (e *EvalContext) Deadline() (deadline time.Time, ok bool) {
+	return e.ctx.Deadline()
+}
+
+func (e *EvalContext) Done() <-chan struct{} {
+	return e.ctx.Done()
+}
+
+func (e *EvalContext) Err() error {
+	return e.ctx.Err()
+}
+
+func (e *EvalContext) Value(key interface{}) interface{} {
+	return e.ctx.Value(key)
+}
+
+func (e *EvalContext) Run() bool {
+	return atomic.CompareAndSwapInt64(&e.sem, 0, 1)
+}
+
+func (e *EvalContext) Cancel() bool {
+	e.cancel()
+	return atomic.CompareAndSwapInt64(&e.sem, 0, 2)
 }

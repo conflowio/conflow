@@ -144,4 +144,13 @@ func (i {{.Name}}Interpreter) SetBlock(block basil.Block, name basil.ID, value i
 	return nil
 }
 
+func (i {{.Name}}Interpreter) EvalStage() basil.EvalStage {
+	var nilBlock *{{.Name}}
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}
+
 `

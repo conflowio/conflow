@@ -11,13 +11,17 @@ import "github.com/opsidian/basil/basil"
 //go:generate basil generate
 type Todo struct {
 	id          basil.ID `basil:"id"`
-	description string   `basil:"value"`
+	description string   `basil:"value,required"`
 }
 
-func (t Todo) ID() basil.ID {
+func (t *Todo) ID() basil.ID {
 	return t.id
 }
 
-func (t Todo) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	return nil
+func (t *Todo) RuntimeConfig() basil.RuntimeConfig {
+	return basil.RuntimeConfig{}
+}
+
+func (t *Todo) EvalStage() basil.EvalStage {
+	return basil.EvalStageIgnore
 }

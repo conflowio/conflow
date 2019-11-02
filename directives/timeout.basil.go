@@ -23,7 +23,7 @@ func (i TimeoutInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"duration": {
 			Type:       "time.Duration",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}
@@ -79,4 +79,13 @@ func (i TimeoutInterpreter) SetParam(block basil.Block, name basil.ID, value int
 
 func (i TimeoutInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i TimeoutInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Timeout
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
 }

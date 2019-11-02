@@ -9,7 +9,6 @@ package job
 import (
 	"fmt"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -23,11 +22,10 @@ type state struct {
 
 // JobManager tracks and schedules jobs
 type Manager struct {
-	id        basil.ID
-	lastID    uint64
-	scheduler basil.Scheduler
+	name      basil.ID
+	scheduler basil.JobScheduler
 	logger    basil.Logger
-	jobs      map[basil.ID]*state
+	jobs      map[int]*state
 	running   int
 	pending   int
 	stopped   bool
@@ -35,19 +33,14 @@ type Manager struct {
 }
 
 // NewManager creates a new job manager
-func NewManager(id basil.ID, scheduler basil.Scheduler, logger basil.Logger) *Manager {
+func NewManager(name basil.ID, scheduler basil.JobScheduler, logger basil.Logger) *Manager {
 	return &Manager{
-		id:        id,
+		name:      name,
 		scheduler: scheduler,
-		logger:    logger.With().ID("id", id).Logger(),
-		jobs:      make(map[basil.ID]*state),
+		logger:    logger.With().ID("jobManager", name).Logger(),
+		jobs:      make(map[int]*state),
 		mu:        &sync.Mutex{},
 	}
-}
-
-// GenerateJobID generates a unique job identifier
-func (m *Manager) GenerateJobID(id basil.ID) basil.ID {
-	return basil.ID(fmt.Sprintf("%s@%d", id, atomic.AddUint64(&m.lastID, 1)))
 }
 
 // Stop cancels all remaining jobs
@@ -61,8 +54,8 @@ func (m *Manager) Stop() int {
 		m.stopped = true
 
 		for id, job := range m.jobs {
-			if job.Job.Cancel() {
-				m.debug().ID("jobID", id).Msg("job cancelled")
+			if j, ok := job.Job.(basil.Cancellable); ok && j.Cancel() {
+				m.debug().ID("jobName", job.Job.JobName()).Int("jobID", id).Msg("job cancelled")
 				m.running--
 			}
 		}
@@ -75,12 +68,14 @@ func (m *Manager) Stop() int {
 }
 
 // Schedule schedules a new job
-func (m *Manager) Schedule(job basil.Job, decreasePending bool) {
+func (m *Manager) ScheduleJob(job basil.Job, pending bool) {
 	m.mu.Lock()
 	if m.stopped {
 		m.mu.Unlock()
 		return
 	}
+
+	m.scheduler.ScheduleJob(job)
 
 	j := m.jobs[job.JobID()]
 	if j == nil {
@@ -91,27 +86,39 @@ func (m *Manager) Schedule(job basil.Job, decreasePending bool) {
 		j.RetryTimer = nil
 	}
 
-	if decreasePending {
+	if pending {
 		m.pending--
 	}
 	m.running++
 	j.Tries++
 
-	m.debug().ID("jobID", job.JobID()).Msg("job scheduled")
-	m.scheduler.Schedule(job)
-
+	m.debug().ID("jobName", job.JobName()).Int("jobID", job.JobID()).Msg("job scheduled")
 	m.mu.Unlock()
 }
 
 // Finished must be called when a process finished
-func (m *Manager) Finished(id basil.ID) {
+func (m *Manager) Finished(id int) {
+	m.done(id, "job finished")
+}
+
+func (m *Manager) Failed(id int) {
+	m.done(id, "job failed")
+}
+
+// Cancelled must be called when a process was cancelled
+func (m *Manager) Cancelled(id int) {
+	m.done(id, "job cancelled")
+}
+
+func (m *Manager) done(id int, msg string) {
 	m.mu.Lock()
 
 	j := m.jobs[id]
 	if j != nil {
 		m.running--
 		delete(m.jobs, id)
-		m.debug().ID("jobID", j.Job.JobID()).Msg("job finished")
+		m.debug().ID("jobName", j.Job.JobName()).Int("jobID", id).Msg(msg)
+
 	}
 
 	m.mu.Unlock()
@@ -122,7 +129,7 @@ func (m *Manager) Finished(id basil.ID) {
 
 // Retry must be called when a job failed but can be retried.
 // It schedules the job again if there are any retries left
-func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f func(job basil.Job) func()) bool {
+func (m *Manager) Retry(id int, maxTries int, retryDelay time.Duration, f func(job basil.Job) func()) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -135,7 +142,8 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 
 	if j.Tries >= maxTries {
 		m.debug().
-			ID("jobID", j.Job.JobID()).
+			ID("jobName", j.Job.JobName()).
+			Int("jobID", id).
 			Int("tries", j.Tries).
 			Int("max_tries", maxTries).
 			Msg("job failed permanently")
@@ -144,7 +152,8 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 	}
 
 	m.debug().
-		ID("jobID", j.Job.JobID()).
+		ID("jobName", j.Job.JobName()).
+		Int("jobID", id).
 		Int("tries", j.Tries).
 		Int("max_tries", maxTries).
 		Dur("retry_delay", retryDelay).
@@ -159,6 +168,10 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 }
 
 func (m *Manager) AddPending(cnt int) {
+	if cnt == 0 {
+		return
+	}
+
 	m.mu.Lock()
 	m.pending = m.pending + cnt
 	m.mu.Unlock()

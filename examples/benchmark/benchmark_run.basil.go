@@ -78,3 +78,12 @@ func (i BenchmarkRunInterpreter) SetParam(block basil.Block, name basil.ID, valu
 func (i BenchmarkRunInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i BenchmarkRunInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *BenchmarkRun
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

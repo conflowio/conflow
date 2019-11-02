@@ -134,3 +134,12 @@ func (i ExecInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i ExecInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i ExecInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Exec
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

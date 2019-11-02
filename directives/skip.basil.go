@@ -81,3 +81,12 @@ func (i SkipInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i SkipInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i SkipInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Skip
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

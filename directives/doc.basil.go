@@ -23,7 +23,7 @@ func (i DocInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"description": {
 			Type:       "string",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}
@@ -79,4 +79,13 @@ func (i DocInterpreter) SetParam(block basil.Block, name basil.ID, value interfa
 
 func (i DocInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i DocInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Doc
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
 }

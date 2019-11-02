@@ -104,8 +104,9 @@ func EvalUserCtx() *basil.EvalContext {
 		context.Background(),
 		"userCtx",
 		zerolog.NewDisabledLogger(),
-		Scheduler{},
-	).New(containers)
+		&Scheduler{},
+		containers,
+	)
 
 	return evalCtx
 }

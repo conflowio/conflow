@@ -7,6 +7,8 @@
 package job
 
 import (
+	"sync/atomic"
+
 	"github.com/opsidian/basil/basil"
 )
 
@@ -15,18 +17,17 @@ type Scheduler struct {
 	logger       basil.Logger
 	maxWorkers   int
 	maxQueueSize int
-	workers      []basil.Worker
-	workerPool   chan chan basil.Job
+	workers      []Worker
 	jobQueue     chan basil.Job
 	quit         chan bool
+	lastID       int64
 }
 
 // NewScheduler creates a new scheduler instance
 func NewScheduler(logger basil.Logger, maxWorkers int, maxQueueSize int) *Scheduler {
 	return &Scheduler{
 		logger:       logger,
-		workers:      make([]basil.Worker, maxWorkers),
-		workerPool:   make(chan chan basil.Job, maxWorkers),
+		workers:      make([]Worker, maxWorkers),
 		maxWorkers:   maxWorkers,
 		maxQueueSize: maxQueueSize,
 		jobQueue:     make(chan basil.Job, maxQueueSize),
@@ -42,11 +43,9 @@ func (s *Scheduler) Start() {
 		Msg("job scheduler starting")
 
 	for i := 0; i < s.maxWorkers; i++ {
-		s.workers[i] = NewWorker(s.logger, s.workerPool)
+		s.workers[i] = NewWorker(s.logger, s.jobQueue)
 		s.workers[i].Start()
 	}
-
-	go s.dispatch()
 }
 
 // Stop stops all the workers and the dispatcher process
@@ -63,27 +62,20 @@ func (s *Scheduler) Stop() {
 }
 
 // Schedule schedules a new job
-func (s *Scheduler) Schedule(job basil.Job) {
-	if job.Lightweight() {
-		s.logger.Debug().
-			ID("jobID", job.JobID()).
-			Msg("job running")
-		go job.Run()
-		return
-	}
-	s.jobQueue <- job
-}
+func (s *Scheduler) ScheduleJob(job basil.Job) {
+	job.SetJobID(int(atomic.AddInt64(&s.lastID, 1)))
 
-func (s *Scheduler) dispatch() {
-	for {
+	if job.Lightweight() {
+		go func() {
+			job.Run()
+		}()
+	} else {
 		select {
-		case job := <-s.jobQueue:
-			go func(job basil.Job) {
-				jobChannel := <-s.workerPool
-				jobChannel <- job
-			}(job)
+		case s.jobQueue <- job:
 		case <-s.quit:
 			return
 		}
 	}
+
+	return
 }

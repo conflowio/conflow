@@ -6,16 +6,10 @@
 
 package basil
 
-// Scheduler is the job scheduler
-//go:generate counterfeiter . Scheduler
-type Scheduler interface {
-	Start()
-	Stop()
-	Schedule(Job)
-}
-
-// Worker is an interface for a job queue processor
-type Worker interface {
-	Start()
-	Stop()
+//go:generate counterfeiter . WaitGroup
+type WaitGroup interface {
+	Add(delta int)
+	Wait() <-chan struct{}
+	Done(err error)
+	Err() error
 }

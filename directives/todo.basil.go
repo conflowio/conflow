@@ -23,7 +23,7 @@ func (i TodoInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"description": {
 			Type:       "string",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}
@@ -79,4 +79,13 @@ func (i TodoInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 
 func (i TodoInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i TodoInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Todo
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
 }

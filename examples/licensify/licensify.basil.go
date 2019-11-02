@@ -90,3 +90,12 @@ func (i LicensifyInterpreter) SetParam(block basil.Block, name basil.ID, value i
 func (i LicensifyInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i LicensifyInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Licensify
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

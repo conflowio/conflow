@@ -73,6 +73,7 @@ func NewNode(
 		dependencies: dependencies,
 		generates:    generates,
 		provides:     provides,
+		evalStage:    interpreter.EvalStage(),
 	}
 }
 
@@ -98,6 +99,9 @@ func (n *Node) Type() string {
 
 // EvalStage returns with the evaluation stage
 func (n *Node) EvalStage() basil.EvalStage {
+	if n.evalStage == basil.EvalStageUndefined {
+		return basil.EvalStageMain
+	}
 	return n.evalStage
 }
 
@@ -128,7 +132,9 @@ func (n *Node) Provides() []basil.ID {
 
 // SetDescriptor applies the descriptor parameters to the node
 func (n *Node) SetDescriptor(descriptor basil.BlockDescriptor) {
-	n.evalStage = descriptor.EvalStage
+	if descriptor.EvalStage != basil.EvalStageUndefined {
+		n.evalStage = descriptor.EvalStage
+	}
 	n.generated = descriptor.IsGenerated
 }
 
@@ -202,7 +208,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value creates a new block
 func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	container := NewContainer(userCtx.(*basil.EvalContext), n.ID(), n, nil, nil, "", nil)
+	container := NewContainer(userCtx.(*basil.EvalContext), n, nil, nil, nil)
 	container.Run()
 
 	return container.Value()
@@ -259,6 +265,15 @@ func (n *Node) Walk(f func(n parsley.Node) bool) bool {
 	}
 
 	return false
+}
+
+func (n *Node) CreateContainer(
+	ctx *basil.EvalContext,
+	parent basil.BlockContainer,
+	value interface{},
+	wgs []basil.WaitGroup,
+) basil.Container {
+	return NewContainer(ctx, n, parent, value, wgs)
 }
 
 func (n *Node) String() string {

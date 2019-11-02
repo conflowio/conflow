@@ -80,3 +80,12 @@ func (i PrintlnInterpreter) SetParam(block basil.Block, name basil.ID, value int
 func (i PrintlnInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i PrintlnInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Println
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

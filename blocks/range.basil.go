@@ -92,3 +92,12 @@ func (i RangeInterpreter) SetBlock(block basil.Block, name basil.ID, value inter
 	}
 	return nil
 }
+
+func (i RangeInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Range
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

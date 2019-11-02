@@ -41,6 +41,7 @@ func (w *WaitGroup) Done(err error) {
 	}
 	cnt := atomic.AddInt64(&w.cnt, -1)
 	if cnt < 0 {
+		w.mu.Unlock()
 		panic("negative WaitGroup counter")
 	}
 	if cnt == 0 {

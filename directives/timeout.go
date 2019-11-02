@@ -15,16 +15,19 @@ import (
 //go:generate basil generate
 type Timeout struct {
 	id       basil.ID      `basil:"id"`
-	duration time.Duration `basil:"value"`
+	duration time.Duration `basil:"value,required"`
 }
 
-func (t Timeout) ID() basil.ID {
+func (t *Timeout) ID() basil.ID {
 	return t.id
 }
 
-func (t Timeout) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	if t.duration > 0 {
-		container.SetTimeout(t.duration)
+func (t *Timeout) RuntimeConfig() basil.RuntimeConfig {
+	return basil.RuntimeConfig{
+		Timeout: t.duration,
 	}
-	return nil
+}
+
+func (t *Timeout) EvalStage() basil.EvalStage {
+	return basil.EvalStageInit
 }

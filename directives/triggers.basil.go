@@ -23,7 +23,7 @@ func (i TriggersInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"block_ids": {
 			Type:       "[]interface{}",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}
@@ -79,4 +79,13 @@ func (i TriggersInterpreter) SetParam(block basil.Block, name basil.ID, value in
 
 func (i TriggersInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i TriggersInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Triggers
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
 }

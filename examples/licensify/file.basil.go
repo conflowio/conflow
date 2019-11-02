@@ -80,3 +80,12 @@ func (i FileInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i FileInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i FileInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *File
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

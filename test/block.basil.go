@@ -172,3 +172,12 @@ func (i BlockInterpreter) SetBlock(block basil.Block, name basil.ID, value inter
 	}
 	return nil
 }
+
+func (i BlockInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Block
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

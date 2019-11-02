@@ -23,7 +23,7 @@ func (i RetryInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 		"count": {
 			Type:       "int64",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: false,
+			IsRequired: true,
 			IsOutput:   false,
 		},
 	}
@@ -79,4 +79,13 @@ func (i RetryInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 
 func (i RetryInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
+}
+
+func (i RetryInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Retry
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
 }

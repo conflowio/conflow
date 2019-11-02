@@ -11,13 +11,17 @@ import "github.com/opsidian/basil/basil"
 //go:generate basil generate
 type Bug struct {
 	id          basil.ID `basil:"id"`
-	description string   `basil:"value"`
+	description string   `basil:"value,required"`
 }
 
-func (b Bug) ID() basil.ID {
+func (b *Bug) ID() basil.ID {
 	return b.id
 }
 
-func (b Bug) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	return nil
+func (b *Bug) RuntimeConfig() basil.RuntimeConfig {
+	return basil.RuntimeConfig{}
+}
+
+func (b *Bug) EvalStage() basil.EvalStage {
+	return basil.EvalStageIgnore
 }

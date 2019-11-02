@@ -14,14 +14,16 @@ type Run struct {
 	when bool     `basil:"value,default=true"`
 }
 
-func (r Run) ID() basil.ID {
+func (r *Run) ID() basil.ID {
 	return r.id
 }
 
-func (r Run) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	if !r.when {
-		container.Skip()
+func (r *Run) RuntimeConfig() basil.RuntimeConfig {
+	return basil.RuntimeConfig{
+		Skip: !r.when,
 	}
+}
 
-	return nil
+func (r *Run) EvalStage() basil.EvalStage {
+	return basil.EvalStageInit
 }

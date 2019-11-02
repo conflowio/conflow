@@ -6,13 +6,18 @@
 
 package test
 
-import "github.com/opsidian/basil/basil"
+import (
+	"sync/atomic"
+
+	"github.com/opsidian/basil/basil"
+)
 
 // Scheduler is a test scheduler, it will simply run the given job in a goroutine in the background
-type Scheduler struct{}
+type Scheduler struct {
+	lastID int64
+}
 
-func (s Scheduler) Start() {}
-func (s Scheduler) Stop()  {}
-func (s Scheduler) Schedule(job basil.Job) {
+func (s *Scheduler) ScheduleJob(job basil.Job) {
+	job.SetJobID(int(atomic.AddInt64(&s.lastID, 1)))
 	go job.Run()
 }

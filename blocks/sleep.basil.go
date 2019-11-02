@@ -80,3 +80,12 @@ func (i SleepInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 func (i SleepInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i SleepInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Sleep
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

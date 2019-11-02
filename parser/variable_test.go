@@ -35,7 +35,7 @@ var _ = Describe("Variable", func() {
 	BeforeEach(func() {
 		parseCtx = basil.NewParseContext(basil.NewIDRegistry(8, 16), nil)
 		logger := zerolog.NewDisabledLogger()
-		evalCtx = basil.NewEvalContext(context.Background(), nil, logger, test.Scheduler{})
+		evalCtx = basil.NewEvalContext(context.Background(), nil, logger, &test.Scheduler{}, nil)
 		parseErr = nil
 		evalErr = nil
 		value = nil
@@ -76,7 +76,8 @@ var _ = Describe("Variable", func() {
 			cont.ParamReturnsOnCall(0, "bar")
 			cont.NodeReturns(blockNode)
 
-			evalCtx = evalCtx.New(map[basil.ID]basil.BlockContainer{"foo": cont})
+			ctx, cancel := context.WithCancel(context.Background())
+			evalCtx = evalCtx.New(ctx, cancel, map[basil.ID]basil.BlockContainer{"foo": cont})
 		})
 
 		Context("with an existing parameter", func() {

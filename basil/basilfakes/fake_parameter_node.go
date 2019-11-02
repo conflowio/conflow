@@ -9,6 +9,20 @@ import (
 )
 
 type FakeParameterNode struct {
+	CreateContainerStub        func(*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup) basil.Container
+	createContainerMutex       sync.RWMutex
+	createContainerArgsForCall []struct {
+		arg1 *basil.EvalContext
+		arg2 basil.BlockContainer
+		arg3 interface{}
+		arg4 []basil.WaitGroup
+	}
+	createContainerReturns struct {
+		result1 basil.Container
+	}
+	createContainerReturnsOnCall map[int]struct {
+		result1 basil.Container
+	}
 	DependenciesStub        func() basil.Dependencies
 	dependenciesMutex       sync.RWMutex
 	dependenciesArgsForCall []struct {
@@ -18,6 +32,16 @@ type FakeParameterNode struct {
 	}
 	dependenciesReturnsOnCall map[int]struct {
 		result1 basil.Dependencies
+	}
+	DirectivesStub        func() []basil.BlockNode
+	directivesMutex       sync.RWMutex
+	directivesArgsForCall []struct {
+	}
+	directivesReturns struct {
+		result1 []basil.BlockNode
+	}
+	directivesReturnsOnCall map[int]struct {
+		result1 []basil.BlockNode
 	}
 	EvalStageStub        func() basil.EvalStage
 	evalStageMutex       sync.RWMutex
@@ -161,6 +185,74 @@ type FakeParameterNode struct {
 	invocationsMutex sync.RWMutex
 }
 
+func (fake *FakeParameterNode) CreateContainer(arg1 *basil.EvalContext, arg2 basil.BlockContainer, arg3 interface{}, arg4 []basil.WaitGroup) basil.Container {
+	var arg4Copy []basil.WaitGroup
+	if arg4 != nil {
+		arg4Copy = make([]basil.WaitGroup, len(arg4))
+		copy(arg4Copy, arg4)
+	}
+	fake.createContainerMutex.Lock()
+	ret, specificReturn := fake.createContainerReturnsOnCall[len(fake.createContainerArgsForCall)]
+	fake.createContainerArgsForCall = append(fake.createContainerArgsForCall, struct {
+		arg1 *basil.EvalContext
+		arg2 basil.BlockContainer
+		arg3 interface{}
+		arg4 []basil.WaitGroup
+	}{arg1, arg2, arg3, arg4Copy})
+	fake.recordInvocation("CreateContainer", []interface{}{arg1, arg2, arg3, arg4Copy})
+	fake.createContainerMutex.Unlock()
+	if fake.CreateContainerStub != nil {
+		return fake.CreateContainerStub(arg1, arg2, arg3, arg4)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.createContainerReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeParameterNode) CreateContainerCallCount() int {
+	fake.createContainerMutex.RLock()
+	defer fake.createContainerMutex.RUnlock()
+	return len(fake.createContainerArgsForCall)
+}
+
+func (fake *FakeParameterNode) CreateContainerCalls(stub func(*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup) basil.Container) {
+	fake.createContainerMutex.Lock()
+	defer fake.createContainerMutex.Unlock()
+	fake.CreateContainerStub = stub
+}
+
+func (fake *FakeParameterNode) CreateContainerArgsForCall(i int) (*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup) {
+	fake.createContainerMutex.RLock()
+	defer fake.createContainerMutex.RUnlock()
+	argsForCall := fake.createContainerArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+}
+
+func (fake *FakeParameterNode) CreateContainerReturns(result1 basil.Container) {
+	fake.createContainerMutex.Lock()
+	defer fake.createContainerMutex.Unlock()
+	fake.CreateContainerStub = nil
+	fake.createContainerReturns = struct {
+		result1 basil.Container
+	}{result1}
+}
+
+func (fake *FakeParameterNode) CreateContainerReturnsOnCall(i int, result1 basil.Container) {
+	fake.createContainerMutex.Lock()
+	defer fake.createContainerMutex.Unlock()
+	fake.CreateContainerStub = nil
+	if fake.createContainerReturnsOnCall == nil {
+		fake.createContainerReturnsOnCall = make(map[int]struct {
+			result1 basil.Container
+		})
+	}
+	fake.createContainerReturnsOnCall[i] = struct {
+		result1 basil.Container
+	}{result1}
+}
+
 func (fake *FakeParameterNode) Dependencies() basil.Dependencies {
 	fake.dependenciesMutex.Lock()
 	ret, specificReturn := fake.dependenciesReturnsOnCall[len(fake.dependenciesArgsForCall)]
@@ -210,6 +302,58 @@ func (fake *FakeParameterNode) DependenciesReturnsOnCall(i int, result1 basil.De
 	}
 	fake.dependenciesReturnsOnCall[i] = struct {
 		result1 basil.Dependencies
+	}{result1}
+}
+
+func (fake *FakeParameterNode) Directives() []basil.BlockNode {
+	fake.directivesMutex.Lock()
+	ret, specificReturn := fake.directivesReturnsOnCall[len(fake.directivesArgsForCall)]
+	fake.directivesArgsForCall = append(fake.directivesArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Directives", []interface{}{})
+	fake.directivesMutex.Unlock()
+	if fake.DirectivesStub != nil {
+		return fake.DirectivesStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.directivesReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeParameterNode) DirectivesCallCount() int {
+	fake.directivesMutex.RLock()
+	defer fake.directivesMutex.RUnlock()
+	return len(fake.directivesArgsForCall)
+}
+
+func (fake *FakeParameterNode) DirectivesCalls(stub func() []basil.BlockNode) {
+	fake.directivesMutex.Lock()
+	defer fake.directivesMutex.Unlock()
+	fake.DirectivesStub = stub
+}
+
+func (fake *FakeParameterNode) DirectivesReturns(result1 []basil.BlockNode) {
+	fake.directivesMutex.Lock()
+	defer fake.directivesMutex.Unlock()
+	fake.DirectivesStub = nil
+	fake.directivesReturns = struct {
+		result1 []basil.BlockNode
+	}{result1}
+}
+
+func (fake *FakeParameterNode) DirectivesReturnsOnCall(i int, result1 []basil.BlockNode) {
+	fake.directivesMutex.Lock()
+	defer fake.directivesMutex.Unlock()
+	fake.DirectivesStub = nil
+	if fake.directivesReturnsOnCall == nil {
+		fake.directivesReturnsOnCall = make(map[int]struct {
+			result1 []basil.BlockNode
+		})
+	}
+	fake.directivesReturnsOnCall[i] = struct {
+		result1 []basil.BlockNode
 	}{result1}
 }
 
@@ -934,8 +1078,12 @@ func (fake *FakeParameterNode) ValueNodeReturnsOnCall(i int, result1 parsley.Nod
 func (fake *FakeParameterNode) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.createContainerMutex.RLock()
+	defer fake.createContainerMutex.RUnlock()
 	fake.dependenciesMutex.RLock()
 	defer fake.dependenciesMutex.RUnlock()
+	fake.directivesMutex.RLock()
+	defer fake.directivesMutex.RUnlock()
 	fake.evalStageMutex.RLock()
 	defer fake.evalStageMutex.RUnlock()
 	fake.generatedMutex.RLock()

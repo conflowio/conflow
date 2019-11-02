@@ -78,3 +78,12 @@ func (i TickInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 func (i TickInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
 }
+
+func (i TickInterpreter) EvalStage() basil.EvalStage {
+	var nilBlock *Tick
+	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
+		return b.EvalStage()
+	}
+
+	return basil.EvalStageUndefined
+}

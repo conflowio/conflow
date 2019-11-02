@@ -15,22 +15,27 @@ import (
 //go:generate basil generate
 type Retry struct {
 	id    basil.ID `basil:"id"`
-	count int64    `basil:"value"`
+	count int64    `basil:"value,required"`
 }
 
-func (r Retry) ID() basil.ID {
+func (r *Retry) ID() basil.ID {
 	return r.id
 }
 
-func (r Retry) ApplyDirective(blockCtx basil.BlockContext, container basil.BlockContainer) error {
-	container.SetRetry(r)
-	return nil
+func (r *Retry) RuntimeConfig() basil.RuntimeConfig {
+	return basil.RuntimeConfig{
+		Retry: r,
+	}
 }
 
-func (r Retry) RetryCount() int {
+func (r *Retry) RetryCount() int {
 	return int(r.count)
 }
 
-func (r Retry) RetryDelay(int) time.Duration {
+func (r *Retry) RetryDelay(int) time.Duration {
 	return 0
+}
+
+func (r *Retry) EvalStage() basil.EvalStage {
+	return basil.EvalStageInit
 }
