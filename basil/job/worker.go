@@ -33,13 +33,15 @@ func (w Worker) Start() {
 			select {
 			case job := <-w.jobQueue:
 				w.logger.Debug().
-					ID("jobID", job.JobID()).
+					ID("jobName", job.JobName()).
+					Int("jobID", job.JobID()).
 					Msg("job starting")
 
 				job.Run()
 
 				w.logger.Debug().
-					ID("jobID", job.JobID()).
+					ID("jobName", job.JobName()).
+					Int("jobID", job.JobID()).
 					Msg("job finished")
 			case <-w.quit:
 				return

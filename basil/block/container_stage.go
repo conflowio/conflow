@@ -15,7 +15,7 @@ import (
 
 type containerStage struct {
 	name        basil.ID
-	jobID       basil.ID
+	jobID       int
 	sem         job.Semaphore
 	lightweight bool
 	f           func() (int64, error)
@@ -40,11 +40,11 @@ func (c *containerStage) JobName() basil.ID {
 	return c.name
 }
 
-func (c *containerStage) JobID() basil.ID {
+func (c *containerStage) JobID() int {
 	return c.jobID
 }
 
-func (c *containerStage) SetJobID(id basil.ID) {
+func (c *containerStage) SetJobID(id int) {
 	c.jobID = id
 }
 

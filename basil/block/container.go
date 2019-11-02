@@ -54,7 +54,7 @@ type Container struct {
 	resultChan  chan basil.Container
 	errChan     chan parsley.Error
 	jobManager  *job.Manager
-	jobID       basil.ID
+	jobID       int
 	children    map[basil.ID]*basil.NodeContainer
 	wgs         []basil.WaitGroup
 	retry       basil.Retryable
@@ -102,12 +102,12 @@ func (c *Container) JobName() basil.ID {
 }
 
 // JobID returns with the job id
-func (c *Container) JobID() basil.ID {
+func (c *Container) JobID() int {
 	return c.jobID
 }
 
 // SetJobID sets the job id
-func (c *Container) SetJobID(id basil.ID) {
+func (c *Container) SetJobID(id int) {
 	c.jobID = id
 }
 

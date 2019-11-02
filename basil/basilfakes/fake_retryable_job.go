@@ -9,15 +9,15 @@ import (
 )
 
 type FakeRetryableJob struct {
-	JobIDStub        func() basil.ID
+	JobIDStub        func() int
 	jobIDMutex       sync.RWMutex
 	jobIDArgsForCall []struct {
 	}
 	jobIDReturns struct {
-		result1 basil.ID
+		result1 int
 	}
 	jobIDReturnsOnCall map[int]struct {
-		result1 basil.ID
+		result1 int
 	}
 	JobNameStub        func() basil.ID
 	jobNameMutex       sync.RWMutex
@@ -64,16 +64,16 @@ type FakeRetryableJob struct {
 	runMutex       sync.RWMutex
 	runArgsForCall []struct {
 	}
-	SetJobIDStub        func(basil.ID)
+	SetJobIDStub        func(int)
 	setJobIDMutex       sync.RWMutex
 	setJobIDArgsForCall []struct {
-		arg1 basil.ID
+		arg1 int
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeRetryableJob) JobID() basil.ID {
+func (fake *FakeRetryableJob) JobID() int {
 	fake.jobIDMutex.Lock()
 	ret, specificReturn := fake.jobIDReturnsOnCall[len(fake.jobIDArgsForCall)]
 	fake.jobIDArgsForCall = append(fake.jobIDArgsForCall, struct {
@@ -96,32 +96,32 @@ func (fake *FakeRetryableJob) JobIDCallCount() int {
 	return len(fake.jobIDArgsForCall)
 }
 
-func (fake *FakeRetryableJob) JobIDCalls(stub func() basil.ID) {
+func (fake *FakeRetryableJob) JobIDCalls(stub func() int) {
 	fake.jobIDMutex.Lock()
 	defer fake.jobIDMutex.Unlock()
 	fake.JobIDStub = stub
 }
 
-func (fake *FakeRetryableJob) JobIDReturns(result1 basil.ID) {
+func (fake *FakeRetryableJob) JobIDReturns(result1 int) {
 	fake.jobIDMutex.Lock()
 	defer fake.jobIDMutex.Unlock()
 	fake.JobIDStub = nil
 	fake.jobIDReturns = struct {
-		result1 basil.ID
+		result1 int
 	}{result1}
 }
 
-func (fake *FakeRetryableJob) JobIDReturnsOnCall(i int, result1 basil.ID) {
+func (fake *FakeRetryableJob) JobIDReturnsOnCall(i int, result1 int) {
 	fake.jobIDMutex.Lock()
 	defer fake.jobIDMutex.Unlock()
 	fake.JobIDStub = nil
 	if fake.jobIDReturnsOnCall == nil {
 		fake.jobIDReturnsOnCall = make(map[int]struct {
-			result1 basil.ID
+			result1 int
 		})
 	}
 	fake.jobIDReturnsOnCall[i] = struct {
-		result1 basil.ID
+		result1 int
 	}{result1}
 }
 
@@ -364,10 +364,10 @@ func (fake *FakeRetryableJob) RunCalls(stub func()) {
 	fake.RunStub = stub
 }
 
-func (fake *FakeRetryableJob) SetJobID(arg1 basil.ID) {
+func (fake *FakeRetryableJob) SetJobID(arg1 int) {
 	fake.setJobIDMutex.Lock()
 	fake.setJobIDArgsForCall = append(fake.setJobIDArgsForCall, struct {
-		arg1 basil.ID
+		arg1 int
 	}{arg1})
 	fake.recordInvocation("SetJobID", []interface{}{arg1})
 	fake.setJobIDMutex.Unlock()
@@ -382,13 +382,13 @@ func (fake *FakeRetryableJob) SetJobIDCallCount() int {
 	return len(fake.setJobIDArgsForCall)
 }
 
-func (fake *FakeRetryableJob) SetJobIDCalls(stub func(basil.ID)) {
+func (fake *FakeRetryableJob) SetJobIDCalls(stub func(int)) {
 	fake.setJobIDMutex.Lock()
 	defer fake.setJobIDMutex.Unlock()
 	fake.SetJobIDStub = stub
 }
 
-func (fake *FakeRetryableJob) SetJobIDArgsForCall(i int) basil.ID {
+func (fake *FakeRetryableJob) SetJobIDArgsForCall(i int) int {
 	fake.setJobIDMutex.RLock()
 	defer fake.setJobIDMutex.RUnlock()
 	argsForCall := fake.setJobIDArgsForCall[i]

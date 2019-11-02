@@ -20,7 +20,7 @@ type Container struct {
 	parent  basil.BlockContainer
 	value   interface{}
 	err     parsley.Error
-	jobID   basil.ID
+	jobID   int
 	wgs     []basil.WaitGroup
 }
 
@@ -52,12 +52,12 @@ func (c *Container) JobName() basil.ID {
 }
 
 // ID returns with the block id
-func (c *Container) JobID() basil.ID {
+func (c *Container) JobID() int {
 	return c.jobID
 }
 
 // SetJobID sets the job id
-func (c *Container) SetJobID(id basil.ID) {
+func (c *Container) SetJobID(id int) {
 	c.jobID = id
 }
 

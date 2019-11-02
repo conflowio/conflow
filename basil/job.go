@@ -13,15 +13,15 @@ import (
 // JobScheduler is the job scheduler
 //go:generate counterfeiter . JobScheduler
 type JobScheduler interface {
-	ScheduleJob(Job) ID
+	ScheduleJob(Job)
 }
 
 // Job is a unit of work the scheduler can schedule and run
 //go:generate counterfeiter . Job
 type Job interface {
 	JobName() ID
-	JobID() ID
-	SetJobID(ID)
+	JobID() int
+	SetJobID(int)
 	Run()
 	Lightweight() bool
 }

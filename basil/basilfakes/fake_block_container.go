@@ -23,15 +23,15 @@ type FakeBlockContainer struct {
 	closeMutex       sync.RWMutex
 	closeArgsForCall []struct {
 	}
-	JobIDStub        func() basil.ID
+	JobIDStub        func() int
 	jobIDMutex       sync.RWMutex
 	jobIDArgsForCall []struct {
 	}
 	jobIDReturns struct {
-		result1 basil.ID
+		result1 int
 	}
 	jobIDReturnsOnCall map[int]struct {
-		result1 basil.ID
+		result1 int
 	}
 	JobNameStub        func() basil.ID
 	jobNameMutex       sync.RWMutex
@@ -111,10 +111,10 @@ type FakeBlockContainer struct {
 	setErrorArgsForCall []struct {
 		arg1 parsley.Error
 	}
-	SetJobIDStub        func(basil.ID)
+	SetJobIDStub        func(int)
 	setJobIDMutex       sync.RWMutex
 	setJobIDArgsForCall []struct {
-		arg1 basil.ID
+		arg1 int
 	}
 	ValueStub        func() (interface{}, parsley.Error)
 	valueMutex       sync.RWMutex
@@ -217,7 +217,7 @@ func (fake *FakeBlockContainer) CloseCalls(stub func()) {
 	fake.CloseStub = stub
 }
 
-func (fake *FakeBlockContainer) JobID() basil.ID {
+func (fake *FakeBlockContainer) JobID() int {
 	fake.jobIDMutex.Lock()
 	ret, specificReturn := fake.jobIDReturnsOnCall[len(fake.jobIDArgsForCall)]
 	fake.jobIDArgsForCall = append(fake.jobIDArgsForCall, struct {
@@ -240,32 +240,32 @@ func (fake *FakeBlockContainer) JobIDCallCount() int {
 	return len(fake.jobIDArgsForCall)
 }
 
-func (fake *FakeBlockContainer) JobIDCalls(stub func() basil.ID) {
+func (fake *FakeBlockContainer) JobIDCalls(stub func() int) {
 	fake.jobIDMutex.Lock()
 	defer fake.jobIDMutex.Unlock()
 	fake.JobIDStub = stub
 }
 
-func (fake *FakeBlockContainer) JobIDReturns(result1 basil.ID) {
+func (fake *FakeBlockContainer) JobIDReturns(result1 int) {
 	fake.jobIDMutex.Lock()
 	defer fake.jobIDMutex.Unlock()
 	fake.JobIDStub = nil
 	fake.jobIDReturns = struct {
-		result1 basil.ID
+		result1 int
 	}{result1}
 }
 
-func (fake *FakeBlockContainer) JobIDReturnsOnCall(i int, result1 basil.ID) {
+func (fake *FakeBlockContainer) JobIDReturnsOnCall(i int, result1 int) {
 	fake.jobIDMutex.Lock()
 	defer fake.jobIDMutex.Unlock()
 	fake.JobIDStub = nil
 	if fake.jobIDReturnsOnCall == nil {
 		fake.jobIDReturnsOnCall = make(map[int]struct {
-			result1 basil.ID
+			result1 int
 		})
 	}
 	fake.jobIDReturnsOnCall[i] = struct {
-		result1 basil.ID
+		result1 int
 	}{result1}
 }
 
@@ -691,10 +691,10 @@ func (fake *FakeBlockContainer) SetErrorArgsForCall(i int) parsley.Error {
 	return argsForCall.arg1
 }
 
-func (fake *FakeBlockContainer) SetJobID(arg1 basil.ID) {
+func (fake *FakeBlockContainer) SetJobID(arg1 int) {
 	fake.setJobIDMutex.Lock()
 	fake.setJobIDArgsForCall = append(fake.setJobIDArgsForCall, struct {
-		arg1 basil.ID
+		arg1 int
 	}{arg1})
 	fake.recordInvocation("SetJobID", []interface{}{arg1})
 	fake.setJobIDMutex.Unlock()
@@ -709,13 +709,13 @@ func (fake *FakeBlockContainer) SetJobIDCallCount() int {
 	return len(fake.setJobIDArgsForCall)
 }
 
-func (fake *FakeBlockContainer) SetJobIDCalls(stub func(basil.ID)) {
+func (fake *FakeBlockContainer) SetJobIDCalls(stub func(int)) {
 	fake.setJobIDMutex.Lock()
 	defer fake.setJobIDMutex.Unlock()
 	fake.SetJobIDStub = stub
 }
 
-func (fake *FakeBlockContainer) SetJobIDArgsForCall(i int) basil.ID {
+func (fake *FakeBlockContainer) SetJobIDArgsForCall(i int) int {
 	fake.setJobIDMutex.RLock()
 	defer fake.setJobIDMutex.RUnlock()
 	argsForCall := fake.setJobIDArgsForCall[i]

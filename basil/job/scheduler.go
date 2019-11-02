@@ -7,7 +7,6 @@
 package job
 
 import (
-	"fmt"
 	"sync/atomic"
 
 	"github.com/opsidian/basil/basil"
@@ -21,7 +20,7 @@ type Scheduler struct {
 	workers      []Worker
 	jobQueue     chan basil.Job
 	quit         chan bool
-	lastID       uint64
+	lastID       int64
 }
 
 // NewScheduler creates a new scheduler instance
@@ -63,9 +62,8 @@ func (s *Scheduler) Stop() {
 }
 
 // Schedule schedules a new job
-func (s *Scheduler) ScheduleJob(job basil.Job) basil.ID {
-	jobID := s.generateJobID(job.JobName())
-	job.SetJobID(jobID)
+func (s *Scheduler) ScheduleJob(job basil.Job) {
+	job.SetJobID(int(atomic.AddInt64(&s.lastID, 1)))
 
 	if job.Lightweight() {
 		go func() {
@@ -75,13 +73,9 @@ func (s *Scheduler) ScheduleJob(job basil.Job) basil.ID {
 		select {
 		case s.jobQueue <- job:
 		case <-s.quit:
-			return ""
+			return
 		}
 	}
 
-	return jobID
-}
-
-func (s *Scheduler) generateJobID(id basil.ID) basil.ID {
-	return basil.ID(fmt.Sprintf("%s@%d", id, atomic.AddUint64(&s.lastID, 1)))
+	return
 }

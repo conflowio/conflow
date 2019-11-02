@@ -22,10 +22,10 @@ type state struct {
 
 // JobManager tracks and schedules jobs
 type Manager struct {
-	id        basil.ID
+	name      basil.ID
 	scheduler basil.JobScheduler
 	logger    basil.Logger
-	jobs      map[basil.ID]*state
+	jobs      map[int]*state
 	running   int
 	pending   int
 	stopped   bool
@@ -33,12 +33,12 @@ type Manager struct {
 }
 
 // NewManager creates a new job manager
-func NewManager(id basil.ID, scheduler basil.JobScheduler, logger basil.Logger) *Manager {
+func NewManager(name basil.ID, scheduler basil.JobScheduler, logger basil.Logger) *Manager {
 	return &Manager{
-		id:        id,
+		name:      name,
 		scheduler: scheduler,
-		logger:    logger.With().ID("id", id).Logger(),
-		jobs:      make(map[basil.ID]*state),
+		logger:    logger.With().ID("jobManager", name).Logger(),
+		jobs:      make(map[int]*state),
 		mu:        &sync.Mutex{},
 	}
 }
@@ -55,7 +55,7 @@ func (m *Manager) Stop() int {
 
 		for id, job := range m.jobs {
 			if j, ok := job.Job.(basil.Cancellable); ok && j.Cancel() {
-				m.debug().ID("jobID", id).Msg("job cancelled")
+				m.debug().ID("jobName", job.Job.JobName()).Int("jobID", id).Msg("job cancelled")
 				m.running--
 			}
 		}
@@ -68,19 +68,19 @@ func (m *Manager) Stop() int {
 }
 
 // Schedule schedules a new job
-func (m *Manager) ScheduleJob(job basil.Job, pending bool) basil.ID {
+func (m *Manager) ScheduleJob(job basil.Job, pending bool) {
 	m.mu.Lock()
 	if m.stopped {
 		m.mu.Unlock()
-		return ""
+		return
 	}
 
-	jobID := m.scheduler.ScheduleJob(job)
+	m.scheduler.ScheduleJob(job)
 
-	j := m.jobs[jobID]
+	j := m.jobs[job.JobID()]
 	if j == nil {
 		j = &state{Job: job}
-		m.jobs[jobID] = j
+		m.jobs[job.JobID()] = j
 	} else if j.RetryTimer != nil {
 		j.RetryTimer.Stop()
 		j.RetryTimer = nil
@@ -92,34 +92,33 @@ func (m *Manager) ScheduleJob(job basil.Job, pending bool) basil.ID {
 	m.running++
 	j.Tries++
 
-	m.debug().ID("jobID", job.JobID()).Msg("job scheduled")
-
+	m.debug().ID("jobName", job.JobName()).Int("jobID", job.JobID()).Msg("job scheduled")
 	m.mu.Unlock()
-	return jobID
 }
 
 // Finished must be called when a process finished
-func (m *Manager) Finished(id basil.ID) {
+func (m *Manager) Finished(id int) {
 	m.done(id, "job finished")
 }
 
-func (m *Manager) Failed(id basil.ID) {
+func (m *Manager) Failed(id int) {
 	m.done(id, "job failed")
 }
 
 // Cancelled must be called when a process was cancelled
-func (m *Manager) Cancelled(id basil.ID) {
+func (m *Manager) Cancelled(id int) {
 	m.done(id, "job cancelled")
 }
 
-func (m *Manager) done(id basil.ID, msg string) {
+func (m *Manager) done(id int, msg string) {
 	m.mu.Lock()
 
 	j := m.jobs[id]
 	if j != nil {
 		m.running--
 		delete(m.jobs, id)
-		m.debug().ID("jobID", j.Job.JobID()).Msg(msg)
+		m.debug().ID("jobName", j.Job.JobName()).Int("jobID", id).Msg(msg)
+
 	}
 
 	m.mu.Unlock()
@@ -130,7 +129,7 @@ func (m *Manager) done(id basil.ID, msg string) {
 
 // Retry must be called when a job failed but can be retried.
 // It schedules the job again if there are any retries left
-func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f func(job basil.Job) func()) bool {
+func (m *Manager) Retry(id int, maxTries int, retryDelay time.Duration, f func(job basil.Job) func()) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -143,7 +142,8 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 
 	if j.Tries >= maxTries {
 		m.debug().
-			ID("jobID", j.Job.JobID()).
+			ID("jobName", j.Job.JobName()).
+			Int("jobID", id).
 			Int("tries", j.Tries).
 			Int("max_tries", maxTries).
 			Msg("job failed permanently")
@@ -152,7 +152,8 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 	}
 
 	m.debug().
-		ID("jobID", j.Job.JobID()).
+		ID("jobName", j.Job.JobName()).
+		Int("jobID", id).
 		Int("tries", j.Tries).
 		Int("max_tries", maxTries).
 		Dur("retry_delay", retryDelay).
