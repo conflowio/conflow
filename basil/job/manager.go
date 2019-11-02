@@ -9,7 +9,6 @@ package job
 import (
 	"fmt"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -24,8 +23,7 @@ type state struct {
 // JobManager tracks and schedules jobs
 type Manager struct {
 	id        basil.ID
-	lastID    uint64
-	scheduler basil.Scheduler
+	scheduler basil.JobScheduler
 	logger    basil.Logger
 	jobs      map[basil.ID]*state
 	running   int
@@ -35,7 +33,7 @@ type Manager struct {
 }
 
 // NewManager creates a new job manager
-func NewManager(id basil.ID, scheduler basil.Scheduler, logger basil.Logger) *Manager {
+func NewManager(id basil.ID, scheduler basil.JobScheduler, logger basil.Logger) *Manager {
 	return &Manager{
 		id:        id,
 		scheduler: scheduler,
@@ -43,11 +41,6 @@ func NewManager(id basil.ID, scheduler basil.Scheduler, logger basil.Logger) *Ma
 		jobs:      make(map[basil.ID]*state),
 		mu:        &sync.Mutex{},
 	}
-}
-
-// GenerateJobID generates a unique job identifier
-func (m *Manager) GenerateJobID(id basil.ID) basil.ID {
-	return basil.ID(fmt.Sprintf("%s@%d", id, atomic.AddUint64(&m.lastID, 1)))
 }
 
 // Stop cancels all remaining jobs
@@ -61,7 +54,7 @@ func (m *Manager) Stop() int {
 		m.stopped = true
 
 		for id, job := range m.jobs {
-			if job.Job.Cancel() {
+			if j, ok := job.Job.(basil.Cancellable); ok && j.Cancel() {
 				m.debug().ID("jobID", id).Msg("job cancelled")
 				m.running--
 			}
@@ -75,43 +68,58 @@ func (m *Manager) Stop() int {
 }
 
 // Schedule schedules a new job
-func (m *Manager) Schedule(job basil.Job, decreasePending bool) {
+func (m *Manager) ScheduleJob(job basil.Job, pending bool) basil.ID {
 	m.mu.Lock()
 	if m.stopped {
 		m.mu.Unlock()
-		return
+		return ""
 	}
 
-	j := m.jobs[job.JobID()]
+	jobID := m.scheduler.ScheduleJob(job)
+
+	j := m.jobs[jobID]
 	if j == nil {
 		j = &state{Job: job}
-		m.jobs[job.JobID()] = j
+		m.jobs[jobID] = j
 	} else if j.RetryTimer != nil {
 		j.RetryTimer.Stop()
 		j.RetryTimer = nil
 	}
 
-	if decreasePending {
+	if pending {
 		m.pending--
 	}
 	m.running++
 	j.Tries++
 
 	m.debug().ID("jobID", job.JobID()).Msg("job scheduled")
-	m.scheduler.Schedule(job)
 
 	m.mu.Unlock()
+	return jobID
 }
 
 // Finished must be called when a process finished
 func (m *Manager) Finished(id basil.ID) {
+	m.done(id, "job finished")
+}
+
+func (m *Manager) Failed(id basil.ID) {
+	m.done(id, "job failed")
+}
+
+// Cancelled must be called when a process was cancelled
+func (m *Manager) Cancelled(id basil.ID) {
+	m.done(id, "job cancelled")
+}
+
+func (m *Manager) done(id basil.ID, msg string) {
 	m.mu.Lock()
 
 	j := m.jobs[id]
 	if j != nil {
 		m.running--
 		delete(m.jobs, id)
-		m.debug().ID("jobID", j.Job.JobID()).Msg("job finished")
+		m.debug().ID("jobID", j.Job.JobID()).Msg(msg)
 	}
 
 	m.mu.Unlock()
@@ -159,6 +167,10 @@ func (m *Manager) Retry(id basil.ID, maxTries int, retryDelay time.Duration, f f
 }
 
 func (m *Manager) AddPending(cnt int) {
+	if cnt == 0 {
+		return
+	}
+
 	m.mu.Lock()
 	m.pending = m.pending + cnt
 	m.mu.Unlock()

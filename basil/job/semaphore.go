@@ -4,18 +4,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package basil
+package job
 
-// Scheduler is the job scheduler
-//go:generate counterfeiter . Scheduler
-type Scheduler interface {
-	Start()
-	Stop()
-	Schedule(Job)
+import "sync/atomic"
+
+type Semaphore int64
+
+func (s *Semaphore) Run() bool {
+	return atomic.CompareAndSwapInt64((*int64)(s), 0, 1)
 }
 
-// Worker is an interface for a job queue processor
-type Worker interface {
-	Start()
-	Stop()
+func (s *Semaphore) Cancel() bool {
+	return atomic.CompareAndSwapInt64((*int64)(s), 0, 2)
 }
