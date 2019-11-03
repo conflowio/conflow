@@ -13,7 +13,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	"github.com/opsidian/basil/basil/function"
 	"github.com/opsidian/basil/functions/strings"
-	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/test"
 )
 
@@ -25,14 +25,14 @@ var _ = Describe("Join", func() {
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
-			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, expected)
+			test.ExpectFunctionToEvaluate(parsers.Expression(), registry)(input, expected)
 		},
 		test.TableEntry(`test(["foo", "bar"], ",")`, string("foo,bar")),
 	)
 
 	DescribeTable("it will have a parse error",
 		func(input string, expectedErr error) {
-			test.ExpectFunctionToHaveParseError(parser.Expression(), registry)(input, expectedErr)
+			test.ExpectFunctionToHaveParseError(parsers.Expression(), registry)(input, expectedErr)
 		},
 		test.TableEntry(`test()`, errors.New("test expects 2 arguments at testfile:1:1")),
 		test.TableEntry(`test([])`, errors.New("test expects 2 arguments at testfile:1:1")),

@@ -19,8 +19,8 @@ import (
 	"strings"
 
 	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/parsers"
 
-	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
@@ -181,7 +181,7 @@ func parseFieldTag(tag reflect.StructTag) (map[basil.ID]interface{}, error) {
 	f := text.NewFile("", []byte(value))
 	fs := parsley.NewFileSet(f)
 	ctx := parsley.NewContext(fs, text.NewReader(f))
-	val, err := parsley.Evaluate(ctx, parser.StructTag())
+	val, err := parsley.Evaluate(ctx, parsers.StructTag())
 	if err != nil {
 		return nil, err
 	}

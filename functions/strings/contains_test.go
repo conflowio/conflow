@@ -15,7 +15,7 @@ import (
 	"github.com/opsidian/basil/basil/function"
 	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/basil/functions/strings"
-	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -28,7 +28,7 @@ var _ = Describe("Contains", func() {
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
-			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, expected)
+			test.ExpectFunctionToEvaluate(parsers.Expression(), registry)(input, expected)
 		},
 		test.TableEntry(`test("", "")`, true),
 		test.TableEntry(`test("foo", "")`, true),
@@ -41,7 +41,7 @@ var _ = Describe("Contains", func() {
 
 	DescribeTable("it will have a parse error",
 		func(input string, expectedErr error) {
-			test.ExpectFunctionToHaveParseError(parser.Expression(), registry)(input, expectedErr)
+			test.ExpectFunctionToHaveParseError(parsers.Expression(), registry)(input, expectedErr)
 		},
 		test.TableEntry(`test("foo")`, errors.New("test expects 2 arguments at testfile:1:1")),
 		test.TableEntry(`test("a", "a", "a")`, errors.New("test expects 2 arguments at testfile:1:1")),
@@ -50,7 +50,7 @@ var _ = Describe("Contains", func() {
 	)
 
 	It("should return with boolean type", func() {
-		test.ExpectFunctionNode(parser.Expression(), registry)(
+		test.ExpectFunctionNode(parsers.Expression(), registry)(
 			`test("", "")`,
 			func(userCtx interface{}, node parsley.Node) {
 				Expect(node.Type()).To(Equal(variable.TypeBool))

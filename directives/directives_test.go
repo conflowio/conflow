@@ -13,9 +13,9 @@ import (
 
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/functions"
+	"github.com/opsidian/basil/parsers"
 
 	"github.com/opsidian/basil/blocks"
-	"github.com/opsidian/basil/parser"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
@@ -40,7 +40,7 @@ func eval(input string) {
 		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	}
 
-	p := parser.NewMain("main", mainInterpreter)
+	p := parsers.NewMain("main", mainInterpreter)
 	if err := p.ParseText(parseCtx, input); err != nil {
 		fmt.Printf("Example errored: %s\n", err.Error())
 		return

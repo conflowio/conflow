@@ -15,7 +15,7 @@ import (
 	"github.com/opsidian/basil/basil/function"
 	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/basil/functions/math"
-	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -28,7 +28,7 @@ var _ = Describe("Abs", func() {
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
-			test.ExpectFunctionToEvaluate(parser.Expression(), registry)(input, expected)
+			test.ExpectFunctionToEvaluate(parsers.Expression(), registry)(input, expected)
 		},
 		test.TableEntry("test(0)", int64(0)),
 		test.TableEntry("test(1)", int64(1)),
@@ -42,7 +42,7 @@ var _ = Describe("Abs", func() {
 
 	DescribeTable("it will have a parse error",
 		func(input string, expectedErr error) {
-			test.ExpectFunctionToHaveParseError(parser.Expression(), registry)(input, expectedErr)
+			test.ExpectFunctionToHaveParseError(parsers.Expression(), registry)(input, expectedErr)
 		},
 		test.TableEntry(`test()`, errors.New("test expects 1 arguments at testfile:1:1")),
 		test.TableEntry(`test(1, 2)`, errors.New("test expects 1 arguments at testfile:1:1")),
@@ -51,7 +51,7 @@ var _ = Describe("Abs", func() {
 
 	DescribeTable("it should keep the type of the first argument",
 		func(input string, expectedType string) {
-			test.ExpectFunctionNode(parser.Expression(), registry)(
+			test.ExpectFunctionNode(parsers.Expression(), registry)(
 				input,
 				func(userCtx interface{}, node parsley.Node) {
 					Expect(node.Type()).To(Equal(expectedType))
