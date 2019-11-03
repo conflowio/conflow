@@ -270,7 +270,9 @@ func (c *Container) shutdownLoop() {
 }
 
 func (c *Container) SetError(err parsley.Error) {
-	c.errChan <- err
+	go func() {
+		c.errChan <- err
+	}()
 }
 
 func (c *Container) setError(err parsley.Error) {
