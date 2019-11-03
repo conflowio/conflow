@@ -21,9 +21,11 @@ type NodeContainer struct {
 	ctx           *EvalContext
 	parent        BlockContainer
 	node          Node
+	scheduler     JobScheduler
 	runtimeConfig RuntimeConfig
 	dependencies  map[ID]Container
 	missingDeps   int
+	nilDeps       int
 	pending       bool
 	waitGroups    []WaitGroup
 	mu            *sync.Mutex
@@ -34,6 +36,7 @@ func NewNodeContainer(
 	ctx *EvalContext,
 	parent BlockContainer,
 	node Node,
+	scheduler JobScheduler,
 ) (*NodeContainer, parsley.Error) {
 	dependencies := make(map[ID]Container, len(node.Dependencies()))
 	parentDependencies := parent.Node().Dependencies()
@@ -52,6 +55,7 @@ func NewNodeContainer(
 		ctx:          ctx,
 		parent:       parent,
 		node:         node,
+		scheduler:    scheduler,
 		dependencies: dependencies,
 		missingDeps:  len(dependencies),
 		mu:           &sync.Mutex{},
@@ -69,11 +73,6 @@ func NewNodeContainer(
 	return n, nil
 }
 
-// ID returns with the node id
-func (n *NodeContainer) ID() ID {
-	return n.node.ID()
-}
-
 // Node returns with the node
 func (n *NodeContainer) Node() Node {
 	return n.node
@@ -81,73 +80,112 @@ func (n *NodeContainer) Node() Node {
 
 // SetDependency stores the given container
 // If all dependencies are set on the node then it will schedule the node for running.
-func (n *NodeContainer) SetDependency(c Container) {
+func (n *NodeContainer) SetDependency(dep Container) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	isTrigger := n.runtimeConfig.IsTrigger(c.Node().ID())
-	run := isTrigger
-
-	val, ok := n.dependencies[c.Node().ID()]
+	prevDep, ok := n.dependencies[dep.Node().ID()]
 	if !ok {
-		panic(fmt.Errorf("unknown dependency: %s", c.Node().ID()))
+		panic(fmt.Errorf("unknown dependency: %s", dep.Node().ID()))
 	}
+	n.dependencies[dep.Node().ID()] = dep
 
-	if val == nil {
+	isTrigger := n.runtimeConfig.IsTrigger(dep.Node().ID())
+	run := isTrigger && n.missingDeps == 0
+
+	if prevDep == nil {
 		n.missingDeps--
 		if n.missingDeps == 0 {
 			run = true
 		}
 	}
-	n.dependencies[c.Node().ID()] = c
+
+	isSkipped := n.nilDeps == 0
+	n.calculateNilDeps(prevDep, dep)
+	if n.nilDeps > 0 {
+		if !isSkipped {
+			n.setNilChild()
+		}
+		return
+	}
 
 	if isTrigger {
-		for _, wg := range c.WaitGroups() {
+		for _, wg := range dep.WaitGroups() {
 			wg.Add(1)
 			n.waitGroups = append(n.waitGroups, wg)
 		}
 	}
 
-	if run {
-		_, err := n.run()
-		if err != nil {
+	if run && n.parent.EvalStage() == n.node.EvalStage() {
+		if err := n.run(); err != nil {
 			n.parent.SetError(err)
 		}
 	}
 }
 
-// Run will schedule the node if it's ready. If it was then it returns true.
-// If the node is not ready, then it will set to a pending status
-func (n *NodeContainer) Run() (bool, parsley.Error) {
+func (n *NodeContainer) calculateNilDeps(prevDep, newDep Container) {
+	var wasNil bool
+	if prevDep != nil {
+		prevVal, _ := prevDep.Value()
+		wasNil = prevVal == nil
+	}
+	newVal, _ := newDep.Value()
+	isNil := newVal == nil
+	if !wasNil && isNil {
+		n.nilDeps++
+	} else if wasNil && !isNil {
+		n.nilDeps--
+	}
+}
+
+func (n *NodeContainer) setNilChild() {
+	nilContainer := NewNilContainer(n.node, n.waitGroups, n.pending)
+	go func() {
+		n.parent.SetChild(nilContainer)
+	}()
+	n.waitGroups = nil
+	n.pending = false
+}
+
+// Run will schedule the node if it's ready.
+// If the node is not ready, then it will return with pending true
+func (n *NodeContainer) Run() (pending bool, err parsley.Error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	ran, err := n.run()
-	if err != nil {
+	if n.missingDeps > 0 {
+		n.pending = true
+		return true, nil
+	}
+
+	if err := n.run(); err != nil {
 		return false, err
 	}
-	if !ran {
-		n.pending = true
-	}
-	return ran, nil
-}
 
-func (n *NodeContainer) run() (bool, parsley.Error) {
-	if n.missingDeps == 0 {
-		container, err := n.CreateContainer(nil, n.waitGroups)
-		if err != nil {
-			return false, err
-		}
-		if container == nil || n.parent.ScheduleChild(container, n.pending) {
-			n.waitGroups = nil
-			n.pending = false
-			return true, nil
-		}
-	}
 	return false, nil
 }
 
-func (n *NodeContainer) CreateContainer(value interface{}, wgs []WaitGroup) (Container, parsley.Error) {
+func (n *NodeContainer) run() parsley.Error {
+	container, err := n.CreateContainer(nil, n.waitGroups)
+	if err != nil {
+		return err
+	}
+	if container == nil {
+		n.setNilChild()
+		return nil
+	}
+
+	if err := n.scheduler.ScheduleJob(container); err != nil {
+		return parsley.NewError(0, err)
+	}
+
+	n.waitGroups = nil
+	n.pending = false
+
+	return nil
+}
+
+func (n *NodeContainer) CreateContainer(value interface{}, wgs []WaitGroup) (JobContainer, parsley.Error) {
 	runtimeConfig, err := n.evaluateDirectives(EvalStageInit)
 	if err != nil {
 		return nil, err
@@ -158,13 +196,16 @@ func (n *NodeContainer) CreateContainer(value interface{}, wgs []WaitGroup) (Con
 	}
 
 	ctx := n.createEvalContext(runtimeConfig.Timeout)
-	return n.node.CreateContainer(ctx, n.parent, value, wgs), nil
+	return n.node.CreateContainer(ctx, n.parent, value, wgs, n.pending), nil
 }
 
 // CreateEvalContext returns with a new evaluation context
 func (n *NodeContainer) createEvalContext(timeout time.Duration) *EvalContext {
 	dependencies := make(map[ID]BlockContainer, len(n.dependencies))
 	for id, cont := range n.dependencies {
+		if cont == nil {
+			continue
+		}
 		switch c := cont.(type) {
 		case BlockContainer:
 			dependencies[id] = c
@@ -202,9 +243,7 @@ func (n *NodeContainer) evaluateDirectives(evalStage EvalStage) (RuntimeConfig, 
 			continue
 		}
 
-		ctx, cancel := context.WithCancel(n.ctx)
-		evalCtx := n.ctx.New(ctx, cancel, nil)
-		directive, err := d.Value(evalCtx)
+		directive, err := d.Value(n.createEvalContext(0))
 		if err != nil {
 			return RuntimeConfig{}, err
 		}

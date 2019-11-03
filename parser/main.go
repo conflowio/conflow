@@ -39,7 +39,7 @@ func NewMain(id basil.ID, interpreter basil.BlockInterpreter) *Main {
 
 	m.p = text.Trim(
 		combinator.Seq(
-			"MAIN",
+			block.TokenBlockBody,
 			func(i int) parsley.Parser {
 				if i == 0 {
 					return text.LeftTrim(paramOrBlock, text.WsSpacesNl)

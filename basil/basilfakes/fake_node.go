@@ -9,19 +9,20 @@ import (
 )
 
 type FakeNode struct {
-	CreateContainerStub        func(*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup) basil.Container
+	CreateContainerStub        func(*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) basil.JobContainer
 	createContainerMutex       sync.RWMutex
 	createContainerArgsForCall []struct {
 		arg1 *basil.EvalContext
 		arg2 basil.BlockContainer
 		arg3 interface{}
 		arg4 []basil.WaitGroup
+		arg5 bool
 	}
 	createContainerReturns struct {
-		result1 basil.Container
+		result1 basil.JobContainer
 	}
 	createContainerReturnsOnCall map[int]struct {
-		result1 basil.Container
+		result1 basil.JobContainer
 	}
 	DependenciesStub        func() basil.Dependencies
 	dependenciesMutex       sync.RWMutex
@@ -150,7 +151,7 @@ type FakeNode struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeNode) CreateContainer(arg1 *basil.EvalContext, arg2 basil.BlockContainer, arg3 interface{}, arg4 []basil.WaitGroup) basil.Container {
+func (fake *FakeNode) CreateContainer(arg1 *basil.EvalContext, arg2 basil.BlockContainer, arg3 interface{}, arg4 []basil.WaitGroup, arg5 bool) basil.JobContainer {
 	var arg4Copy []basil.WaitGroup
 	if arg4 != nil {
 		arg4Copy = make([]basil.WaitGroup, len(arg4))
@@ -163,11 +164,12 @@ func (fake *FakeNode) CreateContainer(arg1 *basil.EvalContext, arg2 basil.BlockC
 		arg2 basil.BlockContainer
 		arg3 interface{}
 		arg4 []basil.WaitGroup
-	}{arg1, arg2, arg3, arg4Copy})
-	fake.recordInvocation("CreateContainer", []interface{}{arg1, arg2, arg3, arg4Copy})
+		arg5 bool
+	}{arg1, arg2, arg3, arg4Copy, arg5})
+	fake.recordInvocation("CreateContainer", []interface{}{arg1, arg2, arg3, arg4Copy, arg5})
 	fake.createContainerMutex.Unlock()
 	if fake.CreateContainerStub != nil {
-		return fake.CreateContainerStub(arg1, arg2, arg3, arg4)
+		return fake.CreateContainerStub(arg1, arg2, arg3, arg4, arg5)
 	}
 	if specificReturn {
 		return ret.result1
@@ -182,39 +184,39 @@ func (fake *FakeNode) CreateContainerCallCount() int {
 	return len(fake.createContainerArgsForCall)
 }
 
-func (fake *FakeNode) CreateContainerCalls(stub func(*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup) basil.Container) {
+func (fake *FakeNode) CreateContainerCalls(stub func(*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) basil.JobContainer) {
 	fake.createContainerMutex.Lock()
 	defer fake.createContainerMutex.Unlock()
 	fake.CreateContainerStub = stub
 }
 
-func (fake *FakeNode) CreateContainerArgsForCall(i int) (*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup) {
+func (fake *FakeNode) CreateContainerArgsForCall(i int) (*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) {
 	fake.createContainerMutex.RLock()
 	defer fake.createContainerMutex.RUnlock()
 	argsForCall := fake.createContainerArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
 }
 
-func (fake *FakeNode) CreateContainerReturns(result1 basil.Container) {
+func (fake *FakeNode) CreateContainerReturns(result1 basil.JobContainer) {
 	fake.createContainerMutex.Lock()
 	defer fake.createContainerMutex.Unlock()
 	fake.CreateContainerStub = nil
 	fake.createContainerReturns = struct {
-		result1 basil.Container
+		result1 basil.JobContainer
 	}{result1}
 }
 
-func (fake *FakeNode) CreateContainerReturnsOnCall(i int, result1 basil.Container) {
+func (fake *FakeNode) CreateContainerReturnsOnCall(i int, result1 basil.JobContainer) {
 	fake.createContainerMutex.Lock()
 	defer fake.createContainerMutex.Unlock()
 	fake.CreateContainerStub = nil
 	if fake.createContainerReturnsOnCall == nil {
 		fake.createContainerReturnsOnCall = make(map[int]struct {
-			result1 basil.Container
+			result1 basil.JobContainer
 		})
 	}
 	fake.createContainerReturnsOnCall[i] = struct {
-		result1 basil.Container
+		result1 basil.JobContainer
 	}{result1}
 }
 

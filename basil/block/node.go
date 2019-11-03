@@ -16,9 +16,9 @@ import (
 
 // Node tokens
 const (
-	Token          = "BLOCK"
-	TokenBody      = "BLOCK_BODY"
+	TokenBlock     = "BLOCK"
 	TokenDirective = "BLOCK_DIRECTIVE"
+	TokenBlockBody = "BLOCK_BODY"
 )
 
 var _ basil.BlockNode = &Node{}
@@ -28,6 +28,7 @@ type Node struct {
 	typeNode     *basil.IDNode
 	idNode       *basil.IDNode
 	children     []basil.Node
+	token        string
 	directives   []basil.BlockNode
 	readerPos    parsley.Pos
 	interpreter  basil.BlockInterpreter
@@ -43,6 +44,7 @@ func NewNode(
 	idNode *basil.IDNode,
 	typeNode *basil.IDNode,
 	children []basil.Node,
+	token string,
 	directives []basil.BlockNode,
 	readerPos parsley.Pos,
 	interpreter basil.BlockInterpreter,
@@ -67,6 +69,7 @@ func NewNode(
 		idNode:       idNode,
 		typeNode:     typeNode,
 		children:     children,
+		token:        token,
 		directives:   directives,
 		interpreter:  interpreter,
 		readerPos:    readerPos,
@@ -89,7 +92,7 @@ func (n *Node) BlockType() basil.ID {
 
 // Token returns with the node's token
 func (n *Node) Token() string {
-	return "BLOCK"
+	return n.token
 }
 
 // Type returns with the node's type
@@ -208,9 +211,17 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value creates a new block
 func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	container := NewContainer(userCtx.(*basil.EvalContext), n, nil, nil, nil)
-	container.Run()
+	var container basil.JobContainer
+	switch n.Token() {
+	case TokenBlock, TokenBlockBody:
+		container = NewContainer(userCtx.(*basil.EvalContext), n, nil, nil, nil, false)
+	case TokenDirective:
+		container = NewStaticContainer(userCtx.(*basil.EvalContext), n)
+	default:
+		panic(fmt.Errorf("unknown block type: %s", n.Token()))
+	}
 
+	container.Run()
 	return container.Value()
 }
 
@@ -272,8 +283,9 @@ func (n *Node) CreateContainer(
 	parent basil.BlockContainer,
 	value interface{},
 	wgs []basil.WaitGroup,
-) basil.Container {
-	return NewContainer(ctx, n, parent, value, wgs)
+	pending bool,
+) basil.JobContainer {
+	return NewContainer(ctx, n, parent, value, wgs, pending)
 }
 
 func (n *Node) String() string {

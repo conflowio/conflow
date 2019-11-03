@@ -8,22 +8,34 @@ package directives_test
 
 func ExampleRun_ShortFormat() {
 	eval(`
-		println "This will run"
+		println "First will run"
 
 		@run false
-		println "This won't run"
+		println "Second won't run"
 	`)
-	// Output: This will run
+	// Output: First will run
 }
 
 func ExampleRun_LongFormat() {
 	eval(`
-		println "This will run"
+		println "First will run"
 
 		@run {
           when = false
         }
-		println "This won't run"
+		println "Second won't run"
 	`)
-	// Output: This will run
+	// Output: First will run
+}
+
+func ExampleRun_UsingAVariable() {
+	eval(`
+		run_second := false
+
+		println "First will run"
+
+		@run main.run_second
+		println "Second won't run"
+	`)
+	// Output: First will run
 }

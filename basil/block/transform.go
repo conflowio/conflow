@@ -22,6 +22,7 @@ import (
 func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockInterpreter) (parsley.Node, parsley.Error) {
 	parseCtx := interpreter.ParseContext(ctx.(*basil.ParseContext))
 	nodes := node.(parsley.NonTerminalNode).Children()
+
 	var directives []basil.BlockNode
 	dependencies := make(basil.Dependencies)
 
@@ -51,12 +52,14 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 
 		id := parseCtx.GenerateID()
 		idNode = basil.NewIDNode(id, typeNode.ReaderPos(), typeNode.ReaderPos())
+	default:
+		panic(fmt.Errorf("unexpected identifier node: %T", nodes[1]))
 	}
 
 	var children []basil.Node
 	if len(nodes) > 2 {
 		blockValueNode := nodes[2]
-		if blockValueNode.Token() == TokenBody {
+		if blockValueNode.Token() == TokenBlockBody {
 			blockValueChildren := blockValueNode.(parsley.NonTerminalNode).Children()
 
 			if len(blockValueChildren) > 2 {
@@ -97,6 +100,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 		idNode,
 		typeNode,
 		children,
+		node.Token(),
 		directives,
 		node.ReaderPos(),
 		interpreter,
@@ -139,6 +143,7 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 		basil.NewIDNode(id, node.Pos(), node.Pos()),
 		basil.NewIDNode(basil.ID("main"), node.Pos(), node.Pos()),
 		children,
+		TokenBlock,
 		nil,
 		node.ReaderPos(),
 		interpreter,
@@ -169,7 +174,7 @@ func TransformChildren(
 	parameters := interpreter.Params()
 
 	for _, node := range nodes {
-		if node.Token() == Token {
+		if node.Token() == TokenBlock {
 			res, err := node.(parsley.Transformable).Transform(parseCtx)
 			if err != nil {
 				return nil, nil, err
@@ -199,18 +204,10 @@ func transformDirectives(
 	nodes []parsley.Node,
 	interpreter basil.BlockInterpreter,
 ) ([]basil.BlockNode, basil.Dependencies, parsley.Error) {
-	dependencies := make(basil.Dependencies)
-	for _, n := range nodes {
-		parsley.Walk(n, func(node parsley.Node) bool {
-			if v, ok := node.(basil.VariableNode); ok {
-				dependencies[v.ID()] = v
-			}
-			return false
-		})
-	}
-
 	directives := make([]basil.BlockNode, 0, len(nodes))
+	dependencies := make(basil.Dependencies)
 	blocks := interpreter.Blocks()
+
 	for _, n := range nodes {
 		res, err := n.(parsley.Transformable).Transform(parseCtx)
 		if err != nil {
@@ -219,6 +216,13 @@ func transformDirectives(
 		blockNode := res.(basil.BlockNode)
 		blockNode.SetDescriptor(blocks[blockNode.BlockType()])
 		directives = append(directives, blockNode)
+
+		parsley.Walk(blockNode, func(node parsley.Node) bool {
+			if v, ok := node.(basil.VariableNode); ok {
+				dependencies[v.ID()] = v
+			}
+			return false
+		})
 	}
 	return directives, dependencies, nil
 }

@@ -19,7 +19,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/basil/job"
 )
 
 var _ = Describe("NodeContainer", func() {
@@ -30,7 +29,7 @@ var _ = Describe("NodeContainer", func() {
 	var parentContainer *basilfakes.FakeBlockContainer
 	var ctx context.Context
 	var cancel context.CancelFunc
-	var scheduler *job.Scheduler
+	var scheduler *basilfakes.FakeJobScheduler
 
 	BeforeEach(func() {
 		ctx, cancel = context.WithCancel(context.Background())
@@ -45,18 +44,16 @@ var _ = Describe("NodeContainer", func() {
 		parentContainer.NodeReturns(parentNode)
 
 		logger := zerolog.NewDisabledLogger()
-		scheduler = job.NewScheduler(logger, 1, 10)
-		scheduler.Start()
+		scheduler = &basilfakes.FakeJobScheduler{}
 		evalCtx = basil.NewEvalContext(ctx, nil, logger, scheduler, nil)
 	})
 
 	AfterEach(func() {
-		scheduler.Stop()
 		cancel()
 	})
 
 	JustBeforeEach(func() {
-		n, nerr = basil.NewNodeContainer(evalCtx, parentContainer, node)
+		n, nerr = basil.NewNodeContainer(evalCtx, parentContainer, node, scheduler)
 	})
 
 	It("should have no error", func() {
@@ -80,51 +77,52 @@ var _ = Describe("NodeContainer", func() {
 	})
 
 	Context("Run", func() {
-		var ran bool
+		var isPending bool
 		var runErr parsley.Error
 
 		JustBeforeEach(func() {
-			ran, runErr = n.Run()
+			isPending, runErr = n.Run()
 		})
 
 		When("the node is ready to run", func() {
 			BeforeEach(func() {
-				node.CreateContainerReturns(&basilfakes.FakeContainer{})
+				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
 			})
 
 			It("will create a container", func() {
 				Expect(node.CreateContainerCallCount()).To(Equal(1))
-				_, parent, _, wgs := node.CreateContainerArgsForCall(0)
+				_, parent, _, wgs, pending := node.CreateContainerArgsForCall(0)
 				Expect(parent).To(Equal(parentContainer))
 				Expect(wgs).To(BeEmpty())
+				Expect(pending).To(BeFalse())
 			})
 
-			It("calls schedule on the parent", func() {
-				Expect(parentContainer.ScheduleChildCallCount()).To(Equal(1))
-				scheduledContainer, pending := parentContainer.ScheduleChildArgsForCall(0)
+			It("calls schedule", func() {
+				Expect(scheduler.ScheduleJobCallCount()).To(Equal(1))
+				scheduledContainer := scheduler.ScheduleJobArgsForCall(0)
 				Expect(scheduledContainer).To(Equal(scheduledContainer))
-				Expect(pending).To(BeFalse())
 			})
 
 			When("the scheduler can run the container", func() {
 				BeforeEach(func() {
-					parentContainer.ScheduleChildReturns(true)
+					scheduler.ScheduleJobReturns(nil)
 				})
 
 				It("should schedule a new container", func() {
 					Expect(runErr).ToNot(HaveOccurred())
-					Expect(ran).To(BeTrue())
+					Expect(isPending).To(BeFalse())
 				})
 			})
 
-			When("the scheduler won't run the container", func() {
+			When("the scheduler had an error", func() {
+				var err error
 				BeforeEach(func() {
-					parentContainer.ScheduleChildReturns(false)
+					err = errors.New("some error")
+					scheduler.ScheduleJobReturns(err)
 				})
 
-				It("should schedule a new container", func() {
-					Expect(runErr).ToNot(HaveOccurred())
-					Expect(ran).To(BeFalse())
+				It("should return the error", func() {
+					Expect(runErr).To(MatchError(parsley.NewError(0, err)))
 				})
 			})
 		})
@@ -141,15 +139,15 @@ var _ = Describe("NodeContainer", func() {
 					"other_node.dep1": dep1,
 				})
 
-				node.CreateContainerReturns(&basilfakes.FakeContainer{})
-				parentContainer.ScheduleChildReturns(true)
+				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
+				scheduler.ScheduleJobReturns(nil)
 			})
 
 			It("will schedule the container", func() {
 				Expect(node.CreateContainerCallCount()).To(Equal(1))
-				Expect(parentContainer.ScheduleChildCallCount()).To(Equal(1))
+				Expect(scheduler.ScheduleJobCallCount()).To(Equal(1))
 				Expect(runErr).ToNot(HaveOccurred())
-				Expect(ran).To(BeTrue())
+				Expect(isPending).To(BeFalse())
 			})
 		})
 
@@ -165,8 +163,26 @@ var _ = Describe("NodeContainer", func() {
 
 			It("should not run", func() {
 				Expect(runErr).ToNot(HaveOccurred())
-				Expect(ran).To(BeFalse())
-				Expect(parentContainer.ScheduleChildCallCount()).To(Equal(0))
+				Expect(isPending).To(BeTrue())
+				Expect(node.CreateContainerCallCount()).To(Equal(0))
+				Expect(scheduler.ScheduleJobCallCount()).To(Equal(0))
+			})
+
+			When("the missing dependency is met", func() {
+				JustBeforeEach(func() {
+					depNode := &basilfakes.FakeNode{}
+					depNode.IDReturns("other_node")
+					dep := &basilfakes.FakeBlockContainer{}
+					dep.NodeReturns(depNode)
+					dep.ValueReturns("foo", nil)
+					evalCtx.Publish(dep)
+				})
+
+				It("should create a container with a pending status", func() {
+					Expect(node.CreateContainerCallCount()).To(Equal(1))
+					_, _, _, _, pending := node.CreateContainerArgsForCall(0)
+					Expect(pending).To(BeTrue())
+				})
 			})
 		})
 
@@ -180,14 +196,14 @@ var _ = Describe("NodeContainer", func() {
 				node.DirectivesReturns([]basil.BlockNode{directiveBlock})
 			})
 
-			It("should return as ran", func() {
+			It("should return not pending", func() {
 				Expect(runErr).ToNot(HaveOccurred())
-				Expect(ran).To(BeTrue())
+				Expect(isPending).To(BeFalse())
 			})
 
 			It("should not be scheduled", func() {
 				Expect(node.CreateContainerCallCount()).To(Equal(0))
-				Expect(parentContainer.ScheduleChildCallCount()).To(Equal(0))
+				Expect(scheduler.ScheduleJobCallCount()).To(Equal(0))
 			})
 		})
 
@@ -203,7 +219,7 @@ var _ = Describe("NodeContainer", func() {
 
 			It("should pass a context with a timeout", func() {
 				Expect(node.CreateContainerCallCount()).To(Equal(1))
-				evalCtx, _, _, _ := node.CreateContainerArgsForCall(0)
+				evalCtx, _, _, _, _ := node.CreateContainerArgsForCall(0)
 				deadline, ok := evalCtx.Deadline()
 				Expect(ok).To(BeTrue(), "was expecting a context with a deadline")
 				Expect(deadline).To(BeTemporally(">", time.Time{}))
@@ -223,11 +239,10 @@ var _ = Describe("NodeContainer", func() {
 
 			It("should return the error", func() {
 				Expect(runErr).To(MatchError(err))
-				Expect(ran).To(BeFalse())
 			})
 
 			It("should not be scheduled", func() {
-				Expect(parentContainer.ScheduleChildCallCount()).To(Equal(0))
+				Expect(scheduler.ScheduleJobCallCount()).To(Equal(0))
 			})
 		})
 	})
@@ -249,6 +264,7 @@ var _ = Describe("NodeContainer", func() {
 				dep.NodeReturns(depNode)
 				wg = &basilfakes.FakeWaitGroup{}
 				dep.WaitGroupsReturns([]basil.WaitGroup{wg})
+				dep.ValueReturns("foo", nil)
 				dependency = dep
 
 				dep1 := &basilfakes.FakeVariableNode{}
@@ -265,7 +281,7 @@ var _ = Describe("NodeContainer", func() {
 
 			It("should not run", func() {
 				Expect(node.CreateContainerCallCount()).To(Equal(0))
-				Expect(parentContainer.ScheduleChildCallCount()).To(Equal(0))
+				Expect(scheduler.ScheduleJobCallCount()).To(Equal(0))
 			})
 
 			It("should increase any passed wait groups", func() {
@@ -282,6 +298,7 @@ var _ = Describe("NodeContainer", func() {
 				dep.NodeReturns(depNode)
 				wg = &basilfakes.FakeWaitGroup{}
 				dep.WaitGroupsReturns([]basil.WaitGroup{wg})
+				dep.ValueReturns("foo", nil)
 				dependency = dep
 
 				dep1 := &basilfakes.FakeVariableNode{}
@@ -291,23 +308,35 @@ var _ = Describe("NodeContainer", func() {
 					"dep1.param1": dep1,
 				})
 
-				node.CreateContainerReturns(&basilfakes.FakeContainer{})
+				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
 			})
 
 			It("should run", func() {
 				Expect(node.CreateContainerCallCount()).To(Equal(1))
-				Expect(parentContainer.ScheduleChildCallCount()).To(Equal(1))
+				Expect(scheduler.ScheduleJobCallCount()).To(Equal(1))
 			})
 
 			It("should pass the dependencies and the wait groups", func() {
-				evalCtx, _, _, wgs := node.CreateContainerArgsForCall(0)
+				evalCtx, _, _, wgs, _ := node.CreateContainerArgsForCall(0)
 				passedDep, _ := evalCtx.BlockContainer("dep1")
 				Expect(passedDep).To(Equal(dependency))
 				Expect(wgs).To(ConsistOf(wg))
 			})
+
+			When("the parent container doesn't have the same eval stage", func() {
+				BeforeEach(func() {
+					parentContainer.EvalStageReturns(basil.EvalStageInit)
+					node.EvalStageReturns(basil.EvalStageMain)
+				})
+
+				It("should not schedule the container", func() {
+					Expect(node.CreateContainerCallCount()).To(Equal(0))
+					Expect(scheduler.ScheduleJobCallCount()).To(Equal(0))
+				})
+			})
 		})
 
-		When("when the node has triggers set", func() {
+		When("the node has triggers set", func() {
 			var triggers []basil.ID
 
 			BeforeEach(func() {
@@ -324,6 +353,7 @@ var _ = Describe("NodeContainer", func() {
 				dep.NodeReturns(depNode)
 				wg = &basilfakes.FakeWaitGroup{}
 				dep.WaitGroupsReturns([]basil.WaitGroup{wg})
+				dep.ValueReturns("foo", nil)
 				dependency = dep
 
 				dep1 := &basilfakes.FakeVariableNode{}
@@ -333,7 +363,7 @@ var _ = Describe("NodeContainer", func() {
 					"dep1.param1": dep1,
 				})
 
-				node.CreateContainerReturns(&basilfakes.FakeContainer{})
+				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
 			})
 
 			When("the dependency is not a trigger", func() {
@@ -343,11 +373,11 @@ var _ = Describe("NodeContainer", func() {
 
 				It("should run the first time", func() {
 					Expect(node.CreateContainerCallCount()).To(Equal(1))
-					Expect(parentContainer.ScheduleChildCallCount()).To(Equal(1))
+					Expect(scheduler.ScheduleJobCallCount()).To(Equal(1))
 				})
 
 				It("should not add the wait groups", func() {
-					_, _, _, wgs := node.CreateContainerArgsForCall(0)
+					_, _, _, wgs, _ := node.CreateContainerArgsForCall(0)
 					Expect(wgs).To(BeEmpty())
 				})
 
@@ -358,7 +388,7 @@ var _ = Describe("NodeContainer", func() {
 
 					It("should not run the second time", func() {
 						Expect(node.CreateContainerCallCount()).To(Equal(1))
-						Expect(parentContainer.ScheduleChildCallCount()).To(Equal(1))
+						Expect(scheduler.ScheduleJobCallCount()).To(Equal(1))
 					})
 				})
 			})
@@ -370,11 +400,11 @@ var _ = Describe("NodeContainer", func() {
 
 				It("should run", func() {
 					Expect(node.CreateContainerCallCount()).To(Equal(1))
-					Expect(parentContainer.ScheduleChildCallCount()).To(Equal(1))
+					Expect(scheduler.ScheduleJobCallCount()).To(Equal(1))
 				})
 
 				It("should add the wait groups", func() {
-					_, _, _, wgs := node.CreateContainerArgsForCall(0)
+					_, _, _, wgs, _ := node.CreateContainerArgsForCall(0)
 					Expect(wgs).To(ConsistOf(wg))
 				})
 			})
@@ -387,6 +417,7 @@ var _ = Describe("NodeContainer", func() {
 				dep := &basilfakes.FakeParameterContainer{}
 				dep.NodeReturns(depNode)
 				dep.BlockContainerReturns(parentContainer)
+				dep.ValueReturns("foo", nil)
 				dependency = dep
 
 				dep1 := &basilfakes.FakeVariableNode{}
@@ -396,15 +427,15 @@ var _ = Describe("NodeContainer", func() {
 					"parent_node_id.sibling": dep1,
 				})
 
-				node.CreateContainerReturns(&basilfakes.FakeContainer{})
+				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
 			})
 
 			It("should run", func() {
 				Expect(node.CreateContainerCallCount()).To(Equal(1))
-				evalCtx, _, _, _ := node.CreateContainerArgsForCall(0)
+				evalCtx, _, _, _, _ := node.CreateContainerArgsForCall(0)
 				passedDep, _ := evalCtx.BlockContainer("parent_node_id")
 				Expect(passedDep).To(Equal(parentContainer))
-				Expect(parentContainer.ScheduleChildCallCount()).To(Equal(1))
+				Expect(scheduler.ScheduleJobCallCount()).To(Equal(1))
 			})
 		})
 

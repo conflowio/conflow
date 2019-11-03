@@ -22,6 +22,7 @@ type Container struct {
 	err     parsley.Error
 	jobID   int
 	wgs     []basil.WaitGroup
+	pending bool
 }
 
 // NewContainer creates a new parameter container
@@ -31,6 +32,7 @@ func NewContainer(
 	parent basil.BlockContainer,
 	value interface{},
 	wgs []basil.WaitGroup,
+	pending bool,
 ) *Container {
 	return &Container{
 		evalCtx: evalCtx,
@@ -38,12 +40,13 @@ func NewContainer(
 		parent:  parent,
 		value:   value,
 		wgs:     wgs,
+		pending: pending,
 	}
 }
 
-// ID returns with the parameter id
-func (c *Container) ID() basil.ID {
-	return c.node.ID()
+// Node returns with the parameter node
+func (c *Container) Node() basil.Node {
+	return c.node
 }
 
 // JobName returns with the job name
@@ -61,9 +64,20 @@ func (c *Container) SetJobID(id int) {
 	c.jobID = id
 }
 
-// Node returns with the parameter node
-func (c *Container) Node() basil.Node {
-	return c.node
+func (c *Container) Lightweight() bool {
+	return true
+}
+
+func (c *Container) Cancel() bool {
+	return c.evalCtx.Cancel()
+}
+
+func (c *Container) EvalStage() basil.EvalStage {
+	return c.node.EvalStage()
+}
+
+func (c *Container) Pending() bool {
+	return c.pending
 }
 
 // BlockContainer returns with the parent block container
@@ -82,20 +96,19 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 
 // Run evaluates the parameter
 func (c *Container) Run() {
+	defer func() {
+		c.evalCtx.Cancel()
+
+		if c.parent != nil {
+			c.parent.SetChild(c)
+		}
+	}()
+
 	if !c.evalCtx.Run() {
 		return
 	}
 
 	c.value, c.err = c.node.Value(c.evalCtx)
-	c.parent.SetChild(c)
-}
-
-func (c *Container) Cancel() bool {
-	return c.evalCtx.Cancel()
-}
-
-func (c *Container) Lightweight() bool {
-	return true
 }
 
 // Close notifies all wait groups

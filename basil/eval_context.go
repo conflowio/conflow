@@ -8,12 +8,31 @@ package basil
 
 import (
 	"context"
+	"fmt"
 	"sync/atomic"
 	"time"
 )
 
 // EvalStage means an evaluation stage (default, pre or post)
 type EvalStage int8
+
+func (e EvalStage) String() string {
+	switch e {
+	case EvalStageUndefined:
+		return "undefined"
+	case EvalStageResolve:
+		return "resolve"
+	case EvalStageInit:
+		return "init"
+	case EvalStageMain:
+		return "main"
+	case EvalStageClose:
+		return "close"
+	case EvalStageIgnore:
+		return "ignore"
+	}
+	panic(fmt.Errorf("unknown eval stage: %d", e))
+}
 
 // Evaluation stages
 const (
@@ -27,9 +46,11 @@ const (
 
 // EvalStages returns with the evaluation stages
 var EvalStages = map[string]EvalStage{
-	"init":  EvalStageInit,
-	"main":  EvalStageMain,
-	"close": EvalStageClose,
+	"resolve": EvalStageResolve,
+	"init":    EvalStageInit,
+	"main":    EvalStageMain,
+	"close":   EvalStageClose,
+	"ignore":  EvalStageIgnore,
 }
 
 // EvalContext is the evaluation context
@@ -38,7 +59,7 @@ type EvalContext struct {
 	cancel       context.CancelFunc
 	UserContext  interface{}
 	Logger       Logger
-	Scheduler    JobScheduler
+	jobScheduler JobScheduler
 	parentCtx    *EvalContext
 	pubSub       *PubSub
 	dependencies map[ID]BlockContainer
@@ -50,7 +71,7 @@ func NewEvalContext(
 	ctx context.Context,
 	userContext interface{},
 	logger Logger,
-	scheduler JobScheduler,
+	jobScheduler JobScheduler,
 	dependencies map[ID]BlockContainer,
 ) *EvalContext {
 	ctx, cancel := context.WithCancel(ctx)
@@ -59,7 +80,7 @@ func NewEvalContext(
 		cancel:       cancel,
 		UserContext:  userContext,
 		Logger:       logger,
-		Scheduler:    scheduler,
+		jobScheduler: jobScheduler,
 		pubSub:       NewPubSub(),
 		dependencies: dependencies,
 	}
@@ -77,7 +98,7 @@ func (e *EvalContext) New(
 		dependencies: dependencies,
 		UserContext:  e.UserContext,
 		Logger:       e.Logger,
-		Scheduler:    e.Scheduler,
+		jobScheduler: e.jobScheduler,
 		pubSub:       e.pubSub,
 		parentCtx:    e,
 	}
@@ -131,4 +152,8 @@ func (e *EvalContext) Run() bool {
 func (e *EvalContext) Cancel() bool {
 	e.cancel()
 	return atomic.CompareAndSwapInt64(&e.sem, 0, 2)
+}
+
+func (e *EvalContext) JobScheduler() JobScheduler {
+	return e.jobScheduler
 }

@@ -10,26 +10,29 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/opsidian/basil/basil/job/jobfakes"
+
+	"github.com/opsidian/basil/basil/job"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/logger/zerolog"
 )
 
-var _ = Describe("Manager", func() {
-	var manager *job.Manager
+var _ = Describe("Scheduler", func() {
+	var tracker *job.Tracker
 	var scheduler *basilfakes.FakeJobScheduler
 
 	BeforeEach(func() {
 		scheduler = &basilfakes.FakeJobScheduler{}
 		logger := zerolog.NewDisabledLogger()
-		manager = job.NewManager("test_manager", scheduler, logger)
+		tracker = job.NewTracker("test_tracker", scheduler, logger)
 	})
 
 	AfterEach(func() {
-		manager.Stop()
+		tracker.Stop()
 	})
 
 	When("a job is scheduled", func() {
@@ -38,7 +41,7 @@ var _ = Describe("Manager", func() {
 		BeforeEach(func() {
 			job = &basilfakes.FakeJob{}
 			job.JobIDReturns(1)
-			manager.ScheduleJob(job, false)
+			tracker.ScheduleJob(job)
 		})
 
 		It("should call the scheduler", func() {
@@ -48,38 +51,38 @@ var _ = Describe("Manager", func() {
 		})
 
 		It("should increase the running job count", func() {
-			Expect(manager.RunningJobCount()).To(Equal(1))
+			Expect(tracker.RunningJobCount()).To(Equal(1))
 		})
 
 		It("should increase the active job count", func() {
-			Expect(manager.ActiveJobCount()).To(Equal(1))
+			Expect(tracker.ActiveJobCount()).To(Equal(1))
 		})
 
 		When("a second job is scheduled", func() {
 			It("should further increase the running count", func() {
 				job2 := &basilfakes.FakeJob{}
 				job2.JobIDReturns(1)
-				manager.ScheduleJob(job2, false)
-				Expect(manager.RunningJobCount()).To(Equal(2))
+				tracker.ScheduleJob(job2)
+				Expect(tracker.RunningJobCount()).To(Equal(2))
 			})
 		})
 
 		When("finished", func() {
 			BeforeEach(func() {
-				manager.Finished(1)
+				tracker.Finished(1)
 			})
 			It("should decrease the running job count", func() {
-				Expect(manager.RunningJobCount()).To(Equal(0))
+				Expect(tracker.RunningJobCount()).To(Equal(0))
 			})
 		})
 
 		When("failed with no retry", func() {
 			BeforeEach(func() {
-				manager.Finished(1)
+				tracker.Finished(1)
 			})
 
 			It("should decrease the running job count", func() {
-				Expect(manager.RunningJobCount()).To(Equal(0))
+				Expect(tracker.RunningJobCount()).To(Equal(0))
 			})
 		})
 
@@ -87,7 +90,7 @@ var _ = Describe("Manager", func() {
 			var tries int64
 			var retried1 bool
 			BeforeEach(func() {
-				retried1 = manager.Retry(1, 2, 1*time.Millisecond, func(j basil.Job) func() {
+				retried1 = tracker.Retry(1, 2, 1*time.Millisecond, func(j basil.Job) func() {
 					return func() {
 						atomic.AddInt64(&tries, 1)
 					}
@@ -101,13 +104,13 @@ var _ = Describe("Manager", func() {
 
 			When("the job is scheduled again", func() {
 				BeforeEach(func() {
-					manager.ScheduleJob(job, false)
+					tracker.ScheduleJob(job)
 				})
 
 				When("failing the second time", func() {
 					var retried2 bool
 					BeforeEach(func() {
-						retried2 = manager.Retry(1, 2, 1*time.Millisecond, func(j basil.Job) func() {
+						retried2 = tracker.Retry(1, 2, 1*time.Millisecond, func(j basil.Job) func() {
 							return func() {
 								atomic.AddInt64(&tries, 1)
 							}
@@ -124,13 +127,14 @@ var _ = Describe("Manager", func() {
 
 	When("a pending job is scheduled", func() {
 		BeforeEach(func() {
-			manager.AddPending(2)
-			job := &basilfakes.FakeJob{}
+			tracker.AddPending(2)
+			job := &jobfakes.FakePendingJob{}
 			job.JobIDReturns(1)
-			manager.ScheduleJob(job, true)
+			job.PendingReturns(true)
+			tracker.ScheduleJob(job)
 		})
 		It("should decrease the pending count", func() {
-			Expect(manager.PendingJobCount()).To(Equal(1))
+			Expect(tracker.PendingJobCount()).To(Equal(1))
 		})
 	})
 
@@ -138,7 +142,7 @@ var _ = Describe("Manager", func() {
 		var active int
 
 		JustBeforeEach(func() {
-			active = manager.Stop()
+			active = tracker.Stop()
 		})
 
 		It("should return with 0 jobs active", func() {
@@ -146,13 +150,13 @@ var _ = Describe("Manager", func() {
 		})
 
 		When("there is a job scheduled but not running", func() {
-			var job *basilfakes.FakeCancellableJob
+			var job *jobfakes.FakeCancellableJob
 
 			BeforeEach(func() {
-				job = &basilfakes.FakeCancellableJob{}
+				job = &jobfakes.FakeCancellableJob{}
 				job.JobIDReturns(1)
 				job.CancelReturns(true)
-				manager.ScheduleJob(job, false)
+				tracker.ScheduleJob(job)
 			})
 
 			It("should successfully cancel it", func() {
@@ -162,13 +166,13 @@ var _ = Describe("Manager", func() {
 		})
 
 		When("there is a job running", func() {
-			var job *basilfakes.FakeCancellableJob
+			var job *jobfakes.FakeCancellableJob
 
 			BeforeEach(func() {
-				job = &basilfakes.FakeCancellableJob{}
+				job = &jobfakes.FakeCancellableJob{}
 				job.JobIDReturns(1)
 				job.CancelReturns(false)
-				manager.ScheduleJob(job, false)
+				tracker.ScheduleJob(job)
 			})
 
 			It("should not decrease the active job count", func() {
@@ -179,7 +183,7 @@ var _ = Describe("Manager", func() {
 
 		When("schedule is called", func() {
 			JustBeforeEach(func() {
-				manager.ScheduleJob(&basilfakes.FakeJob{}, false)
+				tracker.ScheduleJob(&basilfakes.FakeJob{})
 			})
 
 			It("should not schedule the job", func() {
@@ -190,31 +194,31 @@ var _ = Describe("Manager", func() {
 
 	When("finished is called for an unknown job", func() {
 		It("should panic", func() {
-			Expect(func() { manager.Finished(999) }).To(Panic())
+			Expect(func() { tracker.Finished(999) }).To(Panic())
 		})
 	})
 
 	When("failed is called for an unknown job", func() {
 		It("should panic", func() {
-			Expect(func() { manager.Finished(999) }).To(Panic())
+			Expect(func() { tracker.Finished(999) }).To(Panic())
 		})
 	})
 
 	When("retry is called for an unknown job", func() {
 		It("should panic", func() {
-			Expect(func() { manager.Retry(999, 1, 0, nil) }).To(Panic())
+			Expect(func() { tracker.Retry(999, 1, 0, nil) }).To(Panic())
 		})
 	})
 
 	When("pending jobs are added", func() {
 		BeforeEach(func() {
-			manager.AddPending(2)
+			tracker.AddPending(2)
 		})
 		It("should increase the pending jobs count", func() {
-			Expect(manager.PendingJobCount()).To(Equal(2))
+			Expect(tracker.PendingJobCount()).To(Equal(2))
 		})
 		It("should increase the active jobs count", func() {
-			Expect(manager.ActiveJobCount()).To(Equal(2))
+			Expect(tracker.ActiveJobCount()).To(Equal(2))
 		})
 	})
 })

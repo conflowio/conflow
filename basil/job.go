@@ -13,7 +13,7 @@ import (
 // JobScheduler is the job scheduler
 //go:generate counterfeiter . JobScheduler
 type JobScheduler interface {
-	ScheduleJob(Job)
+	ScheduleJob(job Job) error
 }
 
 // Job is a unit of work the scheduler can schedule and run
@@ -26,14 +26,13 @@ type Job interface {
 	Lightweight() bool
 }
 
-type Cancellable interface {
-	Cancel() bool
-}
-
-//go:generate counterfeiter . CancellableJob
-type CancellableJob interface {
+//go:generate counterfeiter . JobContainer
+type JobContainer interface {
 	Job
-	Cancellable
+	Container
+	Cancel() bool
+	Pending() bool
+	EvalStage() EvalStage
 }
 
 // Retryable is a simple interface for defining a retry mechanism

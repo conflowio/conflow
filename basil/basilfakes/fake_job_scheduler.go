@@ -8,25 +8,37 @@ import (
 )
 
 type FakeJobScheduler struct {
-	ScheduleJobStub        func(basil.Job)
+	ScheduleJobStub        func(basil.Job) error
 	scheduleJobMutex       sync.RWMutex
 	scheduleJobArgsForCall []struct {
 		arg1 basil.Job
+	}
+	scheduleJobReturns struct {
+		result1 error
+	}
+	scheduleJobReturnsOnCall map[int]struct {
+		result1 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeJobScheduler) ScheduleJob(arg1 basil.Job) {
+func (fake *FakeJobScheduler) ScheduleJob(arg1 basil.Job) error {
 	fake.scheduleJobMutex.Lock()
+	ret, specificReturn := fake.scheduleJobReturnsOnCall[len(fake.scheduleJobArgsForCall)]
 	fake.scheduleJobArgsForCall = append(fake.scheduleJobArgsForCall, struct {
 		arg1 basil.Job
 	}{arg1})
 	fake.recordInvocation("ScheduleJob", []interface{}{arg1})
 	fake.scheduleJobMutex.Unlock()
 	if fake.ScheduleJobStub != nil {
-		fake.ScheduleJobStub(arg1)
+		return fake.ScheduleJobStub(arg1)
 	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.scheduleJobReturns
+	return fakeReturns.result1
 }
 
 func (fake *FakeJobScheduler) ScheduleJobCallCount() int {
@@ -35,7 +47,7 @@ func (fake *FakeJobScheduler) ScheduleJobCallCount() int {
 	return len(fake.scheduleJobArgsForCall)
 }
 
-func (fake *FakeJobScheduler) ScheduleJobCalls(stub func(basil.Job)) {
+func (fake *FakeJobScheduler) ScheduleJobCalls(stub func(basil.Job) error) {
 	fake.scheduleJobMutex.Lock()
 	defer fake.scheduleJobMutex.Unlock()
 	fake.ScheduleJobStub = stub
@@ -46,6 +58,29 @@ func (fake *FakeJobScheduler) ScheduleJobArgsForCall(i int) basil.Job {
 	defer fake.scheduleJobMutex.RUnlock()
 	argsForCall := fake.scheduleJobArgsForCall[i]
 	return argsForCall.arg1
+}
+
+func (fake *FakeJobScheduler) ScheduleJobReturns(result1 error) {
+	fake.scheduleJobMutex.Lock()
+	defer fake.scheduleJobMutex.Unlock()
+	fake.ScheduleJobStub = nil
+	fake.scheduleJobReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeJobScheduler) ScheduleJobReturnsOnCall(i int, result1 error) {
+	fake.scheduleJobMutex.Lock()
+	defer fake.scheduleJobMutex.Unlock()
+	fake.ScheduleJobStub = nil
+	if fake.scheduleJobReturnsOnCall == nil {
+		fake.scheduleJobReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.scheduleJobReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeJobScheduler) Invocations() map[string][][]interface{} {

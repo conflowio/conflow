@@ -7,6 +7,7 @@
 package job
 
 import (
+	"errors"
 	"sync/atomic"
 
 	"github.com/opsidian/basil/basil"
@@ -62,20 +63,20 @@ func (s *Scheduler) Stop() {
 }
 
 // Schedule schedules a new job
-func (s *Scheduler) ScheduleJob(job basil.Job) {
+func (s *Scheduler) ScheduleJob(job basil.Job) error {
 	job.SetJobID(int(atomic.AddInt64(&s.lastID, 1)))
 
 	if job.Lightweight() {
 		go func() {
 			job.Run()
 		}()
+		return nil
 	} else {
 		select {
 		case s.jobQueue <- job:
+			return nil
 		case <-s.quit:
-			return
+			return errors.New("job scheduler is shutting down")
 		}
 	}
-
-	return
 }

@@ -160,8 +160,9 @@ func (n *Node) CreateContainer(
 	parent basil.BlockContainer,
 	value interface{},
 	wgs []basil.WaitGroup,
-) basil.Container {
-	return NewContainer(ctx, n, parent, value, wgs)
+	pending bool,
+) basil.JobContainer {
+	return NewContainer(ctx, n, parent, value, wgs, pending)
 }
 
 // String returns with a string representation of the node

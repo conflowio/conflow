@@ -21,7 +21,7 @@ type Node interface {
 	Provides() []ID
 	Generates() []ID
 	Generated() bool
-	CreateContainer(ctx *EvalContext, parent BlockContainer, value interface{}, wgs []WaitGroup) Container
+	CreateContainer(ctx *EvalContext, parent BlockContainer, value interface{}, wgs []WaitGroup, pending bool) JobContainer
 }
 
 // Dependencies is a variable list

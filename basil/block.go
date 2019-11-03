@@ -63,8 +63,8 @@ type BlockContainer interface {
 	Param(ID) interface{}
 	SetChild(Container)
 	SetError(parsley.Error)
-	ScheduleChild(c Container, pending bool) bool
 	PublishBlock(Block) error
+	EvalStageAware
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
