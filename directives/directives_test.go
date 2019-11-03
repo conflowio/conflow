@@ -12,8 +12,7 @@ import (
 	"runtime"
 
 	"github.com/opsidian/basil/basil/block"
-
-	"github.com/opsidian/basil/function"
+	"github.com/opsidian/basil/functions"
 
 	"github.com/opsidian/basil/blocks"
 	"github.com/opsidian/basil/parser"
@@ -38,7 +37,7 @@ func eval(input string) {
 			"range":   blocks.RangeInterpreter{},
 			"sleep":   blocks.SleepInterpreter{},
 		},
-		FunctionTransformerRegistry: function.Registry(),
+		FunctionTransformerRegistry: functions.Registry(),
 	}
 
 	p := parser.NewMain("main", mainInterpreter)

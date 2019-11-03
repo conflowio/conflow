@@ -9,7 +9,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/function/strings"
+	"github.com/opsidian/basil/functions/strings"
 
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/parsley/parser"
