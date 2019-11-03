@@ -8,7 +8,6 @@ package util
 
 import (
 	"sync"
-	"sync/atomic"
 )
 
 // WaitGroup is a slightly different version of sync.WaitGroup with error handling
@@ -17,11 +16,13 @@ type WaitGroup struct {
 	ch  chan struct{}
 	mu  sync.Mutex
 	err error
-	cnt int64
+	cnt int
 }
 
 func (w *WaitGroup) Add(delta int) {
-	atomic.AddInt64(&w.cnt, int64(delta))
+	w.mu.Lock()
+	w.cnt = w.cnt + delta
+	w.mu.Unlock()
 }
 
 func (w *WaitGroup) Wait() <-chan struct{} {
@@ -39,12 +40,12 @@ func (w *WaitGroup) Done(err error) {
 	if w.err == nil {
 		w.err = err
 	}
-	cnt := atomic.AddInt64(&w.cnt, -1)
-	if cnt < 0 {
+	w.cnt--
+	if w.cnt < 0 {
 		w.mu.Unlock()
 		panic("negative WaitGroup counter")
 	}
-	if cnt == 0 {
+	if w.cnt == 0 {
 		if w.ch == nil {
 			w.ch = closedChan
 		} else {
