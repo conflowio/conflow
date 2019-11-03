@@ -9,14 +9,15 @@ package common
 import (
 	"context"
 	"fmt"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"runtime"
 
-	"github.com/opsidian/basil/directives"
-	"github.com/opsidian/basil/logger/zerolog"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
+	"github.com/opsidian/basil/directives"
+	"github.com/opsidian/basil/logger/zerolog"
 	uzerolog "github.com/rs/zerolog"
 )
 
@@ -39,6 +40,11 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 	scheduler := job.NewScheduler(logger, runtime.NumCPU()*2, 100)
 	scheduler.Start()
 	defer scheduler.Stop()
+
+	go func() {
+		err := http.ListenAndServe("localhost:6060", nil)
+		logger.Debug().Err(err).Msg("http server stopped")
+	}()
 
 	if _, err := basil.Evaluate(
 		parseCtx,
