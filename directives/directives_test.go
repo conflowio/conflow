@@ -20,7 +20,7 @@ import (
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/directives"
-	"github.com/opsidian/basil/logger/zerolog"
+	"github.com/opsidian/basil/loggers/zerolog"
 )
 
 func eval(input string) {

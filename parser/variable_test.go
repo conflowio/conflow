@@ -13,7 +13,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/logger/zerolog"
+	"github.com/opsidian/basil/loggers/zerolog"
 	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/combinator"
