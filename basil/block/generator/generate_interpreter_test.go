@@ -13,13 +13,13 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/basil/block/fixtures"
-	"github.com/opsidian/basil/parser"
+	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/test"
 )
 
 var _ = Describe("GenerateInterpreter", func() {
 
-	p := parser.Block(parser.Expression())
+	p := parsers.Block(parsers.Expression())
 
 	var registry = block.InterpreterRegistry{
 		"block_simple":               fixtures.BlockSimpleInterpreter{},

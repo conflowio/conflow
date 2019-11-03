@@ -16,7 +16,7 @@ import (
 	"github.com/opsidian/basil/basil/basilfakes"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/basil/logger/zerolog"
+	"github.com/opsidian/basil/loggers/zerolog"
 	"github.com/opsidian/basil/test/testfakes"
 	"github.com/opsidian/parsley/parsley"
 )

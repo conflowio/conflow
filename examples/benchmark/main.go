@@ -8,10 +8,10 @@ package main
 
 import (
 	"github.com/opsidian/basil/blocks"
-	"github.com/opsidian/basil/function"
+	"github.com/opsidian/basil/functions"
+	"github.com/opsidian/basil/parsers"
 
 	"github.com/opsidian/basil/examples/common"
-	"github.com/opsidian/basil/parser"
 	"github.com/opsidian/basil/util"
 
 	"github.com/opsidian/basil/basil"
@@ -35,7 +35,7 @@ func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 			"print":     blocks.PrintInterpreter{},
 			"println":   blocks.PrintlnInterpreter{},
 		},
-		FunctionTransformerRegistry: function.Registry(),
+		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	}
 }
 
@@ -45,7 +45,7 @@ func main() {
 
 	parseCtx := common.NewParseContext()
 
-	p := parser.NewMain("main", MainInterpreter{})
+	p := parsers.NewMain("main", MainInterpreter{})
 
 	if err := p.ParseFile(
 		parseCtx,

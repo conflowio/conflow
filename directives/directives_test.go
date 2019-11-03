@@ -12,16 +12,15 @@ import (
 	"runtime"
 
 	"github.com/opsidian/basil/basil/block"
-
-	"github.com/opsidian/basil/function"
+	"github.com/opsidian/basil/functions"
+	"github.com/opsidian/basil/parsers"
 
 	"github.com/opsidian/basil/blocks"
-	"github.com/opsidian/basil/parser"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/directives"
-	"github.com/opsidian/basil/logger/zerolog"
+	"github.com/opsidian/basil/loggers/zerolog"
 )
 
 func eval(input string) {
@@ -38,10 +37,10 @@ func eval(input string) {
 			"range":   blocks.RangeInterpreter{},
 			"sleep":   blocks.SleepInterpreter{},
 		},
-		FunctionTransformerRegistry: function.Registry(),
+		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	}
 
-	p := parser.NewMain("main", mainInterpreter)
+	p := parsers.NewMain("main", mainInterpreter)
 	if err := p.ParseText(parseCtx, input); err != nil {
 		fmt.Printf("Example errored: %s\n", err.Error())
 		return

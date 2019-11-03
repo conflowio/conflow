@@ -12,7 +12,7 @@ import (
 
 	"github.com/opsidian/basil/directives"
 
-	"github.com/opsidian/basil/logger/zerolog"
+	"github.com/opsidian/basil/loggers/zerolog"
 
 	"github.com/opsidian/basil/basil/basilfakes"
 
