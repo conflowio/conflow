@@ -441,8 +441,11 @@ func (c *Container) evaluateChildren() parsley.Error {
 	return nil
 }
 
+// SetChild sets a child container in a non-blocking way
 func (c *Container) SetChild(container basil.Container) {
-	c.resultChan <- container
+	go func() {
+		c.resultChan <- container
+	}()
 }
 
 func (c *Container) setChild(result basil.Container) parsley.Error {

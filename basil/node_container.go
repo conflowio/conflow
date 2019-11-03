@@ -140,9 +140,7 @@ func (n *NodeContainer) calculateNilDeps(prevDep, newDep Container) {
 
 func (n *NodeContainer) setNilChild() {
 	nilContainer := NewNilContainer(n.node, n.waitGroups, n.pending)
-	go func() {
-		n.parent.SetChild(nilContainer)
-	}()
+	n.parent.SetChild(nilContainer)
 	n.waitGroups = nil
 	n.pending = false
 }
