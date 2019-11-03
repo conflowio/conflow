@@ -39,14 +39,14 @@ func (p *PubSub) Subscribe(c *NodeContainer, id ID) {
 func (p *PubSub) Unsubscribe(c *NodeContainer, id ID) {
 	p.mu.Lock()
 
-	if p.subs[id].container.ID() == c.ID() {
+	if p.subs[id].container.Node().ID() == c.Node().ID() {
 		p.subs[id] = p.subs[id].next
 		p.mu.Unlock()
 		return
 	}
 
 	for sub := p.subs[id]; sub.next != nil; sub = sub.next {
-		if sub.next.container.ID() == c.ID() {
+		if sub.next.container.Node().ID() == c.Node().ID() {
 			sub.next = sub.next.next
 			p.mu.Unlock()
 			return
@@ -54,7 +54,7 @@ func (p *PubSub) Unsubscribe(c *NodeContainer, id ID) {
 	}
 
 	p.mu.Unlock()
-	panic(fmt.Errorf("unsubscribe unsuccessful, %q was never subscribed for %q", c.ID(), id))
+	panic(fmt.Errorf("unsubscribe unsuccessful, %q was never subscribed for %q", c.Node().ID(), id))
 }
 
 // Publish will notify all node containers which are subscribed for the dependency

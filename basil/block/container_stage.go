@@ -7,30 +7,34 @@
 package block
 
 import (
-	"github.com/opsidian/basil/basil/job"
+	"runtime/debug"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/parsley/parsley"
 )
 
 type containerStage struct {
+	container   *Container
+	evalStage   basil.EvalStage
 	name        basil.ID
-	jobID       int
-	sem         job.Semaphore
 	lightweight bool
 	f           func() (int64, error)
-	container   *Container
+	jobID       int
+	sem         job.Semaphore
 }
 
 func newContainerStage(
 	container *Container,
 	name basil.ID,
+	evalStage basil.EvalStage,
 	lightweight bool,
 	f func() (int64, error),
 ) *containerStage {
 	return &containerStage{
 		container:   container,
 		name:        name,
+		evalStage:   evalStage,
 		lightweight: lightweight,
 		f:           f,
 	}
@@ -55,31 +59,32 @@ func (c *containerStage) Run() {
 
 	defer func() {
 		if r := recover(); r != nil {
-			c.container.jobManager.Failed(c.jobID)
+			c.container.jobTracker.Failed(c.jobID)
 			c.container.errChan <- parsley.NewErrorf(
 				c.container.node.Pos(),
-				"%s stage panicked in %q: %s",
+				"%s stage panicked in %q: %s\n%s",
 				c.name,
-				c.container.ID(),
+				c.container.Node().ID(),
 				r,
+				string(debug.Stack()),
 			)
 		}
 	}()
 
 	nextStage, err := c.f()
 	if err != nil {
-		c.container.jobManager.Failed(c.jobID)
+		c.container.jobTracker.Failed(c.jobID)
 		c.container.errChan <- parsley.NewError(c.container.node.Pos(), err)
 		return
 	}
 
-	c.container.jobManager.Finished(c.jobID)
+	c.container.jobTracker.Finished(c.jobID)
 	c.container.stateChan <- nextStage
 }
 
 func (c *containerStage) Cancel() bool {
 	if c.sem.Cancel() {
-		c.container.jobManager.Cancelled(c.jobID)
+		c.container.jobTracker.Cancelled(c.jobID)
 		return true
 	}
 	return false
@@ -87,4 +92,8 @@ func (c *containerStage) Cancel() bool {
 
 func (c *containerStage) Lightweight() bool {
 	return c.lightweight
+}
+
+func (c *containerStage) EvalStage() basil.EvalStage {
+	return c.evalStage
 }

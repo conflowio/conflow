@@ -17,7 +17,8 @@ type Scheduler struct {
 	lastID int64
 }
 
-func (s *Scheduler) ScheduleJob(job basil.Job) {
+func (s *Scheduler) ScheduleJob(job basil.Job) error {
 	job.SetJobID(int(atomic.AddInt64(&s.lastID, 1)))
 	go job.Run()
+	return nil
 }

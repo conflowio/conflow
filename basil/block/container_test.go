@@ -56,7 +56,7 @@ var _ = Describe("Container", func() {
 		scheduler.Start()
 		evalCtx = basil.NewEvalContext(ctx, nil, logger, scheduler, nil)
 
-		container = block.NewContainer(evalCtx, blockNode, nil, nil, nil)
+		container = block.NewContainer(evalCtx, blockNode, nil, nil, nil, false)
 		container.Run()
 		value, err = container.Value()
 	})

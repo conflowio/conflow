@@ -1,4 +1,4 @@
-iterator {
+iterator iterator1 {
     count = 10
     it i1
 }
@@ -19,6 +19,6 @@ sleep sleep2 {
 }
 
 @triggers ["sleep2"]
-println {
+println p {
     value = string(sleep1.i1) + " " + string(sleep2.i2)
 }

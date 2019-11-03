@@ -9,49 +9,9 @@ import (
 )
 
 type FakeContainer struct {
-	CancelStub        func() bool
-	cancelMutex       sync.RWMutex
-	cancelArgsForCall []struct {
-	}
-	cancelReturns struct {
-		result1 bool
-	}
-	cancelReturnsOnCall map[int]struct {
-		result1 bool
-	}
 	CloseStub        func()
 	closeMutex       sync.RWMutex
 	closeArgsForCall []struct {
-	}
-	JobIDStub        func() int
-	jobIDMutex       sync.RWMutex
-	jobIDArgsForCall []struct {
-	}
-	jobIDReturns struct {
-		result1 int
-	}
-	jobIDReturnsOnCall map[int]struct {
-		result1 int
-	}
-	JobNameStub        func() basil.ID
-	jobNameMutex       sync.RWMutex
-	jobNameArgsForCall []struct {
-	}
-	jobNameReturns struct {
-		result1 basil.ID
-	}
-	jobNameReturnsOnCall map[int]struct {
-		result1 basil.ID
-	}
-	LightweightStub        func() bool
-	lightweightMutex       sync.RWMutex
-	lightweightArgsForCall []struct {
-	}
-	lightweightReturns struct {
-		result1 bool
-	}
-	lightweightReturnsOnCall map[int]struct {
-		result1 bool
 	}
 	NodeStub        func() basil.Node
 	nodeMutex       sync.RWMutex
@@ -62,15 +22,6 @@ type FakeContainer struct {
 	}
 	nodeReturnsOnCall map[int]struct {
 		result1 basil.Node
-	}
-	RunStub        func()
-	runMutex       sync.RWMutex
-	runArgsForCall []struct {
-	}
-	SetJobIDStub        func(int)
-	setJobIDMutex       sync.RWMutex
-	setJobIDArgsForCall []struct {
-		arg1 int
 	}
 	ValueStub        func() (interface{}, parsley.Error)
 	valueMutex       sync.RWMutex
@@ -98,58 +49,6 @@ type FakeContainer struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeContainer) Cancel() bool {
-	fake.cancelMutex.Lock()
-	ret, specificReturn := fake.cancelReturnsOnCall[len(fake.cancelArgsForCall)]
-	fake.cancelArgsForCall = append(fake.cancelArgsForCall, struct {
-	}{})
-	fake.recordInvocation("Cancel", []interface{}{})
-	fake.cancelMutex.Unlock()
-	if fake.CancelStub != nil {
-		return fake.CancelStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.cancelReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeContainer) CancelCallCount() int {
-	fake.cancelMutex.RLock()
-	defer fake.cancelMutex.RUnlock()
-	return len(fake.cancelArgsForCall)
-}
-
-func (fake *FakeContainer) CancelCalls(stub func() bool) {
-	fake.cancelMutex.Lock()
-	defer fake.cancelMutex.Unlock()
-	fake.CancelStub = stub
-}
-
-func (fake *FakeContainer) CancelReturns(result1 bool) {
-	fake.cancelMutex.Lock()
-	defer fake.cancelMutex.Unlock()
-	fake.CancelStub = nil
-	fake.cancelReturns = struct {
-		result1 bool
-	}{result1}
-}
-
-func (fake *FakeContainer) CancelReturnsOnCall(i int, result1 bool) {
-	fake.cancelMutex.Lock()
-	defer fake.cancelMutex.Unlock()
-	fake.CancelStub = nil
-	if fake.cancelReturnsOnCall == nil {
-		fake.cancelReturnsOnCall = make(map[int]struct {
-			result1 bool
-		})
-	}
-	fake.cancelReturnsOnCall[i] = struct {
-		result1 bool
-	}{result1}
-}
-
 func (fake *FakeContainer) Close() {
 	fake.closeMutex.Lock()
 	fake.closeArgsForCall = append(fake.closeArgsForCall, struct {
@@ -171,162 +70,6 @@ func (fake *FakeContainer) CloseCalls(stub func()) {
 	fake.closeMutex.Lock()
 	defer fake.closeMutex.Unlock()
 	fake.CloseStub = stub
-}
-
-func (fake *FakeContainer) JobID() int {
-	fake.jobIDMutex.Lock()
-	ret, specificReturn := fake.jobIDReturnsOnCall[len(fake.jobIDArgsForCall)]
-	fake.jobIDArgsForCall = append(fake.jobIDArgsForCall, struct {
-	}{})
-	fake.recordInvocation("JobID", []interface{}{})
-	fake.jobIDMutex.Unlock()
-	if fake.JobIDStub != nil {
-		return fake.JobIDStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.jobIDReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeContainer) JobIDCallCount() int {
-	fake.jobIDMutex.RLock()
-	defer fake.jobIDMutex.RUnlock()
-	return len(fake.jobIDArgsForCall)
-}
-
-func (fake *FakeContainer) JobIDCalls(stub func() int) {
-	fake.jobIDMutex.Lock()
-	defer fake.jobIDMutex.Unlock()
-	fake.JobIDStub = stub
-}
-
-func (fake *FakeContainer) JobIDReturns(result1 int) {
-	fake.jobIDMutex.Lock()
-	defer fake.jobIDMutex.Unlock()
-	fake.JobIDStub = nil
-	fake.jobIDReturns = struct {
-		result1 int
-	}{result1}
-}
-
-func (fake *FakeContainer) JobIDReturnsOnCall(i int, result1 int) {
-	fake.jobIDMutex.Lock()
-	defer fake.jobIDMutex.Unlock()
-	fake.JobIDStub = nil
-	if fake.jobIDReturnsOnCall == nil {
-		fake.jobIDReturnsOnCall = make(map[int]struct {
-			result1 int
-		})
-	}
-	fake.jobIDReturnsOnCall[i] = struct {
-		result1 int
-	}{result1}
-}
-
-func (fake *FakeContainer) JobName() basil.ID {
-	fake.jobNameMutex.Lock()
-	ret, specificReturn := fake.jobNameReturnsOnCall[len(fake.jobNameArgsForCall)]
-	fake.jobNameArgsForCall = append(fake.jobNameArgsForCall, struct {
-	}{})
-	fake.recordInvocation("JobName", []interface{}{})
-	fake.jobNameMutex.Unlock()
-	if fake.JobNameStub != nil {
-		return fake.JobNameStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.jobNameReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeContainer) JobNameCallCount() int {
-	fake.jobNameMutex.RLock()
-	defer fake.jobNameMutex.RUnlock()
-	return len(fake.jobNameArgsForCall)
-}
-
-func (fake *FakeContainer) JobNameCalls(stub func() basil.ID) {
-	fake.jobNameMutex.Lock()
-	defer fake.jobNameMutex.Unlock()
-	fake.JobNameStub = stub
-}
-
-func (fake *FakeContainer) JobNameReturns(result1 basil.ID) {
-	fake.jobNameMutex.Lock()
-	defer fake.jobNameMutex.Unlock()
-	fake.JobNameStub = nil
-	fake.jobNameReturns = struct {
-		result1 basil.ID
-	}{result1}
-}
-
-func (fake *FakeContainer) JobNameReturnsOnCall(i int, result1 basil.ID) {
-	fake.jobNameMutex.Lock()
-	defer fake.jobNameMutex.Unlock()
-	fake.JobNameStub = nil
-	if fake.jobNameReturnsOnCall == nil {
-		fake.jobNameReturnsOnCall = make(map[int]struct {
-			result1 basil.ID
-		})
-	}
-	fake.jobNameReturnsOnCall[i] = struct {
-		result1 basil.ID
-	}{result1}
-}
-
-func (fake *FakeContainer) Lightweight() bool {
-	fake.lightweightMutex.Lock()
-	ret, specificReturn := fake.lightweightReturnsOnCall[len(fake.lightweightArgsForCall)]
-	fake.lightweightArgsForCall = append(fake.lightweightArgsForCall, struct {
-	}{})
-	fake.recordInvocation("Lightweight", []interface{}{})
-	fake.lightweightMutex.Unlock()
-	if fake.LightweightStub != nil {
-		return fake.LightweightStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.lightweightReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeContainer) LightweightCallCount() int {
-	fake.lightweightMutex.RLock()
-	defer fake.lightweightMutex.RUnlock()
-	return len(fake.lightweightArgsForCall)
-}
-
-func (fake *FakeContainer) LightweightCalls(stub func() bool) {
-	fake.lightweightMutex.Lock()
-	defer fake.lightweightMutex.Unlock()
-	fake.LightweightStub = stub
-}
-
-func (fake *FakeContainer) LightweightReturns(result1 bool) {
-	fake.lightweightMutex.Lock()
-	defer fake.lightweightMutex.Unlock()
-	fake.LightweightStub = nil
-	fake.lightweightReturns = struct {
-		result1 bool
-	}{result1}
-}
-
-func (fake *FakeContainer) LightweightReturnsOnCall(i int, result1 bool) {
-	fake.lightweightMutex.Lock()
-	defer fake.lightweightMutex.Unlock()
-	fake.LightweightStub = nil
-	if fake.lightweightReturnsOnCall == nil {
-		fake.lightweightReturnsOnCall = make(map[int]struct {
-			result1 bool
-		})
-	}
-	fake.lightweightReturnsOnCall[i] = struct {
-		result1 bool
-	}{result1}
 }
 
 func (fake *FakeContainer) Node() basil.Node {
@@ -379,60 +122,6 @@ func (fake *FakeContainer) NodeReturnsOnCall(i int, result1 basil.Node) {
 	fake.nodeReturnsOnCall[i] = struct {
 		result1 basil.Node
 	}{result1}
-}
-
-func (fake *FakeContainer) Run() {
-	fake.runMutex.Lock()
-	fake.runArgsForCall = append(fake.runArgsForCall, struct {
-	}{})
-	fake.recordInvocation("Run", []interface{}{})
-	fake.runMutex.Unlock()
-	if fake.RunStub != nil {
-		fake.RunStub()
-	}
-}
-
-func (fake *FakeContainer) RunCallCount() int {
-	fake.runMutex.RLock()
-	defer fake.runMutex.RUnlock()
-	return len(fake.runArgsForCall)
-}
-
-func (fake *FakeContainer) RunCalls(stub func()) {
-	fake.runMutex.Lock()
-	defer fake.runMutex.Unlock()
-	fake.RunStub = stub
-}
-
-func (fake *FakeContainer) SetJobID(arg1 int) {
-	fake.setJobIDMutex.Lock()
-	fake.setJobIDArgsForCall = append(fake.setJobIDArgsForCall, struct {
-		arg1 int
-	}{arg1})
-	fake.recordInvocation("SetJobID", []interface{}{arg1})
-	fake.setJobIDMutex.Unlock()
-	if fake.SetJobIDStub != nil {
-		fake.SetJobIDStub(arg1)
-	}
-}
-
-func (fake *FakeContainer) SetJobIDCallCount() int {
-	fake.setJobIDMutex.RLock()
-	defer fake.setJobIDMutex.RUnlock()
-	return len(fake.setJobIDArgsForCall)
-}
-
-func (fake *FakeContainer) SetJobIDCalls(stub func(int)) {
-	fake.setJobIDMutex.Lock()
-	defer fake.setJobIDMutex.Unlock()
-	fake.SetJobIDStub = stub
-}
-
-func (fake *FakeContainer) SetJobIDArgsForCall(i int) int {
-	fake.setJobIDMutex.RLock()
-	defer fake.setJobIDMutex.RUnlock()
-	argsForCall := fake.setJobIDArgsForCall[i]
-	return argsForCall.arg1
 }
 
 func (fake *FakeContainer) Value() (interface{}, parsley.Error) {
@@ -545,22 +234,10 @@ func (fake *FakeContainer) WaitGroupsReturnsOnCall(i int, result1 []basil.WaitGr
 func (fake *FakeContainer) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.cancelMutex.RLock()
-	defer fake.cancelMutex.RUnlock()
 	fake.closeMutex.RLock()
 	defer fake.closeMutex.RUnlock()
-	fake.jobIDMutex.RLock()
-	defer fake.jobIDMutex.RUnlock()
-	fake.jobNameMutex.RLock()
-	defer fake.jobNameMutex.RUnlock()
-	fake.lightweightMutex.RLock()
-	defer fake.lightweightMutex.RUnlock()
 	fake.nodeMutex.RLock()
 	defer fake.nodeMutex.RUnlock()
-	fake.runMutex.RLock()
-	defer fake.runMutex.RUnlock()
-	fake.setJobIDMutex.RLock()
-	defer fake.setJobIDMutex.RUnlock()
 	fake.valueMutex.RLock()
 	defer fake.valueMutex.RUnlock()
 	fake.waitGroupsMutex.RLock()

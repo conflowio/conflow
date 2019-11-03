@@ -57,13 +57,13 @@ func blockWithOptions(
 	emptyBody := combinator.SeqOf(
 		terminal.Rune('{'),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
-	).Token(block.TokenBody)
+	).Token(block.TokenBlockBody)
 
 	body := combinator.SeqOf(
 		terminal.Rune('{'),
 		combinator.Many(text.LeftTrim(paramOrBlock, text.WsSpacesForceNl)),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
-	).Token(block.TokenBody)
+	).Token(block.TokenBlockBody)
 
 	blockValue := combinator.Choice(
 		emptyBody,
@@ -89,7 +89,7 @@ func blockWithOptions(
 		directives,
 		id,
 		text.LeftTrim(blockValue, text.WsSpaces),
-	).Name("block").Token(block.Token).Bind(blockInterpreter{})
+	).Name("block").Token(block.TokenBlock).Bind(blockInterpreter{})
 
 	return &p
 }

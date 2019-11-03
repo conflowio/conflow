@@ -8,23 +8,34 @@ package directives_test
 
 func ExampleSkip_ShortFormat() {
 	eval(`
-		println "This will run"
+		println "First will run"
 
 		@skip
-		println "This won't run"
+		println "Second won't run"
 	`)
-	// Output: This will run
+	// Output: First will run
 }
 
-// FIXME: is deadlocked as no children could be evaluated at
-//func ExampleSkip_UsingAVariable() {
-//	eval(`
-//		skip_second := true
-//
-//		println "This will run"
-//
-//		@skip main.skip_second
-//		println "This won't run"
-//	`)
-//	// Output: This will run
-//}
+func ExampleSkip_LongFormat() {
+	eval(`
+		println "First will run"
+
+		@skip {
+          when = true
+        }
+		println "Second won't run"
+	`)
+	// Output: First will run
+}
+
+func ExampleSkip_UsingAVariable() {
+	eval(`
+		skip_second := true
+
+		println "First will run"
+
+		@skip main.skip_second
+		println "Second won't run"
+	`)
+	// Output: First will run
+}

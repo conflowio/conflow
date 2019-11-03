@@ -38,13 +38,13 @@ func Directive(expr parsley.Parser) *combinator.Sequence {
 	emptyBody := combinator.SeqOf(
 		terminal.Rune('{'),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
-	).Token(block.TokenBody)
+	).Token(block.TokenBlockBody)
 
 	body := combinator.SeqOf(
 		terminal.Rune('{'),
 		combinator.Many(text.LeftTrim(paramOrBlock, text.WsSpacesForceNl)),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
-	).Token(block.TokenBody)
+	).Token(block.TokenBlockBody)
 
 	blockValue := combinator.Choice(
 		emptyBody,
@@ -60,7 +60,7 @@ func Directive(expr parsley.Parser) *combinator.Sequence {
 		parser.Empty(), // no directives for a directive
 		ID("@"+basil.IDRegExpPattern),
 		text.LeftTrim(blockValue, text.WsSpaces),
-	).Name("directive").Token(block.Token).Bind(directiveInterpreter{})
+	).Name("directive").Token(block.TokenDirective).Bind(directiveInterpreter{})
 }
 
 type directiveInterpreter struct{}
