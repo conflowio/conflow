@@ -13,7 +13,7 @@ import (
 	"github.com/opsidian/basil/functions/strings"
 )
 
-func Registry() function.InterpreterRegistry {
+func DefaultRegistry() function.InterpreterRegistry {
 	return function.InterpreterRegistry{
 		"array_contains":          ArrayContainsInterpreter{},
 		"is_empty":                IsEmptyInterpreter{},

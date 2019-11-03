@@ -37,7 +37,7 @@ func eval(input string) {
 			"range":   blocks.RangeInterpreter{},
 			"sleep":   blocks.SleepInterpreter{},
 		},
-		FunctionTransformerRegistry: functions.Registry(),
+		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	}
 
 	p := parser.NewMain("main", mainInterpreter)

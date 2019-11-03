@@ -35,7 +35,7 @@ func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 			"println":  blocks.PrintlnInterpreter{},
 			"do":       MainInterpreter{},
 		},
-		FunctionTransformerRegistry: functions.Registry(),
+		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	}
 }
 
