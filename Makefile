@@ -9,7 +9,7 @@ help:
 test: ## Runs all tests
 	@./test.sh
 
-.PHONY: test
+.PHONY: generate
 generate: bin/basil ## Regenerates all files
 	@PATH="$(PWD)/bin;${PATH}" go generate ./...
 
