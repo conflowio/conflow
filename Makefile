@@ -1,5 +1,4 @@
 .DEFAULT_GOAL := help
-SHELL := /usr/bin/env bash
 
 .PHONY: help
 help:
@@ -11,16 +10,16 @@ test: ## Runs all tests
 
 .PHONY: generate
 generate: bin/basil bin/counterfeiter ## Regenerates all files
-	@GOBIN=$PWD/bin PATH="$(PWD)/bin;${PATH}" go generate ./...
+	PATH="$(PWD)/bin:$(PATH)" go generate ./...
 
 .PHONY: build
 build: bin/basil
 
 bin/basil:
-	CGO_ENABLED=0 go build -ldflags="-s -w" -o bin/basil ./cmd/basil/
+	GOBIN="$(PWD)/bin" go install -ldflags="-s -w" ./cmd/basil/
 
 bin/counterfeiter:
-	GOBIN=$(PWD)/bin go install github.com/maxbrunsfeld/counterfeiter/v6
+	GOBIN="$(PWD)/bin" go install -ldflags="-s -w" github.com/maxbrunsfeld/counterfeiter/v6
 
 .PHONY: clean
 clean:
