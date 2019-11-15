@@ -21,7 +21,7 @@ func CreateDefaultContext() (context.Context, context.CancelFunc) {
 	signalChan := make(chan os.Signal)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP)
 
-	terminalState, _ := terminal.GetState(int(syscall.Stdin))
+	terminalState, _ := terminal.GetState(syscall.Stdin)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
