@@ -23,7 +23,7 @@ type Exec struct {
 	params   []string
 	dir      string
 	env      []string
-	exitCode int    `basil:"output"`
+	exitCode int64  `basil:"output"`
 	stdout   string `basil:"output"`
 	stderr   string `basil:"output"`
 }
@@ -84,7 +84,7 @@ func (e *Exec) Main(ctx basil.BlockContext) error {
 		e.exitCode = 256 // If we can't get the exit code at least return with a custom one
 		if exitErr, ok := resultErr.(*exec.ExitError); ok {
 			if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
-				e.exitCode = status.ExitStatus()
+				e.exitCode = int64(status.ExitStatus())
 			}
 		}
 	}

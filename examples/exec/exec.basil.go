@@ -45,7 +45,7 @@ func (i ExecInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 			IsOutput:   false,
 		},
 		"exit_code": {
-			Type:       "int",
+			Type:       "int64",
 			EvalStage:  basil.EvalStages["close"],
 			IsRequired: false,
 			IsOutput:   true,
