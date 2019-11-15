@@ -29,6 +29,7 @@ type Field struct {
 	IsOutput    bool
 	IsGenerated bool
 	IsMany      bool
+	IsPointer   bool
 }
 
 // Fields is a field list

@@ -164,12 +164,17 @@ func setFieldType(typeNode ast.Expr, field *Field) {
 			setFieldType(t.Elt, field)
 			return
 		}
+	case *ast.StarExpr:
+		field.IsPointer = true
+		setFieldType(t.X, field)
+		return
 	}
 
 	b := &bytes.Buffer{}
 	if err := format.Node(b, token.NewFileSet(), typeNode); err != nil {
 		panic(err)
 	}
+
 	field.Type = b.String()
 }
 

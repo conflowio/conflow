@@ -104,7 +104,15 @@ func (i {{.Name}}Interpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
 	{{ range filterParams .Fields -}}
 	case "{{.ParamName}}":
+		{{ if .IsPointer -}}
+		var val {{.Type}}
+		if b.(*{{$root.Name}}).{{.Name}} != nil {
+			val = *b.(*{{$root.Name}}).{{.Name}}
+		}
+		return val
+		{{ else -}}
 		return b.(*{{$root.Name}}).{{.Name}}
+		{{ end -}}
 	{{ end -}}
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in {{.Name}}", name))
@@ -118,7 +126,13 @@ func (i {{.Name}}Interpreter) SetParam(block basil.Block, name basil.ID, value i
 	switch name {
 	{{ range (filterInputs (filterParams .Fields)) -}}
 	case "{{.ParamName}}":
+		{{ if .IsPointer -}}
+		var val {{.Type}}
+		val, err = variable.{{index $root.ValueFunctionNames .Type}}(value)
+		b.{{.Name}} = &val
+		{{ else -}}
 		b.{{.Name}}, err = variable.{{index $root.ValueFunctionNames .Type}}(value)
+		{{ end -}}
 	{{ end -}}
 	}
 	return err
@@ -134,9 +148,9 @@ func (i {{.Name}}Interpreter) SetBlock(block basil.Block, name basil.ID, value i
 	{{ range (filterInputs (filterBlocks .Fields)) -}}
 	case "{{.ParamName}}":
 		{{ if .IsMany -}}
-		b.{{.Name}} = append(b.{{.Name}}, value.({{ .Type }}))
+		b.{{.Name}} = append(b.{{.Name}}, value.({{if .IsPointer}}*{{end}}{{ .Type }}))
 		{{ else -}}
-		b.{{.Name}} = value.({{ .Type }})
+		b.{{.Name}} = value.({{if .IsPointer}}*{{end}}{{ .Type }})
 		{{ end -}}
 	{{ end -}}
 	}
