@@ -50,11 +50,11 @@ func (fs Fields) Filter(test func(*Field) bool) Fields {
 func (f *Field) Validate() error {
 	_, validType := variable.Types[f.Type]
 	if !validType && !f.IsBlock {
-		return fmt.Errorf("invalid field type on field %q, use valid type or use ignore tag", f.Name)
+		return fmt.Errorf("invalid field type %q on field %q, use a valid type or use ignore tag", f.Type, f.Name)
 	}
 
 	if f.hasMultipleKinds() {
-		return fmt.Errorf("field %q must only have one tag of: id, value, block or node", f.Name)
+		return fmt.Errorf("field %q must have exactly one of: id, value, block or generated", f.Name)
 	}
 
 	if !basil.IDRegExp.MatchString(f.ParamName) {
@@ -88,10 +88,7 @@ func (f *Field) hasMultipleKinds() bool {
 	if f.IsValue {
 		typeCnt++
 	}
-	if f.IsBlock {
-		typeCnt++
-	}
-	if f.IsGenerated {
+	if f.IsBlock || f.IsGenerated {
 		typeCnt++
 	}
 	return typeCnt > 1

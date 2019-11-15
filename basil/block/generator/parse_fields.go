@@ -150,6 +150,10 @@ func parseField(astField *ast.Field) (*Field, error) {
 		field.Stage = "close"
 	}
 
+	if err := field.Validate(); err != nil {
+		return nil, err
+	}
+
 	return field, nil
 }
 

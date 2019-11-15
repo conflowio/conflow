@@ -52,7 +52,7 @@ var _ = Describe("Field", func() {
 		It("returns error if id and value are both set", func() {
 			f.IsID = true
 			f.IsValue = true
-			Expect(f.Validate()).To(MatchError("field \"foo\" must only have one tag of: id, value, block or node"))
+			Expect(f.Validate()).To(MatchError("field \"foo\" must have exactly one of: id, value, block or generated"))
 		})
 
 		It("returns error if reference is on a non-id field", func() {
@@ -67,7 +67,7 @@ var _ = Describe("Field", func() {
 
 		It("returns an error for an invalid type", func() {
 			f.Type = "invalidtype"
-			Expect(f.Validate()).To(MatchError("invalid field type on field \"foo\", use valid type or use ignore tag"))
+			Expect(f.Validate()).To(MatchError("invalid field type \"invalidtype\" on field \"foo\", use a valid type or use ignore tag"))
 		})
 
 		It("returns an error for an empty stage", func() {

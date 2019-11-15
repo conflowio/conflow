@@ -38,7 +38,7 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `basil:"id"` + q + `
+					id basil.ID ` + q + `basil:"id"` + q + `
 				}`
 		})
 
@@ -48,7 +48,7 @@ var _ = Describe("ParseFields", func() {
 				{
 					Name:      "id",
 					ParamName: "id",
-					Type:      "string",
+					Type:      "basil.ID",
 					IsID:      true,
 					Stage:     "main",
 				},
@@ -61,7 +61,7 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `basil:"id"` + q + `
+					id basil.ID ` + q + `basil:"id"` + q + `
 					field_string string
 					field_integer int64
 					field_float float64
@@ -78,7 +78,7 @@ var _ = Describe("ParseFields", func() {
 				{
 					Name:      "id",
 					ParamName: "id",
-					Type:      "string",
+					Type:      "basil.ID",
 					IsID:      true,
 					Stage:     "main",
 				},
@@ -147,8 +147,8 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id1 string ` + q + `basil:"id"` + q + `
-					id2 string ` + q + `basil:"id"` + q + `
+					id1 basil.ID ` + q + `basil:"id"` + q + `
+					id2 basil.ID ` + q + `basil:"id"` + q + `
 				}`
 		})
 
@@ -162,7 +162,7 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `basil:"id"` + q + `
+					id basil.ID ` + q + `basil:"id"` + q + `
 					value1 string ` + q + `basil:"value"` + q + `
 					value2 string ` + q + `basil:"value"` + q + `
 				}`
@@ -178,7 +178,7 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `basil:"id"` + q + `
+					id basil.ID ` + q + `basil:"id"` + q + `
 					value string ` + q + `basil:"value"` + q + `
 					foo string ` + q + `basil:"required"` + q + `
 				}`
@@ -194,7 +194,7 @@ var _ = Describe("ParseFields", func() {
 			source = `
 				package foo
 				type Foo struct {
-					id string ` + q + `basil:"id"` + q + `
+					id basil.ID ` + q + `basil:"id"` + q + `
 					foo string ` + q + `basil:"nonexisting"` + q + `
 				}`
 		})
