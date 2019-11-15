@@ -14,18 +14,18 @@ import (
 const (
 	TypeAny          = "interface{}"
 	TypeArray        = "[]interface{}"
-	TypeBasic        = "*variable.Basic"
+	TypeBasic        = "variable.Basic"
 	TypeBool         = terminal.BoolType
 	TypeFloat        = terminal.FloatType
 	TypeIdentifier   = "basil.ID"
 	TypeInteger      = terminal.IntegerType
 	TypeMap          = "map[string]interface{}"
-	TypeNumber       = "*variable.Number"
+	TypeNumber       = "variable.Number"
 	TypeString       = terminal.StringType
 	TypeStringArray  = "[]string"
 	TypeTime         = "time.Time"
 	TypeTimeDuration = terminal.TimeDurationType
-	TypeWithLength   = "*variable.WithLength"
+	TypeWithLength   = "variable.WithLength"
 	TypeUnknown      = ""
 )
 

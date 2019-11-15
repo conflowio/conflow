@@ -49,13 +49,13 @@ func ArrayValue(val interface{}) ([]interface{}, error) {
 }
 
 // BasicValue returns with a basic value
-func BasicValue(val interface{}) (*Basic, error) {
+func BasicValue(val interface{}) (Basic, error) {
 	if val == nil {
-		return nil, nil
+		return Basic{}, nil
 	}
 
 	if !IsBasicType(val) {
-		return nil, ErrExpectingBasic
+		return Basic{}, ErrExpectingBasic
 	}
 
 	return NewBasic(val), nil
@@ -127,13 +127,13 @@ func MapValue(val interface{}) (map[string]interface{}, error) {
 }
 
 // NumberValue returns with the number value of the given interface{} value
-func NumberValue(val interface{}) (*Number, error) {
+func NumberValue(val interface{}) (Number, error) {
 	if val == nil {
-		return nil, nil
+		return Number{}, nil
 	}
 
 	if !IsNumberType(val) {
-		return nil, ErrExpectingNumber
+		return Number{}, ErrExpectingNumber
 	}
 
 	return NewNumber(val), nil
@@ -212,13 +212,13 @@ func TimeDurationValue(val interface{}) (time.Duration, error) {
 }
 
 // WithLengthValue returns with a value which has a length
-func WithLengthValue(val interface{}) (*WithLength, error) {
+func WithLengthValue(val interface{}) (WithLength, error) {
 	if val == nil {
-		return nil, nil
+		return WithLength{}, nil
 	}
 
 	if !IsWithLengthType(val) {
-		return nil, ErrExpectingWithLength
+		return WithLength{}, ErrExpectingWithLength
 	}
 
 	return NewWithLength(val), nil

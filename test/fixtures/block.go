@@ -19,13 +19,13 @@ type Block struct {
 	IDField           basil.ID `basil:"id"`
 	FieldInterface    interface{}
 	FieldArray        []interface{}
-	FieldBasic        *variable.Basic
+	FieldBasic        variable.Basic
 	FieldBool         bool
 	FieldFloat        float64
 	FieldIdentifier   basil.ID
 	FieldInteger      int64
 	FieldMap          map[string]interface{}
-	FieldNumber       *variable.Number
+	FieldNumber       variable.Number
 	FieldString       string
 	FieldStringArray  []string
 	FieldTime         time.Time

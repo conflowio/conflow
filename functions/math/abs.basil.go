@@ -21,7 +21,7 @@ func (i AbsInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (s
 
 	arguments := node.ArgumentNodes()
 
-	if err := variable.CheckNodeType(arguments[0], "*variable.Number"); err != nil {
+	if err := variable.CheckNodeType(arguments[0], "variable.Number"); err != nil {
 		return "", err
 	}
 

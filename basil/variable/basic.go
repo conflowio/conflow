@@ -19,22 +19,22 @@ type Basic struct {
 }
 
 // NewBasic creates a new basic variable
-func NewBasic(value interface{}) *Basic {
+func NewBasic(value interface{}) Basic {
 	if unionType, ok := value.(Union); ok {
 		value = unionType.Value()
 	}
-	return &Basic{
+	return Basic{
 		value: value,
 	}
 }
 
 // Value returns with the contained value
-func (b *Basic) Value() interface{} {
+func (b Basic) Value() interface{} {
 	return b.value
 }
 
 // Type returns the type of the value
-func (b *Basic) Type() string {
+func (b Basic) Type() string {
 	switch b.value.(type) {
 	case bool:
 		return TypeBool

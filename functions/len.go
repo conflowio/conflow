@@ -18,7 +18,7 @@ import (
 // For strings it means the count of UTF-8 characters
 // For arrays and maps it means the number of items/entries
 //go:generate basil generate
-func Len(value *variable.WithLength) int64 {
+func Len(value variable.WithLength) int64 {
 	switch v := value.Value().(type) {
 	case string:
 		return int64(utf8.RuneCountInString(v))

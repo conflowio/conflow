@@ -15,7 +15,7 @@ import (
 
 // String converts the given value to a string
 //go:generate basil generate
-func String(value *variable.Basic) string {
+func String(value variable.Basic) string {
 	switch v := value.Value().(type) {
 	case bool:
 		return strconv.FormatBool(v)

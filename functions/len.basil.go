@@ -20,7 +20,7 @@ func (i LenInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode) (s
 
 	arguments := node.ArgumentNodes()
 
-	if err := variable.CheckNodeType(arguments[0], "*variable.WithLength"); err != nil {
+	if err := variable.CheckNodeType(arguments[0], "variable.WithLength"); err != nil {
 		return "", err
 	}
 

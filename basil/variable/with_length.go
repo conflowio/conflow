@@ -18,22 +18,22 @@ type WithLength struct {
 }
 
 // NewWithLength creates a new variable with a length
-func NewWithLength(value interface{}) *WithLength {
+func NewWithLength(value interface{}) WithLength {
 	if unionType, ok := value.(Union); ok {
 		value = unionType.Value()
 	}
-	return &WithLength{
+	return WithLength{
 		value: value,
 	}
 }
 
 // Value returns with the contained value
-func (w *WithLength) Value() interface{} {
+func (w WithLength) Value() interface{} {
 	return w.value
 }
 
 // Type returns the type of the value
-func (w *WithLength) Type() string {
+func (w WithLength) Type() string {
 	switch w.value.(type) {
 	case string:
 		return TypeString

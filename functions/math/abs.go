@@ -14,7 +14,7 @@ import (
 
 // Abs returns the absolute value of the given number
 //go:generate basil generate
-func Abs(value *variable.Number) (*variable.Number, error) {
+func Abs(value variable.Number) (variable.Number, error) {
 	switch n := value.Value().(type) {
 	case int64:
 		if n >= 0 {

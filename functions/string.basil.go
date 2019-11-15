@@ -20,7 +20,7 @@ func (i StringInterpreter) StaticCheck(ctx interface{}, node basil.FunctionNode)
 
 	arguments := node.ArgumentNodes()
 
-	if err := variable.CheckNodeType(arguments[0], "*variable.Basic"); err != nil {
+	if err := variable.CheckNodeType(arguments[0], "variable.Basic"); err != nil {
 		return "", err
 	}
 

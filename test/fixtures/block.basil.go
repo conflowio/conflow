@@ -33,7 +33,7 @@ func (i BlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 			IsOutput:   false,
 		},
 		"field_basic": {
-			Type:       "*variable.Basic",
+			Type:       "variable.Basic",
 			EvalStage:  basil.EvalStages["main"],
 			IsRequired: false,
 			IsOutput:   false,
@@ -69,7 +69,7 @@ func (i BlockInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 			IsOutput:   false,
 		},
 		"field_number": {
-			Type:       "*variable.Number",
+			Type:       "variable.Number",
 			EvalStage:  basil.EvalStages["main"],
 			IsRequired: false,
 			IsOutput:   false,

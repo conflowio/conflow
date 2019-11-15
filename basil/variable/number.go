@@ -17,22 +17,22 @@ type Number struct {
 }
 
 // NewNumber creates a new number
-func NewNumber(value interface{}) *Number {
+func NewNumber(value interface{}) Number {
 	if unionType, ok := value.(Union); ok {
 		value = unionType.Value()
 	}
-	return &Number{
+	return Number{
 		value: value,
 	}
 }
 
 // Value returns with the contained value
-func (n *Number) Value() interface{} {
+func (n Number) Value() interface{} {
 	return n.value
 }
 
 // Type returns the type of the value
-func (n *Number) Type() string {
+func (n Number) Type() string {
 	switch n.value.(type) {
 	case int64:
 		return TypeInteger
@@ -44,19 +44,19 @@ func (n *Number) Type() string {
 }
 
 // Float64 returns the float64 value of the variable if it's the correct type
-func (n *Number) Float64() (float64, bool) {
+func (n Number) Float64() (float64, bool) {
 	v, ok := n.value.(float64)
 	return v, ok
 }
 
 // Int64 returns the int64 value of the variable if it's the correct type
-func (n *Number) Int64() (int64, bool) {
+func (n Number) Int64() (int64, bool) {
 	v, ok := n.value.(int64)
 	return v, ok
 }
 
 // String returns with the string representation of the number
-func (n *Number) String() string {
+func (n Number) String() string {
 	switch v := n.value.(type) {
 	case int64:
 		return strconv.FormatInt(v, 10)
