@@ -10,6 +10,7 @@ import (
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/parameter"
 	"github.com/opsidian/parsley/combinator"
+	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
@@ -19,12 +20,16 @@ import (
 // If allowNewAssignment is false then only "=" will be allowed
 //   S  -> ID ("="|":=") P
 //   ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-func Parameter(p parsley.Parser, allowNewAssignment bool) *combinator.Sequence {
+func Parameter(expr parsley.Parser, allowNewAssignment bool) *combinator.Sequence {
+	var extendedExpr parser.FuncWrapper
+	extendedExpr = parser.FuncWrapper{F: combinator.Choice(
+		Array(&extendedExpr, text.WsSpacesNl),
+		Map(&extendedExpr),
+		expr,
+	)}
 	parameterValue := combinator.Choice(
-		Array(p, text.WsSpacesNl),
-		Map(p),
+		extendedExpr,
 		MultilineText(),
-		p,
 	)
 
 	var assignment parsley.Parser
