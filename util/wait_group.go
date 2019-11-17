@@ -8,6 +8,8 @@ package util
 
 import (
 	"sync"
+
+	"github.com/opsidian/basil/util/multierror"
 )
 
 // WaitGroup is a slightly different version of sync.WaitGroup with error handling
@@ -15,7 +17,7 @@ import (
 type WaitGroup struct {
 	ch  chan struct{}
 	mu  sync.Mutex
-	err error
+	err *multierror.Error
 	cnt int
 }
 
@@ -37,8 +39,8 @@ func (w *WaitGroup) Wait() <-chan struct{} {
 
 func (w *WaitGroup) Done(err error) {
 	w.mu.Lock()
-	if w.err == nil {
-		w.err = err
+	if err != nil {
+		w.err.Append(err)
 	}
 	w.cnt--
 	if w.cnt < 0 {
@@ -57,7 +59,7 @@ func (w *WaitGroup) Done(err error) {
 
 func (w *WaitGroup) Err() error {
 	w.mu.Lock()
-	err := w.err
+	err := w.err.Err()
 	w.mu.Unlock()
 	return err
 }
