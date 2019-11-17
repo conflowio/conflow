@@ -7,6 +7,7 @@
 package variable
 
 import (
+	"io"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -31,6 +32,8 @@ func GetType(value interface{}) string {
 		return TypeMap
 	case *Number:
 		return TypeNumber
+	case io.ReadCloser:
+		return TypeStream
 	case string:
 		return TypeString
 	case []string:

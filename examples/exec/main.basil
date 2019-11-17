@@ -1,8 +1,14 @@
 exec hello {
     cmd = "sh"
-    params = ["-c", `echo "I was echoed in shell"`]
+    params = ["-c", `sleep 1; echo 1; sleep 1; echo 2; sleep 1; echo 3`]
+    stdout hello_stdout
+    stderr hello_stderr
 }
 
-print {
-    value = hello.stdout
+println {
+    value = hello_stdout.stream
+}
+
+println {
+    value = hello_stderr.stream
 }

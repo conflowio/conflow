@@ -7,12 +7,14 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
+	"errors"
 	"os/exec"
 	"syscall"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/blocks"
+	"github.com/opsidian/basil/util"
 	"golang.org/x/xerrors"
 )
 
@@ -23,9 +25,9 @@ type Exec struct {
 	params   []string
 	dir      string
 	env      []string
-	exitCode int64  `basil:"output"`
-	stdout   string `basil:"output"`
-	stderr   string `basil:"output"`
+	exitCode int64          `basil:"output"`
+	stdout   *blocks.Stream `basil:"generated"`
+	stderr   *blocks.Stream `basil:"generated"`
 }
 
 func (e *Exec) ID() basil.ID {
@@ -42,55 +44,60 @@ func (e *Exec) Main(ctx basil.BlockContext) error {
 		cmd.Env = e.env
 	}
 
-	stdoutReader, stdoutErr := cmd.StdoutPipe()
-	if stdoutErr != nil {
-		return xerrors.Errorf("failed to create stdout reader: %v", stdoutErr)
+	var err error
+	e.stdout.Reader, err = cmd.StdoutPipe()
+	if err != nil {
+		return xerrors.Errorf("failed to create stdout reader: %v", err)
 	}
-
-	stderrReader, stdinErr := cmd.StderrPipe()
-	if stdinErr != nil {
-		return xerrors.Errorf("failed to create stderr reader: %v", stdinErr)
+	e.stderr.Reader, err = cmd.StderrPipe()
+	if err != nil {
+		return xerrors.Errorf("failed to create stderr reader: %v", err)
 	}
 
 	if startErr := cmd.Start(); startErr != nil {
 		return xerrors.Errorf("Failed to start command: %v", startErr)
 	}
 
-	var stdout bytes.Buffer
+	wg := &util.WaitGroup{}
 
-	go func() {
-		scanner := bufio.NewScanner(stdoutReader)
-		for scanner.Scan() {
-			str := scanner.Text()
-			stdout.WriteString(str)
-			stdout.WriteString("\n")
-		}
-	}()
+	wg.Run(func() error {
+		return ctx.PublishBlock(e.stdout)
+	})
 
-	var stderr bytes.Buffer
-	go func() {
-		scanner := bufio.NewScanner(stderrReader)
-		for scanner.Scan() {
-			str := scanner.Text()
-			stderr.WriteString(str)
-			stderr.WriteString("\n")
-		}
-	}()
+	wg.Run(func() error {
+		return ctx.PublishBlock(e.stderr)
+	})
 
-	resultErr := cmd.Wait()
-
-	e.exitCode = 0
-	if resultErr != nil {
-		e.exitCode = 256 // If we can't get the exit code at least return with a custom one
-		if exitErr, ok := resultErr.(*exec.ExitError); ok {
-			if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
-				e.exitCode = int64(status.ExitStatus())
+	wg.Run(func() error {
+		err := cmd.Wait()
+		if err != nil {
+			e.exitCode = 256 // If we can't get the exit code at least return with a custom one
+			if exitErr, ok := err.(*exec.ExitError); ok {
+				if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
+					e.exitCode = int64(status.ExitStatus())
+				}
 			}
 		}
+		return err
+	})
+
+	select {
+	case <-wg.Wait():
+		if err := wg.Err(); err != nil {
+			return err
+		}
+	case <-ctx.Done():
+		return errors.New("aborted")
 	}
 
-	e.stdout = stdout.String()
-	e.stderr = stderr.String()
-
 	return nil
+}
+
+func (e *Exec) ParseContextOverride() basil.ParseContextOverride {
+	return basil.ParseContextOverride{
+		BlockTransformerRegistry: block.InterpreterRegistry{
+			"stdout": blocks.StreamInterpreter{},
+			"stderr": blocks.StreamInterpreter{},
+		},
+	}
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/blocks"
 )
 
 type ExecInterpreter struct{}
@@ -50,24 +51,25 @@ func (i ExecInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 			IsRequired: false,
 			IsOutput:   true,
 		},
-		"stdout": {
-			Type:       "string",
-			EvalStage:  basil.EvalStages["close"],
-			IsRequired: false,
-			IsOutput:   true,
-		},
-		"stderr": {
-			Type:       "string",
-			EvalStage:  basil.EvalStages["close"],
-			IsRequired: false,
-			IsOutput:   true,
-		},
 	}
 }
 
 // Blocks returns with the list of valid blocks
 func (i ExecInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
-	return nil
+	return map[basil.ID]basil.BlockDescriptor{
+		"stdout": {
+			EvalStage:   basil.EvalStages["init"],
+			IsGenerated: true,
+			IsRequired:  true,
+			IsMany:      false,
+		},
+		"stderr": {
+			EvalStage:   basil.EvalStages["init"],
+			IsGenerated: true,
+			IsRequired:  true,
+			IsMany:      false,
+		},
+	}
 }
 
 // HasForeignID returns true if the block ID is referencing an other block id
@@ -104,10 +106,6 @@ func (i ExecInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 		return b.(*Exec).env
 	case "exit_code":
 		return b.(*Exec).exitCode
-	case "stdout":
-		return b.(*Exec).stdout
-	case "stderr":
-		return b.(*Exec).stderr
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Exec", name))
 	}
@@ -132,6 +130,13 @@ func (i ExecInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 }
 
 func (i ExecInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+	b := block.(*Exec)
+	switch name {
+	case "stdout":
+		b.stdout = value.(*blocks.Stream)
+	case "stderr":
+		b.stderr = value.(*blocks.Stream)
+	}
 	return nil
 }
 

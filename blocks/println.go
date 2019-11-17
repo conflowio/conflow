@@ -7,7 +7,9 @@
 package blocks
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 
 	"github.com/opsidian/basil/basil"
 )
@@ -24,6 +26,15 @@ func (p *Println) ID() basil.ID {
 }
 
 func (p *Println) Main(ctx basil.BlockContext) error {
-	fmt.Println(p.value)
+	switch v := p.value.(type) {
+	case io.ReadCloser:
+		scanner := bufio.NewScanner(v)
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
+		return nil
+	default:
+		fmt.Println(v)
+	}
 	return nil
 }

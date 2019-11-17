@@ -21,6 +21,7 @@ const (
 	TypeInteger      = terminal.IntegerType
 	TypeMap          = "map[string]interface{}"
 	TypeNumber       = "variable.Number"
+	TypeStream       = "io.ReadCloser"
 	TypeString       = terminal.StringType
 	TypeStringArray  = "[]string"
 	TypeTime         = "time.Time"
@@ -40,6 +41,7 @@ var Types = map[string]string{
 	TypeInteger:      "integer",
 	TypeMap:          "map",
 	TypeNumber:       "number",
+	TypeStream:       "stream",
 	TypeString:       "string",
 	TypeStringArray:  "string array",
 	TypeTime:         "time",

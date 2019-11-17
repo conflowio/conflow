@@ -22,6 +22,7 @@ var (
 	ErrExpectingInteger      = errors.New("was expecting integer")
 	ErrExpectingMap          = errors.New("was expecting map")
 	ErrExpectingNumber       = errors.New("was expecting number")
+	ErrExpectingStream       = errors.New("was expecting stream")
 	ErrExpectingString       = errors.New("was expecting string")
 	ErrExpectingStringArray  = errors.New("was expecting string array")
 	ErrExpectingTime         = errors.New("was expecting RFC3339 time")
@@ -40,6 +41,7 @@ var TypeErrors = map[string]error{
 	TypeInteger:      ErrExpectingInteger,
 	TypeMap:          ErrExpectingMap,
 	TypeNumber:       ErrExpectingNumber,
+	TypeStream:       ErrExpectingStream,
 	TypeString:       ErrExpectingString,
 	TypeStringArray:  ErrExpectingStringArray,
 	TypeTime:         ErrExpectingTime,

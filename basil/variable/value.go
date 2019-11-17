@@ -7,6 +7,7 @@
 package variable
 
 import (
+	"io"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -23,6 +24,7 @@ var ValueFunctionNames = map[string]string{
 	TypeInteger:      "IntegerValue",
 	TypeMap:          "MapValue",
 	TypeNumber:       "NumberValue",
+	TypeStream:       "StreamValue",
 	TypeString:       "StringValue",
 	TypeStringArray:  "StringArrayValue",
 	TypeTime:         "TimeValue",
@@ -137,6 +139,18 @@ func NumberValue(val interface{}) (Number, error) {
 	}
 
 	return NewNumber(val), nil
+}
+
+func StreamValue(val interface{}) (io.ReadCloser, error) {
+	if val == nil {
+		return nil, nil
+	}
+
+	if res, ok := val.(io.ReadCloser); ok {
+		return res, nil
+	}
+
+	return nil, ErrExpectingStream
 }
 
 // StringValue returns with the string value of the given interface{} value

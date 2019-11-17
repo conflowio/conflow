@@ -63,3 +63,10 @@ func (w *WaitGroup) Err() error {
 	w.mu.Unlock()
 	return err
 }
+
+func (w *WaitGroup) Run(f func() error) {
+	w.Add(1)
+	go func() {
+		w.Done(f())
+	}()
+}
