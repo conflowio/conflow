@@ -6,17 +6,17 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-func NewStream(id basil.ID, reader io.ReadCloser) *Stream {
+func NewStream(id basil.ID, stream io.ReadCloser) *Stream {
 	return &Stream{
 		id:     id,
-		Reader: reader,
+		Stream: stream,
 	}
 }
 
 //go:generate basil generate
 type Stream struct {
-	id     basil.ID      `basil:"id"`
-	Reader io.ReadCloser `basil:"name=stream"`
+	id     basil.ID `basil:"id"`
+	Stream io.ReadCloser
 }
 
 func (s Stream) ID() basil.ID {

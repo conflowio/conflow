@@ -45,11 +45,11 @@ func (e *Exec) Main(ctx basil.BlockContext) error {
 	}
 
 	var err error
-	e.stdout.Reader, err = cmd.StdoutPipe()
+	e.stdout.Stream, err = cmd.StdoutPipe()
 	if err != nil {
 		return xerrors.Errorf("failed to create stdout reader: %v", err)
 	}
-	e.stderr.Reader, err = cmd.StderrPipe()
+	e.stderr.Stream, err = cmd.StderrPipe()
 	if err != nil {
 		return xerrors.Errorf("failed to create stderr reader: %v", err)
 	}

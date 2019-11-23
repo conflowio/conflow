@@ -59,7 +59,7 @@ func (i StreamInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	case "id":
 		return b.(*Stream).id
 	case "stream":
-		return b.(*Stream).Reader
+		return b.(*Stream).Stream
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Stream", name))
 	}
@@ -72,7 +72,7 @@ func (i StreamInterpreter) SetParam(block basil.Block, name basil.ID, value inte
 	case "id":
 		b.id, err = variable.IdentifierValue(value)
 	case "stream":
-		b.Reader, err = variable.StreamValue(value)
+		b.Stream, err = variable.StreamValue(value)
 	}
 	return err
 }
