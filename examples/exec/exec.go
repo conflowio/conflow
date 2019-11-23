@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"syscall"
 
+	"github.com/opsidian/basil/util/multierror"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/blocks"
@@ -59,38 +61,35 @@ func (e *Exec) Main(ctx basil.BlockContext) error {
 	}
 
 	wg := &util.WaitGroup{}
-
 	wg.Run(func() error {
-		return ctx.PublishBlock(e.stdout, nil)
+		_, err := ctx.PublishBlock(e.stdout, nil)
+		return err
 	})
-
 	wg.Run(func() error {
-		return ctx.PublishBlock(e.stderr, nil)
-	})
-
-	wg.Run(func() error {
-		err := cmd.Wait()
-		if err != nil {
-			e.exitCode = 256 // If we can't get the exit code at least return with a custom one
-			if exitErr, ok := err.(*exec.ExitError); ok {
-				if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
-					e.exitCode = int64(status.ExitStatus())
-				}
-			}
-		}
+		_, err := ctx.PublishBlock(e.stderr, nil)
 		return err
 	})
 
+	var retErr error
 	select {
 	case <-wg.Wait():
-		if err := wg.Err(); err != nil {
-			return err
-		}
+		retErr = wg.Err()
 	case <-ctx.Done():
 		return errors.New("aborted")
 	}
 
-	return nil
+	// Wait shouldn't be called until both stdin/stderr was read
+	if err := cmd.Wait(); err != nil {
+		e.exitCode = 256 // If we can't get the exit code at least return with a custom one
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			if status, ok := exitErr.Sys().(syscall.WaitStatus); ok {
+				e.exitCode = int64(status.ExitStatus())
+			}
+		}
+		retErr = multierror.Append(retErr, err)
+	}
+
+	return retErr
 }
 
 func (e *Exec) ParseContextOverride() basil.ParseContextOverride {
