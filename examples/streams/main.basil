@@ -1,0 +1,20 @@
+exec hello {
+    cmd = "sh"
+    params = ["-c", `echo "I was compressed, then decompressed with gzip"`]
+    stdout hello_stdout
+    stderr hello_stderr
+}
+
+gzip {
+    in = hello_stdout.stream
+    out hello_gzip
+}
+
+gunzip {
+    in = hello_gzip.stream
+    out hello_gunzip
+}
+
+println {
+    value = hello_gunzip.stream
+}
