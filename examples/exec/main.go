@@ -27,7 +27,7 @@ func (m *Main) ID() basil.ID {
 func (m *Main) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"exec":    ExecInterpreter{},
+			"exec":    blocks.ExecInterpreter{},
 			"print":   blocks.PrintInterpreter{},
 			"println": blocks.PrintlnInterpreter{},
 		},

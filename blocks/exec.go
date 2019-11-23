@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package main
+package blocks
 
 import (
 	"errors"
@@ -15,7 +15,6 @@ import (
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/blocks"
 	"github.com/opsidian/basil/util"
 	"golang.org/x/xerrors"
 )
@@ -27,9 +26,9 @@ type Exec struct {
 	params   []string
 	dir      string
 	env      []string
-	exitCode int64          `basil:"output"`
-	stdout   *blocks.Stream `basil:"generated"`
-	stderr   *blocks.Stream `basil:"generated"`
+	exitCode int64   `basil:"output"`
+	stdout   *Stream `basil:"generated"`
+	stderr   *Stream `basil:"generated"`
 }
 
 func (e *Exec) ID() basil.ID {
@@ -95,8 +94,8 @@ func (e *Exec) Main(ctx basil.BlockContext) error {
 func (e *Exec) ParseContextOverride() basil.ParseContextOverride {
 	return basil.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"stdout": blocks.StreamInterpreter{},
-			"stderr": blocks.StreamInterpreter{},
+			"stdout": StreamInterpreter{},
+			"stderr": StreamInterpreter{},
 		},
 	}
 }
