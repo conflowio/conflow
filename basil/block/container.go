@@ -502,31 +502,41 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 	return nil
 }
 
-func (c *Container) PublishBlock(block basil.Block) error {
+func (c *Container) PublishBlock(block basil.Block, f func() error) (bool, error) {
 	nodeContainer, ok := c.children[block.ID()]
 	if !ok || !nodeContainer.Node().Generated() {
-		return fmt.Errorf("%q block does not exist or is not marked as generated", block.ID())
+		return false, fmt.Errorf("%q block does not exist or is not marked as generated", block.ID())
+	}
+
+	if !c.evalCtx.HasSubscribers(block.ID()) {
+		return false, nil
 	}
 
 	wg := &util.WaitGroup{}
 	wg.Add(1)
 	container, err := nodeContainer.CreateContainer(block, []basil.WaitGroup{wg})
 	if err != nil {
-		return err
+		return false, err
 	}
 	if container == nil {
-		return nil
+		return false, nil
 	}
 
 	if err := c.jobTracker.ScheduleJob(container); err != nil {
-		return fmt.Errorf("failed to schedule %q: %s", block.ID(), err)
+		return false, fmt.Errorf("failed to schedule %q: %s", block.ID(), err)
+	}
+
+	if f != nil {
+		if err := f(); err != nil {
+			return true, err
+		}
 	}
 
 	select {
 	case <-wg.Wait():
-		return wg.Err()
+		return true, wg.Err()
 	case <-c.evalCtx.Done():
-		return fmt.Errorf("%q was aborted", c.node.ID())
+		return true, fmt.Errorf("%q was aborted", c.node.ID())
 	}
 }
 

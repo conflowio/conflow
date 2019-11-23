@@ -63,7 +63,7 @@ type BlockContainer interface {
 	Param(ID) interface{}
 	SetChild(Container)
 	SetError(parsley.Error)
-	PublishBlock(Block) error
+	PublishBlock(Block, func() error) (bool, error)
 	EvalStageAware
 }
 

@@ -129,6 +129,10 @@ func (e *EvalContext) Publish(c Container) {
 	e.pubSub.Publish(c)
 }
 
+func (e *EvalContext) HasSubscribers(id ID) bool {
+	return e.pubSub.HasSubscribers(id)
+}
+
 func (e *EvalContext) Deadline() (deadline time.Time, ok bool) {
 	return e.ctx.Deadline()
 }

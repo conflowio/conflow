@@ -37,7 +37,8 @@ func (g *Glob) Main(ctx basil.BlockContext) error {
 		if !regexp.MatchString(path) {
 			return nil
 		}
-		return ctx.PublishBlock(&File{id: g.file.id, path: path})
+		_, perr := ctx.PublishBlock(&File{id: g.file.id, path: path}, nil)
+		return perr
 	})
 }
 

@@ -31,10 +31,10 @@ func (t *Ticker) Main(ctx basil.BlockContext) error {
 	for {
 		select {
 		case tickerTime := <-ticker.C:
-			err := ctx.PublishBlock(&Tick{
+			_, err := ctx.PublishBlock(&Tick{
 				id:   t.tick.id,
 				time: tickerTime,
-			})
+			}, nil)
 			if err != nil {
 				return err
 			}

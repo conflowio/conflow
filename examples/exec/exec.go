@@ -61,11 +61,11 @@ func (e *Exec) Main(ctx basil.BlockContext) error {
 	wg := &util.WaitGroup{}
 
 	wg.Run(func() error {
-		return ctx.PublishBlock(e.stdout)
+		return ctx.PublishBlock(e.stdout, nil)
 	})
 
 	wg.Run(func() error {
-		return ctx.PublishBlock(e.stderr)
+		return ctx.PublishBlock(e.stderr, nil)
 	})
 
 	wg.Run(func() error {

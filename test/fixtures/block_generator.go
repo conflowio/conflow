@@ -25,7 +25,7 @@ func (b *BlockGenerator) Main(blockCtx basil.BlockContext) error {
 			id:    b.result.id,
 			value: item,
 		}
-		if err := blockCtx.PublishBlock(res); err != nil {
+		if _, err := blockCtx.PublishBlock(res, nil); err != nil {
 			return err
 		}
 	}

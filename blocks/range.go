@@ -37,22 +37,22 @@ func (r *Range) Main(ctx basil.BlockContext) error {
 	switch val := r.value.(type) {
 	case []interface{}:
 		for k, v := range val {
-			err := ctx.PublishBlock(&RangeEntry{
+			_, err := ctx.PublishBlock(&RangeEntry{
 				id:    r.entry.id,
 				key:   k,
 				value: v,
-			})
+			}, nil)
 			if err != nil {
 				return err
 			}
 		}
 	case map[string]interface{}:
 		for k, v := range val {
-			err := ctx.PublishBlock(&RangeEntry{
+			_, err := ctx.PublishBlock(&RangeEntry{
 				id:    r.entry.id,
 				key:   k,
 				value: v,
-			})
+			}, nil)
 			if err != nil {
 				return err
 			}

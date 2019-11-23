@@ -17,7 +17,7 @@ type BlockContext interface {
 	context.Context
 	UserContext() interface{}
 	Logger() Logger
-	PublishBlock(Block) error
+	PublishBlock(Block, func() error) (bool, error)
 }
 
 // Context defines an interface about creating a new context
@@ -75,6 +75,6 @@ func (b *blockContext) Logger() Logger {
 	return b.evalContext.Logger
 }
 
-func (b *blockContext) PublishBlock(block Block) error {
-	return b.container.PublishBlock(block)
+func (b *blockContext) PublishBlock(block Block, f func() error) (bool, error) {
+	return b.container.PublishBlock(block, f)
 }

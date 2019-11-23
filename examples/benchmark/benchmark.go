@@ -40,10 +40,10 @@ func (b *Benchmark) Main(ctx basil.BlockContext) error {
 			return nil
 		default:
 			b.counter++
-			_ = ctx.PublishBlock(&BenchmarkRun{
+			_, _ = ctx.PublishBlock(&BenchmarkRun{
 				id:  b.run.id,
 				cnt: b.counter,
-			})
+			}, nil)
 		}
 	}
 }

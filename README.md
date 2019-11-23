@@ -141,10 +141,10 @@ func (s *SampleBlock) Close(ctx basil.BlockContext) error {
 func (it *Iterator) Main(ctx basil.BlockContext) error {
 	for i := int64(0); i < it.count; i++ {
 		// This call will block
-		err := ctx.PublishBlock(&It{
+		_, err := ctx.PublishBlock(&It{
 			id:    it.it.id,
 			value: i,
-		})
+		}, nil)
 		if err != nil {
 			// ...
 		}

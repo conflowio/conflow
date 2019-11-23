@@ -67,3 +67,11 @@ func (p *PubSub) Publish(c Container) {
 		sub.container.SetDependency(c)
 	}
 }
+
+// HasSubscribers will return true if the given block has subscribers
+func (p *PubSub) HasSubscribers(id ID) bool {
+	p.mu.RLock()
+	_, ok := p.subs[id]
+	p.mu.RUnlock()
+	return ok
+}
