@@ -10,10 +10,11 @@ import "github.com/opsidian/parsley/parsley"
 
 // ParameterDescriptor describes a parameter
 type ParameterDescriptor struct {
-	Type       string
-	EvalStage  EvalStage
-	IsRequired bool
-	IsOutput   bool
+	Type          string
+	EvalStage     EvalStage
+	IsRequired    bool
+	IsUserDefined bool
+	IsOutput      bool
 }
 
 // ParameterNode is the AST node for a parameter

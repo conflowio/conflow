@@ -27,15 +27,23 @@ type Node struct {
 	evalStage     basil.EvalStage
 	isDeclaration bool
 	dependencies  basil.Dependencies
+	directives    []basil.BlockNode
 }
 
 // NewNode creates a new block parameter node
-func NewNode(blockID basil.ID, nameNode *basil.IDNode, valueNode parsley.Node, isDeclaration bool) *Node {
+func NewNode(
+	blockID basil.ID,
+	nameNode *basil.IDNode,
+	valueNode parsley.Node,
+	isDeclaration bool,
+	directives []basil.BlockNode,
+) *Node {
 	return &Node{
 		id:            basil.ID(fmt.Sprintf("%s.%s", blockID, nameNode.ID())),
 		nameNode:      nameNode,
 		valueNode:     valueNode,
 		isDeclaration: isDeclaration,
+		directives:    directives,
 	}
 }
 
@@ -90,9 +98,9 @@ func (n *Node) Dependencies() basil.Dependencies {
 	return n.dependencies
 }
 
-// Directives returns nil as currently parameters don't support directives
+// Directives returns the parameter directives
 func (n *Node) Directives() []basil.BlockNode {
-	return nil
+	return n.directives
 }
 
 // Provides returns with nil as a parameter node doesn't define other nodes

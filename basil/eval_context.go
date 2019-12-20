@@ -22,6 +22,8 @@ func (e EvalStage) String() string {
 	switch e {
 	case EvalStageUndefined:
 		return "undefined"
+	case EvalStageParse:
+		return "parse"
 	case EvalStageResolve:
 		return "resolve"
 	case EvalStageInit:
@@ -39,6 +41,7 @@ func (e EvalStage) String() string {
 // Evaluation stages
 const (
 	EvalStageUndefined EvalStage = iota
+	EvalStageParse
 	EvalStageResolve
 	EvalStageInit
 	EvalStageMain
@@ -48,6 +51,7 @@ const (
 
 // EvalStages returns with the evaluation stages
 var EvalStages = map[string]EvalStage{
+	"parse":   EvalStageParse,
 	"resolve": EvalStageResolve,
 	"init":    EvalStageInit,
 	"main":    EvalStageMain,
@@ -67,6 +71,7 @@ type EvalContext struct {
 	dependencies map[ID]BlockContainer
 	sem          int64
 	StdOut       io.Writer
+	InputParams  map[ID]interface{}
 }
 
 // NewEvalContext returns with a new evaluation context

@@ -7,7 +7,10 @@
 package parameter
 
 import (
+	"errors"
+
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/directive"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -17,24 +20,36 @@ func TransformNode(
 	blockID basil.ID,
 	paramNames map[basil.ID]struct{},
 ) (basil.ParameterNode, parsley.Error) {
-	paramChildren := node.(parsley.NonTerminalNode).Children()
+	nodes := node.(parsley.NonTerminalNode).Children()
 
-	nameNode := paramChildren[0].(*basil.IDNode)
+	var directives []basil.BlockNode
+	if n, ok := nodes[0].(parsley.NonTerminalNode); ok && len(n.Children()) > 0 {
+		var err parsley.Error
+		var deps basil.Dependencies
+		if directives, deps, err = directive.Transform(parseCtx, n.Children()); err != nil {
+			return nil, err
+		}
+		if len(deps) > 0 {
+			return nil, parsley.NewError(n.Pos(), errors.New("a parameter directive can not have dependencies"))
+		}
+	}
+
+	nameNode := nodes[1].(*basil.IDNode)
 	if _, exists := paramNames[nameNode.ID()]; exists {
 		return nil, parsley.NewErrorf(
-			paramChildren[0].Pos(),
+			nodes[0].Pos(),
 			"%q parameter was defined multiple times", nameNode.ID(),
 		)
 	}
 	paramNames[nameNode.ID()] = struct{}{}
 
-	op, _ := paramChildren[1].Value(nil)
+	op, _ := nodes[2].Value(nil)
 	isDeclaration := op == ":="
 
-	valueNode, err := parsley.Transform(parseCtx, paramChildren[2])
+	valueNode, err := parsley.Transform(parseCtx, nodes[3])
 	if err != nil {
 		return nil, err
 	}
 
-	return NewNode(blockID, nameNode, valueNode, isDeclaration), nil
+	return NewNode(blockID, nameNode, valueNode, isDeclaration, directives), nil
 }

@@ -97,14 +97,14 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 // Run evaluates the parameter
 func (c *Container) Run() {
 	defer func() {
-		c.evalCtx.Cancel()
-
 		if c.parent != nil {
 			c.parent.SetChild(c)
 		}
+
+		c.evalCtx.Cancel()
 	}()
 
-	if !c.evalCtx.Run() {
+	if !c.evalCtx.Run() || c.value != nil {
 		return
 	}
 

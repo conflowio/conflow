@@ -18,8 +18,10 @@ func (t *Todo) ID() basil.ID {
 	return t.id
 }
 
-func (t *Todo) RuntimeConfig() basil.RuntimeConfig {
-	return basil.RuntimeConfig{}
+func (t *Todo) ApplyToRuntimeConfig(*basil.RuntimeConfig) {
+}
+
+func (t *Todo) ApplyToParameterConfig(*basil.ParameterConfig) {
 }
 
 func (t *Todo) EvalStage() basil.EvalStage {

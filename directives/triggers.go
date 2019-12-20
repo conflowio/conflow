@@ -18,15 +18,13 @@ func (t *Triggers) ID() basil.ID {
 	return t.id
 }
 
-func (t *Triggers) RuntimeConfig() basil.RuntimeConfig {
+func (t *Triggers) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
 	// TODO: introduce the []basil.ID type for blockIDs
 	triggers := make([]basil.ID, len(t.blockIDs))
 	for i, id := range t.blockIDs {
 		triggers[i] = basil.ID(id.(string))
 	}
-	return basil.RuntimeConfig{
-		Triggers: triggers,
-	}
+	config.Triggers = triggers
 }
 
 func (t *Triggers) EvalStage() basil.EvalStage {

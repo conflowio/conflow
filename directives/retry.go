@@ -22,10 +22,8 @@ func (r *Retry) ID() basil.ID {
 	return r.id
 }
 
-func (r *Retry) RuntimeConfig() basil.RuntimeConfig {
-	return basil.RuntimeConfig{
-		Retry: r,
-	}
+func (r *Retry) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
+	config.Retry = r
 }
 
 func (r *Retry) RetryCount() int {

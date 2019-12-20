@@ -301,6 +301,49 @@ var _ = Describe("Block parser", func() {
 			testblock {}`,
 			&test.Block{IDField: "2"},
 		),
+		Entry(
+			"a parameter directive with no body",
+			`testblock {
+				@testdirective
+				value = "bar"
+			}`,
+			&test.Block{IDField: "0", Value: "bar"},
+		),
+		Entry(
+			"a parameter directive with an value",
+			`testblock {
+				@testdirective "foo"
+				value = "bar"
+			}`,
+			&test.Block{IDField: "0", Value: "bar"},
+		),
+		Entry(
+			"a parameter directive with an empty body",
+			`testblock {
+				@testdirective {}
+				value = "bar"
+			}`,
+			&test.Block{IDField: "0", Value: "bar"},
+		),
+		Entry(
+			"a parameter directive with a body",
+			`testblock {
+				@testdirective {
+				  value = "foo"
+				}
+				value = "bar"
+			}`,
+			&test.Block{IDField: "0", Value: "bar"},
+		),
+		Entry(
+			"a parameter with multiple directives",
+			`testblock {
+				@testdirective "foo"
+				@testdirective2 "foo2"
+				value = "bar"
+			}`,
+			&test.Block{IDField: "0", Value: "bar"},
+		),
 	)
 
 	DescribeTable("it returns a parse error",

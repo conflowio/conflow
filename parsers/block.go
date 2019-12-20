@@ -50,7 +50,7 @@ func blockWithOptions(
 	}
 
 	paramOrBlock := combinator.Choice(
-		Parameter(expr, allowCustomParameters),
+		Parameter(expr, allowCustomParameters, allowDirectives),
 		&p,
 	).Name("parameter or block")
 

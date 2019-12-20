@@ -7,8 +7,15 @@
 package block
 
 import (
+	"context"
 	"errors"
 	"fmt"
+
+	"github.com/opsidian/basil/basil/job"
+
+	"github.com/opsidian/basil/util"
+
+	"github.com/opsidian/basil/basil/directive"
 
 	"github.com/opsidian/parsley/ast"
 
@@ -29,7 +36,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 	if n, ok := nodes[0].(parsley.NonTerminalNode); ok && len(n.Children()) > 0 {
 		var err parsley.Error
 		var deps basil.Dependencies
-		if directives, deps, err = transformDirectives(parseCtx, n.Children(), interpreter); err != nil {
+		if directives, deps, err = directive.Transform(parseCtx, n.Children()); err != nil {
 			return nil, err
 		}
 		dependencies.Add(deps)
@@ -91,6 +98,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 					basil.NewIDNode(valueParamName, blockValueNode.Pos(), blockValueNode.Pos()),
 					valueNode,
 					false,
+					nil,
 				),
 			}
 		}
@@ -129,6 +137,15 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 		return nil, err
 	}
 
+	moduleParams, err := getModuleParams(children, interpreter)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(moduleParams) > 0 {
+		interpreter = newMainInterpreter(interpreter, moduleParams)
+	}
+
 	if len(dependencies) > 0 {
 		for _, d := range dependencies {
 			if _, blockNodeExists := parseCtx.BlockNode(d.ParentID()); blockNodeExists {
@@ -151,14 +168,14 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 	)
 
 	if err := parseCtx.AddBlockNode(res); err != nil {
-		panic("failed to register the main block node")
+		panic(fmt.Errorf("failed to register the main block node: %w", err))
 	}
 
 	return res, nil
 }
 
 func TransformChildren(
-	parseCtx interface{},
+	parseCtx *basil.ParseContext,
 	blockID basil.ID,
 	nodes []parsley.Node,
 	interpreter basil.BlockInterpreter,
@@ -182,13 +199,19 @@ func TransformChildren(
 			blockNode := res.(basil.BlockNode)
 			blockNode.SetDescriptor(blocks[blockNode.BlockType()])
 			basilNodes = append(basilNodes, blockNode)
+
+			if blockNode.EvalStage() == basil.EvalStageParse {
+				if err := evaluateBlock(parseCtx, blockNode); err != nil {
+					return nil, nil, err
+				}
+			}
 		} else if node.Token() == parameter.Token {
 			paramNode, err := parameter.TransformNode(parseCtx, node, blockID, paramNames)
 			if err != nil {
 				return nil, nil, err
 			}
-			if !paramNode.IsDeclaration() {
-				paramNode.SetDescriptor(parameters[paramNode.Name()])
+			if descriptor, ok := parameters[paramNode.Name()]; ok {
+				paramNode.SetDescriptor(descriptor)
 			}
 			basilNodes = append(basilNodes, paramNode)
 		} else {
@@ -199,30 +222,92 @@ func TransformChildren(
 	return dependency.NewResolver(blockID, basilNodes...).Resolve()
 }
 
-func transformDirectives(
-	parseCtx interface{},
-	nodes []parsley.Node,
-	interpreter basil.BlockInterpreter,
-) ([]basil.BlockNode, basil.Dependencies, parsley.Error) {
-	directives := make([]basil.BlockNode, 0, len(nodes))
-	dependencies := make(basil.Dependencies)
-	blocks := interpreter.Blocks()
+func getModuleParams(children []basil.Node, interpreter basil.BlockInterpreter) (map[basil.ID]basil.ParameterDescriptor, parsley.Error) {
+	moduleParams := map[basil.ID]basil.ParameterDescriptor{}
 
-	for _, n := range nodes {
-		res, err := n.(parsley.Transformable).Transform(parseCtx)
-		if err != nil {
-			return nil, nil, err
-		}
-		blockNode := res.(basil.BlockNode)
-		blockNode.SetDescriptor(blocks[blockNode.BlockType()])
-		directives = append(directives, blockNode)
-
-		parsley.Walk(blockNode, func(node parsley.Node) bool {
-			if v, ok := node.(basil.VariableNode); ok {
-				dependencies[v.ID()] = v
+	for _, c := range children {
+		if paramNode, ok := c.(basil.ParameterNode); ok {
+			config, err := getParameterConfig(paramNode)
+			if err != nil {
+				return nil, err
 			}
-			return false
-		})
+
+			if util.BoolValue(config.Input) || util.BoolValue(config.Output) {
+				if _, exists := interpreter.Params()[paramNode.Name()]; exists {
+					return nil, parsley.NewErrorf(c.Pos(), "%q parameter already exists.", paramNode.Name())
+				}
+			}
+
+			switch {
+			case util.BoolValue(config.Input):
+				moduleParams[paramNode.Name()] = basil.ParameterDescriptor{
+					Type:          util.StringValue(config.Type),
+					EvalStage:     basil.EvalStageInit,
+					IsRequired:    util.BoolValue(config.Required),
+					IsUserDefined: true,
+				}
+			case util.BoolValue(config.Output):
+				moduleParams[paramNode.Name()] = basil.ParameterDescriptor{
+					Type:          util.StringValue(config.Type),
+					EvalStage:     basil.EvalStageInit,
+					IsUserDefined: true,
+					IsOutput:      true,
+				}
+			}
+		}
 	}
-	return directives, dependencies, nil
+
+	return moduleParams, nil
+}
+
+func getParameterConfig(param basil.ParameterNode) (*basil.ParameterConfig, parsley.Error) {
+	config := &basil.ParameterConfig{}
+
+	evalCtx := basil.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
+
+	for _, d := range param.Directives() {
+		if d.EvalStage() != basil.EvalStageParse {
+			continue
+		}
+
+		block, err := d.Value(evalCtx)
+		if err != nil {
+			return nil, parsley.NewErrorf(d.Pos(), "failed to evaluate directive %s: %w", d.ID(), err)
+		}
+
+		opt, ok := block.(basil.ParameterConfigOption)
+		if !ok {
+			return nil, parsley.NewError(d.Pos(), fmt.Errorf("%q directive can not be defined on a parameter", d.Type()))
+		}
+
+		opt.ApplyToParameterConfig(config)
+	}
+
+	return config, nil
+}
+
+func evaluateBlock(parseCtx *basil.ParseContext, node basil.BlockNode) parsley.Error {
+	evalCtx := basil.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
+
+	block, err := node.Value(evalCtx)
+	if err != nil {
+		return err
+	}
+
+	if provider, ok := block.(basil.BlockProvider); ok {
+		interpreters, err := provider.BlockInterpreters(parseCtx)
+		if err != nil {
+			return parsley.NewError(node.Pos(), err)
+		}
+
+		registry := parseCtx.BlockTransformerRegistry().(InterpreterRegistry)
+		for name, interpreter := range interpreters {
+			if _, exists := registry[string(name)]; exists {
+				return parsley.NewErrorf(node.Pos(), "%q block is already registered, please use an alias", name)
+			}
+			registry[string(name)] = interpreter
+		}
+	}
+
+	return nil
 }

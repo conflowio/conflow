@@ -47,9 +47,9 @@ func NewParseContext(idRegistry IDRegistry, directiveTransformerRegistry parsley
 		directiveTransformerRegistry = emptyRegistry
 	}
 	return &ParseContext{
-		idRegistry: idRegistry,
-		blockNodes: make(map[ID]BlockNode, 32),
-		fileSet:    parsley.NewFileSet(),
+		idRegistry:                   idRegistry,
+		blockNodes:                   make(map[ID]BlockNode, 32),
+		fileSet:                      parsley.NewFileSet(),
 		directiveTransformerRegistry: directiveTransformerRegistry,
 		blockTransformerRegistry:     emptyRegistry,
 		functionTransformerRegistry:  emptyRegistry,
@@ -59,9 +59,9 @@ func NewParseContext(idRegistry IDRegistry, directiveTransformerRegistry parsley
 // New creates a new child context
 func (p *ParseContext) New(config ParseContextOverride) *ParseContext {
 	ctx := &ParseContext{
-		idRegistry: p.idRegistry,
-		blockNodes: p.blockNodes,
-		fileSet:    p.fileSet,
+		idRegistry:                   p.idRegistry,
+		blockNodes:                   p.blockNodes,
+		fileSet:                      p.fileSet,
 		directiveTransformerRegistry: p.directiveTransformerRegistry,
 		blockTransformerRegistry:     p.blockTransformerRegistry,
 		functionTransformerRegistry:  p.functionTransformerRegistry,
@@ -73,6 +73,17 @@ func (p *ParseContext) New(config ParseContextOverride) *ParseContext {
 		ctx.functionTransformerRegistry = config.FunctionTransformerRegistry
 	}
 	return ctx
+}
+
+func (p *ParseContext) NewForModule() *ParseContext {
+	return &ParseContext{
+		idRegistry:                   p.idRegistry,
+		blockNodes:                   make(map[ID]BlockNode, 32),
+		fileSet:                      parsley.NewFileSet(),
+		directiveTransformerRegistry: p.directiveTransformerRegistry,
+		blockTransformerRegistry:     p.blockTransformerRegistry,
+		functionTransformerRegistry:  p.functionTransformerRegistry,
+	}
 }
 
 // DirectiveTransformerRegistry returns with the directive node transformer registry

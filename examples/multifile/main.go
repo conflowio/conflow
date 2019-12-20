@@ -7,8 +7,6 @@
 package main
 
 import (
-	"path/filepath"
-
 	"github.com/opsidian/basil/blocks"
 	"github.com/opsidian/basil/parsers"
 
@@ -44,14 +42,12 @@ func main() {
 
 	p := parsers.NewMain("main", MainInterpreter{})
 
-	paths, _ := filepath.Glob("*.basil")
-
-	if err := p.ParseFiles(
+	if err := p.ParseDir(
 		parseCtx,
-		paths...,
+		".",
 	); err != nil {
 		panic(err)
 	}
 
-	common.Main(ctx, parseCtx)
+	common.Main(ctx, parseCtx, nil)
 }
