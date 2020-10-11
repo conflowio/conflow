@@ -17,7 +17,7 @@ type ParameterDescriptor struct {
 }
 
 // ParameterNode is the AST node for a parameter
-//go:generate counterfeiter . ParameterNode
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ParameterNode
 type ParameterNode interface {
 	Node
 	Name() ID
@@ -27,7 +27,7 @@ type ParameterNode interface {
 }
 
 // ParameterContainer is a parameter container
-//go:generate counterfeiter . ParameterContainer
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ParameterContainer
 type ParameterContainer interface {
 	Container
 	BlockContainer() BlockContainer

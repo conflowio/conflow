@@ -9,7 +9,7 @@ test: ## Runs all tests
 	@./test.sh
 
 .PHONY: generate
-generate: bin/basil bin/counterfeiter ## Regenerates all files
+generate: bin/basil ## Regenerates all files
 	PATH="$(PWD)/bin:$(PATH)" go generate ./...
 
 .PHONY: build
@@ -17,9 +17,6 @@ build: bin/basil
 
 bin/basil:
 	GOBIN="$(PWD)/bin" go install -ldflags="-s -w" ./cmd/basil/
-
-bin/counterfeiter:
-	GOBIN="$(PWD)/bin" go install -ldflags="-s -w" github.com/maxbrunsfeld/counterfeiter/v6
 
 .PHONY: clean
 clean:

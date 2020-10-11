@@ -29,13 +29,13 @@ type Cancellable interface {
 	Cancel() bool
 }
 
-//go:generate counterfeiter . pendingJob
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . pendingJob
 type pendingJob interface {
 	basil.Job
 	Pending
 }
 
-//go:generate counterfeiter . cancellableJob
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . cancellableJob
 type cancellableJob interface {
 	basil.Job
 	Cancellable

@@ -43,7 +43,7 @@ var BlockTags = map[ID]string{
 }
 
 // Block is an interface for a block object
-//go:generate counterfeiter . Block
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Block
 type Block interface {
 	Identifiable
 }
@@ -57,7 +57,7 @@ type BlockDescriptor struct {
 }
 
 // BlockContainer is a simple wrapper around a block object
-//go:generate counterfeiter . BlockContainer
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockContainer
 type BlockContainer interface {
 	Container
 	Param(ID) interface{}
@@ -88,7 +88,7 @@ type EvalStageAware interface {
 }
 
 // BlockNode is the AST node for a block
-//go:generate counterfeiter . BlockNode
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockNode
 type BlockNode interface {
 	Node
 	Children() []Node
@@ -99,7 +99,7 @@ type BlockNode interface {
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks
-//go:generate counterfeiter . BlockNodeRegistry
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockNodeRegistry
 type BlockNodeRegistry interface {
 	BlockNode(ID) (BlockNode, bool)
 	AddBlockNode(BlockNode) error
@@ -111,7 +111,7 @@ type BlockTransformerRegistryAware interface {
 }
 
 // BlockInterpreter defines an interpreter for blocks
-//go:generate counterfeiter . BlockInterpreter
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockInterpreter
 type BlockInterpreter interface {
 	CreateBlock(ID) Block
 	SetParam(b Block, name ID, value interface{}) error

@@ -13,7 +13,7 @@ import (
 )
 
 // BlockContext is passed to the block objects during evaluation
-//go:generate counterfeiter . BlockContext
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockContext
 type BlockContext interface {
 	context.Context
 	UserContext() interface{}

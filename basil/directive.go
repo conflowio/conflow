@@ -13,7 +13,7 @@ import (
 )
 
 // Directive provides a way to describe alternate runtime execution
-//go:generate counterfeiter . Directive
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Directive
 type Directive interface {
 	Block
 	EvalStageAware

@@ -11,13 +11,13 @@ import (
 )
 
 // JobScheduler is the job scheduler
-//go:generate counterfeiter . JobScheduler
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . JobScheduler
 type JobScheduler interface {
 	ScheduleJob(job Job) error
 }
 
 // Job is a unit of work the scheduler can schedule and run
-//go:generate counterfeiter . Job
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Job
 type Job interface {
 	JobName() ID
 	JobID() int
@@ -26,7 +26,7 @@ type Job interface {
 	Lightweight() bool
 }
 
-//go:generate counterfeiter . JobContainer
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . JobContainer
 type JobContainer interface {
 	Job
 	Container
@@ -41,7 +41,7 @@ type Retryable interface {
 	RetryDelay(int) time.Duration
 }
 
-//go:generate counterfeiter . RetryableJob
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . RetryableJob
 type RetryableJob interface {
 	Job
 	Retryable

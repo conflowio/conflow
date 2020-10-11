@@ -14,19 +14,19 @@ import (
 	"github.com/opsidian/basil/basil/block"
 )
 
-//go:generate counterfeiter . BlockWithInit
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithInit
 type BlockWithInit interface {
 	basil.Block
 	basil.BlockInitialiser
 }
 
-//go:generate counterfeiter . BlockWithMain
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithMain
 type BlockWithMain interface {
 	basil.Block
 	basil.BlockRunner
 }
 
-//go:generate counterfeiter . BlockWithClose
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithClose
 type BlockWithClose interface {
 	basil.Block
 	basil.BlockCloser
