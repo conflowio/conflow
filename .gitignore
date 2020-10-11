@@ -1,6 +1,5 @@
 debug.test
 /coverage.*
-/vendor
 .envrc
 TODO
 profile.out
