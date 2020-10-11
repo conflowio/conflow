@@ -32,14 +32,20 @@ func (p *Print) Main(ctx basil.BlockContext) error {
 		scanner := bufio.NewScanner(v)
 		for scanner.Scan() {
 			if !first {
-				fmt.Println()
+				if _, err := fmt.Fprintln(ctx.Stdout()); err != nil {
+					return err
+				}
 			}
-			fmt.Print(scanner.Text())
+			if _, err := fmt.Fprint(ctx.Stdout(), scanner.Text()); err != nil {
+				return err
+			}
 			first = false
 		}
 		return nil
 	default:
-		fmt.Print(v)
+		if _, err := fmt.Fprint(ctx.Stdout(), v); err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -8,6 +8,7 @@ package basil
 
 import (
 	"context"
+	"io"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type BlockContext interface {
 	UserContext() interface{}
 	Logger() Logger
 	PublishBlock(Block, func() error) (bool, error)
+	Stdout() io.Writer
 }
 
 // Context defines an interface about creating a new context
@@ -77,4 +79,8 @@ func (b *blockContext) Logger() Logger {
 
 func (b *blockContext) PublishBlock(block Block, f func() error) (bool, error) {
 	return b.container.PublishBlock(block, f)
+}
+
+func (b *blockContext) Stdout() io.Writer {
+	return b.evalContext.StdOut
 }

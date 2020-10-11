@@ -9,6 +9,8 @@ package basil
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"sync/atomic"
 	"time"
 )
@@ -64,6 +66,7 @@ type EvalContext struct {
 	pubSub       *PubSub
 	dependencies map[ID]BlockContainer
 	sem          int64
+	StdOut       io.Writer
 }
 
 // NewEvalContext returns with a new evaluation context
@@ -83,6 +86,7 @@ func NewEvalContext(
 		jobScheduler: jobScheduler,
 		pubSub:       NewPubSub(),
 		dependencies: dependencies,
+		StdOut:       os.Stdout,
 	}
 }
 
@@ -101,6 +105,7 @@ func (e *EvalContext) New(
 		jobScheduler: e.jobScheduler,
 		pubSub:       e.pubSub,
 		parentCtx:    e,
+		StdOut:       e.StdOut,
 	}
 }
 
@@ -160,4 +165,8 @@ func (e *EvalContext) Cancel() bool {
 
 func (e *EvalContext) JobScheduler() JobScheduler {
 	return e.jobScheduler
+}
+
+func (e *EvalContext) SetStdOut(stdOut io.Writer) {
+	e.StdOut = stdOut
 }
