@@ -292,13 +292,14 @@ func (c *Container) setState(state int64) {
 	switch c.state {
 	case containerStateStart:
 		c.children = make(map[basil.ID]*basil.NodeContainer, len(c.node.Children()))
-		var err parsley.Error
 		for _, node := range c.node.Children() {
-			c.children[node.ID()], err = basil.NewNodeContainer(c.evalCtx, c, node, c.jobTracker)
+			container, err := basil.NewNodeContainer(c.evalCtx, c, node, c.jobTracker)
 			if err != nil {
 				c.setError(err)
 				return
 			}
+
+			c.children[node.ID()] = container
 		}
 		c.evalStage = basil.EvalStageInit
 		if err := c.evaluateChildren(); err != nil {
