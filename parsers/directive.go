@@ -50,7 +50,6 @@ func Directive(expr parsley.Parser) *combinator.Sequence {
 		emptyBody,
 		body,
 		expr,
-		MultilineText(),
 		Array(expr, text.WsSpacesNl),
 		Map(expr),
 		parser.Empty(),

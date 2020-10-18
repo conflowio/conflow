@@ -69,7 +69,6 @@ func blockWithOptions(
 		emptyBody,
 		body,
 		expr,
-		MultilineText(),
 		Array(expr, text.WsSpacesNl),
 		Map(expr),
 		parser.Empty(),

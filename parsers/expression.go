@@ -39,6 +39,7 @@ func Expression() parser.Func {
 		terminal.TimeDuration(),
 		terminal.Float(),
 		terminal.Integer(),
+		MultilineText(),
 		terminal.String(true),
 		terminal.Bool("true", "false"),
 		terminal.Nil("nil"),

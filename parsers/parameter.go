@@ -28,16 +28,12 @@ func Parameter(expr parsley.Parser, allowNewAssignment bool, allowDirectives boo
 		directives = parser.Empty()
 	}
 
-	var extendedExpr parser.FuncWrapper
-	extendedExpr = parser.FuncWrapper{F: combinator.Choice(
-		Array(&extendedExpr, text.WsSpacesNl),
-		Map(&extendedExpr),
+	var parameterValue parser.FuncWrapper
+	parameterValue = parser.FuncWrapper{F: combinator.Choice(
+		Array(&parameterValue, text.WsSpacesNl),
+		Map(&parameterValue),
 		expr,
 	)}
-	parameterValue := combinator.Choice(
-		extendedExpr,
-		MultilineText(),
-	)
 
 	var assignment parsley.Parser
 	if allowNewAssignment {
