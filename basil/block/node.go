@@ -174,11 +174,13 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			param, exists := params[c.Name()]
 
 			switch {
-			case exists && c.IsDeclaration():
+			case exists && c.IsDeclaration() && !param.IsUserDefined:
 				return parsley.NewErrorf(c.Pos(), "%q parameter already exists. Use \"=\" to set the parameter value or use a different name", c.Name())
+			case param.IsUserDefined && !c.IsDeclaration():
+				return parsley.NewErrorf(c.Pos(), "%q must be defined as a new variable using \":=\"", c.Name())
 			case !exists && !c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
-			case param.IsOutput:
+			case !c.IsDeclaration() && !param.IsUserDefined && param.IsOutput:
 				return parsley.NewErrorf(c.Pos(), "%q is an output parameter and can not be set", c.Name())
 			}
 
@@ -212,11 +214,11 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 // Value creates a new block
 func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 	var container basil.JobContainer
-	switch n.Token() {
-	case TokenBlock, TokenBlockBody:
-		container = NewContainer(userCtx.(*basil.EvalContext), n, nil, nil, nil, false)
-	case TokenDirective:
+	switch {
+	case n.evalStage == basil.EvalStageParse || n.Token() == TokenDirective:
 		container = NewStaticContainer(userCtx.(*basil.EvalContext), n)
+	case n.Token() == TokenBlock || n.Token() == TokenBlockBody:
+		container = NewContainer(userCtx.(*basil.EvalContext), n, nil, nil, nil, false)
 	default:
 		panic(fmt.Errorf("unknown block type: %s", n.Token()))
 	}

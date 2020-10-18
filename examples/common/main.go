@@ -26,7 +26,7 @@ func NewParseContext() *basil.ParseContext {
 	return basil.NewParseContext(idRegistry, directives.DefaultRegistry())
 }
 
-func Main(ctx context.Context, parseCtx *basil.ParseContext) {
+func Main(ctx context.Context, parseCtx *basil.ParseContext, inputParams map[basil.ID]interface{}) {
 	level := uzerolog.InfoLevel
 	if envLevel := os.Getenv("BASIL_LOG"); envLevel != "" {
 		var err error
@@ -53,6 +53,7 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext) {
 		logger,
 		scheduler,
 		"main",
+		inputParams,
 	); err != nil {
 		panic(err)
 	}

@@ -12,9 +12,10 @@ import (
 )
 
 type Main struct {
+	params map[basil.ID]interface{}
 }
 
-func (m Main) ID() basil.ID {
+func (m *Main) ID() basil.ID {
 	return "main"
 }
 
@@ -24,10 +25,13 @@ type MainInterpreter struct {
 }
 
 func (m MainInterpreter) CreateBlock(basil.ID) basil.Block {
-	return Main{}
+	return &Main{
+		params: map[basil.ID]interface{}{},
+	}
 }
 
 func (m MainInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+	b.(*Main).params[name] = value
 	return nil
 }
 
@@ -36,7 +40,7 @@ func (m MainInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{
 }
 
 func (m MainInterpreter) Param(b basil.Block, name basil.ID) interface{} {
-	return nil
+	return b.(*Main).params[name]
 }
 
 func (m MainInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {

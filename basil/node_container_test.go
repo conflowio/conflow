@@ -11,6 +11,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/opsidian/basil/util"
+
 	"github.com/opsidian/parsley/parsley"
 
 	"github.com/opsidian/basil/loggers/zerolog"
@@ -188,8 +190,10 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node is skipped", func() {
 			BeforeEach(func() {
-				directive := &basilfakes.FakeDirective{}
-				directive.RuntimeConfigReturns(basil.RuntimeConfig{Skip: true})
+				directive := &basilfakes.FakeBlockDirective{}
+				directive.ApplyToRuntimeConfigStub = func(config *basil.RuntimeConfig) {
+					config.Skip = util.BoolPtr(true)
+				}
 				directiveBlock := &basilfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(directive, nil)
 				directiveBlock.EvalStageReturns(basil.EvalStageInit)
@@ -209,8 +213,10 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node has timeout", func() {
 			BeforeEach(func() {
-				directive := &basilfakes.FakeDirective{}
-				directive.RuntimeConfigReturns(basil.RuntimeConfig{Timeout: 1 * time.Second})
+				directive := &basilfakes.FakeBlockDirective{}
+				directive.ApplyToRuntimeConfigStub = func(config *basil.RuntimeConfig) {
+					config.Timeout = util.TimeDurationPtr(1 * time.Second)
+				}
 				directiveBlock := &basilfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(directive, nil)
 				directiveBlock.EvalStageReturns(basil.EvalStageInit)
@@ -340,8 +346,10 @@ var _ = Describe("NodeContainer", func() {
 			var triggers []basil.ID
 
 			BeforeEach(func() {
-				directive := &basilfakes.FakeDirective{}
-				directive.RuntimeConfigReturns(basil.RuntimeConfig{Triggers: triggers})
+				directive := &basilfakes.FakeBlockDirective{}
+				directive.ApplyToRuntimeConfigStub = func(config *basil.RuntimeConfig) {
+					config.Triggers = triggers
+				}
 				directiveBlock := &basilfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(directive, nil)
 				directiveBlock.EvalStageReturns(basil.EvalStageResolve)

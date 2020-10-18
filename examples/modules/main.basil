@@ -1,0 +1,10 @@
+import sum "./sum"
+
+sum one_plus_two {
+  a = 1
+  b = 2
+}
+
+println {
+    value = one_plus_two.sum
+}

@@ -17,21 +17,21 @@ import (
 
 // StaticContainer is a container for blocks where there is no dynamic child evaluation required
 type StaticContainer struct {
-	ctx   *basil.EvalContext
-	node  basil.BlockNode
-	block basil.Block
-	err   parsley.Error
-	jobID int
+	evalCtx *basil.EvalContext
+	node    basil.BlockNode
+	block   basil.Block
+	err     parsley.Error
+	jobID   int
 }
 
 // NewStaticContainer creates a new static block container instance
 func NewStaticContainer(
-	ctx *basil.EvalContext,
+	evalCtx *basil.EvalContext,
 	node basil.BlockNode,
 ) *StaticContainer {
 	return &StaticContainer{
-		ctx:  ctx,
-		node: node,
+		evalCtx: evalCtx,
+		node:    node,
 	}
 }
 
@@ -53,7 +53,7 @@ func (s *StaticContainer) SetJobID(jobID int) {
 }
 
 func (s *StaticContainer) Cancel() bool {
-	return s.ctx.Cancel()
+	return s.evalCtx.Cancel()
 }
 
 func (s *StaticContainer) EvalStage() basil.EvalStage {
@@ -61,9 +61,9 @@ func (s *StaticContainer) EvalStage() basil.EvalStage {
 }
 
 func (s *StaticContainer) Run() {
-	defer s.ctx.Cancel()
+	defer s.evalCtx.Cancel()
 
-	if !s.ctx.Run() {
+	if !s.evalCtx.Run() {
 		return
 	}
 
@@ -95,7 +95,7 @@ func (s *StaticContainer) Value() (interface{}, parsley.Error) {
 
 func (s *StaticContainer) createContainer(node basil.Node) basil.JobContainer {
 	ctx, cancel := context.WithCancel(context.Background())
-	childCtx := s.ctx.New(ctx, cancel, nil)
+	childCtx := s.evalCtx.New(ctx, cancel, nil)
 	switch n := node.(type) {
 	case basil.BlockNode:
 		return NewStaticContainer(childCtx, n)

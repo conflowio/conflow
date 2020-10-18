@@ -7,6 +7,11 @@
 package parsers
 
 import (
+	"fmt"
+	"os"
+	"path"
+	"path/filepath"
+
 	"github.com/opsidian/parsley/ast"
 
 	"github.com/opsidian/basil/basil"
@@ -33,7 +38,7 @@ func NewMain(id basil.ID, interpreter basil.BlockInterpreter) *Main {
 	expr := Expression()
 
 	paramOrBlock := combinator.Choice(
-		Parameter(expr, true),
+		Parameter(expr, true, true),
 		Block(expr),
 	).Name("parameter or block definition")
 
@@ -77,6 +82,25 @@ func (m *Main) ParseText(ctx *basil.ParseContext, input string) error {
 // ParseFile parses the given file as a main block
 func (m *Main) ParseFile(ctx *basil.ParseContext, path string) error {
 	return basil.ParseFile(ctx, m.p, path)
+}
+
+func (m *Main) ParseDir(ctx *basil.ParseContext, dir string) error {
+	info, err := os.Stat(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("path %q does not exist", dir)
+		}
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("path %q is not a directory", dir)
+	}
+
+	paths, err := filepath.Glob(path.Join(dir, "*.basil"))
+	if err != nil {
+		return err
+	}
+
+	return m.ParseFiles(ctx, paths...)
 }
 
 // ParseFiles parses multiple files as one block

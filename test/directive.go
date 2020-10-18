@@ -14,6 +14,8 @@ import (
 	"github.com/opsidian/basil/basil/block"
 )
 
+var _ basil.BlockDirective = &Directive{}
+
 //go:generate basil generate
 type Directive struct {
 	IDField           basil.ID    `basil:"id"`
@@ -38,8 +40,7 @@ func (d *Directive) EvalStage() basil.EvalStage {
 	return basil.EvalStageInit
 }
 
-func (d *Directive) RuntimeConfig() basil.RuntimeConfig {
-	return basil.RuntimeConfig{}
+func (d *Directive) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
 }
 
 func (d *Directive) ParseContextOverride() basil.ParseContextOverride {

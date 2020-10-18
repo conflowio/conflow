@@ -145,20 +145,21 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 
 // Param returns with the parameter value
 func (c *Container) Param(name basil.ID) interface{} {
-	if val, ok := c.extraParams[name]; ok {
-		return val
+	_, isParam := c.node.Interpreter().Params()[name]
+	if isParam {
+		return c.node.Interpreter().Param(c.block, name)
 	}
 
-	return c.node.Interpreter().Param(c.block, name)
+	return c.extraParams[name]
 }
 
 func (c *Container) Run() {
 	defer func() {
-		c.evalCtx.Cancel()
-
 		if c.parent != nil {
 			c.parent.SetChild(c)
 		}
+
+		c.evalCtx.Cancel()
 	}()
 
 	if !c.evalCtx.Run() {
@@ -292,13 +293,14 @@ func (c *Container) setState(state int64) {
 	switch c.state {
 	case containerStateStart:
 		c.children = make(map[basil.ID]*basil.NodeContainer, len(c.node.Children()))
-		var err parsley.Error
 		for _, node := range c.node.Children() {
-			c.children[node.ID()], err = basil.NewNodeContainer(c.evalCtx, c, node, c.jobTracker)
+			container, err := basil.NewNodeContainer(c.evalCtx, c, node, c.jobTracker)
 			if err != nil {
 				c.setError(err)
 				return
 			}
+
+			c.children[node.ID()] = container
 		}
 		c.evalStage = basil.EvalStageInit
 		if err := c.evaluateChildren(); err != nil {
@@ -466,7 +468,12 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 		node := r.Node().(basil.ParameterNode)
 		name := node.Name()
 
-		if node.IsDeclaration() {
+		_, isParam := c.node.Interpreter().Params()[name]
+		if isParam {
+			if err := c.node.Interpreter().SetParam(c.block, node.Name(), value); err != nil {
+				return parsley.NewError(r.Node().Pos(), err)
+			}
+		} else {
 			if c.extraParams == nil {
 				c.extraParams = make(map[basil.ID]interface{})
 			}
@@ -476,10 +483,6 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 			}
 
 			c.extraParams[name] = value
-		} else {
-			if err := c.node.Interpreter().SetParam(c.block, node.Name(), value); err != nil {
-				return parsley.NewError(r.Node().Pos(), err)
-			}
 		}
 	case *Container:
 		node := r.Node().(basil.BlockNode)

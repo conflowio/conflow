@@ -13,6 +13,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/opsidian/basil/util"
+
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -22,7 +24,7 @@ type NodeContainer struct {
 	parent        BlockContainer
 	node          Node
 	scheduler     JobScheduler
-	runtimeConfig RuntimeConfig
+	runtimeConfig *RuntimeConfig
 	dependencies  map[ID]Container
 	missingDeps   int
 	nilDeps       int
@@ -52,17 +54,19 @@ func NewNodeContainer(
 	}
 
 	n := &NodeContainer{
-		ctx:          ctx,
-		parent:       parent,
-		node:         node,
-		scheduler:    scheduler,
-		dependencies: dependencies,
-		missingDeps:  len(dependencies),
-		mu:           &sync.Mutex{},
+		ctx:           ctx,
+		parent:        parent,
+		node:          node,
+		scheduler:     scheduler,
+		dependencies:  dependencies,
+		missingDeps:   len(dependencies),
+		mu:            &sync.Mutex{},
+		runtimeConfig: &RuntimeConfig{},
 	}
 
 	var err parsley.Error
-	if n.runtimeConfig, err = n.evaluateDirectives(EvalStageResolve); err != nil {
+
+	if err = n.evaluateDirectives(EvalStageResolve); err != nil {
 		return nil, err
 	}
 
@@ -100,10 +104,10 @@ func (n *NodeContainer) SetDependency(dep Container) {
 		}
 	}
 
-	isSkipped := n.nilDeps == 0
+	isSkipped := n.nilDeps > 0
 	n.calculateNilDeps(prevDep, dep)
 	if n.nilDeps > 0 {
-		if !isSkipped {
+		if isSkipped {
 			n.setNilChild()
 		}
 		return
@@ -164,10 +168,18 @@ func (n *NodeContainer) Run() (pending bool, err parsley.Error) {
 }
 
 func (n *NodeContainer) run() parsley.Error {
-	container, err := n.CreateContainer(nil, n.waitGroups)
+	var value interface{}
+	if paramNode, ok := n.node.(ParameterNode); ok {
+		if override, ok := n.ctx.InputParams[paramNode.Name()]; ok {
+			value = override
+		}
+	}
+
+	container, err := n.CreateContainer(value, n.waitGroups)
 	if err != nil {
 		return err
 	}
+
 	if container == nil {
 		n.setNilChild()
 		return nil
@@ -184,16 +196,15 @@ func (n *NodeContainer) run() parsley.Error {
 }
 
 func (n *NodeContainer) CreateContainer(value interface{}, wgs []WaitGroup) (JobContainer, parsley.Error) {
-	runtimeConfig, err := n.evaluateDirectives(EvalStageInit)
-	if err != nil {
+	if err := n.evaluateDirectives(EvalStageInit); err != nil {
 		return nil, err
 	}
 
-	if runtimeConfig.Skip {
+	if util.BoolValue(n.runtimeConfig.Skip) {
 		return nil, nil
 	}
 
-	ctx := n.createEvalContext(runtimeConfig.Timeout)
+	ctx := n.createEvalContext(util.TimeDurationValue(n.runtimeConfig.Timeout))
 	return n.node.CreateContainer(ctx, n.parent, value, wgs, n.pending), nil
 }
 
@@ -234,8 +245,7 @@ func (n *NodeContainer) Close() {
 	}
 }
 
-func (n *NodeContainer) evaluateDirectives(evalStage EvalStage) (RuntimeConfig, parsley.Error) {
-	r := n.runtimeConfig
+func (n *NodeContainer) evaluateDirectives(evalStage EvalStage) parsley.Error {
 	for _, d := range n.node.Directives() {
 		if d.EvalStage() != evalStage {
 			continue
@@ -243,10 +253,13 @@ func (n *NodeContainer) evaluateDirectives(evalStage EvalStage) (RuntimeConfig, 
 
 		directive, err := d.Value(n.createEvalContext(0))
 		if err != nil {
-			return RuntimeConfig{}, err
+			return err
 		}
 
-		r = r.Merge(directive.(Directive).RuntimeConfig())
+		opt, ok := directive.(RuntimeConfigOption)
+		if ok {
+			opt.ApplyToRuntimeConfig(n.runtimeConfig)
+		}
 	}
-	return r, nil
+	return nil
 }

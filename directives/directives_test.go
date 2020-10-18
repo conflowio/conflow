@@ -46,7 +46,7 @@ func eval(input string) {
 		return
 	}
 
-	if _, err := basil.Evaluate(parseCtx, context.Background(), nil, logger, scheduler, "main"); err != nil {
+	if _, err := basil.Evaluate(parseCtx, context.Background(), nil, logger, scheduler, "main", nil); err != nil {
 		fmt.Printf("Example errored: %s\n", err.Error())
 		return
 	}

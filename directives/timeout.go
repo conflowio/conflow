@@ -9,6 +9,8 @@ package directives
 import (
 	"time"
 
+	"github.com/opsidian/basil/util"
+
 	"github.com/opsidian/basil/basil"
 )
 
@@ -22,10 +24,8 @@ func (t *Timeout) ID() basil.ID {
 	return t.id
 }
 
-func (t *Timeout) RuntimeConfig() basil.RuntimeConfig {
-	return basil.RuntimeConfig{
-		Timeout: t.duration,
-	}
+func (t *Timeout) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
+	config.Timeout = util.TimeDurationPtr(t.duration)
 }
 
 func (t *Timeout) EvalStage() basil.EvalStage {

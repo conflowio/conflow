@@ -7,7 +7,12 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-type FakeDirective struct {
+type FakeBlockDirective struct {
+	ApplyToRuntimeConfigStub        func(*basil.RuntimeConfig)
+	applyToRuntimeConfigMutex       sync.RWMutex
+	applyToRuntimeConfigArgsForCall []struct {
+		arg1 *basil.RuntimeConfig
+	}
 	EvalStageStub        func() basil.EvalStage
 	evalStageMutex       sync.RWMutex
 	evalStageArgsForCall []struct {
@@ -28,21 +33,42 @@ type FakeDirective struct {
 	iDReturnsOnCall map[int]struct {
 		result1 basil.ID
 	}
-	RuntimeConfigStub        func() basil.RuntimeConfig
-	runtimeConfigMutex       sync.RWMutex
-	runtimeConfigArgsForCall []struct {
-	}
-	runtimeConfigReturns struct {
-		result1 basil.RuntimeConfig
-	}
-	runtimeConfigReturnsOnCall map[int]struct {
-		result1 basil.RuntimeConfig
-	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeDirective) EvalStage() basil.EvalStage {
+func (fake *FakeBlockDirective) ApplyToRuntimeConfig(arg1 *basil.RuntimeConfig) {
+	fake.applyToRuntimeConfigMutex.Lock()
+	fake.applyToRuntimeConfigArgsForCall = append(fake.applyToRuntimeConfigArgsForCall, struct {
+		arg1 *basil.RuntimeConfig
+	}{arg1})
+	fake.recordInvocation("ApplyToRuntimeConfig", []interface{}{arg1})
+	fake.applyToRuntimeConfigMutex.Unlock()
+	if fake.ApplyToRuntimeConfigStub != nil {
+		fake.ApplyToRuntimeConfigStub(arg1)
+	}
+}
+
+func (fake *FakeBlockDirective) ApplyToRuntimeConfigCallCount() int {
+	fake.applyToRuntimeConfigMutex.RLock()
+	defer fake.applyToRuntimeConfigMutex.RUnlock()
+	return len(fake.applyToRuntimeConfigArgsForCall)
+}
+
+func (fake *FakeBlockDirective) ApplyToRuntimeConfigCalls(stub func(*basil.RuntimeConfig)) {
+	fake.applyToRuntimeConfigMutex.Lock()
+	defer fake.applyToRuntimeConfigMutex.Unlock()
+	fake.ApplyToRuntimeConfigStub = stub
+}
+
+func (fake *FakeBlockDirective) ApplyToRuntimeConfigArgsForCall(i int) *basil.RuntimeConfig {
+	fake.applyToRuntimeConfigMutex.RLock()
+	defer fake.applyToRuntimeConfigMutex.RUnlock()
+	argsForCall := fake.applyToRuntimeConfigArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeBlockDirective) EvalStage() basil.EvalStage {
 	fake.evalStageMutex.Lock()
 	ret, specificReturn := fake.evalStageReturnsOnCall[len(fake.evalStageArgsForCall)]
 	fake.evalStageArgsForCall = append(fake.evalStageArgsForCall, struct {
@@ -59,19 +85,19 @@ func (fake *FakeDirective) EvalStage() basil.EvalStage {
 	return fakeReturns.result1
 }
 
-func (fake *FakeDirective) EvalStageCallCount() int {
+func (fake *FakeBlockDirective) EvalStageCallCount() int {
 	fake.evalStageMutex.RLock()
 	defer fake.evalStageMutex.RUnlock()
 	return len(fake.evalStageArgsForCall)
 }
 
-func (fake *FakeDirective) EvalStageCalls(stub func() basil.EvalStage) {
+func (fake *FakeBlockDirective) EvalStageCalls(stub func() basil.EvalStage) {
 	fake.evalStageMutex.Lock()
 	defer fake.evalStageMutex.Unlock()
 	fake.EvalStageStub = stub
 }
 
-func (fake *FakeDirective) EvalStageReturns(result1 basil.EvalStage) {
+func (fake *FakeBlockDirective) EvalStageReturns(result1 basil.EvalStage) {
 	fake.evalStageMutex.Lock()
 	defer fake.evalStageMutex.Unlock()
 	fake.EvalStageStub = nil
@@ -80,7 +106,7 @@ func (fake *FakeDirective) EvalStageReturns(result1 basil.EvalStage) {
 	}{result1}
 }
 
-func (fake *FakeDirective) EvalStageReturnsOnCall(i int, result1 basil.EvalStage) {
+func (fake *FakeBlockDirective) EvalStageReturnsOnCall(i int, result1 basil.EvalStage) {
 	fake.evalStageMutex.Lock()
 	defer fake.evalStageMutex.Unlock()
 	fake.EvalStageStub = nil
@@ -94,7 +120,7 @@ func (fake *FakeDirective) EvalStageReturnsOnCall(i int, result1 basil.EvalStage
 	}{result1}
 }
 
-func (fake *FakeDirective) ID() basil.ID {
+func (fake *FakeBlockDirective) ID() basil.ID {
 	fake.iDMutex.Lock()
 	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
 	fake.iDArgsForCall = append(fake.iDArgsForCall, struct {
@@ -111,19 +137,19 @@ func (fake *FakeDirective) ID() basil.ID {
 	return fakeReturns.result1
 }
 
-func (fake *FakeDirective) IDCallCount() int {
+func (fake *FakeBlockDirective) IDCallCount() int {
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
 	return len(fake.iDArgsForCall)
 }
 
-func (fake *FakeDirective) IDCalls(stub func() basil.ID) {
+func (fake *FakeBlockDirective) IDCalls(stub func() basil.ID) {
 	fake.iDMutex.Lock()
 	defer fake.iDMutex.Unlock()
 	fake.IDStub = stub
 }
 
-func (fake *FakeDirective) IDReturns(result1 basil.ID) {
+func (fake *FakeBlockDirective) IDReturns(result1 basil.ID) {
 	fake.iDMutex.Lock()
 	defer fake.iDMutex.Unlock()
 	fake.IDStub = nil
@@ -132,7 +158,7 @@ func (fake *FakeDirective) IDReturns(result1 basil.ID) {
 	}{result1}
 }
 
-func (fake *FakeDirective) IDReturnsOnCall(i int, result1 basil.ID) {
+func (fake *FakeBlockDirective) IDReturnsOnCall(i int, result1 basil.ID) {
 	fake.iDMutex.Lock()
 	defer fake.iDMutex.Unlock()
 	fake.IDStub = nil
@@ -146,67 +172,15 @@ func (fake *FakeDirective) IDReturnsOnCall(i int, result1 basil.ID) {
 	}{result1}
 }
 
-func (fake *FakeDirective) RuntimeConfig() basil.RuntimeConfig {
-	fake.runtimeConfigMutex.Lock()
-	ret, specificReturn := fake.runtimeConfigReturnsOnCall[len(fake.runtimeConfigArgsForCall)]
-	fake.runtimeConfigArgsForCall = append(fake.runtimeConfigArgsForCall, struct {
-	}{})
-	fake.recordInvocation("RuntimeConfig", []interface{}{})
-	fake.runtimeConfigMutex.Unlock()
-	if fake.RuntimeConfigStub != nil {
-		return fake.RuntimeConfigStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.runtimeConfigReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeDirective) RuntimeConfigCallCount() int {
-	fake.runtimeConfigMutex.RLock()
-	defer fake.runtimeConfigMutex.RUnlock()
-	return len(fake.runtimeConfigArgsForCall)
-}
-
-func (fake *FakeDirective) RuntimeConfigCalls(stub func() basil.RuntimeConfig) {
-	fake.runtimeConfigMutex.Lock()
-	defer fake.runtimeConfigMutex.Unlock()
-	fake.RuntimeConfigStub = stub
-}
-
-func (fake *FakeDirective) RuntimeConfigReturns(result1 basil.RuntimeConfig) {
-	fake.runtimeConfigMutex.Lock()
-	defer fake.runtimeConfigMutex.Unlock()
-	fake.RuntimeConfigStub = nil
-	fake.runtimeConfigReturns = struct {
-		result1 basil.RuntimeConfig
-	}{result1}
-}
-
-func (fake *FakeDirective) RuntimeConfigReturnsOnCall(i int, result1 basil.RuntimeConfig) {
-	fake.runtimeConfigMutex.Lock()
-	defer fake.runtimeConfigMutex.Unlock()
-	fake.RuntimeConfigStub = nil
-	if fake.runtimeConfigReturnsOnCall == nil {
-		fake.runtimeConfigReturnsOnCall = make(map[int]struct {
-			result1 basil.RuntimeConfig
-		})
-	}
-	fake.runtimeConfigReturnsOnCall[i] = struct {
-		result1 basil.RuntimeConfig
-	}{result1}
-}
-
-func (fake *FakeDirective) Invocations() map[string][][]interface{} {
+func (fake *FakeBlockDirective) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.applyToRuntimeConfigMutex.RLock()
+	defer fake.applyToRuntimeConfigMutex.RUnlock()
 	fake.evalStageMutex.RLock()
 	defer fake.evalStageMutex.RUnlock()
 	fake.iDMutex.RLock()
 	defer fake.iDMutex.RUnlock()
-	fake.runtimeConfigMutex.RLock()
-	defer fake.runtimeConfigMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
@@ -214,7 +188,7 @@ func (fake *FakeDirective) Invocations() map[string][][]interface{} {
 	return copiedInvocations
 }
 
-func (fake *FakeDirective) recordInvocation(key string, args []interface{}) {
+func (fake *FakeBlockDirective) recordInvocation(key string, args []interface{}) {
 	fake.invocationsMutex.Lock()
 	defer fake.invocationsMutex.Unlock()
 	if fake.invocations == nil {
@@ -226,4 +200,4 @@ func (fake *FakeDirective) recordInvocation(key string, args []interface{}) {
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ basil.Directive = new(FakeDirective)
+var _ basil.BlockDirective = new(FakeBlockDirective)

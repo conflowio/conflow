@@ -20,7 +20,14 @@ import (
 // If allowNewAssignment is false then only "=" will be allowed
 //   S  -> ID ("="|":=") P
 //   ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-func Parameter(expr parsley.Parser, allowNewAssignment bool) *combinator.Sequence {
+func Parameter(expr parsley.Parser, allowNewAssignment bool, allowDirectives bool) *combinator.Sequence {
+	var directives parsley.Parser
+	if allowDirectives {
+		directives = combinator.Many(text.RightTrim(Directive(expr), text.WsSpacesForceNl))
+	} else {
+		directives = parser.Empty()
+	}
+
 	var extendedExpr parser.FuncWrapper
 	extendedExpr = parser.FuncWrapper{F: combinator.Choice(
 		Array(&extendedExpr, text.WsSpacesNl),
@@ -40,6 +47,7 @@ func Parameter(expr parsley.Parser, allowNewAssignment bool) *combinator.Sequenc
 	}
 
 	return combinator.SeqOf(
+		directives,
 		ID(basil.IDRegExpPattern),
 		text.LeftTrim(assignment, text.WsSpaces),
 		text.LeftTrim(parameterValue, text.WsSpaces),

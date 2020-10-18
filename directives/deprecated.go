@@ -18,8 +18,10 @@ func (d *Deprecated) ID() basil.ID {
 	return d.id
 }
 
-func (d *Deprecated) RuntimeConfig() basil.RuntimeConfig {
-	return basil.RuntimeConfig{}
+func (d *Deprecated) ApplyToRuntimeConfig(*basil.RuntimeConfig) {
+}
+
+func (d *Deprecated) ApplyToParameterConfig(*basil.ParameterConfig) {
 }
 
 func (d *Deprecated) EvalStage() basil.EvalStage {

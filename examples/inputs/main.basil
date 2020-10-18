@@ -1,0 +1,10 @@
+@input{
+    type = "string"
+    required = true
+}
+name := "You"
+
+println {
+  value = "Hello " + main.name + "!"
+}
+

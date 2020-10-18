@@ -13,6 +13,8 @@ func DefaultRegistry() block.InterpreterRegistry {
 		"bug":        BugInterpreter{},
 		"deprecated": DeprecatedInterpreter{},
 		"doc":        DocInterpreter{},
+		"input":      InputInterpreter{},
+		"output":     OutputInterpreter{},
 		"retry":      RetryInterpreter{},
 		"run":        RunInterpreter{},
 		"skip":       SkipInterpreter{},

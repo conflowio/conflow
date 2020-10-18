@@ -18,8 +18,10 @@ func (b *Bug) ID() basil.ID {
 	return b.id
 }
 
-func (b *Bug) RuntimeConfig() basil.RuntimeConfig {
-	return basil.RuntimeConfig{}
+func (b *Bug) ApplyToRuntimeConfig(*basil.RuntimeConfig) {
+}
+
+func (b *Bug) ApplyToParameterConfig(*basil.ParameterConfig) {
 }
 
 func (b *Bug) EvalStage() basil.EvalStage {

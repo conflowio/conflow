@@ -20,6 +20,7 @@ type BlockContext interface {
 	Logger() Logger
 	PublishBlock(Block, func() error) (bool, error)
 	Stdout() io.Writer
+	JobScheduler() JobScheduler
 }
 
 // Context defines an interface about creating a new context
@@ -83,4 +84,8 @@ func (b *blockContext) PublishBlock(block Block, f func() error) (bool, error) {
 
 func (b *blockContext) Stdout() io.Writer {
 	return b.evalContext.StdOut
+}
+
+func (b *blockContext) JobScheduler() JobScheduler {
+	return b.evalContext.jobScheduler
 }

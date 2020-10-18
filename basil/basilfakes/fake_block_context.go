@@ -42,6 +42,16 @@ type FakeBlockContext struct {
 	errReturnsOnCall map[int]struct {
 		result1 error
 	}
+	JobSchedulerStub        func() basil.JobScheduler
+	jobSchedulerMutex       sync.RWMutex
+	jobSchedulerArgsForCall []struct {
+	}
+	jobSchedulerReturns struct {
+		result1 basil.JobScheduler
+	}
+	jobSchedulerReturnsOnCall map[int]struct {
+		result1 basil.JobScheduler
+	}
 	LoggerStub        func() basil.Logger
 	loggerMutex       sync.RWMutex
 	loggerArgsForCall []struct {
@@ -257,6 +267,58 @@ func (fake *FakeBlockContext) ErrReturnsOnCall(i int, result1 error) {
 	}
 	fake.errReturnsOnCall[i] = struct {
 		result1 error
+	}{result1}
+}
+
+func (fake *FakeBlockContext) JobScheduler() basil.JobScheduler {
+	fake.jobSchedulerMutex.Lock()
+	ret, specificReturn := fake.jobSchedulerReturnsOnCall[len(fake.jobSchedulerArgsForCall)]
+	fake.jobSchedulerArgsForCall = append(fake.jobSchedulerArgsForCall, struct {
+	}{})
+	fake.recordInvocation("JobScheduler", []interface{}{})
+	fake.jobSchedulerMutex.Unlock()
+	if fake.JobSchedulerStub != nil {
+		return fake.JobSchedulerStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.jobSchedulerReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockContext) JobSchedulerCallCount() int {
+	fake.jobSchedulerMutex.RLock()
+	defer fake.jobSchedulerMutex.RUnlock()
+	return len(fake.jobSchedulerArgsForCall)
+}
+
+func (fake *FakeBlockContext) JobSchedulerCalls(stub func() basil.JobScheduler) {
+	fake.jobSchedulerMutex.Lock()
+	defer fake.jobSchedulerMutex.Unlock()
+	fake.JobSchedulerStub = stub
+}
+
+func (fake *FakeBlockContext) JobSchedulerReturns(result1 basil.JobScheduler) {
+	fake.jobSchedulerMutex.Lock()
+	defer fake.jobSchedulerMutex.Unlock()
+	fake.JobSchedulerStub = nil
+	fake.jobSchedulerReturns = struct {
+		result1 basil.JobScheduler
+	}{result1}
+}
+
+func (fake *FakeBlockContext) JobSchedulerReturnsOnCall(i int, result1 basil.JobScheduler) {
+	fake.jobSchedulerMutex.Lock()
+	defer fake.jobSchedulerMutex.Unlock()
+	fake.JobSchedulerStub = nil
+	if fake.jobSchedulerReturnsOnCall == nil {
+		fake.jobSchedulerReturnsOnCall = make(map[int]struct {
+			result1 basil.JobScheduler
+		})
+	}
+	fake.jobSchedulerReturnsOnCall[i] = struct {
+		result1 basil.JobScheduler
 	}{result1}
 }
 
@@ -549,6 +611,8 @@ func (fake *FakeBlockContext) Invocations() map[string][][]interface{} {
 	defer fake.doneMutex.RUnlock()
 	fake.errMutex.RLock()
 	defer fake.errMutex.RUnlock()
+	fake.jobSchedulerMutex.RLock()
+	defer fake.jobSchedulerMutex.RUnlock()
 	fake.loggerMutex.RLock()
 	defer fake.loggerMutex.RUnlock()
 	fake.publishBlockMutex.RLock()

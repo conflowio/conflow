@@ -124,3 +124,8 @@ type BlockInterpreter interface {
 	ParseContext(*ParseContext) *ParseContext
 	EvalStageAware
 }
+
+// BlockProvider is an interface for an object which provides additional block types
+type BlockProvider interface {
+	BlockInterpreters(*ParseContext) (map[ID]BlockInterpreter, error)
+}

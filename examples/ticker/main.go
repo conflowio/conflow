@@ -53,5 +53,5 @@ func main() {
 		panic(err)
 	}
 
-	common.Main(ctx, parseCtx)
+	common.Main(ctx, parseCtx, nil)
 }

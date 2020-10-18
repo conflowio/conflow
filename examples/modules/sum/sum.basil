@@ -1,0 +1,12 @@
+@input{
+    type = "int64"
+}
+a := 0
+
+@input{
+    type = "int64"
+}
+b := 0
+
+@output
+sum := main.a + main.b

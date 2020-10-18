@@ -6,7 +6,10 @@
 
 package directives
 
-import "github.com/opsidian/basil/basil"
+import (
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/util"
+)
 
 //go:generate basil generate
 type Skip struct {
@@ -18,10 +21,8 @@ func (s *Skip) ID() basil.ID {
 	return s.id
 }
 
-func (s *Skip) RuntimeConfig() basil.RuntimeConfig {
-	return basil.RuntimeConfig{
-		Skip: s.when,
-	}
+func (s *Skip) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
+	config.Skip = util.BoolPtr(s.when)
 }
 
 func (s *Skip) EvalStage() basil.EvalStage {
