@@ -164,8 +164,9 @@ func (e *EvalContext) Run() bool {
 }
 
 func (e *EvalContext) Cancel() bool {
+	swapped := atomic.CompareAndSwapInt64(&e.sem, 0, 2)
 	e.cancel()
-	return atomic.CompareAndSwapInt64(&e.sem, 0, 2)
+	return swapped
 }
 
 func (e *EvalContext) JobScheduler() JobScheduler {
