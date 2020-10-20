@@ -1,6 +1,11 @@
 glob {
     path = "../../"
-    pattern = ".*\\.go$"
+    include = [
+      ".*\\.go$",
+    ]
+    exclude = [
+        ".*vendor.*"
+    ]
     file go_file
 }
 
