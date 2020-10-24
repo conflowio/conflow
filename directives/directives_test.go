@@ -11,6 +11,9 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/opsidian/parsley/parsley"
+	"github.com/opsidian/parsley/text"
+
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/functions"
 	"github.com/opsidian/basil/parsers"
@@ -24,8 +27,10 @@ import (
 )
 
 func eval(input string) {
+	f := text.NewFile("test", []byte(input))
+	fs := parsley.NewFileSet(f)
 	idRegistry := basil.NewIDRegistry(8, 16)
-	parseCtx := basil.NewParseContext(idRegistry, directives.DefaultRegistry())
+	parseCtx := basil.NewParseContext(fs, idRegistry, directives.DefaultRegistry())
 	logger := zerolog.NewDisabledLogger()
 	scheduler := job.NewScheduler(logger, runtime.NumCPU()*2, 100)
 	scheduler.Start()

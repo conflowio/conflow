@@ -7,7 +7,7 @@
 package parsley
 
 // Reader is a reader interface for parsing
-//go:generate counterfeiter . Reader
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Reader
 type Reader interface {
 	Pos(int) Pos
 	Remaining(Pos) int

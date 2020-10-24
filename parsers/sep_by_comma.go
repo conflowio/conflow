@@ -14,26 +14,22 @@ import (
 )
 
 // SepByComma applies the given value parser zero or more times separated by comma
-func SepByComma(p parsley.Parser, wsMode text.WsMode) *combinator.Sequence {
+func SepByComma(p parsley.Parser) *combinator.Sequence {
 	comma := text.LeftTrim(terminal.Rune(','), text.WsSpaces)
-	ptrim := text.LeftTrim(p, wsMode)
+	ptrim := text.LeftTrim(p, text.WsSpacesNl)
 
 	lookup := func(i int) parsley.Parser {
-		if i == 0 && (wsMode == text.WsNone || wsMode == text.WsSpaces) {
+		switch {
+		case i == 0:
 			return p
-		}
-		if i%2 == 0 {
+		case i%2 == 0:
 			return ptrim
-		} else {
+		default:
 			return comma
 		}
 	}
 	lenCheck := func(len int) bool {
-		if wsMode == text.WsNone || wsMode == text.WsSpaces {
-			return len == 0 || len%2 == 1
-		} else {
-			return len%2 == 0
-		}
+		return true
 	}
-	return combinator.Seq("SEP_BY", lookup, lenCheck)
+	return combinator.Seq("SEP_BY_COMMA", lookup, lenCheck)
 }

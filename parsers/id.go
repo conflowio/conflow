@@ -7,8 +7,6 @@
 package parsers
 
 import (
-	"errors"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
@@ -23,7 +21,7 @@ import (
 // It must start with a letter, must end with a letter or number, and no duplicate underscores are allowed.
 //
 func ID(regex string) parser.Func {
-	notFoundErr := errors.New("was expecting identifier")
+	notFoundErr := parsley.NotFoundError("identifier")
 
 	return parser.Func(func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
 		tr := ctx.Reader().(*text.Reader)

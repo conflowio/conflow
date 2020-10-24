@@ -19,19 +19,22 @@ func transformNode(
 	nodes := node.(parsley.NonTerminalNode).Children()
 	nameNode := nodes[0].(*basil.IDNode)
 
-	argumentsNode := nodes[2].(parsley.NonTerminalNode)
 	var argumentNodes []parsley.Node
-	children := argumentsNode.Children()
-	childrenCount := len(children)
-	if childrenCount > 0 {
-		argumentNodes = make([]parsley.Node, childrenCount/2+1)
-		var err parsley.Error
-		for i := 0; i < childrenCount; i += 2 {
-			if argumentNodes[i/2], err = parsley.Transform(userCtx, children[i]); err != nil {
-				return nil, err
+
+	if argumentsNode, ok := nodes[2].(parsley.NonTerminalNode); ok {
+		children := argumentsNode.Children()
+		childrenCount := len(children)
+		if childrenCount > 0 {
+			argumentNodes = make([]parsley.Node, childrenCount/2+1)
+			var err parsley.Error
+			for i := 0; i < childrenCount; i += 2 {
+				if argumentNodes[i/2], err = parsley.Transform(userCtx, children[i]); err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
+
 	return &Node{
 		nameNode:      nameNode,
 		argumentNodes: argumentNodes,

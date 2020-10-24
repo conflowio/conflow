@@ -42,14 +42,18 @@ func (e emptyNodeTransformer) NodeTransformer(name string) (parsley.NodeTransfor
 var emptyRegistry = emptyNodeTransformer{}
 
 // NewParseContext returns with a new parsing context
-func NewParseContext(idRegistry IDRegistry, directiveTransformerRegistry parsley.NodeTransformerRegistry) *ParseContext {
+func NewParseContext(
+	fileset *parsley.FileSet,
+	idRegistry IDRegistry,
+	directiveTransformerRegistry parsley.NodeTransformerRegistry,
+) *ParseContext {
 	if directiveTransformerRegistry == nil {
 		directiveTransformerRegistry = emptyRegistry
 	}
 	return &ParseContext{
 		idRegistry:                   idRegistry,
 		blockNodes:                   make(map[ID]BlockNode, 32),
-		fileSet:                      parsley.NewFileSet(),
+		fileSet:                      fileset,
 		directiveTransformerRegistry: directiveTransformerRegistry,
 		blockTransformerRegistry:     emptyRegistry,
 		functionTransformerRegistry:  emptyRegistry,

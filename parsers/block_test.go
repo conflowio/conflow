@@ -364,16 +364,6 @@ var _ = Describe("Block parser", func() {
 			errors.New("was expecting \"}\" at testfile:3:4"),
 		),
 		Entry(
-			"missing , in multiline array",
-			`testblock {
-				a = [
-					1,
-					2
-				]
-			}`,
-			errors.New("was expecting \",\" at testfile:4:7"),
-		),
-		Entry(
 			"defining a block body in one line",
 			`testblock { param1 = "bar" }`,
 			errors.New("was expecting a new line at testfile:1:13"),

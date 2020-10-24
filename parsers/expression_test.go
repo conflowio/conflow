@@ -129,7 +129,7 @@ var _ = Describe("Expression", func() {
 
 		// Function
 		test.TableEntry(`floor(`, errors.New("was expecting \")\" at testfile:1:7")),
-		test.TableEntry(`floor(1,`, errors.New("was expecting value at testfile:1:9")),
+		test.TableEntry(`floor(1,`, errors.New("was expecting \")\" at testfile:1:9")),
 		test.TableEntry("FLOOR()", errors.New("was expecting value at testfile:1:1")),
 
 		// Variables

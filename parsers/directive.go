@@ -47,18 +47,20 @@ func Directive(expr parsley.Parser) *combinator.Sequence {
 	).Token(block.TokenBlockBody)
 
 	blockValue := combinator.Choice(
-		emptyBody,
+		combinator.SuppressError(emptyBody),
 		body,
 		expr,
-		Array(expr, text.WsSpacesNl),
+		Array(expr),
 		Map(expr),
-		parser.Empty(),
 	).Name("block value")
 
 	return combinator.SeqOf(
 		parser.Empty(), // no directives for a directive
 		ID("@"+basil.IDRegExpPattern),
-		text.LeftTrim(blockValue, text.WsSpaces),
+		combinator.Choice(
+			text.LeftTrim(blockValue, text.WsSpaces),
+			parser.Empty(),
+		),
 	).Name("directive").Token(block.TokenDirective).Bind(directiveInterpreter{})
 }
 

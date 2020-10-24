@@ -5,12 +5,11 @@ require (
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.3
 	github.com/onsi/ginkgo v1.14.1
 	github.com/onsi/gomega v1.10.1
-	github.com/opsidian/parsley v0.13.5
+	github.com/opsidian/parsley v0.14.0
 	github.com/rs/zerolog v1.14.3
 	github.com/stretchr/testify v1.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/tools v0.0.0-20201010145503-6e5c6d77ddcc // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 )
 
-go 1.13
+go 1.15

@@ -18,7 +18,6 @@ import (
 	"github.com/opsidian/parsley/combinator"
 	pparser "github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
@@ -30,7 +29,7 @@ var _ = Describe("Compare", func() {
 		terminal.Float(),
 		terminal.Integer(),
 		terminal.Bool("true", "false"),
-		parsers.Array(&q, text.WsSpaces),
+		parsers.Array(&q),
 		terminal.Nil("nil"),
 		test.EvalErrorParser(),
 	).Name("value")

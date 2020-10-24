@@ -41,6 +41,14 @@ var _ = Describe("Map", func() {
 			map[string]interface{}{},
 		),
 		test.TableEntry(
+			`map { "a": "b" }`,
+			map[string]interface{}{"a": "b"},
+		),
+		test.TableEntry(
+			`map { "a": "b", "c": "d" }`,
+			map[string]interface{}{"a": "b", "c": "d"},
+		),
+		test.TableEntry(
 			`map{
 			}`,
 			map[string]interface{}{},
@@ -48,6 +56,14 @@ var _ = Describe("Map", func() {
 		test.TableEntry(
 			`map{
 				"foo": "bar",
+			}`,
+			map[string]interface{}{
+				"foo": "bar",
+			},
+		),
+		test.TableEntry(
+			`map {
+				"foo": "bar"
 			}`,
 			map[string]interface{}{
 				"foo": "bar",
@@ -97,28 +113,11 @@ var _ = Describe("Map", func() {
 			errors.New("was expecting \"}\" at testfile:3:4"),
 		),
 		test.TableEntry(
-			`map{ 
-				"a": 1
-			}`,
-			errors.New("was expecting \",\" at testfile:2:11"),
-		),
-		test.TableEntry(
-			`map{ "a": "b" }`,
-			errors.New("was expecting a new line at testfile:1:6"),
-		),
-		test.TableEntry(
-			`map{ 
-				"a": "b",}
-			`,
-			errors.New("was expecting a new line at testfile:2:14"),
-		),
-
-		test.TableEntry(
 			`map
 			{ 
 				"a": "b",
 			}`,
-			errors.New("was expecting \"{\" at testfile:1:4"),
+			errors.New("new line is not allowed at testfile:1:4"),
 		),
 
 		test.TableEntry(

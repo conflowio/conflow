@@ -11,7 +11,6 @@ import (
 
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
@@ -20,13 +19,13 @@ import (
 // TernaryIf will match a ternary if expression defined by the following rule, where P is the input parser:
 //   S -> P
 //     -> P "?" P ":" P
-func TernaryIf(p parsley.Parser) parser.Func {
+func TernaryIf(p parsley.Parser) *combinator.Sequence {
 	parsers := []parsley.Parser{
 		p,
-		text.LeftTrim(terminal.Rune('?'), text.WsSpaces),
-		text.LeftTrim(p, text.WsSpaces),
-		text.LeftTrim(terminal.Rune(':'), text.WsSpaces),
-		text.LeftTrim(p, text.WsSpaces),
+		combinator.SuppressError(text.LeftTrim(terminal.Rune('?'), text.WsSpacesNl)),
+		text.LeftTrim(p, text.WsSpacesNl),
+		text.LeftTrim(terminal.Rune(':'), text.WsSpacesNl),
+		text.LeftTrim(p, text.WsSpacesNl),
 	}
 
 	lookup := func(i int) parsley.Parser {
@@ -39,9 +38,9 @@ func TernaryIf(p parsley.Parser) parser.Func {
 	lenCheck := func(len int) bool {
 		return len == 1 || len == l
 	}
-	return combinator.Single(
-		combinator.Seq("SEQ", lookup, lenCheck).Bind(ast.InterpreterFunc(evalTernaryIf)),
-	)
+	return combinator.Seq(
+		"TERNARY_IF", lookup, lenCheck,
+	).Bind(ast.InterpreterFunc(evalTernaryIf)).ReturnSingle()
 }
 
 func evalTernaryIf(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {

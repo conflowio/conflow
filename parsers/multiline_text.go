@@ -33,7 +33,7 @@ import (
 // All text lines must be empty or start with the same whitespace characters as the first text line
 // The common prefix whitespace characters will be stripped from all lines
 func MultilineText() parser.Func {
-	notFoundErr := errors.New("was expecting multiline text")
+	notFoundErr := parsley.NotFoundError("multiline text")
 	return parser.Func(func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
 		tr := ctx.Reader().(*text.Reader)
 		var err parsley.Error

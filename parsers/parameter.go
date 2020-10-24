@@ -30,10 +30,10 @@ func Parameter(expr parsley.Parser, allowNewAssignment bool, allowDirectives boo
 
 	var parameterValue parser.FuncWrapper
 	parameterValue = parser.FuncWrapper{F: combinator.Choice(
-		Array(&parameterValue, text.WsSpacesNl),
+		Array(&parameterValue),
 		Map(&parameterValue),
 		expr,
-	)}
+	).Name("parameter value")}
 
 	var assignment parsley.Parser
 	if allowNewAssignment {
@@ -47,5 +47,5 @@ func Parameter(expr parsley.Parser, allowNewAssignment bool, allowDirectives boo
 		ID(basil.IDRegExpPattern),
 		text.LeftTrim(assignment, text.WsSpaces),
 		text.LeftTrim(parameterValue, text.WsSpaces),
-	).Token(parameter.Token)
+	).Name("parameter").Token(parameter.Token)
 }

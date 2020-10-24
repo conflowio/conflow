@@ -25,9 +25,9 @@ func Function(p parsley.Parser) *combinator.Sequence {
 	return combinator.SeqOf(
 		ID(basil.FunctionNameRegExpPattern),
 		terminal.Rune('('),
-		text.LeftTrim(SepByComma(p, text.WsSpaces), text.WsSpaces),
+		text.LeftTrim(SepByComma(p), text.WsSpacesNl),
 		text.LeftTrim(terminal.Rune(')'), text.WsSpaces),
-	).Token("FUNC").Name("function").Bind(functionInterpreter{})
+	).Name("function").Token("FUNC").Bind(functionInterpreter{})
 }
 
 type functionInterpreter struct{}

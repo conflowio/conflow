@@ -9,20 +9,17 @@ package parsers
 import (
 	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
 // Or will match a logical or expression defined by the following rule, where P is the input parser:
 //   S -> P ("||" P)*
-func Or(p parsley.Parser) parser.Func {
-	return combinator.Single(
-		SepByOp(
-			p,
-			terminal.Op("||"),
-		).Bind(orInterpreter{}),
-	)
+func Or(p parsley.Parser) *combinator.Sequence {
+	return SepByOp(
+		p,
+		terminal.Op("||"),
+	).Token("COMPARE").Bind(orInterpreter{}).ReturnSingle()
 }
 
 type orInterpreter struct{}

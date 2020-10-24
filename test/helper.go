@@ -58,7 +58,7 @@ func ParseCtx(
 		Register("testdirective", DirectiveInterpreter{}).
 		Register("testdirective2", DirectiveInterpreter{})
 
-	parseCtx := basil.NewParseContext(newIDRegistry(), directiveTransformerRegistry).New(basil.ParseContextOverride{
+	parseCtx := basil.NewParseContext(fs, newIDRegistry(), directiveTransformerRegistry).New(basil.ParseContextOverride{
 		BlockTransformerRegistry:    blockRegistry,
 		FunctionTransformerRegistry: functionRegistry,
 	})
@@ -132,7 +132,7 @@ func ExpectParserToHaveParseError(p parsley.Parser) func(string, error) {
 		res, err := parsley.Parse(ParseCtx(input, nil, nil), combinator.Sentence(p))
 
 		Expect(err).To(HaveOccurred(), "input: %s", input)
-		Expect(err).To(MatchError(fmt.Errorf("failed to parse the input: %s", expectedErr)), "input: %s", input)
+		Expect(err).To(MatchError(fmt.Errorf("failed to parse the input: %w", expectedErr)), "input: %s", input)
 		Expect(res).To(BeNil(), "input: %s", input)
 	}
 }
@@ -162,7 +162,6 @@ func ExpectParserToHaveEvalError(p parsley.Parser) func(string, error) {
 
 func ExpectParserToReturn(p parsley.Parser, input string, expected parsley.Node) {
 	res, err := parsley.Parse(ParseCtx(input, nil, nil), combinator.Sentence(p))
-
 	Expect(err).ToNot(HaveOccurred())
 
 	node, ok := res.(parsley.NonTerminalNode)
