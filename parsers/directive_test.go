@@ -266,7 +266,7 @@ var _ = Describe("Directive parser", func() {
 			`@testdirective {
 				field_string = 1
 			}`,
-			errors.New("was expecting string at testfile:2:5"),
+			errors.New("was expecting string at testfile:2:20"),
 		),
 		Entry(
 			"unknown parameter",

@@ -405,7 +405,7 @@ var _ = Describe("Block parser", func() {
 			`testblock {
 				field_string = 1
 			}`,
-			errors.New("was expecting string at testfile:2:5"),
+			errors.New("was expecting string at testfile:2:20"),
 		),
 		Entry(
 			"extra parameter using existing parameter name",
