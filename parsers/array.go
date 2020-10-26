@@ -19,12 +19,12 @@ import (
 // Array will match an array expression defined by the following rule, where P is the input parser:
 //   S -> "[" "]"
 //   S -> "[" P ("," P)* "]"
-func Array(p parsley.Parser, wsMode text.WsMode) *combinator.Sequence {
+func Array(p parsley.Parser) parsley.Parser {
 	return combinator.SeqOf(
 		terminal.Rune('['),
-		text.LeftTrim(SepByComma(p, wsMode), wsMode),
-		text.LeftTrim(terminal.Rune(']'), wsMode),
-	).Bind(arrayInterpreter{})
+		text.LeftTrim(SepByComma(p), text.WsSpacesNl),
+		text.LeftTrim(terminal.Rune(']'), text.WsSpacesNl),
+	).Name("array").Token("ARRAY").Bind(arrayInterpreter{})
 }
 
 type arrayInterpreter struct{}
@@ -34,8 +34,10 @@ func (a arrayInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode
 }
 
 func (a arrayInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	itemsNode := node.(parsley.NonTerminalNode).Children()[1]
-	nodes := itemsNode.(parsley.NonTerminalNode).Children()
+	var nodes []parsley.Node
+	if itemsNode, ok := node.(parsley.NonTerminalNode).Children()[1].(parsley.NonTerminalNode); ok {
+		nodes = itemsNode.Children()
+	}
 	items := make([]parsley.Node, (len(nodes)+1)/2)
 	var err parsley.Error
 	for i := 0; i < len(nodes); i += 2 {

@@ -20,8 +20,9 @@ import (
 type Glob struct {
 	id      basil.ID `basil:"id"`
 	path    string   `basil:"required"`
-	pattern string   `basil:"required"`
-	file    *File    `basil:"generated"`
+	include []string
+	exclude []string
+	file    *File `basil:"generated"`
 }
 
 func (g *Glob) ID() basil.ID {
@@ -29,14 +30,36 @@ func (g *Glob) ID() basil.ID {
 }
 
 func (g *Glob) Main(ctx basil.BlockContext) error {
-	regexp, err := regexp.Compile(g.pattern)
+	includes, err := g.compileRegexps(g.include)
 	if err != nil {
 		return err
 	}
+
+	excludes, err := g.compileRegexps(g.exclude)
+	if err != nil {
+		return err
+	}
+
 	return filepath.Walk(g.path, func(path string, info os.FileInfo, err error) error {
-		if !regexp.MatchString(path) {
+		match := len(includes) == 0
+
+		for _, re := range includes {
+			if re.MatchString(path) {
+				match = true
+				break
+			}
+		}
+
+		if !match {
 			return nil
 		}
+
+		for _, re := range excludes {
+			if re.MatchString(path) {
+				return nil
+			}
+		}
+
 		_, perr := ctx.PublishBlock(&File{id: g.file.id, path: path}, nil)
 		return perr
 	})
@@ -48,6 +71,18 @@ func (g *Glob) ParseContextOverride() basil.ParseContextOverride {
 			"file": FileInterpreter{},
 		},
 	}
+}
+
+func (g *Glob) compileRegexps(exprs []string) ([]*regexp.Regexp, error) {
+	var res []*regexp.Regexp
+	for _, expr := range exprs {
+		r, err := regexp.Compile(expr)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, r)
+	}
+	return res, nil
 }
 
 //go:generate basil generate

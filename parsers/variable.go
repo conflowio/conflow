@@ -24,7 +24,7 @@ func Variable() *combinator.Sequence {
 		ID(basil.IDRegExpPattern),
 		terminal.Rune('.'),
 		ID(basil.IDRegExpPattern),
-	).Token("VAR").Bind(variableInterpreter{})
+	).Name("variable").Token("VAR").Bind(variableInterpreter{})
 }
 
 type variableInterpreter struct{}

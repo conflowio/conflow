@@ -14,6 +14,8 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/opsidian/parsley/parsley"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/directives"
@@ -23,7 +25,7 @@ import (
 
 func NewParseContext() *basil.ParseContext {
 	idRegistry := basil.NewIDRegistry(8, 16)
-	return basil.NewParseContext(idRegistry, directives.DefaultRegistry())
+	return basil.NewParseContext(parsley.NewFileSet(), idRegistry, directives.DefaultRegistry())
 }
 
 func Main(ctx context.Context, parseCtx *basil.ParseContext, inputParams map[basil.ID]interface{}) {

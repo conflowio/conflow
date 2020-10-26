@@ -11,7 +11,6 @@ import (
 
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil/parameter"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -32,7 +31,7 @@ func CheckNodeType(node parsley.Node, expectedType string) parsley.Error {
 
 	if expectedType == TypeTime {
 		if node.Type() == TypeString {
-			if stringNode, ok := node.(*parameter.Node).ValueNode().(*terminal.StringNode); ok {
+			if stringNode, ok := node.(*terminal.StringNode); ok {
 				val, _ := stringNode.Value(nil)
 				if _, err := TimeValue(val); err != nil {
 					return parsley.NewError(node.Pos(), err)

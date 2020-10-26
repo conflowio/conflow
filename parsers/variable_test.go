@@ -24,7 +24,6 @@ var _ = Describe("Variable", func() {
 
 	var p = parsers.Variable()
 	var parsleyContext *parsley.Context
-	var parseCtx *basil.ParseContext
 	var evalCtx *basil.EvalContext
 	var res parsley.Node
 	var parseErr, evalErr error
@@ -33,7 +32,6 @@ var _ = Describe("Variable", func() {
 	var blockNode *basilfakes.FakeBlockNode
 
 	BeforeEach(func() {
-		parseCtx = basil.NewParseContext(basil.NewIDRegistry(8, 16), nil)
 		logger := zerolog.NewDisabledLogger()
 		evalCtx = basil.NewEvalContext(context.Background(), nil, logger, &test.Scheduler{}, nil)
 		parseErr = nil
@@ -44,6 +42,11 @@ var _ = Describe("Variable", func() {
 
 	JustBeforeEach(func() {
 		parsleyContext = test.ParseCtx(input, nil, nil)
+		parseCtx := basil.NewParseContext(
+			parsleyContext.FileSet(),
+			basil.NewIDRegistry(8, 16),
+			nil,
+		)
 		parsleyContext.SetUserContext(parseCtx)
 
 		if blockNode != nil {

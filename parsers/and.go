@@ -9,20 +9,17 @@ package parsers
 import (
 	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
 // And will match a logical and expression defined by the following rule, where P is the input parser:
 //   S -> P ("&&" P)*
-func And(p parsley.Parser) parser.Func {
-	return combinator.Single(
-		SepByOp(
-			p,
-			terminal.Op("&&"),
-		).Bind(andInterpreter{}),
-	)
+func And(p parsley.Parser) *combinator.Sequence {
+	return SepByOp(
+		p,
+		terminal.Op("&&"),
+	).Token("AND").Bind(andInterpreter{}).ReturnSingle()
 }
 
 type andInterpreter struct{}

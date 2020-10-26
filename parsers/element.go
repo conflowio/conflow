@@ -12,7 +12,6 @@ import (
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
@@ -23,12 +22,12 @@ import (
 //   VAR_INDEX -> "." ID
 //             -> "[" P "]"
 //   ID        -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-func Element(p parsley.Parser, index parsley.Parser) parser.Func {
+func Element(p parsley.Parser, index parsley.Parser) *combinator.Sequence {
 	arrayIndex := combinator.SeqOf(
 		terminal.Rune('['),
 		text.LeftTrim(index, text.WsSpaces),
 		text.LeftTrim(terminal.Rune(']'), text.WsSpaces),
-	).Bind(interpreter.Select(1))
+	).Token("ARRAY_INDEX").Bind(interpreter.Select(1))
 
 	lookup := func(i int) parsley.Parser {
 		if i == 0 {
@@ -39,9 +38,7 @@ func Element(p parsley.Parser, index parsley.Parser) parser.Func {
 	lenCheck := func(len int) bool {
 		return len > 0
 	}
-	return combinator.Single(
-		combinator.Seq("VAR", lookup, lenCheck).Bind(ast.InterpreterFunc(evalElement)),
-	)
+	return combinator.Seq("VAR", lookup, lenCheck).Bind(ast.InterpreterFunc(evalElement)).ReturnSingle()
 }
 
 func evalElement(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {

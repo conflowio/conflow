@@ -16,7 +16,6 @@ import (
 	"github.com/opsidian/parsley/combinator"
 	pparser "github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
@@ -27,7 +26,7 @@ var _ = Describe("Element", func() {
 		terminal.String(false),
 		terminal.Integer(),
 		terminal.Nil("nil"),
-		parsers.Array(&q, text.WsSpaces),
+		parsers.Array(&q),
 		test.EvalErrorParser(),
 		test.MapParser(),
 	).Name("value")

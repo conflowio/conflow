@@ -33,14 +33,17 @@ func Map(p parsley.Parser) parser.Func {
 		terminal.Word("map", "map", variable.TypeString),
 		text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
-	).Bind(ast.InterpreterFunc(evalEmptyMap))
+	).Token("MAP").Bind(ast.InterpreterFunc(evalEmptyMap))
 
 	nonEmptyMap := combinator.SeqOf(
 		terminal.Word("map", "map", variable.TypeString),
 		text.LeftTrim(terminal.Rune('{'), text.WsSpaces),
-		SepByComma(keyValue, text.WsSpacesForceNl).Bind(interpreter.Object()),
-		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
-	).Bind(interpreter.Select(2))
+		text.LeftTrim(
+			SepByComma(keyValue).Token("MAP_BODY").Bind(interpreter.Object()),
+			text.WsSpacesNl,
+		),
+		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
+	).Token("MAP").Bind(interpreter.Select(2))
 
 	return combinator.Choice(
 		emptyMap,

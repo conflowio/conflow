@@ -9,17 +9,16 @@ package parsers
 import (
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
 // Expression returns with an expression parser
-func Expression() parser.Func {
-	var p parser.Func
+func Expression() *combinator.Sequence {
+	var p combinator.Sequence
 
 	function := Function(&p)
-	array := Array(&p, text.WsSpaces)
+	array := Array(&p)
 	variable := Variable()
 
 	arrayIndex := combinator.Choice(
@@ -39,11 +38,16 @@ func Expression() parser.Func {
 		terminal.TimeDuration(),
 		terminal.Float(),
 		terminal.Integer(),
+		MultilineText(),
 		terminal.String(true),
 		terminal.Bool("true", "false"),
 		terminal.Nil("nil"),
 		valueWithIndex,
-		combinator.SeqOf(terminal.Rune('('), &p, terminal.Rune(')')).Bind(interpreter.Select(1)),
+		combinator.SeqOf(
+			terminal.Rune('('),
+			text.LeftTrim(&p, text.WsSpacesNl),
+			text.LeftTrim(terminal.Rune(')'), text.WsSpacesNl),
+		).Token("PARENS").Bind(interpreter.Select(1)),
 	).Name("value")
 
 	not := Not(value)
@@ -52,7 +56,7 @@ func Expression() parser.Func {
 	compare := Compare(sum)
 	and := And(compare)
 	or := Or(and)
-	p = TernaryIf(or)
+	p = *TernaryIf(or)
 
-	return p
+	return &p
 }

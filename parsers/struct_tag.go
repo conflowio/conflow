@@ -26,7 +26,7 @@ func StructTag() *combinator.Sequence {
 		terminal.Integer(),
 		terminal.String(true),
 		terminal.Bool("true", "false"),
-		Array(&value, text.WsSpaces),
+		Array(&value),
 		ID(basil.IDRegExpPattern),
 	).Name("value")
 
@@ -36,7 +36,7 @@ func StructTag() *combinator.Sequence {
 		text.LeftTrim(&value, text.WsSpaces),
 	).Name("parameter name or parameter name and value pair")
 
-	return SepByComma(keyValue, text.WsSpaces).Bind(structTagInterpreter{})
+	return SepByComma(keyValue).Token("STRUCT_TAG").Bind(structTagInterpreter{})
 }
 
 type structTagInterpreter struct {

@@ -12,7 +12,6 @@ import (
 
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 )
@@ -25,20 +24,18 @@ import (
 //          -> "<="
 //          -> ">"
 //          -> ">="
-func Compare(p parsley.Parser) parser.Func {
-	return combinator.Single(
-		SepByOp(
-			p,
-			combinator.Choice(
-				terminal.Op("=="),
-				terminal.Op("!="),
-				terminal.Op("<="),
-				terminal.Op("<"),
-				terminal.Op(">="),
-				terminal.Op(">"),
-			),
-		).Bind(ast.InterpreterFunc(evalCompare)),
-	)
+func Compare(p parsley.Parser) *combinator.Sequence {
+	return SepByOp(
+		p,
+		combinator.Choice(
+			terminal.Op("=="),
+			terminal.Op("!="),
+			terminal.Op("<="),
+			terminal.Op("<"),
+			terminal.Op(">="),
+			terminal.Op(">"),
+		),
+	).Token("COMPARE").Bind(ast.InterpreterFunc(evalCompare)).ReturnSingle()
 }
 
 func evalCompare(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {

@@ -201,19 +201,9 @@ var _ = Describe("Directive parser", func() {
 		Entry(
 			"no closing } with paramter",
 			`@testdirective {
-				a = 1
+				field_array = 1
 			`,
 			errors.New("was expecting \"}\" at testfile:3:4"),
-		),
-		Entry(
-			"missing , in multiline array",
-			`@testdirective {
-				a = [
-					1,
-					2
-				]
-			}`,
-			errors.New("was expecting \",\" at testfile:4:7"),
 		),
 		Entry(
 			"defining a block body in one line",
@@ -236,7 +226,7 @@ var _ = Describe("Directive parser", func() {
 			`@testdirective {
 				extra_param := "foo"
 			}`,
-			errors.New("was expecting a new line at testfile:2:17"),
+			errors.New("was expecting \"=\" at testfile:2:17"),
 		),
 		Entry(
 			"defining a directive as a child block",
@@ -276,7 +266,7 @@ var _ = Describe("Directive parser", func() {
 			`@testdirective {
 				field_string = 1
 			}`,
-			errors.New("was expecting string at testfile:2:5"),
+			errors.New("was expecting string at testfile:2:20"),
 		),
 		Entry(
 			"unknown parameter",

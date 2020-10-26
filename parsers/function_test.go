@@ -47,7 +47,7 @@ var _ = Describe("Function", func() {
 		test.TableEntry("test.func1", errors.New("was expecting \"(\" at testfile:1:11")),
 		test.TableEntry("test.func1(", errors.New("was expecting \")\" at testfile:1:12")),
 		test.TableEntry(`test.func1("foo"`, errors.New("was expecting \")\" at testfile:1:17")),
-		test.TableEntry(`test.func1("foo",`, errors.New("was expecting value at testfile:1:18")),
+		test.TableEntry(`test.func1("foo",`, errors.New("was expecting \")\" at testfile:1:18")),
 	)
 
 	DescribeTable("it returns a static check error",

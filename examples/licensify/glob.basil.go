@@ -26,10 +26,16 @@ func (i GlobInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
 			IsRequired: true,
 			IsOutput:   false,
 		},
-		"pattern": {
-			Type:       "string",
+		"include": {
+			Type:       "[]string",
 			EvalStage:  basil.EvalStages["main"],
-			IsRequired: true,
+			IsRequired: false,
+			IsOutput:   false,
+		},
+		"exclude": {
+			Type:       "[]string",
+			EvalStage:  basil.EvalStages["main"],
+			IsRequired: false,
 			IsOutput:   false,
 		},
 	}
@@ -73,8 +79,10 @@ func (i GlobInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 		return b.(*Glob).id
 	case "path":
 		return b.(*Glob).path
-	case "pattern":
-		return b.(*Glob).pattern
+	case "include":
+		return b.(*Glob).include
+	case "exclude":
+		return b.(*Glob).exclude
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Glob", name))
 	}
@@ -88,8 +96,10 @@ func (i GlobInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 		b.id, err = variable.IdentifierValue(value)
 	case "path":
 		b.path, err = variable.StringValue(value)
-	case "pattern":
-		b.pattern, err = variable.StringValue(value)
+	case "include":
+		b.include, err = variable.StringArrayValue(value)
+	case "exclude":
+		b.exclude, err = variable.StringArrayValue(value)
 	}
 	return err
 }

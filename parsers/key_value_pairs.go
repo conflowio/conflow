@@ -26,7 +26,7 @@ func KeyValuePairs() *combinator.Sequence {
 		terminal.Integer(),
 		terminal.String(true),
 		terminal.Bool("true", "false"),
-		Array(&value, text.WsSpaces),
+		Array(&value),
 	).Name("value")
 
 	keyValue := combinator.SeqOf(
@@ -35,7 +35,7 @@ func KeyValuePairs() *combinator.Sequence {
 		text.LeftTrim(&value, text.WsSpaces),
 	).Name("parameter name and value pair")
 
-	return SepByComma(keyValue, text.WsSpaces).Bind(keyValuesInterpreter{})
+	return SepByComma(keyValue).Token("KEY_VALUE_PAIRS").Bind(keyValuesInterpreter{})
 }
 
 type keyValuesInterpreter struct {

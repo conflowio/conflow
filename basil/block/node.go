@@ -184,7 +184,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 				return parsley.NewErrorf(c.Pos(), "%q is an output parameter and can not be set", c.Name())
 			}
 
-			if err := variable.CheckNodeType(c, param.Type); err != nil {
+			if err := variable.CheckNodeType(c.ValueNode(), param.Type); err != nil {
 				return err
 			}
 

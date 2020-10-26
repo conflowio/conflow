@@ -47,7 +47,7 @@ var _ = Describe("StructTag", func() {
 			test.ExpectParserToHaveParseError(p)(input, expectedErr)
 		},
 		test.TableEntry(`key_1=`, errors.New("was expecting value at testfile:1:7")),
-		test.TableEntry(`key_1=1,,key_2=2`, errors.New("was expecting parameter name or parameter name and value pair at testfile:1:9")),
+		test.TableEntry(`key_1=1,,key_2=2`, errors.New("was expecting the end of input at testfile:1:9")),
 	)
 
 	DescribeTable("it returns an eval error",

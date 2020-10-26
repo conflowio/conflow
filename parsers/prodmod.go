@@ -11,7 +11,6 @@ import (
 
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 )
@@ -21,17 +20,15 @@ import (
 //   PROD_MOD_OP -> "*"
 //               -> "/"
 //               -> "%"
-func ProdMod(p parsley.Parser) parser.Func {
-	return combinator.Single(
-		SepByOp(
-			p,
-			combinator.Choice(
-				terminal.Rune('*'),
-				terminal.Rune('/'),
-				terminal.Rune('%'),
-			),
-		).Bind(ast.InterpreterFunc(evalProdMod)),
-	)
+func ProdMod(p parsley.Parser) *combinator.Sequence {
+	return SepByOp(
+		p,
+		combinator.Choice(
+			terminal.Rune('*'),
+			terminal.Rune('/'),
+			terminal.Rune('%'),
+		),
+	).Token("PROD_MOD").Bind(ast.InterpreterFunc(evalProdMod)).ReturnSingle()
 }
 
 func evalProdMod(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {

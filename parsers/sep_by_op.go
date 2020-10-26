@@ -14,21 +14,21 @@ import (
 
 // SepByOp applies the given value parser one or more times separated by the op parser
 func SepByOp(p parsley.Parser, op parsley.Parser) *combinator.Sequence {
-	ptrim := text.LeftTrim(p, text.WsSpaces)
-	optrim := text.LeftTrim(op, text.WsSpaces)
+	ptrim := text.LeftTrim(p, text.WsSpacesNl)
+	optrim := combinator.SuppressError(text.LeftTrim(op, text.WsSpacesNl))
 
 	lookup := func(i int) parsley.Parser {
-		if i == 0 {
+		switch {
+		case i == 0:
 			return p
-		}
-		if i%2 == 0 {
+		case i%2 == 0:
 			return ptrim
-		} else {
+		default:
 			return optrim
 		}
 	}
 	lenCheck := func(len int) bool {
 		return len%2 == 1
 	}
-	return combinator.Seq("SEP_BY", lookup, lenCheck)
+	return combinator.Seq("SEP_BY_OP", lookup, lenCheck)
 }

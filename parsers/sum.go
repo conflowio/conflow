@@ -11,7 +11,6 @@ import (
 
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 )
@@ -20,16 +19,14 @@ import (
 //   S      -> P (SUM_OP P)*
 //   SUM_OP -> "+"
 //          -> "-"
-func Sum(p parsley.Parser) parser.Func {
-	return combinator.Single(
-		SepByOp(
-			p,
-			combinator.Choice(
-				terminal.Rune('+'),
-				terminal.Rune('-'),
-			),
-		).Bind(ast.InterpreterFunc(evalSum)),
-	)
+func Sum(p parsley.Parser) *combinator.Sequence {
+	return SepByOp(
+		p,
+		combinator.Choice(
+			terminal.Rune('+'),
+			terminal.Rune('-'),
+		),
+	).Token("COMPARE").Bind(ast.InterpreterFunc(evalSum)).ReturnSingle()
 }
 
 func evalSum(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {

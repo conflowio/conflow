@@ -14,7 +14,6 @@ import (
 	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/test"
 	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 )
 
@@ -27,9 +26,9 @@ var _ = Describe("Array", func() {
 		test.EvalErrorParser(),
 	).Name("value")
 
-	Describe("when new lines are not allowed", func() {
+	Describe("when new lines are allowed", func() {
 
-		p := parsers.Array(q, text.WsSpaces)
+		p := parsers.Array(q)
 
 		DescribeTable("it evaluates the input correctly",
 			func(input string, expected interface{}) {
@@ -39,6 +38,11 @@ var _ = Describe("Array", func() {
 			test.TableEntry("[nil]", []interface{}{nil}),
 			test.TableEntry("[1]", []interface{}{int64(1)}),
 			test.TableEntry(`[1, "foo"]`, []interface{}{int64(1), "foo"}),
+			test.TableEntry("[\n]", []interface{}{}),
+			test.TableEntry("[\nnil,\n]", []interface{}{nil}),
+			test.TableEntry("[\n1\n]", []interface{}{int64(1)}),
+			test.TableEntry("[\n1,\n]", []interface{}{int64(1)}),
+			test.TableEntry("[\n1,\n \"foo\",\n]", []interface{}{int64(1), "foo"}),
 		)
 
 		DescribeTable("it returns a parse error",
@@ -47,7 +51,7 @@ var _ = Describe("Array", func() {
 			},
 			test.TableEntry("[", errors.New("was expecting \"]\" at testfile:1:2")),
 			test.TableEntry("[1", errors.New("was expecting \"]\" at testfile:1:3")),
-			test.TableEntry("[1,", errors.New("was expecting value at testfile:1:4")),
+			test.TableEntry("[1,", errors.New("was expecting \"]\" at testfile:1:4")),
 		)
 
 		DescribeTable("it returns an eval error",

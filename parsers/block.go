@@ -57,22 +57,20 @@ func blockWithOptions(
 	emptyBody := combinator.SeqOf(
 		terminal.Rune('{'),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesNl),
-	).Token(block.TokenBlockBody)
+	).Name("block body").Token(block.TokenBlockBody)
 
 	body := combinator.SeqOf(
 		terminal.Rune('{'),
 		combinator.Many(text.LeftTrim(paramOrBlock, text.WsSpacesForceNl)),
 		text.LeftTrim(terminal.Rune('}'), text.WsSpacesForceNl),
-	).Token(block.TokenBlockBody)
+	).Name("block body").Token(block.TokenBlockBody)
 
 	blockValue := combinator.Choice(
-		emptyBody,
+		combinator.SuppressError(emptyBody),
 		body,
 		expr,
-		MultilineText(),
-		Array(expr, text.WsSpacesNl),
+		Array(expr),
 		Map(expr),
-		parser.Empty(),
 	).Name("block value")
 
 	var id parsley.Parser
@@ -80,7 +78,7 @@ func blockWithOptions(
 		id = combinator.SeqTry(
 			ID(basil.IDRegExpPattern),
 			text.LeftTrim(ID(basil.IDRegExpPattern), text.WsSpaces),
-		).ReturnSingle()
+		).Token("TYPE_ID").ReturnSingle()
 	} else {
 		id = ID(basil.IDRegExpPattern)
 	}
@@ -88,7 +86,7 @@ func blockWithOptions(
 	p = *combinator.SeqOf(
 		directives,
 		id,
-		text.LeftTrim(blockValue, text.WsSpaces),
+		combinator.Optional(text.LeftTrim(blockValue, text.WsSpaces)),
 	).Name("block").Token(block.TokenBlock).Bind(blockInterpreter{})
 
 	return &p
