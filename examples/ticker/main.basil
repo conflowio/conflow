@@ -1,7 +1,7 @@
 ticker {
     interval = 100ms
 
-    tick t {
+    t tick {
         prefix := "Time is: "
     }
 }

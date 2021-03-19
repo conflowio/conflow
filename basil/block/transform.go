@@ -46,8 +46,8 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 	var typeNode *basil.IDNode
 	switch n := nodes[1].(type) {
 	case parsley.NonTerminalNode:
-		typeNode = n.Children()[0].(*basil.IDNode)
-		idNode = n.Children()[1].(*basil.IDNode)
+		idNode = n.Children()[0].(*basil.IDNode)
+		typeNode = n.Children()[1].(*basil.IDNode)
 		if err := parseCtx.RegisterID(idNode.ID()); err != nil {
 			return nil, parsley.NewError(idNode.Pos(), err)
 		}

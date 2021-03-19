@@ -55,7 +55,7 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"a block defined",
 			`
-				testblock c {
+				c testblock {
 					value = 1
 				}
 			`,
@@ -70,7 +70,7 @@ var _ = Describe("Main block parser", func() {
 			"a block and parameter defined",
 			`
 				value = 1
-				testblock c {
+				c testblock {
 					value = 2
 				}
 			`,
@@ -116,10 +116,10 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"a child block depends on the other",
 			`
-				testblock c1 {
+				c1 testblock {
 					value = c2.value + 1
 				}
-				testblock c2 {
+				c2 testblock {
 					value = 1
 				}
 			`,
@@ -135,7 +135,7 @@ var _ = Describe("Main block parser", func() {
 			"a parameter depends on a child block",
 			`
 				value = c.value + 1
-				testblock c {
+				c testblock {
 					value = 1
 				}
 			`,
@@ -151,7 +151,7 @@ var _ = Describe("Main block parser", func() {
 			"a parameter depends on a child block's custom parameter",
 			`
 				value = c.user_param + 1
-				testblock c {
+				c testblock {
 					user_param := 1
 				}
 			`,
@@ -166,7 +166,7 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"a child block depends on a parameter",
 			`
-				testblock c {
+				c testblock {
 					value = main.value + 1
 				}
 				value = 1
@@ -182,8 +182,8 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"a child block is referenced on a deeper level",
 			`
-				testblock c1 {
-					testblock c2 {
+				c1 testblock {
+					c2 testblock {
 						value = 1
 					}
 				}
@@ -208,13 +208,13 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"a deeper level references a sibling deeper level",
 			`
-				testblock c1 {
-					testblock c2 {
+				c1 testblock {
+					c2 testblock {
 						value = c4.value + 1
 					}
 				}
-				testblock c3 {
-					testblock c4 {
+				c3 testblock {
+					c4 testblock {
 						value = 1
 					}
 				}
@@ -247,11 +247,11 @@ var _ = Describe("Main block parser", func() {
 			"dependencies are resolved recursively",
 			`
 				value = c1.value + c2.value
-				testblock c1 {
+				c1 testblock {
 					value = c1.field_int + 1
 					field_int = 1
 				}
-				testblock c2 {
+				c2 testblock {
 					value = c2.field_int + 2
 					field_int = 2
 				}
@@ -293,7 +293,7 @@ var _ = Describe("Main block parser", func() {
 			"a parameter and a block depend on each other",
 			`
 				value = c.value
-				testblock c {
+				c testblock {
 					value = main.value
 				}
 			`,
@@ -305,13 +305,13 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"deeper levels depend on each other",
 			`
-				testblock c1 {
-					testblock c2 {
+				c1 testblock {
+					c2 testblock {
 						value = c4.value
 					}
 				}
-				testblock c3 {
-					testblock c4 {
+				c3 testblock {
+					c4 testblock {
 						value = c2.value
 					}
 				}

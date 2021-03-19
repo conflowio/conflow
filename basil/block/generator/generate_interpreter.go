@@ -49,12 +49,10 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 	}
 
 	var idField, valueField *Field
-	var hasForeignID bool
 	for _, field := range fields {
 		switch {
 		case field.IsID:
 			idField = field
-			hasForeignID = field.IsReference
 		case field.IsValue:
 			valueField = field
 		}
@@ -66,7 +64,6 @@ func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string,
 		Fields:             fields,
 		IDField:            idField,
 		ValueField:         valueField,
-		HasForeignID:       hasForeignID,
 		ValueFunctionNames: variable.ValueFunctionNames,
 	}, nil
 }

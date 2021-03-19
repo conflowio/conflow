@@ -7,7 +7,6 @@
 package generator
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
@@ -24,7 +23,6 @@ type Field struct {
 	IsRequired  bool
 	IsID        bool
 	IsValue     bool
-	IsReference bool
 	IsBlock     bool
 	IsOutput    bool
 	IsGenerated bool
@@ -63,10 +61,6 @@ func (f *Field) Validate() error {
 
 	if f.IsID && f.Type != variable.TypeIdentifier {
 		return fmt.Errorf("field %q must be defined as %s", f.Name, variable.TypeIdentifier)
-	}
-
-	if f.IsReference && !f.IsID {
-		return errors.New("the \"reference\" tag can only be set on the id field")
 	}
 
 	if f.Stage == "" {

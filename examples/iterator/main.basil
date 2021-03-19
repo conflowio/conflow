@@ -3,15 +3,15 @@ shapes := ["circle", "rectangle", "triangle"]
 
 iterator {
     count = len(main.colors)
-    it i1
+    i1 it
 }
 
-do print_colors {
+print_colors do {
     color := main.colors[i1.value]
 
     iterator {
         count = len(main.shapes)
-        it i2
+        i2 it
     }
 
     println {

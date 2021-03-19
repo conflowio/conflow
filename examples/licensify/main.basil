@@ -6,7 +6,7 @@ glob {
     exclude = [
         ".*vendor.*"
     ]
-    file go_file
+    go_file file
 }
 
 licensify {

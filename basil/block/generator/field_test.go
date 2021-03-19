@@ -10,7 +10,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil/block/generator"
-	"github.com/opsidian/basil/basil/variable"
 )
 
 var _ = Describe("Field", func() {
@@ -18,28 +17,20 @@ var _ = Describe("Field", func() {
 
 	BeforeEach(func() {
 		f = &generator.Field{
-			Name:        "foo",
-			ParamName:   "param_foo",
-			Type:        "string",
-			IsRequired:  false,
-			Stage:       "main",
-			IsID:        false,
-			IsValue:     false,
-			IsReference: false,
-			IsBlock:     false,
+			Name:       "foo",
+			ParamName:  "param_foo",
+			Type:       "string",
+			IsRequired: false,
+			Stage:      "main",
+			IsID:       false,
+			IsValue:    false,
+			IsBlock:    false,
 		}
 	})
 
 	Describe("Validate", func() {
 
 		It("returns no error for a valid field", func() {
-			Expect(f.Validate()).To(BeNil())
-		})
-
-		It("allows the reference tag on an id field", func() {
-			f.IsID = true
-			f.IsReference = true
-			f.Type = variable.TypeIdentifier
 			Expect(f.Validate()).To(BeNil())
 		})
 
@@ -53,11 +44,6 @@ var _ = Describe("Field", func() {
 			f.IsID = true
 			f.IsValue = true
 			Expect(f.Validate()).To(MatchError("field \"foo\" must have exactly one of: id, value, block or generated"))
-		})
-
-		It("returns error if reference is on a non-id field", func() {
-			f.IsReference = true
-			Expect(f.Validate()).To(MatchError("the \"reference\" tag can only be set on the id field"))
 		})
 
 		It("returns error if param name is invalid", func() {

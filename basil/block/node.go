@@ -143,14 +143,6 @@ func (n *Node) SetDescriptor(descriptor basil.BlockDescriptor) {
 
 // StaticCheck runs static analysis on the node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
-	parseCtx := ctx.(*basil.ParseContext)
-
-	if n.interpreter.HasForeignID() {
-		if _, exists := parseCtx.BlockNode(n.ID()); !exists {
-			return parsley.NewErrorf(n.idNode.Pos(), "%q is referencing a non-existing block", n.ID())
-		}
-	}
-
 	params := n.interpreter.Params()
 	requiredParams := make(map[basil.ID]bool, len(params))
 	for name, param := range params {
@@ -229,7 +221,7 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 
 // Pos returns with the node's position
 func (n *Node) Pos() parsley.Pos {
-	return n.typeNode.Pos()
+	return n.idNode.Pos()
 }
 
 // ReaderPos returns with the reader's position

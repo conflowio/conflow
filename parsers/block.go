@@ -21,10 +21,10 @@ import (
 )
 
 // Block returns a parser for parsing blocks
-//   S     -> ID ID? {
+//   S     -> ID? TYPE? {
 //              (ATTR|S)*
 //            }
-//         -> ID ID? VALUE
+//         -> ID? TYPE VALUE
 //   ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //   ATTR  -> ID ("="|":=") P
 //   VALUE -> EXPRESSION
@@ -106,7 +106,7 @@ func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) 
 	var typeNode *basil.IDNode
 	switch n := nodes[1].(type) {
 	case parsley.NonTerminalNode:
-		typeNode = n.Children()[0].(*basil.IDNode)
+		typeNode = n.Children()[1].(*basil.IDNode)
 	case *basil.IDNode:
 		typeNode = n
 	default:

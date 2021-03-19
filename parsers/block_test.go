@@ -39,7 +39,7 @@ var _ = Describe("Block parser", func() {
 		),
 		Entry(
 			"id but no body",
-			`testblock foo`,
+			`foo testblock`,
 			&test.Block{IDField: "foo"},
 		),
 		Entry(
@@ -49,7 +49,7 @@ var _ = Describe("Block parser", func() {
 		),
 		Entry(
 			"id and empty body",
-			`testblock foo {}`,
+			`foo testblock {}`,
 			&test.Block{IDField: "foo"},
 		),
 		Entry(
@@ -135,17 +135,17 @@ var _ = Describe("Block parser", func() {
 		),
 		Entry(
 			"short format with id",
-			`testblock foo "value"`,
+			`foo testblock "value"`,
 			&test.Block{IDField: "foo", Value: "value"},
 		),
 		Entry(
 			"short format with array",
-			`testblock foo [1, 2]`,
+			`foo testblock [1, 2]`,
 			&test.Block{IDField: "foo", Value: []interface{}{int64(1), int64(2)}},
 		),
 		Entry(
 			"short format with multiline array",
-			`testblock foo [
+			`foo testblock [
 				1,
 				2,
 			]`,
@@ -153,7 +153,7 @@ var _ = Describe("Block parser", func() {
 		),
 		Entry(
 			"short format with map",
-			`testblock foo map{
+			`foo testblock map{
 				"a": "b",
 			}`,
 			&test.Block{IDField: "foo", Value: map[string]interface{}{"a": "b"}},
@@ -188,7 +188,7 @@ var _ = Describe("Block parser", func() {
 		Entry(
 			"child block with id but no body",
 			`testblock {
-				testblock foo
+				foo testblock
 			}`,
 			&test.Block{
 				IDField: "0",
@@ -245,10 +245,10 @@ var _ = Describe("Block parser", func() {
 		Entry(
 			"variable as parameter value",
 			`testblock {
-				testblock b1 {
+				b1 testblock {
 					value = 1
 				}
-				testblock b2 {
+				b2 testblock {
 					value = b1.value + 1
 				}
 			}`,
@@ -351,6 +351,11 @@ var _ = Describe("Block parser", func() {
 			test.ExpectParserToHaveParseError(p)(input, expectedErr)
 		},
 		Entry(
+			"untyped unnamed block",
+			`{}`,
+			errors.New("was expecting block at testfile:1:1"),
+		),
+		Entry(
 			"no closing }",
 			`testblock {
 			`,
@@ -424,10 +429,10 @@ var _ = Describe("Block parser", func() {
 		Entry(
 			"duplicated identifiers",
 			`testblock {
-				testblock foo {}
-				testblock foo {}
+				foo testblock {}
+				foo testblock {}
 			}`,
-			errors.New("\"foo\" is already defined, please use a globally unique identifier at testfile:3:15"),
+			errors.New("\"foo\" is already defined, please use a globally unique identifier at testfile:3:5"),
 		),
 	)
 

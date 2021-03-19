@@ -87,7 +87,7 @@ See [examples/helloworld](examples/helloworld) for the rest of the code.
 
 program := "test.sh" // This is a user defined parameter in the main block
 
-exec test { // This is an "exec" type block with the id "test"
+test exec { // This is an "exec" type block with the id "test"
     program = main.program // Parameter referencing the "program" parameter in the top level block
 }
 
@@ -157,7 +157,7 @@ func (it *Iterator) Main(ctx basil.BlockContext) error {
 ```basil
 iterator {
     count = 3
-    it i1 // This will be the output block (no body)
+    i1 it // This will be the output block (no body)
 }
 
 println { // A block instance will be created for every i1.value value
@@ -174,11 +174,11 @@ See [examples/iterator](examples/iterator), [examples/ticker](examples/ticker) o
  * A parameter or child block will be evaluated if its the matching evaluation stage and all dependencies were evaluated previously
 
 ```basil
-foo baz { // "baz" will be evaluated after "bar"
+baz block { // "baz" will be evaluated after "bar"
     p2 = bar.p1
 }
 
-foo bar {
+bar block {
     p1 = bar.u1 // This parameter will be evaluated after u1
     u1 := "user defined"
 }

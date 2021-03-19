@@ -1,6 +1,6 @@
-import sum "./sum"
+sum import "./sum"
 
-sum one_plus_two {
+one_plus_two sum {
   a = 1
   b = 2
 }

@@ -1,24 +1,24 @@
-iterator iterator1 {
+iterator1 iterator {
     count = 10
-    it i1
+    i1 it
 }
 
-iterator iterator2 {
+iterator2 iterator {
     count = 10
-    it i2
+    i2 it
 }
 
-sleep sleep1 {
+sleep1 sleep {
     i1 := i1.value
     duration = 50ms
 }
 
-sleep sleep2 {
+sleep2 sleep {
     i2 := i2.value
     duration = 100ms
 }
 
 @triggers ["sleep2"]
-println p {
+println {
     value = string(sleep1.i1) + " " + string(sleep2.i2)
 }

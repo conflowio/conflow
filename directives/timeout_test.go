@@ -9,7 +9,7 @@ package directives_test
 func ExampleTimeout() {
 	eval(`
 		@timeout 10ms
-		sleep s {
+		s sleep {
 			duration = 20ms
 		}
 	`)

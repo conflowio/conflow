@@ -7,8 +7,6 @@
 package generator_test
 
 import (
-	"errors"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil/block"
@@ -27,14 +25,13 @@ var _ = Describe("GenerateInterpreter", func() {
 		"block_with_one_block":       fixtures.BlockWithOneBlockInterpreter{},
 		"block_with_many_block":      fixtures.BlockWithManyBlockInterpreter{},
 		"block_with_block_interface": fixtures.BlockWithBlockInterfaceInterpreter{},
-		"block_with_reference":       fixtures.BlockWithReferenceInterpreter{},
 		"block_with_default":         fixtures.BlockWithDefaultInterpreter{},
 	}
 
 	Context("fixtures/block_simple.go", func() {
 		It("should parse the input", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
-				`block_simple foo`,
+				`foo block_simple`,
 				&fixtures.BlockSimple{IDField: "foo"},
 				func(b1i interface{}, b2i interface{}, input string) {
 					Expect(b1i).To(Equal(b2i), "input was %s", input)
@@ -44,7 +41,7 @@ var _ = Describe("GenerateInterpreter", func() {
 
 		It("should parse the input in short format", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
-				`block_simple foo "bar"`,
+				`foo block_simple "bar"`,
 				&fixtures.BlockSimple{IDField: "foo", Value: "bar"},
 				func(b1i interface{}, b2i interface{}, input string) {
 					Expect(b1i).To(Equal(b2i), "input was %s", input)
@@ -54,7 +51,7 @@ var _ = Describe("GenerateInterpreter", func() {
 
 		It("should not parse fields with nil values", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
-				`block_simple foo {
+				`foo block_simple {
 					value = nil
 				}`,
 				&fixtures.BlockSimple{IDField: "foo"},
@@ -68,7 +65,7 @@ var _ = Describe("GenerateInterpreter", func() {
 	Context("fixtures/block_value_required.go", func() {
 		It("should parse the input in short format", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
-				`block_value_required foo "bar"`,
+				`foo block_value_required "bar"`,
 				&fixtures.BlockValueRequired{IDField: "foo", Value: "bar"},
 				func(b1i interface{}, b2i interface{}, input string) {
 					Expect(b1i).To(Equal(b2i), "input was %s", input)
@@ -78,7 +75,7 @@ var _ = Describe("GenerateInterpreter", func() {
 
 		It("should parse the input in short f", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
-				`block_value_required foo {
+				`foo block_value_required {
 					value = "bar"
 				}`,
 				&fixtures.BlockValueRequired{IDField: "foo", Value: "bar"},
@@ -92,8 +89,8 @@ var _ = Describe("GenerateInterpreter", func() {
 	Context("fixtures/block_with_one_block.go", func() {
 		It("should parse the input", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
-				`block_with_one_block foo {
-					block_simple bar
+				`foo block_with_one_block {
+					bar block_simple
 				}`,
 				&fixtures.BlockWithOneBlock{IDField: "foo", BlockSimple: &fixtures.BlockSimple{IDField: "bar"}},
 				func(b1i interface{}, b2i interface{}, input string) {
@@ -109,9 +106,9 @@ var _ = Describe("GenerateInterpreter", func() {
 	Context("fixtures/block_with_many_block.go", func() {
 		It("should parse the input", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
-				`block_with_many_block foo {
-					block_simple bar
-					block_simple baz
+				`foo block_with_many_block {
+					bar block_simple
+					baz block_simple
 				}`,
 				&fixtures.BlockWithManyBlock{IDField: "foo", BlockSimple: []*fixtures.BlockSimple{
 					{IDField: "bar"},
@@ -131,8 +128,8 @@ var _ = Describe("GenerateInterpreter", func() {
 	Context("fixtures/block_with_block_interface.go", func() {
 		It("should parse the input", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
-				`block_with_block_interface foo {
-					block_simple bar
+				`foo block_with_block_interface {
+					bar block_simple
 				}`,
 				&fixtures.BlockWithBlockInterface{IDField: "foo", BlockSimple: []fixtures.BlockInterface{
 					&fixtures.BlockSimple{IDField: "bar"},
@@ -143,15 +140,6 @@ var _ = Describe("GenerateInterpreter", func() {
 					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
 					Expect(b1.BlockSimple).To(Equal(b2.BlockSimple), "Blocks does not match, input was %s", input)
 				},
-			)
-		})
-	})
-
-	Context("fixtures/block_with_reference.go", func() {
-		It("should parse the input", func() {
-			test.ExpectBlockToHaveParseError(p, registry)(
-				`block_with_reference foo {}`,
-				MatchError(errors.New("\"foo\" is referencing a non-existing block at testfile:1:22")),
 			)
 		})
 	})

@@ -10,15 +10,15 @@ func ExampleTriggers() {
 	eval(`
 		range {
 			value = [1, 2, 3]
-			entry a
+			a entry
 		}
 
 		range {
 			value = [1, 2, 3]
-			entry b
+			b entry
 		}
 
-		sleep delayed_b {
+		delayed_b sleep {
 			duration = 10ms
 			value := b.value
 		}

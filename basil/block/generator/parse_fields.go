@@ -132,7 +132,6 @@ func parseField(astField *ast.Field) (*Field, error) {
 		Default:     params[basil.BlockTagDefault],
 		IsID:        isID,
 		IsValue:     params[basil.BlockTagValue] == true,
-		IsReference: params[basil.BlockTagReference] == true,
 		IsBlock:     params[basil.BlockTagBlock] == true,
 		IsOutput:    params[basil.BlockTagOutput] == true,
 		IsGenerated: params[basil.BlockTagGenerated] == true,

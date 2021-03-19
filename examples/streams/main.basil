@@ -1,18 +1,18 @@
-exec hello {
+hello exec {
     cmd = "sh"
     params = ["-c", `echo "I was compressed, then decompressed with gzip"`]
-    stdout hello_stdout
-    stderr hello_stderr
+    hello_stdout stdout
+    hello_stderr stderr
 }
 
 gzip {
     in = hello_stdout.stream
-    out hello_gzip
+    hello_gzip out
 }
 
 gunzip {
     in = hello_gzip.stream
-    out hello_gunzip
+    hello_gunzip out
 }
 
 println {

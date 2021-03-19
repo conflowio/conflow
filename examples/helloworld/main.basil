@@ -1,6 +1,6 @@
 world := "World"
 
-hello hello_world {
+hello_world hello {
     to = main.world
 }
 

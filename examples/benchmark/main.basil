@@ -1,4 +1,4 @@
-benchmark b {
+b benchmark {
     duration = 5s
 
     run run {
