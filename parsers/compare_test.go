@@ -77,16 +77,22 @@ var _ = Describe("Compare", func() {
 		test.TableEntry("1 >= ", errors.New("was expecting value at testfile:1:6")),
 	)
 
+	DescribeTable("it returns a static check error",
+		func(input string, expectedErr error) {
+			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
+		},
+		test.TableEntry(`nil == 5`, errors.New("unsupported == operation on nil and int64 at testfile:1:5")),
+		test.TableEntry(`"foo" == 5`, errors.New("unsupported == operation on string and int64 at testfile:1:7")),
+		test.TableEntry(`"foo" == 5.5`, errors.New("unsupported == operation on string and float64 at testfile:1:7")),
+		test.TableEntry(`5 == "foo"`, errors.New("unsupported == operation on int64 and string at testfile:1:3")),
+		test.TableEntry("5 == [1,2]", errors.New("unsupported == operation on int64 and []interface{} at testfile:1:3")),
+		test.TableEntry("1 == true", errors.New("unsupported == operation on int64 and bool at testfile:1:3")),
+	)
+
 	DescribeTable("it returns an eval error",
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
 		},
-		test.TableEntry(`nil == 5`, errors.New("unsupported == operation on <nil> and int64 at testfile:1:5")),
-		test.TableEntry(`"foo" == 5`, errors.New("unsupported == operation on string and int64 at testfile:1:7")),
-		test.TableEntry(`"foo" == 5.5`, errors.New("unsupported == operation on string and float64 at testfile:1:7")),
-		test.TableEntry(`5 == "foo"`, errors.New("unsupported == operation on int64 and string at testfile:1:3")),
-		test.TableEntry("5 == [1,2]", errors.New("unsupported == operation on int64 and []interface {} at testfile:1:3")),
-		test.TableEntry("1 == true", errors.New("unsupported == operation on int64 and bool at testfile:1:3")),
 		test.TableEntry("ERR", errors.New("ERR at testfile:1:1")),
 		test.TableEntry("ERR == 1", errors.New("ERR at testfile:1:1")),
 		test.TableEntry("ERR != 1", errors.New("ERR at testfile:1:1")),

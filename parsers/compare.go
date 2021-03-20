@@ -36,10 +36,57 @@ func Compare(p parsley.Parser) *combinator.Sequence {
 			terminal.Op(">="),
 			terminal.Op(">"),
 		),
-	).Token("COMPARE").Bind(ast.InterpreterFunc(evalCompare)).ReturnSingle()
+	).Token("COMPARE").Bind(compareInterpreter{}).ReturnSingle()
 }
 
-func evalCompare(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+type compareInterpreter struct{}
+
+func (a compareInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (string, parsley.Error) {
+	nodes := node.Children()
+	var resType string
+	var op string
+	var opPos parsley.Pos
+	expectsOp := false
+
+	for i, node := range nodes {
+		nodeType := node.Type()
+		if i == 0 {
+			resType = nodeType
+		} else if expectsOp {
+			v, err := node.Value(nil)
+			if err != nil {
+				return "", err
+			}
+			op = v.(string)
+			opPos = node.Pos()
+		} else {
+			var ok bool
+			switch resType {
+			case variable.TypeBool:
+				ok = nodeType == variable.TypeBool
+			case variable.TypeInteger, variable.TypeFloat, variable.TypeNumber:
+				ok = nodeType == variable.TypeInteger || nodeType == variable.TypeFloat || nodeType == variable.TypeNumber
+			case variable.TypeString:
+				ok = nodeType == variable.TypeString
+			case variable.TypeTime:
+				ok = nodeType == variable.TypeTime
+			case variable.TypeTimeDuration:
+				ok = nodeType == variable.TypeTimeDuration
+			default:
+				ok = nodeType == resType
+			}
+			if !ok {
+				return "", parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", op, resType, nodeType)
+			}
+
+			resType = variable.TypeBool
+		}
+		expectsOp = !expectsOp
+	}
+	return resType, nil
+}
+
+func (a compareInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
 	var res interface{}
 	var op string

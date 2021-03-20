@@ -190,6 +190,14 @@ var _ = Describe("Expression", func() {
 
 		// Functions
 		test.TableEntry(`non_existing()`, errors.New("\"non_existing\" function does not exist at testfile:1:1")),
+
+		// Compare
+		test.TableEntry(`1 == "a"`, errors.New("unsupported == operation on int64 and string at testfile:1:3")),
+		test.TableEntry(`1 != "a"`, errors.New("unsupported != operation on int64 and string at testfile:1:3")),
+		test.TableEntry(`1 > "a"`, errors.New("unsupported > operation on int64 and string at testfile:1:3")),
+		test.TableEntry(`1 >= "a"`, errors.New("unsupported >= operation on int64 and string at testfile:1:3")),
+		test.TableEntry(`1 < "a"`, errors.New("unsupported < operation on int64 and string at testfile:1:3")),
+		test.TableEntry(`1 <= "a"`, errors.New("unsupported <= operation on int64 and string at testfile:1:3")),
 	)
 
 	DescribeTable("it returns an eval error",
@@ -207,14 +215,6 @@ var _ = Describe("Expression", func() {
 		// Sum
 		test.TableEntry(`1 + "a"`, errors.New("unsupported + operation on int64 and string at testfile:1:3")),
 		test.TableEntry(`1 - "a"`, errors.New("unsupported - operation on int64 and string at testfile:1:3")),
-
-		// Compare
-		test.TableEntry(`1 == "a"`, errors.New("unsupported == operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 != "a"`, errors.New("unsupported != operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 > "a"`, errors.New("unsupported > operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 >= "a"`, errors.New("unsupported >= operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 < "a"`, errors.New("unsupported < operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 <= "a"`, errors.New("unsupported <= operation on int64 and string at testfile:1:3")),
 
 		// Ternary
 		test.TableEntry("1 ? 2 : 3", errors.New("expecting bool, got int64 at testfile:1:1")),
