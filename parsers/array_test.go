@@ -25,7 +25,7 @@ var _ = Describe("Array", func() {
 		terminal.String(false),
 		terminal.Integer(),
 		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser(),
+		test.EvalErrorParser("ERR", variable.TypeUnknown),
 	).Name("value")
 
 	Describe("when new lines are allowed", func() {

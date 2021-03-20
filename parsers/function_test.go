@@ -28,7 +28,7 @@ var _ = Describe("Function", func() {
 		terminal.Integer(),
 		terminal.Nil("nil", variable.TypeNil),
 		parsers.Variable(),
-		test.EvalErrorParser(),
+		test.EvalErrorParser("ERR", variable.TypeUnknown),
 	).Name("value")
 
 	p = parsers.Function(q)

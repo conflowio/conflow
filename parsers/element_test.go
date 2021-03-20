@@ -29,14 +29,14 @@ var _ = Describe("Element", func() {
 		terminal.Integer(),
 		terminal.Nil("nil", variable.TypeNil),
 		parsers.Array(&q),
-		test.EvalErrorParser(),
+		test.EvalErrorParser("ERR", variable.TypeUnknown),
 		test.MapParser(),
 	).Name("value")
 
 	index := combinator.Choice(
 		terminal.String(false),
 		terminal.Integer(),
-		test.EvalErrorParser(),
+		test.EvalErrorParser("ERR", variable.TypeUnknown),
 	).Name("value")
 
 	p := parsers.Element(q, index)

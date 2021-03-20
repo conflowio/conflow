@@ -33,7 +33,7 @@ var _ = Describe("Compare", func() {
 		terminal.Bool("true", "false"),
 		parsers.Array(&q),
 		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser(),
+		test.EvalErrorParser("ERR", variable.TypeInteger),
 	).Name("value")
 
 	p := parsers.Compare(q)

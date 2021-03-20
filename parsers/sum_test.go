@@ -27,7 +27,7 @@ var _ = Describe("Sum", func() {
 		terminal.Float(),
 		terminal.Integer(),
 		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser(),
+		test.EvalErrorParser("ERR", variable.TypeUnknown),
 	).Name("value")
 
 	p := parsers.Sum(q)

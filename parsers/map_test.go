@@ -25,7 +25,7 @@ var _ = Describe("Map", func() {
 		terminal.String(false),
 		terminal.Integer(),
 		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser(),
+		test.EvalErrorParser("ERR", variable.TypeUnknown),
 	).Name("value")
 
 	p := parsers.Map(q)

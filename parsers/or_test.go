@@ -26,7 +26,7 @@ var _ = Describe("Or", func() {
 		terminal.Bool("true", "false"),
 		terminal.Integer(),
 		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser(),
+		test.EvalErrorParser("ERR", variable.TypeUnknown),
 	).Name("value")
 
 	p := parsers.Or(q)
