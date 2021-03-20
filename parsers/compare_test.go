@@ -10,6 +10,8 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/opsidian/basil/basil/variable"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 
@@ -30,7 +32,7 @@ var _ = Describe("Compare", func() {
 		terminal.Integer(),
 		terminal.Bool("true", "false"),
 		parsers.Array(&q),
-		terminal.Nil("nil"),
+		terminal.Nil("nil", variable.TypeNil),
 		test.EvalErrorParser(),
 	).Name("value")
 

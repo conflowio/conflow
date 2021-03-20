@@ -9,6 +9,8 @@ package parsers_test
 import (
 	"errors"
 
+	"github.com/opsidian/basil/basil/variable"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	"github.com/opsidian/basil/parsers"
@@ -23,7 +25,7 @@ var _ = Describe("TernaryIf", func() {
 	q := combinator.Choice(
 		terminal.Bool("true", "false"),
 		terminal.Integer(),
-		terminal.Nil("nil"),
+		terminal.Nil("nil", variable.TypeNil),
 		test.EvalErrorParser(),
 	).Name("value")
 

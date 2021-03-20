@@ -17,7 +17,7 @@ import (
 // CheckNodeType checks the type of the node
 // It will only return an error if it's sure the type is incorrent
 func CheckNodeType(node parsley.Node, expectedType string) parsley.Error {
-	if node.Type() == expectedType {
+	if node.Type() == expectedType || node.Type() == TypeNil {
 		return nil
 	}
 

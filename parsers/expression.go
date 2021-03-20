@@ -7,6 +7,7 @@
 package parsers
 
 import (
+	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/text"
@@ -19,19 +20,19 @@ func Expression() *combinator.Sequence {
 
 	function := Function(&p)
 	array := Array(&p)
-	variable := Variable()
+	varp := Variable()
 
 	arrayIndex := combinator.Choice(
 		terminal.Integer(),
 		terminal.String(true),
 		function,
-		variable,
+		varp,
 	)
 
 	valueWithIndex := Element(combinator.Choice(
 		function,
 		array,
-		variable,
+		varp,
 	), arrayIndex)
 
 	value := combinator.Choice(
@@ -41,7 +42,7 @@ func Expression() *combinator.Sequence {
 		MultilineText(),
 		terminal.String(true),
 		terminal.Bool("true", "false"),
-		terminal.Nil("nil"),
+		terminal.Nil("nil", variable.TypeNil),
 		valueWithIndex,
 		combinator.SeqOf(
 			terminal.Rune('('),

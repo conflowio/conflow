@@ -20,6 +20,7 @@ const (
 	TypeIdentifier   = "basil.ID"
 	TypeInteger      = terminal.IntegerType
 	TypeMap          = "map[string]interface{}"
+	TypeNil          = "nil"
 	TypeNumber       = "variable.Number"
 	TypeStream       = "io.ReadCloser"
 	TypeString       = terminal.StringType
@@ -40,6 +41,7 @@ var Types = map[string]string{
 	TypeIdentifier:   "identifier",
 	TypeInteger:      "integer",
 	TypeMap:          "map",
+	TypeNil:          "nil",
 	TypeNumber:       "number",
 	TypeStream:       "stream",
 	TypeString:       "string",

@@ -38,8 +38,8 @@ github.com/onsi/gomega v1.7.1/go.mod h1:XdKZgCCFLUoM/7CFJVPcG8C1xQ1AJ0vpAezJrB7J
 github.com/onsi/gomega v1.9.0/go.mod h1:Ho0h+IUsWyvy1OpqCwxlQ/21gkhVunqlU8fDGcoTdcA=
 github.com/onsi/gomega v1.10.1 h1:o0+MgICZLuZ7xjH7Vx6zS/zcu93/BEp1VwkIW1mEXCE=
 github.com/onsi/gomega v1.10.1/go.mod h1:iN09h71vgCQne3DLsj+A5owkum+a2tYe+TOCB1ybHNo=
-github.com/opsidian/parsley v0.14.0 h1:LXNXnbfOvk1M6qHaUgtOIBN3/K34nhbAwe3Q7GkX2mg=
-github.com/opsidian/parsley v0.14.0/go.mod h1:XKMr7e6+Il5YYRI2OogT2T3Be/9bMyJ23rMVmbLjszY=
+github.com/opsidian/parsley v0.14.1-0.20210320123501-ebfe5fb6d0c2 h1:yS/0WW24/EFQJpV1Mg6sFyZoeY2skCCiwz+wiYayXkw=
+github.com/opsidian/parsley v0.14.1-0.20210320123501-ebfe5fb6d0c2/go.mod h1:2nEThYbBBxJaA2/TAs+dXX8Xloq0z0o1yV183NOHC0o=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

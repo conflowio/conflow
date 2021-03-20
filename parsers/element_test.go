@@ -9,6 +9,8 @@ package parsers_test
 import (
 	"errors"
 
+	"github.com/opsidian/basil/basil/variable"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	"github.com/opsidian/basil/parsers"
@@ -25,7 +27,7 @@ var _ = Describe("Element", func() {
 	q = combinator.Choice(
 		terminal.String(false),
 		terminal.Integer(),
-		terminal.Nil("nil"),
+		terminal.Nil("nil", variable.TypeNil),
 		parsers.Array(&q),
 		test.EvalErrorParser(),
 		test.MapParser(),

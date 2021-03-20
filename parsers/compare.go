@@ -10,7 +10,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/opsidian/parsley/ast"
+	"github.com/opsidian/basil/basil/variable"
+
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
