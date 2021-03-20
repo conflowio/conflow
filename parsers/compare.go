@@ -9,6 +9,7 @@ package parsers
 import (
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/opsidian/basil/basil/variable"
 
@@ -115,6 +116,10 @@ func (a compareInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) 
 				res, err = compareFloat(res, op, vt, opPos)
 			case string:
 				res, err = compareString(res, op, vt, opPos)
+			case time.Time:
+				res, err = compareTime(res, op, vt, opPos)
+			case time.Duration:
+				res, err = compareTimeDuration(res, op, vt, opPos)
 			default:
 				res, err = compareOther(res, op, v, opPos)
 			}
@@ -256,6 +261,48 @@ func compareBool(res interface{}, op string, v bool, opPos parsley.Pos) (interfa
 			return rest == v, nil
 		case "!=":
 			return rest != v, nil
+		}
+	}
+	return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", op, fmt.Sprintf("%T", res), fmt.Sprintf("%T", v))
+}
+
+func compareTime(res interface{}, op string, v time.Time, opPos parsley.Pos) (interface{}, parsley.Error) {
+	switch rest := res.(type) {
+	case time.Time:
+		switch op {
+		case "==":
+			return rest == v, nil
+		case "!=":
+			return rest != v, nil
+		case "<":
+			return rest.Before(v), nil
+		case "<=":
+			return rest == v || rest.Before(v), nil
+		case ">":
+			return rest.After(v), nil
+		case ">=":
+			return rest == v || rest.After(v), nil
+		}
+	}
+	return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", op, fmt.Sprintf("%T", res), fmt.Sprintf("%T", v))
+}
+
+func compareTimeDuration(res interface{}, op string, v time.Duration, opPos parsley.Pos) (interface{}, parsley.Error) {
+	switch rest := res.(type) {
+	case time.Duration:
+		switch op {
+		case "==":
+			return rest == v, nil
+		case "!=":
+			return rest != v, nil
+		case "<":
+			return rest < v, nil
+		case "<=":
+			return rest <= v, nil
+		case ">":
+			return rest > v, nil
+		case ">=":
+			return rest >= v, nil
 		}
 	}
 	return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", op, fmt.Sprintf("%T", res), fmt.Sprintf("%T", v))

@@ -9,6 +9,7 @@ package parsers_test
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/opsidian/basil/basil/variable"
 
@@ -25,15 +26,21 @@ import (
 
 var _ = Describe("Compare", func() {
 
+	time1, _ := time.Parse(time.RFC3339, "2001-01-01T00:00:01Z")
+	time2, _ := time.Parse(time.RFC3339, "2001-01-01T00:00:02Z")
+
 	var q pparser.Func
 	q = combinator.Choice(
 		terminal.String(false),
+		terminal.TimeDuration(),
 		terminal.Float(),
 		terminal.Integer(),
 		terminal.Bool("true", "false"),
 		parsers.Array(&q),
 		terminal.Nil("nil", variable.TypeNil),
 		test.EvalErrorParser("ERR", variable.TypeInteger),
+		terminal.Word("TIME1", time1, variable.TypeTime),
+		terminal.Word("TIME2", time2, variable.TypeTime),
 	).Name("value")
 
 	p := parsers.Compare(q)
@@ -63,6 +70,42 @@ var _ = Describe("Compare", func() {
 		test.TableEntry("true == false", false),
 		test.TableEntry("true != false", true),
 		test.TableEntry("1 == 2 == false", true),
+
+		// Time
+		test.TableEntry("TIME1 == TIME1", true),
+		test.TableEntry("TIME1 == TIME2", false),
+		test.TableEntry("TIME1 != TIME1", false),
+		test.TableEntry("TIME1 != TIME2", true),
+		test.TableEntry("TIME1 <= TIME1", true),
+		test.TableEntry("TIME1 <= TIME2", true),
+		test.TableEntry("TIME2 <= TIME1", false),
+		test.TableEntry("TIME1 < TIME1", false),
+		test.TableEntry("TIME1 < TIME2", true),
+		test.TableEntry("TIME2 < TIME1", false),
+		test.TableEntry("TIME1 >= TIME1", true),
+		test.TableEntry("TIME1 >= TIME2", false),
+		test.TableEntry("TIME2 >= TIME1", true),
+		test.TableEntry("TIME1 > TIME1", false),
+		test.TableEntry("TIME1 > TIME2", false),
+		test.TableEntry("TIME2 > TIME1", true),
+
+		// Time duration
+		test.TableEntry("1m2s == 1m2s", true),
+		test.TableEntry("1m2s == 1m3s", false),
+		test.TableEntry("1m2s != 1m2s", false),
+		test.TableEntry("1m2s != 1m3s", true),
+		test.TableEntry("1m2s <= 1m2s", true),
+		test.TableEntry("1m2s <= 1m3s", true),
+		test.TableEntry("1m3s <= 1m2s", false),
+		test.TableEntry("1m2s < 1m2s", false),
+		test.TableEntry("1m2s < 1m3s", true),
+		test.TableEntry("1m3s < 1m2s", false),
+		test.TableEntry("1m2s >= 1m2s", true),
+		test.TableEntry("1m2s >= 1m3s", false),
+		test.TableEntry("1m3s >= 1m2s", true),
+		test.TableEntry("1m2s > 1m2s", false),
+		test.TableEntry("1m2s > 1m3s", false),
+		test.TableEntry("1m3s > 1m2s", true),
 	)
 
 	DescribeTable("it returns a parse error",
