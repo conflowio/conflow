@@ -11,6 +11,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/basil/basil/variable"
 
 	"github.com/opsidian/parsley/combinator"
@@ -133,7 +135,7 @@ func (a compareInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) 
 }
 
 func floatsEqual(f1 float64, f2 float64) bool {
-	return f1-f2 < Epsilon && f2-f1 < Epsilon
+	return f1-f2 < schema.Epsilon && f2-f1 < schema.Epsilon
 }
 
 func compareInt(res interface{}, op string, v int64, opPos parsley.Pos) (interface{}, parsley.Error) {

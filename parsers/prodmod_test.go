@@ -69,7 +69,7 @@ var _ = Describe("ProdMod", func() {
 		},
 		test.TableEntry("1 / 0", errors.New("divison by zero at testfile:1:5")),
 		test.TableEntry("1 / 0.0", errors.New("divison by zero at testfile:1:5")),
-		test.TableEntry("1 / 0.000000001", errors.New("divison by zero at testfile:1:5")),
+		test.TableEntry("1 / 0.0000000001", errors.New("divison by zero at testfile:1:5")),
 		test.TableEntry("nil * 5", errors.New("unsupported * operation on <nil> and int64 at testfile:1:5")),
 		test.TableEntry("nil / 5", errors.New("unsupported / operation on <nil> and int64 at testfile:1:5")),
 		test.TableEntry("nil % 5", errors.New("unsupported % operation on <nil> and int64 at testfile:1:5")),

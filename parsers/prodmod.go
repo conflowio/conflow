@@ -9,6 +9,8 @@ package parsers
 import (
 	"fmt"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
@@ -90,7 +92,7 @@ func evalProdMod(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pa
 						return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", string(op), fmt.Sprintf("%T", res), fmt.Sprintf("%T", v))
 					}
 				} else if op == '/' {
-					if 0.0-vt < Epsilon && vt-0.0 < Epsilon {
+					if 0.0-vt < schema.Epsilon && vt-0.0 < schema.Epsilon {
 						return nil, parsley.NewErrorf(node.Pos(), "divison by zero")
 					}
 					switch rest := res.(type) {
