@@ -20,14 +20,9 @@ func (e EmptyNode) Token() string {
 	return "EMPTY"
 }
 
-// Type returns with an empty type
-func (e EmptyNode) Type() string {
-	return ""
-}
-
-// Value returns with nil
-func (e EmptyNode) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	return nil, nil
+// Schema returns nil
+func (e EmptyNode) Schema() interface{} {
+	return nil
 }
 
 // Pos returns with the position of the node

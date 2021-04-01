@@ -37,14 +37,14 @@ func (o *OpNode) Token() string {
 	return o.value
 }
 
-// Type returns
-func (o *OpNode) Type() string {
-	return StringType
+// Schema returns the schema for the node's value
+func (o *OpNode) Schema() interface{} {
+	return nil
 }
 
 // Value returns with the value of the node
-func (o *OpNode) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	return o.value, nil
+func (o *OpNode) Value() interface{} {
+	return o.value
 }
 
 // Pos returns the position
