@@ -17,7 +17,9 @@ const IDRegExpPattern = "[a-z][a-z0-9]*(?:_[a-z0-9]+)*"
 var IDRegExp = regexp.MustCompile("^" + IDRegExpPattern + "$")
 
 // Keywords are reserved strings and may not be used as identifiers.
-var Keywords = []string{"true", "false", "nil", "map"}
+var Keywords = []string{
+	"map",
+}
 
 // ID contains an identifier
 type ID string

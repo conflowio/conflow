@@ -34,12 +34,12 @@ var _ = Describe("Join", func() {
 		func(input string, expectedErr error) {
 			test.ExpectFunctionToHaveParseError(parsers.Expression(), registry)(input, expectedErr)
 		},
-		test.TableEntry(`test()`, errors.New("test expects 2 arguments at testfile:1:1")),
-		test.TableEntry(`test([])`, errors.New("test expects 2 arguments at testfile:1:1")),
-		test.TableEntry(`test([], "foo", "bar")`, errors.New("test expects 2 arguments at testfile:1:1")),
-		test.TableEntry(`test("not array", "foo")`, errors.New("was expecting string array at testfile:1:6")),
-		test.TableEntry(`test(["a", 2], "foo")`, errors.New("was expecting string at testfile:1:12")),
-		test.TableEntry(`test([], 5)`, errors.New("was expecting string at testfile:1:10")),
+		test.TableEntry(`test()`, errors.New("test requires exactly 2 arguments, but got 0 at testfile:1:1")),
+		test.TableEntry(`test([])`, errors.New("test requires exactly 2 arguments, but got 1 at testfile:1:8")),
+		test.TableEntry(`test([], "foo", "bar")`, errors.New("test requires exactly 2 arguments, but got 3 at testfile:1:17")),
+		test.TableEntry(`test("not array", "foo")`, errors.New("must be array(string) at testfile:1:6")),
+		test.TableEntry(`test(["a", 2], "foo")`, errors.New("items must have the same type, but found string and integer at testfile:1:6")),
+		test.TableEntry(`test([], 5)`, errors.New("must be string at testfile:1:10")),
 	)
 
 })

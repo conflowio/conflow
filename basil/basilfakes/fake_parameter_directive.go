@@ -13,16 +13,6 @@ type FakeParameterDirective struct {
 	applyToParameterConfigArgsForCall []struct {
 		arg1 *basil.ParameterConfig
 	}
-	IDStub        func() basil.ID
-	iDMutex       sync.RWMutex
-	iDArgsForCall []struct {
-	}
-	iDReturns struct {
-		result1 basil.ID
-	}
-	iDReturnsOnCall map[int]struct {
-		result1 basil.ID
-	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -58,65 +48,11 @@ func (fake *FakeParameterDirective) ApplyToParameterConfigArgsForCall(i int) *ba
 	return argsForCall.arg1
 }
 
-func (fake *FakeParameterDirective) ID() basil.ID {
-	fake.iDMutex.Lock()
-	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
-	fake.iDArgsForCall = append(fake.iDArgsForCall, struct {
-	}{})
-	fake.recordInvocation("ID", []interface{}{})
-	fake.iDMutex.Unlock()
-	if fake.IDStub != nil {
-		return fake.IDStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.iDReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeParameterDirective) IDCallCount() int {
-	fake.iDMutex.RLock()
-	defer fake.iDMutex.RUnlock()
-	return len(fake.iDArgsForCall)
-}
-
-func (fake *FakeParameterDirective) IDCalls(stub func() basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = stub
-}
-
-func (fake *FakeParameterDirective) IDReturns(result1 basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = nil
-	fake.iDReturns = struct {
-		result1 basil.ID
-	}{result1}
-}
-
-func (fake *FakeParameterDirective) IDReturnsOnCall(i int, result1 basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = nil
-	if fake.iDReturnsOnCall == nil {
-		fake.iDReturnsOnCall = make(map[int]struct {
-			result1 basil.ID
-		})
-	}
-	fake.iDReturnsOnCall[i] = struct {
-		result1 basil.ID
-	}{result1}
-}
-
 func (fake *FakeParameterDirective) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.applyToParameterConfigMutex.RLock()
 	defer fake.applyToParameterConfigMutex.RUnlock()
-	fake.iDMutex.RLock()
-	defer fake.iDMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

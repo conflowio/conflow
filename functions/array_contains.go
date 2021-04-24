@@ -6,25 +6,24 @@
 
 package functions
 
-import "github.com/opsidian/basil/basil/variable"
+import (
+	"github.com/opsidian/basil/basil/schema"
+)
 
 // ArrayContains returns true if the array contains the given element
-//go:generate basil generate
-func ArrayContains(arr []interface{}, elem interface{}) bool {
-	switch elem.(type) {
-	case []interface{}, map[string]interface{}:
-		for _, item := range arr {
-			if variable.Equals(elem, item) {
-				return true
-			}
-		}
-	default:
-		for _, item := range arr {
-			if item == elem {
-				return true
-			}
+// @function
+func ArrayContains(arr []interface{}, elem interface{}) (bool, error) {
+	s, err := schema.GetSchemaForValue(arr)
+	if err != nil {
+		return false, err
+	}
+
+	itemSchema := s.(schema.ArrayKind).GetItems()
+	for _, e := range arr {
+		if itemSchema.CompareValues(e, elem) == 0 {
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }

@@ -15,10 +15,13 @@ import (
 )
 
 // Println will write a string followed by a new line to the standard output
-//go:generate basil generate
+// @block
 type Println struct {
-	id    basil.ID    `basil:"id"`
-	value interface{} `basil:"value,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	value interface{}
 }
 
 func (p *Println) ID() basil.ID {

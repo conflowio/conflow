@@ -9,16 +9,6 @@ import (
 )
 
 type FakeBlockWithInit struct {
-	IDStub        func() basil.ID
-	iDMutex       sync.RWMutex
-	iDArgsForCall []struct {
-	}
-	iDReturns struct {
-		result1 basil.ID
-	}
-	iDReturnsOnCall map[int]struct {
-		result1 basil.ID
-	}
 	InitStub        func(basil.BlockContext) (bool, error)
 	initMutex       sync.RWMutex
 	initArgsForCall []struct {
@@ -34,58 +24,6 @@ type FakeBlockWithInit struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
-}
-
-func (fake *FakeBlockWithInit) ID() basil.ID {
-	fake.iDMutex.Lock()
-	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
-	fake.iDArgsForCall = append(fake.iDArgsForCall, struct {
-	}{})
-	fake.recordInvocation("ID", []interface{}{})
-	fake.iDMutex.Unlock()
-	if fake.IDStub != nil {
-		return fake.IDStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.iDReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeBlockWithInit) IDCallCount() int {
-	fake.iDMutex.RLock()
-	defer fake.iDMutex.RUnlock()
-	return len(fake.iDArgsForCall)
-}
-
-func (fake *FakeBlockWithInit) IDCalls(stub func() basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = stub
-}
-
-func (fake *FakeBlockWithInit) IDReturns(result1 basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = nil
-	fake.iDReturns = struct {
-		result1 basil.ID
-	}{result1}
-}
-
-func (fake *FakeBlockWithInit) IDReturnsOnCall(i int, result1 basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = nil
-	if fake.iDReturnsOnCall == nil {
-		fake.iDReturnsOnCall = make(map[int]struct {
-			result1 basil.ID
-		})
-	}
-	fake.iDReturnsOnCall[i] = struct {
-		result1 basil.ID
-	}{result1}
 }
 
 func (fake *FakeBlockWithInit) Init(arg1 basil.BlockContext) (bool, error) {
@@ -154,8 +92,6 @@ func (fake *FakeBlockWithInit) InitReturnsOnCall(i int, result1 bool, result2 er
 func (fake *FakeBlockWithInit) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.iDMutex.RLock()
-	defer fake.iDMutex.RUnlock()
 	fake.initMutex.RLock()
 	defer fake.initMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

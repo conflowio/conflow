@@ -9,11 +9,12 @@ package strings_test
 import (
 	"errors"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/basil/functions/strings"
 	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/test"
@@ -41,16 +42,16 @@ var _ = Describe("Trim", func() {
 		func(input string, expectedErr error) {
 			test.ExpectFunctionToHaveParseError(parsers.Expression(), registry)(input, expectedErr)
 		},
-		test.TableEntry(`test()`, errors.New("test expects 1 arguments at testfile:1:1")),
-		test.TableEntry(`test("a", "a")`, errors.New("test expects 1 arguments at testfile:1:1")),
-		test.TableEntry(`test(1)`, errors.New("was expecting string at testfile:1:6")),
+		test.TableEntry(`test()`, errors.New("test requires exactly 1 argument, but got 0 at testfile:1:1")),
+		test.TableEntry(`test("a", "a")`, errors.New("test requires exactly 1 argument, but got 2 at testfile:1:11")),
+		test.TableEntry(`test(1)`, errors.New("must be string at testfile:1:6")),
 	)
 
 	It("should return with string type", func() {
 		test.ExpectFunctionNode(parsers.Expression(), registry)(
 			`test("")`,
 			func(userCtx interface{}, node parsley.Node) {
-				Expect(node.Type()).To(Equal(variable.TypeString))
+				Expect(node.Schema().(schema.Schema).Type()).To(Equal(schema.TypeString))
 			},
 		)
 	})

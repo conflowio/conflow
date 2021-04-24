@@ -7,7 +7,7 @@
 package parsers
 
 import (
-	"fmt"
+	"github.com/opsidian/basil/basil/schema"
 
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
@@ -25,7 +25,7 @@ func Not(p parsley.Parser) parser.Func {
 	notp := combinator.SeqOf(
 		combinator.SuppressError(combinator.Optional(terminal.Rune('!'))),
 		text.LeftTrim(p, text.WsSpaces),
-	).Bind(ast.InterpreterFunc(evalNot))
+	).Bind(notInterpreter{})
 
 	return parser.Func(func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
 		res, cp, err := notp.Parse(ctx, leftRecCtx, pos)
@@ -41,17 +41,24 @@ func Not(p parsley.Parser) parser.Func {
 	})
 }
 
-func evalNot(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+type notInterpreter struct{}
+
+func (n notInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
-	v, err := nodes[1].Value(ctx)
+	nodeSchema := nodes[1].Schema().(schema.Schema)
+	if nodeSchema.Type() != schema.TypeBoolean {
+		return nil, parsley.NewErrorf(nodes[0].Pos(), "unsupported ! operation on %s", string(nodeSchema.Type()))
+	}
+
+	return schema.BooleanValue(), nil
+}
+
+func (n notInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
+	v, err := parsley.EvaluateNode(ctx, nodes[1])
 	if err != nil {
 		return nil, err
 	}
 
-	switch vt := v.(type) {
-	case bool:
-		return !vt, nil
-	default:
-		return nil, parsley.NewErrorf(nodes[0].Pos(), "unsupported ! operation on %s", fmt.Sprintf("%T", v))
-	}
+	return !v.(bool), nil
 }

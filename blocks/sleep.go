@@ -13,10 +13,13 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Sleep struct {
-	id       basil.ID      `basil:"id"`
-	duration time.Duration `basil:"value,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	duration time.Duration
 }
 
 func (s *Sleep) ID() basil.ID {

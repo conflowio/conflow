@@ -10,16 +10,35 @@ import "github.com/opsidian/basil/basil/block"
 
 func DefaultRegistry() block.InterpreterRegistry {
 	return block.InterpreterRegistry{
-		"bug":        BugInterpreter{},
-		"deprecated": DeprecatedInterpreter{},
-		"doc":        DocInterpreter{},
-		"input":      InputInterpreter{},
-		"output":     OutputInterpreter{},
-		"retry":      RetryInterpreter{},
-		"run":        RunInterpreter{},
-		"skip":       SkipInterpreter{},
-		"timeout":    TimeoutInterpreter{},
-		"todo":       TodoInterpreter{},
-		"triggers":   TriggersInterpreter{},
+		"array":         ArrayInterpreter{},
+		"boolean":       BooleanInterpreter{},
+		"bug":           BugInterpreter{},
+		"deprecated":    DeprecatedInterpreter{},
+		"doc":           DocInterpreter{},
+		"input":         InputInterpreter{},
+		"integer":       IntegerInterpreter{},
+		"map":           MapInterpreter{},
+		"number":        NumberInterpreter{},
+		"output":        OutputInterpreter{},
+		"retry":         RetryInterpreter{},
+		"run":           RunInterpreter{},
+		"skip":          SkipInterpreter{},
+		"string":        StringInterpreter{},
+		"time":          TimeInterpreter{},
+		"timeout":       TimeoutInterpreter{},
+		"time_duration": TimeDurationInterpreter{},
+		"todo":          TodoInterpreter{},
+		"triggers":      TriggersInterpreter{},
 	}
+}
+
+var schemaRegistry = block.InterpreterRegistry{
+	"array":         ArrayInterpreter{},
+	"boolean":       BooleanInterpreter{},
+	"integer":       IntegerInterpreter{},
+	"map":           MapInterpreter{},
+	"number":        NumberInterpreter{},
+	"string":        StringInterpreter{},
+	"time":          TimeInterpreter{},
+	"time_duration": TimeDurationInterpreter{},
 }

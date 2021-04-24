@@ -45,18 +45,6 @@ func (i NameInterpreter) CreateBlock(id basil.ID) basil.Block {
 	}
 }
 
-func (i NameInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
-	return nil
-}
-
-func (i NameInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
-	return nil
-}
-
-func (i NameInterpreter) HasForeignID() bool {
-	return false
-}
-
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
 func (i NameInterpreter) ValueParamName() basil.ID {
 	return "value"
@@ -94,13 +82,4 @@ func (i NameInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 
 func (i NameInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
-}
-
-func (i NameInterpreter) EvalStage() basil.EvalStage {
-	var nilBlock *Name
-	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
-		return b.EvalStage()
-	}
-
-	return basil.EvalStageUndefined
 }

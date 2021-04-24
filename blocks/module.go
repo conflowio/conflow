@@ -9,6 +9,8 @@ package blocks
 import (
 	"context"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/basil/basil"
 
 	"github.com/opsidian/parsley/parsley"
@@ -24,7 +26,7 @@ func NewModule(id basil.ID, interpreter basil.BlockInterpreter, node parsley.Nod
 }
 
 type module struct {
-	id          basil.ID `basil:"id"`
+	id          basil.ID
 	interpreter basil.BlockInterpreter
 	node        parsley.Node
 	params      map[basil.ID]interface{}
@@ -43,14 +45,14 @@ func (m *module) Main(blockCtx basil.BlockContext) error {
 	)
 	evalContext.InputParams = m.params
 
-	value, err := m.node.Value(evalContext)
+	value, err := parsley.EvaluateNode(evalContext, m.node)
 	if err != nil {
 		return err
 	}
 
-	for paramName, param := range m.interpreter.Params() {
-		if param.IsOutput {
-			m.params[paramName] = m.interpreter.Param(value.(basil.Block), paramName)
+	for propertyName, property := range m.interpreter.Schema().(schema.ObjectKind).GetProperties() {
+		if property.GetReadOnly() {
+			m.params[basil.ID(propertyName)] = m.interpreter.Param(value.(basil.Block), basil.ID(propertyName))
 		}
 	}
 

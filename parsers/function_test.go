@@ -9,7 +9,7 @@ package parsers_test
 import (
 	"errors"
 
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -24,11 +24,11 @@ var _ = Describe("Function", func() {
 	var p *combinator.Sequence
 
 	q := combinator.Choice(
-		terminal.String(false),
-		terminal.Integer(),
-		terminal.Nil("nil", variable.TypeNil),
+		terminal.String(schema.StringValue(), false),
+		terminal.Integer(schema.IntegerValue()),
+		terminal.Nil(schema.NullValue(), "NULL"),
 		parsers.Variable(),
-		test.EvalErrorParser("ERR", variable.TypeUnknown),
+		test.EvalErrorParser(schema.StringValue(), "ERR"),
 	).Name("value")
 
 	p = parsers.Function(q)
@@ -56,8 +56,8 @@ var _ = Describe("Function", func() {
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
 		},
-		test.TableEntry(`test.func0("foo")`, errors.New("test.func0 expects 0 arguments at testfile:1:1")),
-		test.TableEntry(`test.func1(5)`, errors.New("was expecting string at testfile:1:12")),
+		test.TableEntry(`test.func0("foo")`, errors.New("test.func0 requires exactly 0 argument, but got 1 at testfile:1:12")),
+		test.TableEntry(`test.func1(5)`, errors.New("must be string at testfile:1:12")),
 		test.TableEntry(`nonexisting("foo")`, errors.New("\"nonexisting\" function does not exist at testfile:1:1")),
 	)
 

@@ -16,13 +16,16 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Glob struct {
-	id      basil.ID `basil:"id"`
-	path    string   `basil:"required"`
+	// @id
+	id basil.ID
+	// @required
+	path    string
 	include []string
 	exclude []string
-	file    *File `basil:"generated"`
+	// @generated
+	file *File
 }
 
 func (g *Glob) ID() basil.ID {
@@ -85,9 +88,10 @@ func (g *Glob) compileRegexps(exprs []string) ([]*regexp.Regexp, error) {
 	return res, nil
 }
 
-//go:generate basil generate
+// @block
 type File struct {
-	id   basil.ID `basil:"id"`
+	// @id
+	id   basil.ID
 	path string
 }
 

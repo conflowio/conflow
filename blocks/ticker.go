@@ -13,11 +13,14 @@ import (
 	"github.com/opsidian/basil/basil/block"
 )
 
-//go:generate basil generate
+// @block
 type Ticker struct {
-	id       basil.ID      `basil:"id"`
-	interval time.Duration `basil:"required"`
-	tick     *Tick         `basil:"generated"`
+	// @id
+	id basil.ID
+	// @required
+	interval time.Duration
+	// @generated
+	tick *Tick
 }
 
 func (t *Ticker) ID() basil.ID {
@@ -52,10 +55,12 @@ func (t *Ticker) ParseContextOverride() basil.ParseContextOverride {
 	}
 }
 
-//go:generate basil generate
+// @block
 type Tick struct {
-	id   basil.ID  `basil:"id"`
-	time time.Time `basil:"output"`
+	// @id
+	id basil.ID
+	// @read_only
+	time time.Time
 }
 
 func (t *Tick) ID() basil.ID {

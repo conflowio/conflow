@@ -11,10 +11,11 @@ import (
 	"github.com/opsidian/basil/basil/block"
 )
 
-//go:generate basil generate
+// @block
 type BlockWithOneBlock struct {
-	IDField     basil.ID     `basil:"id"`
-	BlockSimple *BlockSimple `basil:"block"`
+	// @id
+	IDField     basil.ID
+	BlockSimple *BlockSimple
 }
 
 func (b *BlockWithOneBlock) ID() basil.ID {

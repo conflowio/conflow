@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/basil/basil/job"
 
 	"github.com/opsidian/basil/basil"
@@ -145,9 +147,11 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 
 // Param returns with the parameter value
 func (c *Container) Param(name basil.ID) interface{} {
-	_, isParam := c.node.Interpreter().Params()[name]
-	if isParam {
-		return c.node.Interpreter().Param(c.block, name)
+	s := c.node.Interpreter().Schema()
+	if p, ok := s.(schema.ObjectKind).GetProperties()[string(name)]; ok {
+		if !IsBlockSchema(p) {
+			return c.node.Interpreter().Param(c.block, name)
+		}
 	}
 
 	return c.extraParams[name]
@@ -223,7 +227,7 @@ func (c *Container) mainLoop() {
 		case <-c.evalCtx.Done():
 			switch c.evalCtx.Err() {
 			case context.DeadlineExceeded:
-				c.err = parsley.NewError(c.node.Pos(), fmt.Errorf("timeout reached in %s.%s", c.Node().Type(), c.node.ID()))
+				c.err = parsley.NewError(c.node.Pos(), fmt.Errorf("timeout reached in %s.%s", c.node.BlockType(), c.node.ID()))
 			default:
 				c.err = parsley.NewError(c.node.Pos(), errors.New("aborted"))
 			}
@@ -468,8 +472,8 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 		node := r.Node().(basil.ParameterNode)
 		name := node.Name()
 
-		_, isParam := c.node.Interpreter().Params()[name]
-		if isParam {
+		s := c.node.Interpreter().Schema()
+		if _, ok := s.(schema.ObjectKind).GetProperties()[string(name)]; ok {
 			if err := c.node.Interpreter().SetParam(c.block, node.Name(), value); err != nil {
 				return parsley.NewError(r.Node().Pos(), err)
 			}
@@ -484,20 +488,22 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 
 			c.extraParams[name] = value
 		}
+
 	case *Container:
 		node := r.Node().(basil.BlockNode)
-		name := node.BlockType()
+		name, p := getNameSchemaForChildBlock(c.Node().Schema().(*schema.Object), node)
 
 		if err := c.node.Interpreter().SetBlock(c.block, name, value); err != nil {
 			return parsley.NewError(r.Node().Pos(), err)
 		}
+
+		// Do not publish the empty generated node
+		if p != nil && p.GetAnnotation("generated") == "true" && c.evalStage == basil.EvalStageInit {
+			return nil
+		}
+
 	default:
 		panic(fmt.Errorf("unknown container type: %T", result))
-	}
-
-	// Do not publish the empty generated node
-	if result.Node().Generated() && c.evalStage == basil.EvalStageInit {
-		return nil
 	}
 
 	c.evalCtx.Publish(result)
@@ -506,12 +512,19 @@ func (c *Container) setChild(result basil.Container) parsley.Error {
 }
 
 func (c *Container) PublishBlock(block basil.Block, f func() error) (bool, error) {
-	nodeContainer, ok := c.children[block.ID()]
-	if !ok || !nodeContainer.Node().Generated() {
-		return false, fmt.Errorf("%q block does not exist or is not marked as generated", block.ID())
+	b, ok := block.(basil.Identifiable)
+	if !ok {
+		return false, fmt.Errorf("%T block must implement the basil.Identifiable interface", block)
+	}
+	blockID := b.ID()
+
+	nodeContainer, ok := c.children[blockID]
+	propertyName := string(nodeContainer.Node().(basil.BlockNode).BlockType())
+	if !ok || c.Node().Schema().(*schema.Object).Properties[propertyName].GetAnnotation("generated") != "true" {
+		return false, fmt.Errorf("%q block does not exist or is not marked as generated", blockID)
 	}
 
-	if !c.evalCtx.HasSubscribers(block.ID()) {
+	if !c.evalCtx.HasSubscribers(blockID) {
 		return false, nil
 	}
 
@@ -526,7 +539,7 @@ func (c *Container) PublishBlock(block basil.Block, f func() error) (bool, error
 	}
 
 	if err := c.jobTracker.ScheduleJob(container); err != nil {
-		return false, fmt.Errorf("failed to schedule %q: %s", block.ID(), err)
+		return false, fmt.Errorf("failed to schedule %q: %s", blockID, err)
 	}
 
 	if f != nil {

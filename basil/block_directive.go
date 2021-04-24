@@ -14,7 +14,6 @@ import (
 //go:generate counterfeiter . BlockDirective
 type BlockDirective interface {
 	Block
-	EvalStageAware
 	RuntimeConfigOption
 }
 

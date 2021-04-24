@@ -12,10 +12,15 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block {
+//   eval_stage = "init"
+// }
 type Retry struct {
-	id    basil.ID `basil:"id"`
-	count int64    `basil:"value,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	count int64
 }
 
 func (r *Retry) ID() basil.ID {
@@ -32,8 +37,4 @@ func (r *Retry) RetryCount() int {
 
 func (r *Retry) RetryDelay(int) time.Duration {
 	return 0
-}
-
-func (r *Retry) EvalStage() basil.EvalStage {
-	return basil.EvalStageInit
 }

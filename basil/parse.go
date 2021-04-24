@@ -17,8 +17,6 @@ import (
 	"github.com/opsidian/parsley/text"
 )
 
-var keywords = []string{"true", "false", "nil", "map"}
-
 // ParseText parses the text input with the given parser
 func ParseText(ctx *ParseContext, p parsley.Parser, input string) (parsley.Node, error) {
 	f := text.NewFile("", []byte(input))
@@ -40,7 +38,7 @@ func parseFile(ctx *ParseContext, p parsley.Parser, f *text.File) (parsley.Node,
 	parsleyCtx := parsley.NewContext(ctx.FileSet(), text.NewReader(f))
 	parsleyCtx.EnableStaticCheck()
 	parsleyCtx.EnableTransformation()
-	parsleyCtx.RegisterKeywords(keywords...)
+	parsleyCtx.RegisterKeywords(Keywords...)
 	parsleyCtx.SetUserContext(ctx)
 
 	return parsley.Parse(parsleyCtx, combinator.Sentence(p))

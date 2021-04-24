@@ -14,6 +14,7 @@ import (
 
 var ErrMetadataReadOnly = errors.New("metadata is read-only")
 
+// Metadata contains common metadata for schemas
 type Metadata struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Deprecated  bool              `json:"deprecated,omitempty"`
@@ -38,6 +39,9 @@ type MetadataAccessor interface {
 }
 
 func (m *Metadata) Merge(m2 Metadata) {
+	if len(m2.Annotations) > 0 && m.Annotations == nil {
+		m.Annotations = map[string]string{}
+	}
 	for k, v := range m2.Annotations {
 		m.Annotations[k] = v
 	}
@@ -64,15 +68,20 @@ func (m *Metadata) Merge(m2 Metadata) {
 	}
 }
 
-func (m *Metadata) GetAnnotation(name string) (string, bool) {
-	value, ok := m.Annotations[name]
-	return value, ok
+func (m *Metadata) GetAnnotation(name string) string {
+	return m.Annotations[name]
 }
 
 func (m *Metadata) SetAnnotation(name, value string) {
 	if m.Annotations == nil {
 		m.Annotations = map[string]string{}
 	}
+
+	if value == "" {
+		delete(m.Annotations, name)
+		return
+	}
+
 	m.Annotations[name] = value
 }
 
@@ -167,8 +176,8 @@ func (m *Metadata) GoString() string {
 type emptyMetadata struct {
 }
 
-func (e emptyMetadata) GetAnnotation(string) (string, bool) {
-	return "", false
+func (e emptyMetadata) GetAnnotation(string) string {
+	return ""
 }
 
 func (e emptyMetadata) GetDeprecated() bool {
@@ -200,8 +209,7 @@ func (e emptyMetadata) GetWriteOnly() bool {
 }
 
 func HasAnnotationValue(s Schema, name, value string) bool {
-	v, ok := s.GetAnnotation(name)
-	return ok && v == value
+	return s.GetAnnotation(name) == value
 }
 
 func UpdateMetadata(s Schema, f func(meta MetadataAccessor) error) error {

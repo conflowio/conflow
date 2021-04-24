@@ -8,8 +8,7 @@ package parsers
 
 import (
 	"fmt"
-
-	"github.com/opsidian/basil/functions/strings"
+	"strings"
 
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/parsley/parser"
@@ -32,7 +31,7 @@ import (
 func Directive(expr parsley.Parser) *combinator.Sequence {
 	paramOrBlock := combinator.Choice(
 		Parameter(expr, false, false),
-		blockWithOptions(expr, false, false, false),
+		blockWithOptions(expr, false, false),
 	).Name("parameter or block")
 
 	emptyBody := combinator.SeqOf(
@@ -56,7 +55,7 @@ func Directive(expr parsley.Parser) *combinator.Sequence {
 
 	return combinator.SeqOf(
 		parser.Empty(), // no directives for a directive
-		ID("@"+basil.IDRegExpPattern),
+		ID("@"+basil.IDRegExpPattern, false),
 		combinator.Choice(
 			text.LeftTrim(blockValue, text.WsSpaces),
 			parser.Empty(),

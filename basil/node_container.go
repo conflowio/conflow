@@ -251,7 +251,7 @@ func (n *NodeContainer) evaluateDirectives(evalStage EvalStage) parsley.Error {
 			continue
 		}
 
-		directive, err := d.Value(n.createEvalContext(0))
+		directive, err := parsley.EvaluateNode(n.createEvalContext(0), d)
 		if err != nil {
 			return err
 		}

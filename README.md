@@ -34,10 +34,12 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Hello struct {
-	id basil.ID `basil:"id"`
-	to string   `basil:"required"`
+	// @id
+	id basil.ID
+	// @required
+	to string
 }
 
 func (h *Hello) ID() basil.ID {
@@ -106,10 +108,12 @@ print "Result was: " + test.stdout
  * The init call returns with a boolean parameter to signal whether the block should run or be skipped (conditional runs)
 
 ```go
-//go:generate basil generate
+// @block
 type SampleBlock struct {
-	id      basil.ID `basil:"id"`
-	skipped bool     `basil:"stage=init"`
+    // @id
+	id      basil.ID
+	// @eval_stage "init"
+	skipped bool
 }
 
 // basil.BlockInitialiser interface
@@ -188,14 +192,14 @@ bar block {
 
 * A block can be defined as a Go struct and adding special _basil_ Go tags to its fields.
 * Custom functions can be defined as simple Go functions
-* You have to add simply a "//go:generate basil generate" header to your block structs and functions and run "go generate" whenever you change your implementations
+* You have to add the `@block` and `@function` directives to the comment header of your block structs and functions and run "basil generate" whenever you change your implementations
 * Basil will generate a file next to your implementation with a `.basil.go` extension containing an Interpreter struct.
 
 See [examples](examples) for various block definitions.
 
 Simple function example:
 ```go
-//go:generate basil generate
+// @block
 func Lower(s string) string {
 	return strings.ToLower(s)
 }

@@ -16,9 +16,10 @@ import (
 	"github.com/opsidian/basil/util"
 )
 
-//go:generate basil generate
+// @block
 type Main struct {
-	id basil.ID `basil:"id"`
+	// @id
+	id basil.ID
 }
 
 func (m *Main) ID() basil.ID {

@@ -11,7 +11,6 @@ import (
 
 	"github.com/opsidian/basil/basil/schema"
 
-	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
@@ -30,17 +29,57 @@ func ProdMod(p parsley.Parser) *combinator.Sequence {
 			terminal.Rune('/'),
 			terminal.Rune('%'),
 		),
-	).Token("PROD_MOD").Bind(ast.InterpreterFunc(evalProdMod)).ReturnSingle()
+	).Token("PROD_MOD").Bind(prodModInterpreter{}).ReturnSingle()
 }
 
-func evalProdMod(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+type prodModInterpreter struct{}
+
+func (prodModInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	var resultSchema schema.Schema
+	var op rune
+	var opPos parsley.Pos
+	expectsOp := false
+
+	for i, node := range node.Children() {
+		if i == 0 {
+			resultSchema = node.Schema().(schema.Schema)
+		} else if expectsOp {
+			op = node.(parsley.LiteralNode).Value().(rune)
+			opPos = node.Pos()
+		} else {
+			s := node.Schema().(schema.Schema)
+			switch op {
+			case '*', '/':
+				if (resultSchema.Type() != schema.TypeInteger && resultSchema.Type() != schema.TypeNumber) ||
+					(s.Type() != schema.TypeInteger && s.Type() != schema.TypeNumber) {
+					return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", string(op), resultSchema.TypeString(), s.TypeString())
+				}
+				if op == '*' && resultSchema.Type() == schema.TypeInteger && s.Type() == schema.TypeInteger {
+					resultSchema = schema.IntegerValue()
+				} else {
+					resultSchema = schema.NumberValue()
+				}
+			default: // '%'
+				if resultSchema.Type() != schema.TypeInteger || s.Type() != schema.TypeInteger {
+					return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", string(op), resultSchema.TypeString(), s.TypeString())
+				}
+				resultSchema = schema.IntegerValue()
+			}
+		}
+		expectsOp = !expectsOp
+	}
+
+	return resultSchema, nil
+}
+
+func (p prodModInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
 	var res interface{}
 	var op rune
 	var opPos parsley.Pos
 	expectsOp := false
 	for i, node := range nodes {
-		v, err := node.Value(ctx)
+		v, err := parsley.EvaluateNode(ctx, node)
 		if err != nil {
 			return nil, err
 		}
@@ -63,11 +102,15 @@ func evalProdMod(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pa
 					}
 				} else if op == '/' {
 					if vt == 0 {
-						return nil, parsley.NewErrorf(node.Pos(), "divison by zero")
+						return nil, parsley.NewErrorf(node.Pos(), "division by zero")
 					}
 					switch rest := res.(type) {
 					case int64:
-						res = rest / vt
+						if rest%vt == 0 {
+							res = int64(float64(rest) / float64(vt))
+						} else {
+							res = float64(rest) / float64(vt)
+						}
 					case float64:
 						res = rest / float64(vt)
 					default:
@@ -93,7 +136,7 @@ func evalProdMod(ctx interface{}, node parsley.NonTerminalNode) (interface{}, pa
 					}
 				} else if op == '/' {
 					if 0.0-vt < schema.Epsilon && vt-0.0 < schema.Epsilon {
-						return nil, parsley.NewErrorf(node.Pos(), "divison by zero")
+						return nil, parsley.NewErrorf(node.Pos(), "division by zero")
 					}
 					switch rest := res.(type) {
 					case int64:

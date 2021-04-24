@@ -10,18 +10,36 @@ import (
 	"fmt"
 	"go/format"
 	"io/ioutil"
+	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/opsidian/basil/basil/generator/parser"
+
 	"golang.org/x/xerrors"
 )
 
-func writeFile(name string, filename string, path string, content []byte) error {
-	err := ioutil.WriteFile(path, content, 0644)
+func writeFile(dir, name string, content []byte) error {
+	basilFile := parser.ToSnakeCase(name) + ".basil.go"
+	filepath := path.Join(dir, basilFile)
+
+	info, direrr := os.Stat(dir)
+	if os.IsExist(direrr) && !info.IsDir() {
+		return fmt.Errorf("%s exists, but not a directory", dir)
+	}
+
+	if !os.IsExist(direrr) {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("failed to create %s directory: %w", dir, err)
+		}
+	}
+
+	err := ioutil.WriteFile(filepath, content, 0644)
 	if err != nil {
-		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(path), err)
+		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
 	}
 
 	formatted, err := format.Source(content)
@@ -29,22 +47,22 @@ func writeFile(name string, filename string, path string, content []byte) error 
 		return err
 	}
 
-	err = ioutil.WriteFile(path, formatted, 0644)
+	err = ioutil.WriteFile(filepath, formatted, 0644)
 	if err != nil {
-		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(path), err)
+		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
 	}
 
-	goimportsCmd := exec.Command("goimports", filename)
+	goimportsCmd := exec.Command("goimports", filepath)
 	out, err := goimportsCmd.CombinedOutput()
 	if err != nil {
-		return xerrors.Errorf("failed to run goimports on %s: %w", getRelativePath(path), err)
+		return xerrors.Errorf("failed to run goimports on %s: %w", getRelativePath(filepath), err)
 	}
-	err = ioutil.WriteFile(path, out, 0644)
+	err = ioutil.WriteFile(filepath, out, 0644)
 	if err != nil {
-		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(path), err)
+		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
 	}
 
-	fmt.Printf("Wrote `%s` to `%s`\n", name, getRelativePath(path))
+	fmt.Printf("Wrote `%s` to `%s`\n", name, getRelativePath(filepath))
 
 	return nil
 }

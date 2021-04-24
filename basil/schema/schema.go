@@ -21,7 +21,7 @@ type Schema interface {
 	CompareValues(a, b interface{}) int
 	Copy() Schema
 	DefaultValue() interface{}
-	GetAnnotation(string) (string, bool)
+	GetAnnotation(string) string
 	GetDeprecated() bool
 	GetDescription() string
 	GetExamples() []interface{}

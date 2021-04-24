@@ -15,12 +15,16 @@ import (
 )
 
 // Hello is capable to print some greetings
-//go:generate basil generate
+// @block
 type Hello struct {
-	id       basil.ID   `basil:"id"`
-	to       string     `basil:"required"`
-	greeting string     `basil:"output"`
-	r        *rand.Rand `basil:"ignore"`
+	// @id
+	id basil.ID
+	// @required
+	to string
+	// @read_only
+	greeting string
+	// @ignore
+	r *rand.Rand
 }
 
 func (h *Hello) ID() basil.ID {

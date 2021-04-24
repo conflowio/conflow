@@ -8,6 +8,7 @@ package blocks
 
 import (
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -22,6 +23,10 @@ func (m *Main) ID() basil.ID {
 type MainInterpreter struct {
 	BlockTransformerRegistry    parsley.NodeTransformerRegistry
 	FunctionTransformerRegistry parsley.NodeTransformerRegistry
+}
+
+func (m MainInterpreter) Schema() schema.Schema {
+	return &schema.Object{}
 }
 
 func (m MainInterpreter) CreateBlock(basil.ID) basil.Block {
@@ -43,20 +48,8 @@ func (m MainInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	return b.(*Main).params[name]
 }
 
-func (m MainInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
-	return nil
-}
-
-func (m MainInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
-	return nil
-}
-
 func (m MainInterpreter) ValueParamName() basil.ID {
 	return ""
-}
-
-func (m MainInterpreter) HasForeignID() bool {
-	return false
 }
 
 func (m MainInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
@@ -64,8 +57,4 @@ func (m MainInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseConte
 		BlockTransformerRegistry:    m.BlockTransformerRegistry,
 		FunctionTransformerRegistry: m.FunctionTransformerRegistry,
 	})
-}
-
-func (m MainInterpreter) EvalStage() basil.EvalStage {
-	return basil.EvalStageMain
 }

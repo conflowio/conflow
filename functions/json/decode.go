@@ -14,7 +14,7 @@ import (
 )
 
 // Decode converts the given json string to a data structure
-//go:generate basil generate
+// @function
 func Decode(jsonStr string) (interface{}, error) {
 	var val interface{}
 	dec := json.NewDecoder(strings.NewReader(jsonStr))

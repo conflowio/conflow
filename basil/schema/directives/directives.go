@@ -12,12 +12,13 @@ import (
 
 func Registry() block.InterpreterRegistry {
 	return block.InterpreterRegistry{
+		"block":       BlockInterpreter{},
 		"const":       ConstInterpreter{},
 		"default":     DefaultInterpreter{},
 		"deprecated":  DeprecatedInterpreter{},
-		"description": DescriptionInterpreter{},
 		"enum":        EnumInterpreter{},
 		"examples":    ExamplesInterpreter{},
+		"function":    FunctionInterpreter{},
 		"generated":   GeneratedInterpreter{},
 		"id":          IDInterpreter{},
 		"ignore":      IgnoreInterpreter{},

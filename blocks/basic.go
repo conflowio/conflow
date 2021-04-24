@@ -8,9 +8,10 @@ package blocks
 
 import "github.com/opsidian/basil/basil"
 
-//go:generate basil generate
+// @block
 type Basic struct {
-	id basil.ID `basil:"id"`
+	// @id
+	id basil.ID
 }
 
 func (b *Basic) ID() basil.ID {

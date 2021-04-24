@@ -11,7 +11,7 @@ import (
 	"github.com/opsidian/basil/basil/schema"
 )
 
-//go:generate basil generate
+// @block
 type Title struct {
 	// @id
 	id basil.ID

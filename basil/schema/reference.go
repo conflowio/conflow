@@ -63,25 +63,22 @@ func (r *Reference) GoType(imports map[string]string) string {
 		panic(fmt.Errorf("reference %q is invalid: %w", r.Ref, err))
 	}
 
-	parts := strings.Split(strings.Trim(u.Path, "/"), ".")
-	if len(parts) > 2 {
-		panic(fmt.Errorf("reference %q is invalid, more than one dot characters in path", r.Ref))
-	}
+	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
 
-	if len(parts) == 1 {
+	if len(parts) == 1 || imports["."] == strings.Join(parts[0:len(parts)-1], "/") {
 		if r.Pointer {
-			return fmt.Sprintf("*%s", parts[0])
+			return fmt.Sprintf("*%s", parts[len(parts)-1])
 		}
-		return parts[0]
+		return parts[len(parts)-1]
 	}
 
-	packageName := EnsureUniqueGoPackageName(imports, parts[0])
+	packageName := EnsureUniqueGoPackageName(imports, strings.Join(parts[0:len(parts)-1], "/"))
 
 	if r.Pointer {
-		return fmt.Sprintf("*%s.%s", packageName, parts[1])
+		return fmt.Sprintf("*%s.%s", packageName, parts[len(parts)-1])
 	}
 
-	return fmt.Sprintf("%s.%s", packageName, parts[1])
+	return fmt.Sprintf("%s.%s", packageName, parts[len(parts)-1])
 }
 
 func (r *Reference) StringValue(value interface{}) string {

@@ -9,8 +9,9 @@ package function
 import (
 	"fmt"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -22,7 +23,7 @@ type Node struct {
 	argumentNodes []parsley.Node
 	readerPos     parsley.Pos
 	interpreter   basil.FunctionInterpreter
-	resultType    string
+	schema        schema.Schema
 }
 
 // Name returns with the function name
@@ -35,36 +36,85 @@ func (n *Node) Token() string {
 	return "FUNC"
 }
 
-// Type returns with the node's type
-func (n *Node) Type() string {
-	return n.resultType
+// Schema returns the schema for the node's value
+func (n *Node) Schema() interface{} {
+	return n.schema
 }
 
 // StaticCheck runs static analysis on the node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
-	resultType, err := n.interpreter.StaticCheck(ctx, n)
-	if err != nil {
-		return err
+	s := n.interpreter.Schema().(*schema.Function)
+	name := n.nameNode.Value()
+
+	if len(n.argumentNodes) < len(s.Parameters) {
+		pos := n.nameNode.Pos()
+		if len(n.argumentNodes) > 0 {
+			pos = n.argumentNodes[len(n.argumentNodes)-1].ReaderPos()
+		}
+		countReq := "exactly"
+		if s.AdditionalParameters != nil {
+			countReq = "at least"
+		}
+		argumentStr := "argument"
+		if len(s.Parameters) > 1 {
+			argumentStr = "arguments"
+		}
+		return parsley.NewErrorf(
+			pos,
+			"%s requires %s %d %s, but got %d",
+			name,
+			countReq,
+			len(s.Parameters),
+			argumentStr,
+			len(n.argumentNodes),
+		)
 	}
 
-	n.resultType = resultType
+	if len(n.argumentNodes) > len(s.Parameters) && s.AdditionalParameters == nil {
+		argumentStr := "argument"
+		if len(s.Parameters) > 1 {
+			argumentStr = "arguments"
+		}
+		return parsley.NewErrorf(
+			n.argumentNodes[len(s.Parameters)].Pos(),
+			"%s requires exactly %d %s, but got %d",
+			name,
+			len(s.Parameters),
+			argumentStr,
+			len(n.argumentNodes),
+		)
+	}
+
+	n.schema = s.Result
+	if n.schema == nil {
+		panic("a function must have a return value")
+	}
+
+	for i, arg := range n.argumentNodes {
+		var paramSchema schema.Schema
+		if i < len(s.Parameters) {
+			paramSchema = s.Parameters[i].Schema
+		} else {
+			paramSchema = s.AdditionalParameters.Schema
+		}
+
+		if err := paramSchema.ValidateSchema(arg.Schema().(schema.Schema), false); err != nil {
+			return parsley.NewError(arg.Pos(), err)
+		}
+
+		if s.ResultTypeFrom != "" && i < len(s.Parameters) {
+			if s.ResultTypeFrom == s.Parameters[i].Name {
+				n.schema = arg.Schema().(schema.Schema)
+			}
+		}
+	}
 
 	return nil
 }
 
 // Value returns with the result of the function
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
-	val, err := n.interpreter.Eval(ctx, n)
-	if err != nil {
-		return nil, err
-	}
-
-	switch v := val.(type) {
-	case variable.Union:
-		return v.Value(), nil
-	default:
-		return v, nil
-	}
+	return n.interpreter.Eval(ctx, n)
 }
 
 // Pos returns with the node's position
@@ -93,8 +143,5 @@ func (n *Node) Children() []parsley.Node {
 }
 
 func (n *Node) String() string {
-	if n.resultType == "" {
-		return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.nameNode.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
-	}
-	return fmt.Sprintf("%s{<%s> %s, %s, %d..%d}", n.Token(), n.resultType, n.nameNode.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
+	return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.nameNode.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
 }

@@ -19,16 +19,21 @@ import (
 	"golang.org/x/xerrors"
 )
 
-//go:generate basil generate
+// @block
 type Exec struct {
-	id       basil.ID `basil:"id"`
-	cmd      string   `basil:"required"`
-	params   []string
-	dir      string
-	env      []string
-	exitCode int64   `basil:"output"`
-	stdout   *Stream `basil:"generated"`
-	stderr   *Stream `basil:"generated"`
+	// @id
+	id basil.ID
+	// @required
+	cmd    string
+	params []string
+	dir    string
+	env    []string
+	// @read_only
+	exitCode int64
+	// @generated
+	stdout *Stream
+	// @generated
+	stderr *Stream
 }
 
 func (e *Exec) ID() basil.ID {

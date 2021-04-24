@@ -45,18 +45,6 @@ func (i EnumInterpreter) CreateBlock(id basil.ID) basil.Block {
 	}
 }
 
-func (i EnumInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
-	return nil
-}
-
-func (i EnumInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
-	return nil
-}
-
-func (i EnumInterpreter) HasForeignID() bool {
-	return false
-}
-
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
 func (i EnumInterpreter) ValueParamName() basil.ID {
 	return "values"
@@ -94,13 +82,4 @@ func (i EnumInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 
 func (i EnumInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
-}
-
-func (i EnumInterpreter) EvalStage() basil.EvalStage {
-	var nilBlock *Enum
-	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
-		return b.EvalStage()
-	}
-
-	return basil.EvalStageUndefined
 }

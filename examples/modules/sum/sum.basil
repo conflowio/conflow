@@ -1,12 +1,11 @@
-@input{
-    type = "int64"
-}
+@input
+@integer
 a := 0
 
-@input{
-    type = "int64"
-}
+@input
+@integer
 b := 0
 
 @output
+@integer
 sum := main.a + main.b

@@ -43,7 +43,7 @@ func TransformNode(
 	}
 	paramNames[nameNode.ID()] = struct{}{}
 
-	op, _ := nodes[2].Value(nil)
+	op := nodes[2].(parsley.LiteralNode).Value()
 	isDeclaration := op == ":="
 
 	valueNode, err := parsley.Transform(parseCtx, nodes[3])

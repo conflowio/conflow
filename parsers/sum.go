@@ -9,7 +9,8 @@ package parsers
 import (
 	"fmt"
 
-	"github.com/opsidian/parsley/ast"
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
@@ -26,10 +27,52 @@ func Sum(p parsley.Parser) *combinator.Sequence {
 			terminal.Rune('+'),
 			terminal.Rune('-'),
 		),
-	).Token("COMPARE").Bind(ast.InterpreterFunc(evalSum)).ReturnSingle()
+	).Token("SUM").Bind(sumInterpreter{}).ReturnSingle()
 }
 
-func evalSum(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+type sumInterpreter struct{}
+
+func (s sumInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	var resultSchema schema.Schema
+	var op rune
+	var opPos parsley.Pos
+	expectsOp := false
+
+	for i, node := range node.Children() {
+		if i == 0 {
+			resultSchema = node.Schema().(schema.Schema)
+		} else if expectsOp {
+			op = node.(parsley.LiteralNode).Value().(rune)
+			opPos = node.Pos()
+		} else {
+			s := node.Schema().(schema.Schema)
+
+			switch resultSchema.Type() {
+			case schema.TypeString:
+				if s.Type() != schema.TypeString {
+					return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", string(op), resultSchema.TypeString(), s.TypeString())
+				}
+				resultSchema = schema.StringValue()
+			case schema.TypeInteger, schema.TypeNumber:
+				if s.Type() != schema.TypeInteger && s.Type() != schema.TypeNumber {
+					return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", string(op), resultSchema.TypeString(), s.TypeString())
+				}
+				if resultSchema.Type() == schema.TypeInteger && s.Type() == schema.TypeInteger {
+					resultSchema = schema.IntegerValue()
+				} else {
+					resultSchema = schema.NumberValue()
+				}
+			default:
+				return nil, parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", string(op), resultSchema.TypeString(), s.TypeString())
+			}
+		}
+		expectsOp = !expectsOp
+	}
+
+	return resultSchema, nil
+}
+
+func (s sumInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
 	var res interface{}
 	var op rune
@@ -37,7 +80,7 @@ func evalSum(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsle
 	expectsOp := false
 	modifier := int64(1)
 	for i, node := range nodes {
-		v, err := node.Value(ctx)
+		v, err := parsley.EvaluateNode(ctx, node)
 		if err != nil {
 			return nil, err
 		}

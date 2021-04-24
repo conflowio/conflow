@@ -10,6 +10,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/parameter"
 	"github.com/opsidian/parsley/parsley"
@@ -126,7 +128,9 @@ func (s *StaticContainer) evaluateChild(node basil.Node) parsley.Error {
 		}
 	case *StaticContainer:
 		node := r.Node().(basil.BlockNode)
-		if err := s.node.Interpreter().SetBlock(s.block, node.BlockType(), value); err != nil {
+		name, _ := getNameSchemaForChildBlock(s.Node().Schema().(*schema.Object), node)
+
+		if err := s.node.Interpreter().SetBlock(s.block, name, value); err != nil {
 			return parsley.NewError(r.Node().Pos(), err)
 		}
 	default:

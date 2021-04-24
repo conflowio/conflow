@@ -6,25 +6,20 @@
 
 package basil
 
-import "github.com/opsidian/parsley/parsley"
-
-// ParameterDescriptor describes a parameter
-type ParameterDescriptor struct {
-	Type          string
-	EvalStage     EvalStage
-	IsRequired    bool
-	IsUserDefined bool
-	IsOutput      bool
-}
+import (
+	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/parsley/parsley"
+)
 
 // ParameterNode is the AST node for a parameter
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ParameterNode
 type ParameterNode interface {
 	Node
+	parsley.StaticCheckable
 	Name() ID
 	ValueNode() parsley.Node
 	IsDeclaration() bool
-	SetDescriptor(ParameterDescriptor)
+	SetSchema(schema.Schema)
 }
 
 // ParameterContainer is a parameter container

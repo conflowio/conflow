@@ -37,14 +37,24 @@ func (n *Number) AssignValue(imports map[string]string, valueName, resultName st
 }
 
 func (n *Number) CompareValues(v1, v2 interface{}) int {
-	f1, ok := v1.(float64)
-	if !ok {
+	var f1 float64
+	switch v := v1.(type) {
+	case int64:
+		f1 = float64(v)
+	case float64:
+		f1 = v
+	default:
 		return -1
 	}
 
-	f2, ok := v2.(float64)
-	if !ok {
-		return 1
+	var f2 float64
+	switch v := v2.(type) {
+	case int64:
+		f2 = float64(v)
+	case float64:
+		f2 = v
+	default:
+		return -1
 	}
 
 	switch {

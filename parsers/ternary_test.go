@@ -9,7 +9,7 @@ package parsers_test
 import (
 	"errors"
 
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -23,10 +23,15 @@ import (
 var _ = Describe("TernaryIf", func() {
 
 	q := combinator.Choice(
-		terminal.Bool("true", "false"),
-		terminal.Integer(),
-		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser("ERR", variable.TypeUnknown),
+		terminal.Bool(schema.BooleanValue(), "true", "false"),
+		terminal.Integer(schema.IntegerValue()),
+		terminal.Float(schema.NumberValue()),
+		terminal.String(schema.StringValue(), false),
+		terminal.Nil(schema.NullValue(), "NULL"),
+		parsers.Array(terminal.String(schema.StringValue(), false)),
+		parsers.Map(terminal.String(schema.StringValue(), false)),
+		test.EvalErrorParser(schema.BooleanValue(), "ERR_BOOL"),
+		test.EvalErrorParser(schema.IntegerValue(), "ERR_INT"),
 	).Name("value")
 
 	p := parsers.TernaryIf(q)
@@ -36,10 +41,16 @@ var _ = Describe("TernaryIf", func() {
 			test.ExpectParserToEvaluate(p)(input, expected)
 		},
 		test.TableEntry("1", int64(1)),
-		test.TableEntry("nil", nil),
+		test.TableEntry("NULL", nil),
 		test.TableEntry("true ? 1 : 2", int64(1)),
 		test.TableEntry("false ? 1 : 2", int64(2)),
-		test.TableEntry("true ? nil : 2", nil),
+		test.TableEntry("true ? 1 : 2.0", int64(1)),
+		test.TableEntry("false ? 1 : 2.0", float64(2)),
+		test.TableEntry("false ? NULL : NULL", nil),
+		test.TableEntry(`true ? ["foo"] : NULL`, []interface{}{"foo"}),
+		test.TableEntry(`false ? NULL : ["foo"]`, []interface{}{"foo"}),
+		test.TableEntry(`true ? map{"foo":"bar"} : NULL`, map[string]interface{}{"foo": "bar"}),
+		test.TableEntry(`false ? NULL : map{"foo":"bar"}`, map[string]interface{}{"foo": "bar"}),
 	)
 
 	DescribeTable("it returns a parse error",
@@ -51,20 +62,28 @@ var _ = Describe("TernaryIf", func() {
 		test.TableEntry("true ? 1 :", errors.New("was expecting value at testfile:1:11")),
 	)
 
+	DescribeTable("it returns a static check error",
+		func(input string, expectedErr error) {
+			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
+		},
+		test.TableEntry("1 ? 1 : 2", errors.New("must be boolean at testfile:1:1")),
+		test.TableEntry(`true ? "foo" : 1`, errors.New("both expressions must have the same type, but got string and integer at testfile:1:8")),
+		test.TableEntry("true ? NULL : 2", errors.New("both expressions must have the same type, but got null and integer at testfile:1:8")),
+	)
+
 	DescribeTable("it returns an eval error",
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
 		},
-		test.TableEntry("1 ? 1 : 2", errors.New("expecting bool, got int64 at testfile:1:1")),
-		test.TableEntry("ERR", errors.New("ERR at testfile:1:1")),
-		test.TableEntry("ERR ? 1 : 2", errors.New("ERR at testfile:1:1")),
-		test.TableEntry("true ? ERR : 2", errors.New("ERR at testfile:1:8")),
-		test.TableEntry("false ? 1 : ERR", errors.New("ERR at testfile:1:13")),
+		test.TableEntry("ERR_BOOL", errors.New("ERR at testfile:1:1")),
+		test.TableEntry("ERR_BOOL ? 1 : 2", errors.New("ERR at testfile:1:1")),
+		test.TableEntry("true ? ERR_INT : 2", errors.New("ERR at testfile:1:8")),
+		test.TableEntry("false ? 1 : ERR_INT", errors.New("ERR at testfile:1:13")),
 	)
 
 	Context("When there is only one node", func() {
 		It("should return the node", func() {
-			expectedNode := terminal.NewIntegerNode(int64(1), parsley.Pos(1), parsley.Pos(2))
+			expectedNode := terminal.NewIntegerNode(schema.IntegerValue(), int64(1), parsley.Pos(1), parsley.Pos(2))
 			test.ExpectParserToReturn(p, "1", expectedNode)
 		})
 	})

@@ -7,7 +7,9 @@
 package parsers
 
 import (
-	"github.com/opsidian/basil/basil/variable"
+	"errors"
+
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
@@ -24,22 +26,22 @@ func Or(p parsley.Parser) *combinator.Sequence {
 
 type orInterpreter struct{}
 
-func (o orInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (string, parsley.Error) {
+func (o orInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
 	for i := 0; i < len(nodes); i += 2 {
-		if err := variable.CheckNodeType(nodes[i], variable.TypeBool); err != nil {
-			return "", err
+		if err := schema.BooleanValue().ValidateSchema(nodes[i].Schema().(schema.Schema), false); err != nil {
+			return nil, parsley.NewError(nodes[i].Pos(), err)
 		}
 	}
 
-	return variable.TypeBool, nil
+	return schema.BooleanValue(), nil
 }
 
 func (o orInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
 	res := false
 	for i := 0; i < len(nodes); i += 2 {
-		v, err := nodes[i].Value(ctx)
+		v, err := parsley.EvaluateNode(ctx, nodes[i])
 		if err != nil {
 			return nil, err
 		}
@@ -47,7 +49,7 @@ func (o orInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (inte
 		case bool:
 			res = res || vt
 		default:
-			return nil, parsley.NewError(nodes[i].Pos(), variable.ErrExpectingBool)
+			return nil, parsley.NewError(nodes[i].Pos(), errors.New("was expecting boolean"))
 		}
 	}
 	return res, nil

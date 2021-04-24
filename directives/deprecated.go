@@ -8,10 +8,15 @@ package directives
 
 import "github.com/opsidian/basil/basil"
 
-//go:generate basil generate
+// @block {
+//   eval_stage = "ignore"
+// }
 type Deprecated struct {
-	id          basil.ID `basil:"id"`
-	description string   `basil:"value,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	description string
 }
 
 func (d *Deprecated) ID() basil.ID {
@@ -22,8 +27,4 @@ func (d *Deprecated) ApplyToRuntimeConfig(*basil.RuntimeConfig) {
 }
 
 func (d *Deprecated) ApplyToParameterConfig(*basil.ParameterConfig) {
-}
-
-func (d *Deprecated) EvalStage() basil.EvalStage {
-	return basil.EvalStageIgnore
 }

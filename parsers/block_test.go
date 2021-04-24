@@ -87,10 +87,10 @@ var _ = Describe("Block parser", func() {
 				field_int = 1
 				field_float = 1.2
 				field_bool = true
-				field_array = [1.2, "bar"]
+				field_array = ["foo", "bar"]
 				field_map = map{
-					"a": 1,
-					"b": 1.2,
+					"a": "b",
+					"c": "d",
 				}
 				field_time_duration = 1h30m
 			}`,
@@ -100,21 +100,21 @@ var _ = Describe("Block parser", func() {
 				FieldInt:          int64(1),
 				FieldFloat:        1.2,
 				FieldBool:         true,
-				FieldArray:        []interface{}{1.2, "bar"},
-				FieldMap:          map[string]interface{}{"a": int64(1), "b": 1.2},
+				FieldArray:        []interface{}{"foo", "bar"},
+				FieldMap:          map[string]interface{}{"a": "b", "c": "d"},
 				FieldTimeDuration: 1*time.Hour + 30*time.Minute,
 			},
 		),
 		Entry(
-			"all parameter types as nil",
+			"all parameter types as null",
 			`testblock {
-				field_string = nil
-				field_int = nil
-				field_float = nil
-				field_bool = nil
-				field_array = nil
-				field_map = nil
-				field_time_duration = nil
+				field_string = null
+				field_int = null
+				field_float = null
+				field_bool = null
+				field_array = null
+				field_map = null
+				field_time_duration = null
 			}`,
 			&test.Block{IDField: "0"},
 		),
@@ -246,17 +246,17 @@ var _ = Describe("Block parser", func() {
 			"variable as parameter value",
 			`testblock {
 				b1 testblock {
-					value = 1
+					field_int = 1
 				}
 				b2 testblock {
-					value = b1.value + 1
+					field_int = b1.field_int + 1
 				}
 			}`,
 			&test.Block{
 				IDField: "0",
 				Blocks: []*test.Block{
-					{IDField: "b1", Value: int64(1)},
-					{IDField: "b2", Value: int64(2)},
+					{IDField: "b1", FieldInt: int64(1)},
+					{IDField: "b2", FieldInt: int64(2)},
 				},
 			},
 		),
@@ -410,7 +410,7 @@ var _ = Describe("Block parser", func() {
 			`testblock {
 				field_string = 1
 			}`,
-			errors.New("was expecting string at testfile:2:20"),
+			errors.New("must be string at testfile:2:20"),
 		),
 		Entry(
 			"extra parameter using existing parameter name",

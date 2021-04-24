@@ -10,6 +10,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/opsidian/basil/basil/block"
+
 	"github.com/opsidian/basil/directives"
 
 	"github.com/opsidian/basil/loggers/zerolog"
@@ -40,15 +42,16 @@ func ParseCtx(
 		}
 	}
 
-	testBlockNode := &basilfakes.FakeBlockNode{}
-	testBlockNode.IDReturns(basil.ID("test"))
-	testBlockNode.ParamTypeCalls(func(id basil.ID) (s string, b bool) {
-		interpreter := BlockInterpreter{}
-		if param, ok := interpreter.Params()[id]; ok {
-			return param.Type, true
-		}
-		return "", false
-	})
+	testBlockNode := block.NewNode(
+		basil.NewIDNode("test", parsley.NilPos, parsley.NilPos),
+		basil.NewIDNode("testblock", parsley.NilPos, parsley.NilPos),
+		nil,
+		"TESTBLOCK",
+		nil,
+		parsley.NilPos,
+		BlockInterpreter{},
+		nil,
+	)
 
 	f := text.NewFile("testfile", []byte(input))
 	fs := parsley.NewFileSet(f)
@@ -67,7 +70,7 @@ func ParseCtx(
 	ctx := parsley.NewContext(fs, r)
 	ctx.EnableStaticCheck()
 	ctx.EnableTransformation()
-	ctx.RegisterKeywords("true", "false", "nil", "map", "testkeyword")
+	ctx.RegisterKeywords("map", "testkeyword")
 	ctx.SetUserContext(parseCtx)
 
 	return ctx
@@ -79,14 +82,11 @@ func EvalUserCtx() *basil.EvalContext {
 			FieldString: "bar",
 			FieldMap: map[string]interface{}{
 				"key1": "value1",
-				"key2": map[string]interface{}{
-					"key3": "value3",
-				},
+				"key2": "value2",
 			},
 			FieldArray: []interface{}{
 				"value1",
 				"value2",
-				[]interface{}{"value2"},
 			},
 			FieldInt: int64(1),
 		}
@@ -116,7 +116,7 @@ func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
 		node, parseErr := parsley.Parse(ParseCtx(input, nil, nil), combinator.Sentence(p))
 		Expect(parseErr).ToNot(HaveOccurred(), "input: %s", input)
 
-		value, evalErr := node.Value(EvalUserCtx())
+		value, evalErr := parsley.EvaluateNode(EvalUserCtx(), node)
 		Expect(evalErr).ToNot(HaveOccurred(), "input: %s", input)
 
 		if value != nil {
@@ -153,7 +153,7 @@ func ExpectParserToHaveEvalError(p parsley.Parser) func(string, error) {
 		node, parseErr := parsley.Parse(parseCtx, combinator.Sentence(p))
 		Expect(parseErr).ToNot(HaveOccurred(), "input: %s", input)
 
-		value, evalErr := node.Value(EvalUserCtx())
+		value, evalErr := parsley.EvaluateNode(EvalUserCtx(), node)
 		Expect(evalErr).To(HaveOccurred())
 		Expect(parseCtx.FileSet().ErrorWithPosition(evalErr)).To(MatchError(expectedErr), "input: %s", input)
 		Expect(value).To(BeNil(), "input: %s", input)
@@ -176,7 +176,7 @@ func ExpectBlockToEvaluate(p parsley.Parser, registry parsley.NodeTransformerReg
 		node, parseErr := parsley.Parse(ParseCtx(input, registry, nil), combinator.Sentence(p))
 		Expect(parseErr).ToNot(HaveOccurred(), "input: %s", input)
 
-		value, evalErr := node.Value(EvalUserCtx())
+		value, evalErr := parsley.EvaluateNode(EvalUserCtx(), node)
 		Expect(evalErr).ToNot(HaveOccurred(), "eval failed, input: %s", input)
 
 		compare(value, expected, input)
@@ -198,7 +198,7 @@ func ExpectBlockToHaveEvalError(p parsley.Parser, registry parsley.NodeTransform
 		node, parseErr := parsley.Parse(parseCtx, combinator.Sentence(p))
 		Expect(parseErr).ToNot(HaveOccurred(), "input: %s", input)
 
-		_, evalErr := node.Value(EvalUserCtx())
+		_, evalErr := parsley.EvaluateNode(EvalUserCtx(), node)
 		Expect(evalErr).To(HaveOccurred())
 		Expect(parseCtx.FileSet().ErrorWithPosition(evalErr)).To(errMatcher, "input: %s", input)
 	}
@@ -209,7 +209,7 @@ func ExpectFunctionToEvaluate(p parsley.Parser, registry parsley.NodeTransformer
 		node, parseErr := parsley.Parse(ParseCtx(input, nil, registry), combinator.Sentence(p))
 		Expect(parseErr).ToNot(HaveOccurred(), "input: %s", input)
 
-		value, evalErr := node.Value(EvalUserCtx())
+		value, evalErr := parsley.EvaluateNode(EvalUserCtx(), node)
 		Expect(evalErr).ToNot(HaveOccurred(), "eval failed, input: %s", input)
 		switch expected.(type) {
 		case int64, float64:
@@ -237,7 +237,7 @@ func ExpectFunctionToHaveEvalError(p parsley.Parser, registry parsley.NodeTransf
 		node, parseErr := parsley.Parse(parseCtx, combinator.Sentence(p))
 		Expect(parseErr).ToNot(HaveOccurred(), "input: %s", input)
 
-		value, evalErr := node.Value(EvalUserCtx())
+		value, evalErr := parsley.EvaluateNode(EvalUserCtx(), node)
 		Expect(evalErr).To(HaveOccurred(), "input: %s", input)
 		Expect(parseCtx.FileSet().ErrorWithPosition(evalErr)).To(MatchError(expectedErr), "input: %s", input)
 		Expect(value).To(BeNil(), "input: %s", input)

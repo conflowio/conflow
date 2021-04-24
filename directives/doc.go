@@ -8,10 +8,15 @@ package directives
 
 import "github.com/opsidian/basil/basil"
 
-//go:generate basil generate
+// @block {
+//  eval_stage = "ignore"
+// }
 type Doc struct {
-	id          basil.ID `basil:"id"`
-	description string   `basil:"value,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	description string
 }
 
 func (d *Doc) ID() basil.ID {
@@ -22,8 +27,4 @@ func (d *Doc) ApplyToRuntimeConfig(*basil.RuntimeConfig) {
 }
 
 func (d *Doc) ApplyToParameterConfig(*basil.ParameterConfig) {
-}
-
-func (d *Doc) EvalStage() basil.EvalStage {
-	return basil.EvalStageIgnore
 }

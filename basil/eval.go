@@ -9,7 +9,10 @@ package basil
 import (
 	"context"
 	"fmt"
-	"reflect"
+
+	"github.com/opsidian/parsley/parsley"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // Evaluate will evaluate the given node which was previously parsed with the passed parse context
@@ -27,19 +30,22 @@ func Evaluate(
 		return nil, fmt.Errorf("block %q does not exist", id)
 	}
 
-	for paramName, param := range node.Interpreter().Params() {
-		if param.IsUserDefined && param.IsRequired {
-			if _, isDefined := inputParams[paramName]; !isDefined {
+	o := node.Interpreter().Schema().(schema.ObjectKind)
+	for paramName, param := range o.GetProperties() {
+		if schema.HasAnnotationValue(param, "user_defined", "true") && o.IsPropertyRequired(paramName) {
+			if _, isDefined := inputParams[ID(paramName)]; !isDefined {
 				return nil, fmt.Errorf("%q input parameter must be defined", paramName)
 			}
 		}
 	}
 
 	for k, v := range inputParams {
-		param := node.Interpreter().Params()[k]
-		if param.IsUserDefined && !param.IsOutput {
-			if reflect.TypeOf(v).Name() != param.Type {
-				return nil, fmt.Errorf("invalid input parameter %q, type must be %s", k, param.Type)
+		property := o.GetProperties()[string(k)]
+		if property != nil &&
+			schema.HasAnnotationValue(property, "user_defined", "true") &&
+			!property.GetReadOnly() {
+			if err := property.ValidateValue(v); err != nil {
+				return nil, fmt.Errorf("invalid input parameter %q: %w", k, err)
 			}
 		} else {
 			return nil, fmt.Errorf("unknown input parameter: %q", k)
@@ -49,7 +55,7 @@ func Evaluate(
 	evalContext := NewEvalContext(context, userContext, logger, scheduler, nil)
 	evalContext.InputParams = inputParams
 
-	value, err := node.Value(evalContext)
+	value, err := parsley.EvaluateNode(evalContext, node)
 	if err != nil {
 		return nil, parseCtx.FileSet().ErrorWithPosition(err)
 	}

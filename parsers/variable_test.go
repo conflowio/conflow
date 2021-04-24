@@ -9,6 +9,8 @@ package parsers_test
 import (
 	"context"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
@@ -56,7 +58,7 @@ var _ = Describe("Variable", func() {
 
 		res, parseErr = parsley.Parse(parsleyContext, combinator.Sentence(p))
 		if parseErr == nil {
-			value, evalErr = res.Value(evalCtx)
+			value, evalErr = parsley.EvaluateNode(evalCtx, res)
 		}
 	})
 
@@ -74,6 +76,12 @@ var _ = Describe("Variable", func() {
 		BeforeEach(func() {
 			blockNode = &basilfakes.FakeBlockNode{}
 			blockNode.IDReturns(basil.ID("foo"))
+			blockNode.GetPropertySchemaStub = func(id basil.ID) (schema.Schema, bool) {
+				if string(id) == "param1" {
+					return schema.StringValue(), true
+				}
+				return nil, false
+			}
 
 			cont := &basilfakes.FakeBlockContainer{}
 			cont.ParamReturnsOnCall(0, "bar")
@@ -86,26 +94,22 @@ var _ = Describe("Variable", func() {
 		Context("with an existing parameter", func() {
 			BeforeEach(func() {
 				input = "foo.param1"
-				blockNode.ParamTypeReturnsOnCall(0, "string", true)
 			})
 
 			It("should evaluate successfully", func() {
 				Expect(parseErr).ToNot(HaveOccurred())
 				Expect(evalErr).ToNot(HaveOccurred())
 				Expect(value).To(Equal("bar"))
-
-				Expect(blockNode.ParamTypeArgsForCall(0)).To(Equal(basil.ID("param1")))
 			})
 		})
 
 		Context("with a nonexisting parameter", func() {
 			BeforeEach(func() {
-				input = "foo.param1"
-				blockNode.ParamTypeReturnsOnCall(0, "", false)
+				input = "foo.param2"
 			})
 
 			It("should return a parse error", func() {
-				Expect(parseErr).To(MatchError("parameter \"param1\" does not exist at testfile:1:5"))
+				Expect(parseErr).To(MatchError("parameter \"param2\" does not exist at testfile:1:5"))
 			})
 		})
 	})

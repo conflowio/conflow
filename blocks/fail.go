@@ -12,10 +12,13 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Fail struct {
-	id  basil.ID `basil:"id"`
-	msg string   `basil:"value,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	msg string
 }
 
 func (f *Fail) ID() basil.ID {

@@ -13,7 +13,7 @@ import (
 	"github.com/opsidian/basil/basil/schema"
 )
 
-//go:generate basil generate
+// @block
 type ID struct {
 	// @id
 	id basil.ID

@@ -7,6 +7,7 @@
 package basil
 
 import (
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -41,17 +42,7 @@ var BlockTags = map[ID]string{
 }
 
 // Block is an interface for a block object
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Block
 type Block interface {
-	Identifiable
-}
-
-// BlockDescriptor describes a block
-type BlockDescriptor struct {
-	EvalStage   EvalStage
-	IsRequired  bool
-	IsGenerated bool
-	IsMany      bool
 }
 
 // BlockContainer is a simple wrapper around a block object
@@ -62,7 +53,7 @@ type BlockContainer interface {
 	SetChild(Container)
 	SetError(parsley.Error)
 	PublishBlock(Block, func() error) (bool, error)
-	EvalStageAware
+	EvalStage() EvalStage
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
@@ -81,19 +72,15 @@ type BlockCloser interface {
 	Close(blockCtx BlockContext) error
 }
 
-type EvalStageAware interface {
-	EvalStage() EvalStage
-}
-
 // BlockNode is the AST node for a block
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockNode
 type BlockNode interface {
 	Node
 	Children() []Node
 	BlockType() ID
-	ParamType(ID) (string, bool)
 	Interpreter() BlockInterpreter
-	SetDescriptor(BlockDescriptor)
+	SetSchema(schema.Schema)
+	GetPropertySchema(ID) (schema.Schema, bool)
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks
@@ -111,16 +98,13 @@ type BlockTransformerRegistryAware interface {
 // BlockInterpreter defines an interpreter for blocks
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockInterpreter
 type BlockInterpreter interface {
+	Schema() schema.Schema
 	CreateBlock(ID) Block
 	SetParam(b Block, name ID, value interface{}) error
 	SetBlock(b Block, name ID, value interface{}) error
 	Param(b Block, name ID) interface{}
-	Params() map[ID]ParameterDescriptor
-	Blocks() map[ID]BlockDescriptor
 	ValueParamName() ID
-	HasForeignID() bool
 	ParseContext(*ParseContext) *ParseContext
-	EvalStageAware
 }
 
 // BlockProvider is an interface for an object which provides additional block types

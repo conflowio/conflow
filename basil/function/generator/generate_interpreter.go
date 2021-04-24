@@ -12,64 +12,104 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/generator/parser"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // GenerateInterpreter generates an interpreter for the given function
-func GenerateInterpreter(fun *ast.FuncType, file *ast.File, pkgName string, name string) ([]byte, error) {
-	params, err := generateTemplateParams(fun, file, pkgName, name)
+func GenerateInterpreter(
+	parseCtx *parser.Context,
+	fun *ast.FuncType,
+	pkg string,
+	name string,
+	comments []*ast.Comment,
+) ([]byte, *Function, error) {
+	metadata, err := parser.ParseMetadataFromComments(name, comments)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	tmpl := template.New("block_interpreter")
-	if _, parseErr := tmpl.Parse(interpreterTemplate); parseErr != nil {
-		return nil, parseErr
+	f, err := ParseFunction(parseCtx, fun, pkg, name, metadata)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	params, err := generateTemplateParams(parseCtx, f, pkg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	bodyTmpl := template.New("block_interpreter_body")
+	bodyTmpl.Funcs(map[string]interface{}{
+		"assignValue": func(s schema.Schema, valueName, resultName string) string {
+			return s.AssignValue(params.Imports, valueName, resultName)
+		},
+	})
+	if _, parseErr := bodyTmpl.Parse(interpreterTemplate); parseErr != nil {
+		return nil, nil, parseErr
 	}
 
 	res := &bytes.Buffer{}
-	err = tmpl.Execute(res, params)
+	err = bodyTmpl.Execute(res, params)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return res.Bytes(), nil
+	body := res.Bytes()
+
+	headerTmpl := template.New("block_interpreter_header")
+	headerTmpl.Funcs(map[string]interface{}{
+		"last": func(path string) string {
+			parts := strings.Split(path, "/")
+			return parts[len(parts)-1]
+		},
+	})
+	if _, parseErr := headerTmpl.Parse(interpreterHeaderTemplate); parseErr != nil {
+		return nil, nil, parseErr
+	}
+
+	res = &bytes.Buffer{}
+	err = headerTmpl.Execute(res, params)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	res.Write(body)
+
+	return res.Bytes(), f, nil
 }
 
-func generateTemplateParams(fun *ast.FuncType, file *ast.File, pkgName string, name string) (*InterpreterTemplateParams, error) {
-	arguments, err := ParseArguments(fun, file)
-	if err != nil {
-		return nil, err
+func generateTemplateParams(
+	parseCtx *parser.Context,
+	f *Function,
+	pkg string,
+) (*InterpreterTemplateParams, error) {
+	imports := map[string]string{
+		".":       pkg,
+		"basil":   "github.com/opsidian/basil/basil",
+		"schema":  "github.com/opsidian/basil/basil/schema",
+		"parsley": "github.com/opsidian/parsley/parsley",
 	}
 
-	results, err := ParseResults(fun, file)
-	if err != nil {
-		return nil, err
+	var nameSelector string
+	if f.InterpreterPath != "" {
+		nameSelector = schema.EnsureUniqueGoPackageName(imports, pkg) + "."
 	}
 
-	returnNodeType := false
-
-	if len(arguments) > 0 {
-		// If the first argument is a union type and the first return value is the same type
-		// then we will return with the node's type
-		for unionType := range variable.UnionTypes {
-			if arguments[0].Type == unionType {
-				if results[0].Type == unionType {
-					returnNodeType = true
-				}
-				break
-			}
-		}
+	pkgName := parseCtx.File.Name.Name
+	if f.InterpreterPath != "" {
+		parts := strings.Split(strings.Trim(f.InterpreterPath, "/"), "/")
+		pkgName = parts[len(parts)-1]
 	}
 
 	return &InterpreterTemplateParams{
-		Package:            pkgName,
-		Name:               strings.ToUpper(string(name[0])) + name[1:],
-		FuncName:           name,
-		Arguments:          arguments,
-		Results:            results,
-		ResultType:         results[0].Type,
-		ReturnNodeType:     returnNodeType,
-		ValueFunctionNames: variable.ValueFunctionNames,
+		Package:          pkgName,
+		Name:             strings.ToUpper(string(f.Name[0])) + f.Name[1:],
+		FuncNameSelector: nameSelector,
+		FuncName:         f.Name,
+		Schema:           f.Schema,
+		Imports:          imports,
+		ReturnsError:     f.ReturnsError,
 	}, nil
 }

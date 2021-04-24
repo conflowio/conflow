@@ -38,18 +38,6 @@ func (i DeprecatedInterpreter) CreateBlock(id basil.ID) basil.Block {
 	}
 }
 
-func (i DeprecatedInterpreter) Params() map[basil.ID]basil.ParameterDescriptor {
-	return nil
-}
-
-func (i DeprecatedInterpreter) Blocks() map[basil.ID]basil.BlockDescriptor {
-	return nil
-}
-
-func (i DeprecatedInterpreter) HasForeignID() bool {
-	return false
-}
-
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
 func (i DeprecatedInterpreter) ValueParamName() basil.ID {
 	return ""
@@ -80,13 +68,4 @@ func (i DeprecatedInterpreter) SetParam(block basil.Block, name basil.ID, value 
 
 func (i DeprecatedInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
 	return nil
-}
-
-func (i DeprecatedInterpreter) EvalStage() basil.EvalStage {
-	var nilBlock *Deprecated
-	if b, ok := basil.Block(nilBlock).(basil.EvalStageAware); ok {
-		return b.EvalStage()
-	}
-
-	return basil.EvalStageUndefined
 }

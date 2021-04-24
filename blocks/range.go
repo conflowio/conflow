@@ -14,11 +14,13 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Range struct {
-	id    basil.ID `basil:"id"`
+	// @id
+	id    basil.ID
 	value interface{}
-	entry *RangeEntry `basil:"generated"`
+	// @generated
+	entry *RangeEntry
 }
 
 func (r *Range) ParseContextOverride() basil.ParseContextOverride {
@@ -64,11 +66,14 @@ func (r *Range) Main(ctx basil.BlockContext) error {
 	return nil
 }
 
-//go:generate basil generate
+// @block
 type RangeEntry struct {
-	id    basil.ID    `basil:"id"`
-	key   interface{} `basil:"output"`
-	value interface{} `basil:"output"`
+	// @id
+	id basil.ID
+	// @read_only
+	key interface{}
+	// @read_only
+	value interface{}
 }
 
 func (r *RangeEntry) ID() basil.ID {

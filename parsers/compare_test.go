@@ -11,10 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/opsidian/basil/basil/variable"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
+	"github.com/opsidian/basil/basil/schema"
 
 	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/test"
@@ -31,16 +30,16 @@ var _ = Describe("Compare", func() {
 
 	var q pparser.Func
 	q = combinator.Choice(
-		terminal.String(false),
-		terminal.TimeDuration(),
-		terminal.Float(),
-		terminal.Integer(),
-		terminal.Bool("true", "false"),
+		terminal.String(schema.StringValue(), false),
+		terminal.TimeDuration(schema.TimeDurationValue()),
+		terminal.Float(schema.NumberValue()),
+		terminal.Integer(schema.IntegerValue()),
+		terminal.Bool(schema.BooleanValue(), "true", "false"),
 		parsers.Array(&q),
-		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser("ERR", variable.TypeInteger),
-		terminal.Word("TIME1", time1, variable.TypeTime),
-		terminal.Word("TIME2", time2, variable.TypeTime),
+		terminal.Nil(schema.NullValue(), "NULL"),
+		test.EvalErrorParser(schema.IntegerValue(), "ERR"),
+		terminal.Word(schema.TimeValue(), "TIME1", time1),
+		terminal.Word(schema.TimeValue(), "TIME2", time2),
 	).Name("value")
 
 	p := parsers.Compare(q)
@@ -50,7 +49,8 @@ var _ = Describe("Compare", func() {
 			test.ExpectParserToEvaluate(p)(input, expected)
 		},
 		test.TableEntry("1", int64(1)),
-		test.TableEntry("nil", nil),
+		test.TableEntry("NULL", nil),
+		test.TableEntry("1.0 == 1", true),
 		test.TableEntry("0.999999999 == 1", true),
 		test.TableEntry("0.999999999 != 1", false),
 		test.TableEntry("1 == 0.999999999", true),
@@ -124,12 +124,12 @@ var _ = Describe("Compare", func() {
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
 		},
-		test.TableEntry(`nil == 5`, errors.New("unsupported == operation on nil and int64 at testfile:1:5")),
-		test.TableEntry(`"foo" == 5`, errors.New("unsupported == operation on string and int64 at testfile:1:7")),
-		test.TableEntry(`"foo" == 5.5`, errors.New("unsupported == operation on string and float64 at testfile:1:7")),
-		test.TableEntry(`5 == "foo"`, errors.New("unsupported == operation on int64 and string at testfile:1:3")),
-		test.TableEntry("5 == [1,2]", errors.New("unsupported == operation on int64 and []interface{} at testfile:1:3")),
-		test.TableEntry("1 == true", errors.New("unsupported == operation on int64 and bool at testfile:1:3")),
+		test.TableEntry(`NULL == 5`, errors.New("unsupported == operation on null and integer at testfile:1:6")),
+		test.TableEntry(`"foo" == 5`, errors.New("unsupported == operation on string and integer at testfile:1:7")),
+		test.TableEntry(`"foo" == 5.5`, errors.New("unsupported == operation on string and number at testfile:1:7")),
+		test.TableEntry(`5 == "foo"`, errors.New("unsupported == operation on integer and string at testfile:1:3")),
+		test.TableEntry("5 == [1,2]", errors.New("unsupported == operation on integer and array(integer) at testfile:1:3")),
+		test.TableEntry("1 == true", errors.New("unsupported == operation on integer and boolean at testfile:1:3")),
 	)
 
 	DescribeTable("it returns an eval error",
@@ -194,7 +194,7 @@ var _ = Describe("Compare", func() {
 
 	Context("When there is only one node", func() {
 		It("should return the node", func() {
-			expectedNode := terminal.NewIntegerNode(int64(1), parsley.Pos(1), parsley.Pos(2))
+			expectedNode := terminal.NewIntegerNode(schema.IntegerValue(), int64(1), parsley.Pos(1), parsley.Pos(2))
 			test.ExpectParserToReturn(p, "1", expectedNode)
 		})
 	})

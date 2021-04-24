@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-//go:generate basil generate
+// @function
 func testFunc1(str string) string {
 	return strings.ToUpper(str)
 }

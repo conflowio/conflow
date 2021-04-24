@@ -20,14 +20,14 @@ import (
 // An identifier can only contain lowercase letters, numbers and underscore characters.
 // It must start with a letter, must end with a letter or number, and no duplicate underscores are allowed.
 //
-func ID(regex string) parser.Func {
+func ID(regex string, allowKeywords bool) parser.Func {
 	notFoundErr := parsley.NotFoundError("identifier")
 
 	return parser.Func(func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
 		tr := ctx.Reader().(*text.Reader)
 		if readerPos, match := tr.ReadRegexp(pos, regex); match != nil {
 			id := string(match)
-			if ctx.IsKeyword(id) {
+			if !allowKeywords && ctx.IsKeyword(id) {
 				return nil, data.EmptyIntSet, parsley.NewErrorf(pos, "%s is a reserved keyword", id)
 			}
 			return basil.NewIDNode(basil.ID(id), pos, readerPos), data.EmptyIntSet, nil

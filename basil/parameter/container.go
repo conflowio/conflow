@@ -108,7 +108,7 @@ func (c *Container) Run() {
 		return
 	}
 
-	c.value, c.err = c.node.Value(c.evalCtx)
+	c.value, c.err = parsley.EvaluateNode(c.evalCtx, c.node)
 }
 
 // Close notifies all wait groups

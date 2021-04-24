@@ -11,10 +11,12 @@ import (
 	"github.com/opsidian/basil/util"
 )
 
-//go:generate basil generate
+// @block {
+//   eval_stage = "parse"
+// }
 type Output struct {
-	id         basil.ID `basil:"id"`
-	outputType string   `basil:"name=type,required"`
+	// @id
+	id basil.ID
 }
 
 func (o *Output) ID() basil.ID {
@@ -23,9 +25,4 @@ func (o *Output) ID() basil.ID {
 
 func (o *Output) ApplyToParameterConfig(config *basil.ParameterConfig) {
 	config.Output = util.BoolPtr(true)
-	config.Type = util.StringPtr(o.outputType)
-}
-
-func (o *Output) EvalStage() basil.EvalStage {
-	return basil.EvalStageParse
 }

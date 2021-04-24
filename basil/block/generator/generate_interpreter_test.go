@@ -20,12 +20,11 @@ var _ = Describe("GenerateInterpreter", func() {
 	p := parsers.Block(parsers.Expression())
 
 	var registry = block.InterpreterRegistry{
-		"block_simple":               fixtures.BlockSimpleInterpreter{},
-		"block_value_required":       fixtures.BlockValueRequiredInterpreter{},
-		"block_with_one_block":       fixtures.BlockWithOneBlockInterpreter{},
-		"block_with_many_block":      fixtures.BlockWithManyBlockInterpreter{},
-		"block_with_block_interface": fixtures.BlockWithBlockInterfaceInterpreter{},
-		"block_with_default":         fixtures.BlockWithDefaultInterpreter{},
+		"block_simple":          fixtures.BlockSimpleInterpreter{},
+		"block_value_required":  fixtures.BlockValueRequiredInterpreter{},
+		"block_with_one_block":  fixtures.BlockWithOneBlockInterpreter{},
+		"block_with_many_block": fixtures.BlockWithManyBlockInterpreter{},
+		"block_with_default":    fixtures.BlockWithDefaultInterpreter{},
 	}
 
 	Context("fixtures/block_simple.go", func() {
@@ -52,7 +51,7 @@ var _ = Describe("GenerateInterpreter", func() {
 		It("should not parse fields with nil values", func() {
 			test.ExpectBlockToEvaluate(p, registry)(
 				`foo block_simple {
-					value = nil
+					value = null
 				}`,
 				&fixtures.BlockSimple{IDField: "foo"},
 				func(b1i interface{}, b2i interface{}, input string) {
@@ -96,7 +95,7 @@ var _ = Describe("GenerateInterpreter", func() {
 				func(b1i interface{}, b2i interface{}, input string) {
 					b1 := b1i.(*fixtures.BlockWithOneBlock)
 					b2 := b2i.(*fixtures.BlockWithOneBlock)
-					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
+					Expect(b1.IDField).To(Equal(b2.IDField), "IDProperty does not match, input was %s", input)
 					Expect(b1.BlockSimple).To(Equal(b2.BlockSimple), "Blocks does not match, input was %s", input)
 				},
 			)
@@ -118,27 +117,8 @@ var _ = Describe("GenerateInterpreter", func() {
 				func(b1i interface{}, b2i interface{}, input string) {
 					b1 := b1i.(*fixtures.BlockWithManyBlock)
 					b2 := b2i.(*fixtures.BlockWithManyBlock)
-					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
+					Expect(b1.IDField).To(Equal(b2.IDField), "IDProperty does not match, input was %s", input)
 					Expect(b1.BlockSimple).To(ConsistOf(b2.BlockSimple), "Blocks does not match, input was %s", input)
-				},
-			)
-		})
-	})
-
-	Context("fixtures/block_with_block_interface.go", func() {
-		It("should parse the input", func() {
-			test.ExpectBlockToEvaluate(p, registry)(
-				`foo block_with_block_interface {
-					bar block_simple
-				}`,
-				&fixtures.BlockWithBlockInterface{IDField: "foo", BlockSimple: []fixtures.BlockInterface{
-					&fixtures.BlockSimple{IDField: "bar"},
-				}},
-				func(b1i interface{}, b2i interface{}, input string) {
-					b1 := b1i.(*fixtures.BlockWithBlockInterface)
-					b2 := b2i.(*fixtures.BlockWithBlockInterface)
-					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
-					Expect(b1.BlockSimple).To(Equal(b2.BlockSimple), "Blocks does not match, input was %s", input)
 				},
 			)
 		})
@@ -152,7 +132,7 @@ var _ = Describe("GenerateInterpreter", func() {
 				func(b1i interface{}, b2i interface{}, input string) {
 					b1 := b1i.(*fixtures.BlockWithDefault)
 					b2 := b2i.(*fixtures.BlockWithDefault)
-					Expect(b1.IDField).To(Equal(b2.IDField), "IDField does not match, input was %s", input)
+					Expect(b1.IDField).To(Equal(b2.IDField), "IDProperty does not match, input was %s", input)
 					Expect(b1.Value).To(Equal(b2.Value), "Value does not match, input was %s", input)
 				},
 			)
