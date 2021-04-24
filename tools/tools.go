@@ -6,8 +6,9 @@
 
 // +build tools
 
-package main
+package tools
 
 import (
 	_ "github.com/maxbrunsfeld/counterfeiter/v6"
+	_ "golang.org/x/tools/cmd/goimports"
 )
