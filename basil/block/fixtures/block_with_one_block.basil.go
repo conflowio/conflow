@@ -4,7 +4,6 @@ package fixtures
 
 import (
 	"fmt"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/schema"
 )

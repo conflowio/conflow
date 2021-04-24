@@ -102,6 +102,7 @@ func GenerateInterpreter(
 			parts := strings.Split(path, "/")
 			return parts[len(parts)-1]
 		},
+		"sortedImportKeys": parser.SortedImportKeys,
 	})
 	if _, parseErr := headerTmpl.Parse(interpreterHeaderTemplate); parseErr != nil {
 		return nil, nil, parseErr

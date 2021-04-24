@@ -4,10 +4,9 @@ package blocks
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/schema"
+	"time"
 )
 
 // SleepInterpreter is the basil interpreter for the Sleep block

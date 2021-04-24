@@ -4,10 +4,9 @@ package directives
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/schema"
+	"time"
 )
 
 // TimeoutInterpreter is the basil interpreter for the Timeout block

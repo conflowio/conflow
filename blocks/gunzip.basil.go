@@ -4,10 +4,9 @@ package blocks
 
 import (
 	"fmt"
-	"io"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/schema"
+	"io"
 )
 
 // GunzipInterpreter is the basil interpreter for the Gunzip block

@@ -4,10 +4,9 @@ package directives
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/schema"
+	"time"
 )
 
 // TimeInterpreter is the basil interpreter for the Time block

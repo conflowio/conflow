@@ -11,7 +11,6 @@ import (
 	"go/format"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -48,16 +47,6 @@ func writeFile(dir, name string, content []byte) error {
 	}
 
 	err = ioutil.WriteFile(filepath, formatted, 0644)
-	if err != nil {
-		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
-	}
-
-	goimportsCmd := exec.Command("goimports", filepath)
-	out, err := goimportsCmd.CombinedOutput()
-	if err != nil {
-		return xerrors.Errorf("failed to run goimports on %s: %w", getRelativePath(filepath), err)
-	}
-	err = ioutil.WriteFile(filepath, out, 0644)
 	if err != nil {
 		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
 	}

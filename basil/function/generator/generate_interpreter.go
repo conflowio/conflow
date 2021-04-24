@@ -64,6 +64,7 @@ func GenerateInterpreter(
 			parts := strings.Split(path, "/")
 			return parts[len(parts)-1]
 		},
+		"sortedImportKeys": parser.SortedImportKeys,
 	})
 	if _, parseErr := headerTmpl.Parse(interpreterHeaderTemplate); parseErr != nil {
 		return nil, nil, parseErr
@@ -90,6 +91,10 @@ func generateTemplateParams(
 		"basil":   "github.com/opsidian/basil/basil",
 		"schema":  "github.com/opsidian/basil/basil/schema",
 		"parsley": "github.com/opsidian/parsley/parsley",
+	}
+
+	if f.ReturnsError {
+		imports["function"] = "github.com/opsidian/basil/basil/function"
 	}
 
 	var nameSelector string
