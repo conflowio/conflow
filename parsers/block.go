@@ -31,12 +31,11 @@ import (
 //         -> ARRAY
 //         -> MAP
 func Block(expr parsley.Parser) *combinator.Sequence {
-	return blockWithOptions(expr, true, true, true)
+	return blockWithOptions(expr, true, true)
 }
 
 func blockWithOptions(
 	expr parsley.Parser,
-	allowID bool,
 	allowCustomParameters bool,
 	allowDirectives bool,
 ) *combinator.Sequence {
@@ -73,15 +72,10 @@ func blockWithOptions(
 		Map(expr),
 	).Name("block value")
 
-	var id parsley.Parser
-	if allowID {
-		id = combinator.SeqTry(
-			ID(basil.IDRegExpPattern),
-			text.LeftTrim(ID(basil.IDRegExpPattern), text.WsSpaces),
-		).Token("TYPE_ID").ReturnSingle()
-	} else {
-		id = ID(basil.IDRegExpPattern)
-	}
+	id := combinator.SeqTry(
+		ID(basil.IDRegExpPattern, false),
+		text.LeftTrim(ID(basil.IDRegExpPattern, false), text.WsSpaces),
+	).Token("TYPE_ID").ReturnSingle()
 
 	p = *combinator.SeqOf(
 		directives,

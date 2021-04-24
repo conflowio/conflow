@@ -13,7 +13,7 @@ import (
 )
 
 // Encode converts the given value to a json string
-//go:generate basil generate
+// @function
 func Encode(value interface{}) (string, error) {
 	b, err := json.Marshal(value)
 	if err != nil {

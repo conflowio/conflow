@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -53,16 +54,6 @@ type FakeParameterNode struct {
 	}
 	evalStageReturnsOnCall map[int]struct {
 		result1 basil.EvalStage
-	}
-	GeneratedStub        func() bool
-	generatedMutex       sync.RWMutex
-	generatedArgsForCall []struct {
-	}
-	generatedReturns struct {
-		result1 bool
-	}
-	generatedReturnsOnCall map[int]struct {
-		result1 bool
 	}
 	GeneratesStub        func() []basil.ID
 	generatesMutex       sync.RWMutex
@@ -134,10 +125,31 @@ type FakeParameterNode struct {
 	readerPosReturnsOnCall map[int]struct {
 		result1 parsley.Pos
 	}
-	SetDescriptorStub        func(basil.ParameterDescriptor)
-	setDescriptorMutex       sync.RWMutex
-	setDescriptorArgsForCall []struct {
-		arg1 basil.ParameterDescriptor
+	SchemaStub        func() interface{}
+	schemaMutex       sync.RWMutex
+	schemaArgsForCall []struct {
+	}
+	schemaReturns struct {
+		result1 interface{}
+	}
+	schemaReturnsOnCall map[int]struct {
+		result1 interface{}
+	}
+	SetSchemaStub        func(schema.Schema)
+	setSchemaMutex       sync.RWMutex
+	setSchemaArgsForCall []struct {
+		arg1 schema.Schema
+	}
+	StaticCheckStub        func(interface{}) parsley.Error
+	staticCheckMutex       sync.RWMutex
+	staticCheckArgsForCall []struct {
+		arg1 interface{}
+	}
+	staticCheckReturns struct {
+		result1 parsley.Error
+	}
+	staticCheckReturnsOnCall map[int]struct {
+		result1 parsley.Error
 	}
 	TokenStub        func() string
 	tokenMutex       sync.RWMutex
@@ -147,16 +159,6 @@ type FakeParameterNode struct {
 		result1 string
 	}
 	tokenReturnsOnCall map[int]struct {
-		result1 string
-	}
-	TypeStub        func() string
-	typeMutex       sync.RWMutex
-	typeArgsForCall []struct {
-	}
-	typeReturns struct {
-		result1 string
-	}
-	typeReturnsOnCall map[int]struct {
 		result1 string
 	}
 	ValueStub        func(interface{}) (interface{}, parsley.Error)
@@ -408,58 +410,6 @@ func (fake *FakeParameterNode) EvalStageReturnsOnCall(i int, result1 basil.EvalS
 	}
 	fake.evalStageReturnsOnCall[i] = struct {
 		result1 basil.EvalStage
-	}{result1}
-}
-
-func (fake *FakeParameterNode) Generated() bool {
-	fake.generatedMutex.Lock()
-	ret, specificReturn := fake.generatedReturnsOnCall[len(fake.generatedArgsForCall)]
-	fake.generatedArgsForCall = append(fake.generatedArgsForCall, struct {
-	}{})
-	fake.recordInvocation("Generated", []interface{}{})
-	fake.generatedMutex.Unlock()
-	if fake.GeneratedStub != nil {
-		return fake.GeneratedStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.generatedReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeParameterNode) GeneratedCallCount() int {
-	fake.generatedMutex.RLock()
-	defer fake.generatedMutex.RUnlock()
-	return len(fake.generatedArgsForCall)
-}
-
-func (fake *FakeParameterNode) GeneratedCalls(stub func() bool) {
-	fake.generatedMutex.Lock()
-	defer fake.generatedMutex.Unlock()
-	fake.GeneratedStub = stub
-}
-
-func (fake *FakeParameterNode) GeneratedReturns(result1 bool) {
-	fake.generatedMutex.Lock()
-	defer fake.generatedMutex.Unlock()
-	fake.GeneratedStub = nil
-	fake.generatedReturns = struct {
-		result1 bool
-	}{result1}
-}
-
-func (fake *FakeParameterNode) GeneratedReturnsOnCall(i int, result1 bool) {
-	fake.generatedMutex.Lock()
-	defer fake.generatedMutex.Unlock()
-	fake.GeneratedStub = nil
-	if fake.generatedReturnsOnCall == nil {
-		fake.generatedReturnsOnCall = make(map[int]struct {
-			result1 bool
-		})
-	}
-	fake.generatedReturnsOnCall[i] = struct {
-		result1 bool
 	}{result1}
 }
 
@@ -827,35 +777,147 @@ func (fake *FakeParameterNode) ReaderPosReturnsOnCall(i int, result1 parsley.Pos
 	}{result1}
 }
 
-func (fake *FakeParameterNode) SetDescriptor(arg1 basil.ParameterDescriptor) {
-	fake.setDescriptorMutex.Lock()
-	fake.setDescriptorArgsForCall = append(fake.setDescriptorArgsForCall, struct {
-		arg1 basil.ParameterDescriptor
+func (fake *FakeParameterNode) Schema() interface{} {
+	fake.schemaMutex.Lock()
+	ret, specificReturn := fake.schemaReturnsOnCall[len(fake.schemaArgsForCall)]
+	fake.schemaArgsForCall = append(fake.schemaArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Schema", []interface{}{})
+	fake.schemaMutex.Unlock()
+	if fake.SchemaStub != nil {
+		return fake.SchemaStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.schemaReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeParameterNode) SchemaCallCount() int {
+	fake.schemaMutex.RLock()
+	defer fake.schemaMutex.RUnlock()
+	return len(fake.schemaArgsForCall)
+}
+
+func (fake *FakeParameterNode) SchemaCalls(stub func() interface{}) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = stub
+}
+
+func (fake *FakeParameterNode) SchemaReturns(result1 interface{}) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = nil
+	fake.schemaReturns = struct {
+		result1 interface{}
+	}{result1}
+}
+
+func (fake *FakeParameterNode) SchemaReturnsOnCall(i int, result1 interface{}) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = nil
+	if fake.schemaReturnsOnCall == nil {
+		fake.schemaReturnsOnCall = make(map[int]struct {
+			result1 interface{}
+		})
+	}
+	fake.schemaReturnsOnCall[i] = struct {
+		result1 interface{}
+	}{result1}
+}
+
+func (fake *FakeParameterNode) SetSchema(arg1 schema.Schema) {
+	fake.setSchemaMutex.Lock()
+	fake.setSchemaArgsForCall = append(fake.setSchemaArgsForCall, struct {
+		arg1 schema.Schema
 	}{arg1})
-	fake.recordInvocation("SetDescriptor", []interface{}{arg1})
-	fake.setDescriptorMutex.Unlock()
-	if fake.SetDescriptorStub != nil {
-		fake.SetDescriptorStub(arg1)
+	fake.recordInvocation("SetSchema", []interface{}{arg1})
+	fake.setSchemaMutex.Unlock()
+	if fake.SetSchemaStub != nil {
+		fake.SetSchemaStub(arg1)
 	}
 }
 
-func (fake *FakeParameterNode) SetDescriptorCallCount() int {
-	fake.setDescriptorMutex.RLock()
-	defer fake.setDescriptorMutex.RUnlock()
-	return len(fake.setDescriptorArgsForCall)
+func (fake *FakeParameterNode) SetSchemaCallCount() int {
+	fake.setSchemaMutex.RLock()
+	defer fake.setSchemaMutex.RUnlock()
+	return len(fake.setSchemaArgsForCall)
 }
 
-func (fake *FakeParameterNode) SetDescriptorCalls(stub func(basil.ParameterDescriptor)) {
-	fake.setDescriptorMutex.Lock()
-	defer fake.setDescriptorMutex.Unlock()
-	fake.SetDescriptorStub = stub
+func (fake *FakeParameterNode) SetSchemaCalls(stub func(schema.Schema)) {
+	fake.setSchemaMutex.Lock()
+	defer fake.setSchemaMutex.Unlock()
+	fake.SetSchemaStub = stub
 }
 
-func (fake *FakeParameterNode) SetDescriptorArgsForCall(i int) basil.ParameterDescriptor {
-	fake.setDescriptorMutex.RLock()
-	defer fake.setDescriptorMutex.RUnlock()
-	argsForCall := fake.setDescriptorArgsForCall[i]
+func (fake *FakeParameterNode) SetSchemaArgsForCall(i int) schema.Schema {
+	fake.setSchemaMutex.RLock()
+	defer fake.setSchemaMutex.RUnlock()
+	argsForCall := fake.setSchemaArgsForCall[i]
 	return argsForCall.arg1
+}
+
+func (fake *FakeParameterNode) StaticCheck(arg1 interface{}) parsley.Error {
+	fake.staticCheckMutex.Lock()
+	ret, specificReturn := fake.staticCheckReturnsOnCall[len(fake.staticCheckArgsForCall)]
+	fake.staticCheckArgsForCall = append(fake.staticCheckArgsForCall, struct {
+		arg1 interface{}
+	}{arg1})
+	fake.recordInvocation("StaticCheck", []interface{}{arg1})
+	fake.staticCheckMutex.Unlock()
+	if fake.StaticCheckStub != nil {
+		return fake.StaticCheckStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.staticCheckReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeParameterNode) StaticCheckCallCount() int {
+	fake.staticCheckMutex.RLock()
+	defer fake.staticCheckMutex.RUnlock()
+	return len(fake.staticCheckArgsForCall)
+}
+
+func (fake *FakeParameterNode) StaticCheckCalls(stub func(interface{}) parsley.Error) {
+	fake.staticCheckMutex.Lock()
+	defer fake.staticCheckMutex.Unlock()
+	fake.StaticCheckStub = stub
+}
+
+func (fake *FakeParameterNode) StaticCheckArgsForCall(i int) interface{} {
+	fake.staticCheckMutex.RLock()
+	defer fake.staticCheckMutex.RUnlock()
+	argsForCall := fake.staticCheckArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeParameterNode) StaticCheckReturns(result1 parsley.Error) {
+	fake.staticCheckMutex.Lock()
+	defer fake.staticCheckMutex.Unlock()
+	fake.StaticCheckStub = nil
+	fake.staticCheckReturns = struct {
+		result1 parsley.Error
+	}{result1}
+}
+
+func (fake *FakeParameterNode) StaticCheckReturnsOnCall(i int, result1 parsley.Error) {
+	fake.staticCheckMutex.Lock()
+	defer fake.staticCheckMutex.Unlock()
+	fake.StaticCheckStub = nil
+	if fake.staticCheckReturnsOnCall == nil {
+		fake.staticCheckReturnsOnCall = make(map[int]struct {
+			result1 parsley.Error
+		})
+	}
+	fake.staticCheckReturnsOnCall[i] = struct {
+		result1 parsley.Error
+	}{result1}
 }
 
 func (fake *FakeParameterNode) Token() string {
@@ -906,58 +968,6 @@ func (fake *FakeParameterNode) TokenReturnsOnCall(i int, result1 string) {
 		})
 	}
 	fake.tokenReturnsOnCall[i] = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeParameterNode) Type() string {
-	fake.typeMutex.Lock()
-	ret, specificReturn := fake.typeReturnsOnCall[len(fake.typeArgsForCall)]
-	fake.typeArgsForCall = append(fake.typeArgsForCall, struct {
-	}{})
-	fake.recordInvocation("Type", []interface{}{})
-	fake.typeMutex.Unlock()
-	if fake.TypeStub != nil {
-		return fake.TypeStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.typeReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeParameterNode) TypeCallCount() int {
-	fake.typeMutex.RLock()
-	defer fake.typeMutex.RUnlock()
-	return len(fake.typeArgsForCall)
-}
-
-func (fake *FakeParameterNode) TypeCalls(stub func() string) {
-	fake.typeMutex.Lock()
-	defer fake.typeMutex.Unlock()
-	fake.TypeStub = stub
-}
-
-func (fake *FakeParameterNode) TypeReturns(result1 string) {
-	fake.typeMutex.Lock()
-	defer fake.typeMutex.Unlock()
-	fake.TypeStub = nil
-	fake.typeReturns = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeParameterNode) TypeReturnsOnCall(i int, result1 string) {
-	fake.typeMutex.Lock()
-	defer fake.typeMutex.Unlock()
-	fake.TypeStub = nil
-	if fake.typeReturnsOnCall == nil {
-		fake.typeReturnsOnCall = make(map[int]struct {
-			result1 string
-		})
-	}
-	fake.typeReturnsOnCall[i] = struct {
 		result1 string
 	}{result1}
 }
@@ -1088,8 +1098,6 @@ func (fake *FakeParameterNode) Invocations() map[string][][]interface{} {
 	defer fake.directivesMutex.RUnlock()
 	fake.evalStageMutex.RLock()
 	defer fake.evalStageMutex.RUnlock()
-	fake.generatedMutex.RLock()
-	defer fake.generatedMutex.RUnlock()
 	fake.generatesMutex.RLock()
 	defer fake.generatesMutex.RUnlock()
 	fake.iDMutex.RLock()
@@ -1104,12 +1112,14 @@ func (fake *FakeParameterNode) Invocations() map[string][][]interface{} {
 	defer fake.providesMutex.RUnlock()
 	fake.readerPosMutex.RLock()
 	defer fake.readerPosMutex.RUnlock()
-	fake.setDescriptorMutex.RLock()
-	defer fake.setDescriptorMutex.RUnlock()
+	fake.schemaMutex.RLock()
+	defer fake.schemaMutex.RUnlock()
+	fake.setSchemaMutex.RLock()
+	defer fake.setSchemaMutex.RUnlock()
+	fake.staticCheckMutex.RLock()
+	defer fake.staticCheckMutex.RUnlock()
 	fake.tokenMutex.RLock()
 	defer fake.tokenMutex.RUnlock()
-	fake.typeMutex.RLock()
-	defer fake.typeMutex.RUnlock()
 	fake.valueMutex.RLock()
 	defer fake.valueMutex.RUnlock()
 	fake.valueNodeMutex.RLock()

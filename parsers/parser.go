@@ -6,6 +6,3 @@
 
 // Package parser defines parsers for OCL
 package parsers
-
-// Epsilon is used as a float64 comparison tolerance
-const Epsilon = 0.00000001

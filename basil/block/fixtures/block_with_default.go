@@ -8,10 +8,13 @@ package fixtures
 
 import "github.com/opsidian/basil/basil"
 
-//go:generate basil generate
+// @block
 type BlockWithDefault struct {
-	IDField basil.ID `basil:"id"`
-	Value   string   `basil:"default=\"foo\""`
+	// @id
+	IDField basil.ID
+	// @value
+	// @default "foo"
+	Value string
 }
 
 func (b *BlockWithDefault) ID() basil.ID {

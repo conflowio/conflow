@@ -76,12 +76,14 @@ func (m *Main) Parse(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.P
 
 // ParseText parses the string input as a main block
 func (m *Main) ParseText(ctx *basil.ParseContext, input string) error {
-	return basil.ParseText(ctx, m.p, input)
+	_, err := basil.ParseText(ctx, m.p, input)
+	return err
 }
 
 // ParseFile parses the given file as a main block
 func (m *Main) ParseFile(ctx *basil.ParseContext, path string) error {
-	return basil.ParseFile(ctx, m.p, path)
+	_, err := basil.ParseFile(ctx, m.p, path)
+	return err
 }
 
 func (m *Main) ParseDir(ctx *basil.ParseContext, dir string) error {

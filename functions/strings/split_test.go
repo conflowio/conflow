@@ -37,11 +37,11 @@ var _ = Describe("Split", func() {
 		func(input string, expectedErr error) {
 			test.ExpectFunctionToHaveParseError(parsers.Expression(), registry)(input, expectedErr)
 		},
-		test.TableEntry(`test()`, errors.New("test expects 2 arguments at testfile:1:1")),
-		test.TableEntry(`test("foo")`, errors.New("test expects 2 arguments at testfile:1:1")),
-		test.TableEntry(`test("foo", "bar", "baz")`, errors.New("test expects 2 arguments at testfile:1:1")),
-		test.TableEntry(`test(1, "foo")`, errors.New("was expecting string at testfile:1:6")),
-		test.TableEntry(`test("foo", 1)`, errors.New("was expecting string at testfile:1:13")),
+		test.TableEntry(`test()`, errors.New("test requires exactly 2 arguments, but got 0 at testfile:1:1")),
+		test.TableEntry(`test("foo")`, errors.New("test requires exactly 2 arguments, but got 1 at testfile:1:11")),
+		test.TableEntry(`test("foo", "bar", "baz")`, errors.New("test requires exactly 2 arguments, but got 3 at testfile:1:20")),
+		test.TableEntry(`test(1, "foo")`, errors.New("must be string at testfile:1:6")),
+		test.TableEntry(`test("foo", 1)`, errors.New("must be string at testfile:1:13")),
 	)
 
 })

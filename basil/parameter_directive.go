@@ -6,6 +6,8 @@
 
 package basil
 
+import "github.com/opsidian/basil/basil/schema"
+
 // ParameterDirective provides a way to add metadata for parameters
 //go:generate counterfeiter . ParameterDirective
 type ParameterDirective interface {
@@ -23,7 +25,7 @@ type ParameterConfig struct {
 	Input    *bool
 	Required *bool
 	Output   *bool
-	Type     *string
+	Schema   schema.Schema
 }
 
 func (p ParameterConfig) ApplyToParameterConfig(p2 *ParameterConfig) {
@@ -39,7 +41,7 @@ func (p ParameterConfig) ApplyToParameterConfig(p2 *ParameterConfig) {
 		p2.Output = p.Output
 	}
 
-	if p.Type != nil {
-		p2.Type = p.Type
+	if p.Schema != nil {
+		p2.Schema = p.Schema
 	}
 }

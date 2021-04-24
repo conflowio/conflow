@@ -14,11 +14,14 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Licensify struct {
-	id      basil.ID `basil:"id"`
-	path    string   `basil:"required"`
-	license string   `basil:"required"`
+	// @id
+	id basil.ID
+	// @required
+	path string
+	// @required
+	license string
 }
 
 func (l *Licensify) ID() basil.ID {

@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
@@ -21,16 +22,16 @@ func KeyValuePairs() *combinator.Sequence {
 	var value parser.Func
 
 	value = combinator.Choice(
-		terminal.TimeDuration(),
-		terminal.Float(),
-		terminal.Integer(),
-		terminal.String(true),
-		terminal.Bool("true", "false"),
+		terminal.TimeDuration(schema.TimeDurationValue()),
+		terminal.Float(schema.NumberValue()),
+		terminal.Integer(schema.IntegerValue()),
+		terminal.String(schema.StringValue(), true),
+		terminal.Bool(schema.BooleanValue(), "true", "false"),
 		Array(&value),
 	).Name("value")
 
 	keyValue := combinator.SeqOf(
-		ID(basil.IDRegExpPattern),
+		ID(basil.IDRegExpPattern, false),
 		text.LeftTrim(terminal.Rune('='), text.WsSpaces),
 		text.LeftTrim(&value, text.WsSpaces),
 	).Name("parameter name and value pair")
@@ -53,7 +54,7 @@ func (s keyValuesInterpreter) Eval(userCtx interface{}, node parsley.NonTerminal
 				return nil, parsley.NewError(idNode.Pos(), fmt.Errorf("parameter %q was already defined", idNode.ID()))
 			}
 
-			val, err := parts[2].Value(userCtx)
+			val, err := parsley.EvaluateNode(userCtx, parts[2])
 			if err != nil {
 				return nil, err
 			}

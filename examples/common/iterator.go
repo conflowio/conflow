@@ -12,11 +12,14 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Iterator struct {
-	id    basil.ID `basil:"id"`
-	count int64    `basil:"required"`
-	it    *It      `basil:"generated"`
+	// @id
+	id basil.ID
+	// @required
+	count int64
+	// @generated
+	it *It
 }
 
 func (i *Iterator) ID() basil.ID {
@@ -45,10 +48,12 @@ func (it *Iterator) ParseContextOverride() basil.ParseContextOverride {
 	}
 }
 
-//go:generate basil generate
+// @block
 type It struct {
-	id    basil.ID `basil:"id"`
-	value int64    `basil:"output"`
+	// @id
+	id basil.ID
+	// @read_only
+	value int64
 }
 
 func (i *It) ID() basil.ID {

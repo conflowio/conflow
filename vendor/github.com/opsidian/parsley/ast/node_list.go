@@ -17,14 +17,9 @@ func (nl NodeList) Token() string {
 	return nl[0].Token()
 }
 
-// Type returns with the type of the first node
-func (nl NodeList) Type() string {
-	return nl[0].Type()
-}
-
-// Value returns with the value of the first node
-func (nl NodeList) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	return nl[0].Value(userCtx)
+// Schema returns nil
+func (nl NodeList) Schema() interface{} {
+	return nil
 }
 
 // Pos returns the value of the first node

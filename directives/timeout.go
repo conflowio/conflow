@@ -14,10 +14,15 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block {
+//   eval_stage = "init"
+// }
 type Timeout struct {
-	id       basil.ID      `basil:"id"`
-	duration time.Duration `basil:"value,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	duration time.Duration
 }
 
 func (t *Timeout) ID() basil.ID {
@@ -26,8 +31,4 @@ func (t *Timeout) ID() basil.ID {
 
 func (t *Timeout) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
 	config.Timeout = util.TimeDurationPtr(t.duration)
-}
-
-func (t *Timeout) EvalStage() basil.EvalStage {
-	return basil.EvalStageInit
 }

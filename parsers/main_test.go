@@ -93,13 +93,13 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"a parameter depends on an other",
 			`
-				field_int = main.value + 1
-				value = 1
+				field_int = 1
+				value = main.field_int + 1
 			`,
 			&test.Block{
 				IDField:  "main",
-				Value:    int64(1),
-				FieldInt: int64(2),
+				Value:    int64(2),
+				FieldInt: int64(1),
 			},
 		),
 		Entry(
@@ -117,47 +117,47 @@ var _ = Describe("Main block parser", func() {
 			"a child block depends on the other",
 			`
 				c1 testblock {
-					value = c2.value + 1
+					field_int = c2.field_int + 1
 				}
 				c2 testblock {
-					value = 1
+					field_int = 1
 				}
 			`,
 			&test.Block{
 				IDField: "main",
 				Blocks: []*test.Block{
-					{IDField: "c2", Value: int64(1)},
-					{IDField: "c1", Value: int64(2)},
+					{IDField: "c2", FieldInt: int64(1)},
+					{IDField: "c1", FieldInt: int64(2)},
 				},
 			},
 		),
 		Entry(
 			"a parameter depends on a child block",
 			`
-				value = c.value + 1
+				field_int = c.field_int + 1
 				c testblock {
-					value = 1
+					field_int = 1
 				}
 			`,
 			&test.Block{
-				IDField: "main",
-				Value:   int64(2),
+				IDField:  "main",
+				FieldInt: int64(2),
 				Blocks: []*test.Block{
-					{IDField: "c", Value: int64(1)},
+					{IDField: "c", FieldInt: int64(1)},
 				},
 			},
 		),
 		Entry(
 			"a parameter depends on a child block's custom parameter",
 			`
-				value = c.user_param + 1
+				field_int = c.user_param + 1
 				c testblock {
 					user_param := 1
 				}
 			`,
 			&test.Block{
-				IDField: "main",
-				Value:   int64(2),
+				IDField:  "main",
+				FieldInt: int64(2),
 				Blocks: []*test.Block{
 					{IDField: "c"},
 				},
@@ -167,15 +167,15 @@ var _ = Describe("Main block parser", func() {
 			"a child block depends on a parameter",
 			`
 				c testblock {
-					value = main.value + 1
+					field_int = main.field_int + 1
 				}
-				value = 1
+				field_int = 1
 			`,
 			&test.Block{
-				IDField: "main",
-				Value:   int64(1),
+				IDField:  "main",
+				FieldInt: int64(1),
 				Blocks: []*test.Block{
-					{IDField: "c", Value: int64(2)},
+					{IDField: "c", FieldInt: int64(2)},
 				},
 			},
 		),
@@ -184,21 +184,21 @@ var _ = Describe("Main block parser", func() {
 			`
 				c1 testblock {
 					c2 testblock {
-						value = 1
+						field_int = 1
 					}
 				}
-				value = c2.value + 1
+				field_int = c2.field_int + 1
 			`,
 			&test.Block{
-				IDField: "main",
-				Value:   int64(2),
+				IDField:  "main",
+				FieldInt: int64(2),
 				Blocks: []*test.Block{
 					{
 						IDField: "c1",
 						Blocks: []*test.Block{
 							{
-								IDField: "c2",
-								Value:   int64(1),
+								IDField:  "c2",
+								FieldInt: int64(1),
 							},
 						},
 					},
@@ -210,12 +210,12 @@ var _ = Describe("Main block parser", func() {
 			`
 				c1 testblock {
 					c2 testblock {
-						value = c4.value + 1
+						field_int = c4.field_int + 1
 					}
 				}
 				c3 testblock {
 					c4 testblock {
-						value = 1
+						field_int = 1
 					}
 				}
 			`,
@@ -226,8 +226,8 @@ var _ = Describe("Main block parser", func() {
 						IDField: "c3",
 						Blocks: []*test.Block{
 							{
-								IDField: "c4",
-								Value:   int64(1),
+								IDField:  "c4",
+								FieldInt: int64(1),
 							},
 						},
 					},
@@ -235,8 +235,8 @@ var _ = Describe("Main block parser", func() {
 						IDField: "c1",
 						Blocks: []*test.Block{
 							{
-								IDField: "c2",
-								Value:   int64(2),
+								IDField:  "c2",
+								FieldInt: int64(2),
 							},
 						},
 					},
@@ -246,22 +246,22 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"dependencies are resolved recursively",
 			`
-				value = c1.value + c2.value
+				field_int = c1.field_int + c2.field_int
 				c1 testblock {
-					value = c1.field_int + 1
-					field_int = 1
+					field_int = c1.custom_value + 1
+					custom_value := 1
 				}
 				c2 testblock {
-					value = c2.field_int + 2
-					field_int = 2
+					field_int = c2.custom_value + 2
+					custom_value := 2
 				}
 			`,
 			&test.Block{
-				IDField: "main",
-				Value:   int64(6),
+				IDField:  "main",
+				FieldInt: int64(6),
 				Blocks: []*test.Block{
-					{IDField: "c1", Value: int64(2), FieldInt: int64(1)},
-					{IDField: "c2", Value: int64(4), FieldInt: int64(2)},
+					{IDField: "c1", FieldInt: int64(2)},
+					{IDField: "c2", FieldInt: int64(4)},
 				},
 			},
 		),

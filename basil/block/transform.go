@@ -8,8 +8,9 @@ package block
 
 import (
 	"context"
-	"errors"
 	"fmt"
+
+	"github.com/opsidian/basil/basil/schema"
 
 	"github.com/opsidian/basil/basil/job"
 
@@ -53,10 +54,6 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 		}
 	case *basil.IDNode:
 		typeNode = n
-		if interpreter.HasForeignID() {
-			return nil, parsley.NewError(typeNode.ReaderPos(), errors.New("identifier must be set"))
-		}
-
 		id := parseCtx.GenerateID()
 		idNode = basil.NewIDNode(id, typeNode.ReaderPos(), typeNode.ReaderPos())
 	default:
@@ -115,10 +112,8 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 		dependencies,
 	)
 
-	if !interpreter.HasForeignID() {
-		if err := parseCtx.AddBlockNode(res); err != nil {
-			return nil, parsley.NewError(idNode.Pos(), err)
-		}
+	if err := parseCtx.AddBlockNode(res); err != nil {
+		return nil, parsley.NewError(idNode.Pos(), err)
 	}
 
 	return res, nil
@@ -137,13 +132,13 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 		return nil, err
 	}
 
-	moduleParams, err := getModuleParams(children, interpreter)
+	moduleSchema, err := getModuleSchema(children, interpreter)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(moduleParams) > 0 {
-		interpreter = newMainInterpreter(interpreter, moduleParams)
+	if moduleSchema != interpreter.Schema() {
+		interpreter = &mainInterpreter{BlockInterpreter: interpreter, schema: moduleSchema}
 	}
 
 	if len(dependencies) > 0 {
@@ -187,9 +182,6 @@ func TransformChildren(
 	basilNodes := make([]basil.Node, 0, len(nodes))
 	paramNames := make(map[basil.ID]struct{}, len(nodes))
 
-	blocks := interpreter.Blocks()
-	parameters := interpreter.Params()
-
 	for _, node := range nodes {
 		if node.Token() == TokenBlock {
 			res, err := node.(parsley.Transformable).Transform(parseCtx)
@@ -197,8 +189,14 @@ func TransformChildren(
 				return nil, nil, err
 			}
 			blockNode := res.(basil.BlockNode)
-			blockNode.SetDescriptor(blocks[blockNode.BlockType()])
-			basilNodes = append(basilNodes, blockNode)
+
+			if blockSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(blockNode.ID())]; ok {
+				blockNode.SetSchema(blockSchema)
+			} else if blockSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(blockNode.BlockType())]; ok {
+				blockNode.SetSchema(blockSchema)
+			}
+
+			basilNodes = append(basilNodes, res.(basil.BlockNode))
 
 			if blockNode.EvalStage() == basil.EvalStageParse {
 				if err := evaluateBlock(parseCtx, blockNode); err != nil {
@@ -210,9 +208,11 @@ func TransformChildren(
 			if err != nil {
 				return nil, nil, err
 			}
-			if descriptor, ok := parameters[paramNode.Name()]; ok {
-				paramNode.SetDescriptor(descriptor)
+
+			if paramSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(paramNode.Name())]; ok {
+				paramNode.SetSchema(paramSchema)
 			}
+
 			basilNodes = append(basilNodes, paramNode)
 		} else {
 			panic(fmt.Errorf("invalid block child node: %T", node))
@@ -222,8 +222,8 @@ func TransformChildren(
 	return dependency.NewResolver(blockID, basilNodes...).Resolve()
 }
 
-func getModuleParams(children []basil.Node, interpreter basil.BlockInterpreter) (map[basil.ID]basil.ParameterDescriptor, parsley.Error) {
-	moduleParams := map[basil.ID]basil.ParameterDescriptor{}
+func getModuleSchema(children []basil.Node, interpreter basil.BlockInterpreter) (schema.Schema, parsley.Error) {
+	var s schema.Schema
 
 	for _, c := range children {
 		if paramNode, ok := c.(basil.ParameterNode); ok {
@@ -233,42 +233,67 @@ func getModuleParams(children []basil.Node, interpreter basil.BlockInterpreter) 
 			}
 
 			if util.BoolValue(config.Input) || util.BoolValue(config.Output) {
-				if _, exists := interpreter.Params()[paramNode.Name()]; exists {
+				if _, exists := interpreter.Schema().(schema.ObjectKind).GetProperties()[string(paramNode.Name())]; exists {
 					return nil, parsley.NewErrorf(c.Pos(), "%q parameter already exists.", paramNode.Name())
 				}
+			} else {
+				continue
+			}
+
+			if s == nil {
+				s = interpreter.Schema().Copy()
+			}
+			o := s.(*schema.Object)
+			if o.Properties == nil {
+				o.Properties = map[string]schema.Schema{}
 			}
 
 			switch {
 			case util.BoolValue(config.Input):
-				moduleParams[paramNode.Name()] = basil.ParameterDescriptor{
-					Type:          util.StringValue(config.Type),
-					EvalStage:     basil.EvalStageInit,
-					IsRequired:    util.BoolValue(config.Required),
-					IsUserDefined: true,
+				if util.BoolValue(config.Required) {
+					o.Required = append(o.Required, string(paramNode.Name()))
 				}
+
+				if config.Schema == nil {
+					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
+				}
+
+				config.Schema.(schema.MetadataAccessor).SetAnnotation("eval_stage", basil.EvalStageInit.String())
+				config.Schema.(schema.MetadataAccessor).SetAnnotation("user_defined", "true")
+
+				o.Properties[string(paramNode.Name())] = config.Schema
+				paramNode.SetSchema(config.Schema)
 			case util.BoolValue(config.Output):
-				moduleParams[paramNode.Name()] = basil.ParameterDescriptor{
-					Type:          util.StringValue(config.Type),
-					EvalStage:     basil.EvalStageInit,
-					IsUserDefined: true,
-					IsOutput:      true,
+				if config.Schema == nil {
+					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
 				}
+
+				config.Schema.(schema.MetadataAccessor).SetAnnotation("eval_stage", basil.EvalStageInit.String())
+				config.Schema.(schema.MetadataAccessor).SetAnnotation("user_defined", "true")
+				config.Schema.(schema.MetadataAccessor).SetReadOnly(true)
+
+				o.Properties[string(paramNode.Name())] = config.Schema
+				paramNode.SetSchema(config.Schema)
 			}
 		}
 	}
 
-	return moduleParams, nil
+	if s == nil {
+		return interpreter.Schema(), nil
+	}
+
+	return s, nil
 }
 
 func getParameterConfig(param basil.ParameterNode) (*basil.ParameterConfig, parsley.Error) {
 	config := &basil.ParameterConfig{}
 
-	evalCtx := basil.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
-
 	for _, d := range param.Directives() {
 		if d.EvalStage() != basil.EvalStageParse {
 			continue
 		}
+
+		evalCtx := basil.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
 
 		block, err := d.Value(evalCtx)
 		if err != nil {
@@ -277,7 +302,7 @@ func getParameterConfig(param basil.ParameterNode) (*basil.ParameterConfig, pars
 
 		opt, ok := block.(basil.ParameterConfigOption)
 		if !ok {
-			return nil, parsley.NewError(d.Pos(), fmt.Errorf("%q directive can not be defined on a parameter", d.Type()))
+			return nil, parsley.NewError(d.Pos(), fmt.Errorf("%q directive can not be defined on a parameter", d.BlockType()))
 		}
 
 		opt.ApplyToParameterConfig(config)
@@ -289,7 +314,7 @@ func getParameterConfig(param basil.ParameterNode) (*basil.ParameterConfig, pars
 func evaluateBlock(parseCtx *basil.ParseContext, node basil.BlockNode) parsley.Error {
 	evalCtx := basil.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
 
-	block, err := node.Value(evalCtx)
+	block, err := parsley.EvaluateNode(evalCtx, node)
 	if err != nil {
 		return err
 	}

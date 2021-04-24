@@ -62,10 +62,10 @@ var _ = Describe("Container", func() {
 	})
 
 	Context("when a node has no children", func() {
-		var fakeBlock *basilfakes.FakeBlock
+		var fakeBlock *basilfakes.FakeIdentifiable
 
 		BeforeEach(func() {
-			fakeBlock = &basilfakes.FakeBlock{}
+			fakeBlock = &basilfakes.FakeIdentifiable{}
 			fakeBlock.IDReturns("test_id")
 			b = fakeBlock
 		})
@@ -85,7 +85,6 @@ var _ = Describe("Container", func() {
 		When("it has no error", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithInit{}
-				fakeBlock.IDReturns("test_id")
 				fakeBlock.InitReturns(false, nil)
 				b = fakeBlock
 			})
@@ -106,7 +105,6 @@ var _ = Describe("Container", func() {
 		When("the block should be skipped", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithInit{}
-				fakeBlock.IDReturns("test_id")
 				fakeBlock.InitReturns(true, nil)
 				b = fakeBlock
 			})
@@ -123,7 +121,6 @@ var _ = Describe("Container", func() {
 		When("it has an error", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithInit{}
-				fakeBlock.IDReturns("test_id")
 				fakeBlock.InitReturns(false, errors.New("init error"))
 				b = fakeBlock
 			})
@@ -141,7 +138,6 @@ var _ = Describe("Container", func() {
 		When("it has no error", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithMain{}
-				fakeBlock.IDReturns("test_id")
 				fakeBlock.MainReturns(nil)
 				b = fakeBlock
 			})
@@ -162,7 +158,6 @@ var _ = Describe("Container", func() {
 		When("it has an error", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithMain{}
-				fakeBlock.IDReturns("test_id")
 				fakeBlock.MainReturns(errors.New("main error"))
 				b = fakeBlock
 			})
@@ -179,7 +174,6 @@ var _ = Describe("Container", func() {
 		When("it has no error", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithClose{}
-				fakeBlock.IDReturns("test_id")
 				fakeBlock.CloseReturns(nil)
 				b = fakeBlock
 			})
@@ -200,7 +194,6 @@ var _ = Describe("Container", func() {
 		When("it has an error", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithClose{}
-				fakeBlock.IDReturns("test_id")
 				fakeBlock.CloseReturns(errors.New("close error"))
 				b = fakeBlock
 			})

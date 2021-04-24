@@ -1,10 +1,7 @@
-@input{
-    type = "string"
-    required = true
-}
+@input
+@string
 name := "You"
 
 println {
   value = "Hello " + main.name + "!"
 }
-

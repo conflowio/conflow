@@ -9,7 +9,7 @@ package parsers_test
 import (
 	"errors"
 
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -23,10 +23,10 @@ import (
 var _ = Describe("Or", func() {
 
 	q := combinator.Choice(
-		terminal.Bool("true", "false"),
-		terminal.Integer(),
-		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser("ERR", variable.TypeUnknown),
+		terminal.Bool(schema.BooleanValue(), "true", "false"),
+		terminal.Integer(schema.IntegerValue()),
+		terminal.Nil(schema.NullValue(), "NULL"),
+		test.EvalErrorParser(schema.BooleanValue(), "ERR"),
 	).Name("value")
 
 	p := parsers.Or(q)
@@ -36,7 +36,7 @@ var _ = Describe("Or", func() {
 			test.ExpectParserToEvaluate(p)(input, expected)
 		},
 		test.TableEntry("1", int64(1)),
-		test.TableEntry("nil", nil),
+		test.TableEntry("NULL", nil),
 		test.TableEntry("false", false),
 		test.TableEntry("true", true),
 		test.TableEntry("false || false", false),
@@ -51,13 +51,13 @@ var _ = Describe("Or", func() {
 		test.TableEntry("true ||", errors.New("was expecting value at testfile:1:8")),
 	)
 
-	DescribeTable("it returns a parse error",
+	DescribeTable("it returns a static check error",
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
 		},
-		test.TableEntry("1 || 2", errors.New("was expecting boolean at testfile:1:1")),
-		test.TableEntry("nil || 1", errors.New("was expecting boolean at testfile:1:8")),
-		test.TableEntry("true || 1", errors.New("was expecting boolean at testfile:1:9")),
+		test.TableEntry("1 || 2", errors.New("must be boolean at testfile:1:1")),
+		test.TableEntry("NULL || 1", errors.New("must be boolean at testfile:1:1")),
+		test.TableEntry("true || 1", errors.New("must be boolean at testfile:1:9")),
 	)
 
 	DescribeTable("it returns an eval error",
@@ -70,7 +70,7 @@ var _ = Describe("Or", func() {
 
 	Context("When there is only one node", func() {
 		It("should return the node", func() {
-			expectedNode := terminal.NewIntegerNode(int64(1), parsley.Pos(1), parsley.Pos(2))
+			expectedNode := terminal.NewIntegerNode(schema.IntegerValue(), int64(1), parsley.Pos(1), parsley.Pos(2))
 			test.ExpectParserToReturn(p, "1", expectedNode)
 		})
 	})

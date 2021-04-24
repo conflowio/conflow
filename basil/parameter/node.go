@@ -9,6 +9,8 @@ package parameter
 import (
 	"fmt"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
 )
@@ -28,6 +30,7 @@ type Node struct {
 	isDeclaration bool
 	dependencies  basil.Dependencies
 	directives    []basil.BlockNode
+	schema        schema.Schema
 }
 
 // NewNode creates a new block parameter node
@@ -67,9 +70,13 @@ func (n *Node) Token() string {
 	return "BLOCK_PARAM"
 }
 
-// Type returns with the value node's type
-func (n *Node) Type() string {
-	return n.valueNode.Type()
+// Schema returns the schema for the node's value
+func (n *Node) Schema() interface{} {
+	if n.schema != nil {
+		return n.schema
+	}
+
+	return n.valueNode.Schema()
 }
 
 // EvalStage returns with the evaluation stage
@@ -118,25 +125,29 @@ func (n *Node) IsDeclaration() bool {
 	return n.isDeclaration
 }
 
-// SetDescriptor applies the descriptor parameters to the node
-func (n *Node) SetDescriptor(descriptor basil.ParameterDescriptor) {
-	if descriptor.EvalStage != basil.EvalStageUndefined {
-		n.evalStage = descriptor.EvalStage
-	}
-}
-
-// Generated returns true if the parameter's value contains a generator function
-func (n *Node) Generated() bool {
-	// TODO: implement generator functions
-	return false
+// SetSchema sets the schema for the parameter node
+func (n *Node) SetSchema(s schema.Schema) {
+	n.schema = s
 }
 
 // StaticCheck runs a static analysis on the value node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
-	switch n := n.valueNode.(type) {
+	switch vn := n.valueNode.(type) {
 	case parsley.StaticCheckable:
-		if err := n.StaticCheck(ctx); err != nil {
+		if err := vn.StaticCheck(ctx); err != nil {
 			return err
+		}
+	case parsley.LiteralNode:
+		if n.schema != nil && vn.Value() != nil {
+			if err := n.schema.ValidateValue(vn.Value()); err != nil {
+				return parsley.NewError(n.valueNode.Pos(), err)
+			}
+		}
+	}
+
+	if n.schema != nil && n.valueNode.Schema().(schema.Schema).Type() != schema.TypeNull {
+		if err := n.schema.ValidateSchema(n.valueNode.Schema().(schema.Schema), false); err != nil {
+			return parsley.NewError(n.valueNode.Pos(), err)
 		}
 	}
 
@@ -145,7 +156,18 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value returns with the value of the node
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
-	return n.valueNode.Value(ctx)
+	value, err := parsley.EvaluateNode(ctx, n.valueNode)
+	if err != nil {
+		return nil, err
+	}
+
+	if value != nil && n.schema != nil {
+		if err := n.schema.ValidateValue(value); err != nil {
+			return nil, parsley.NewError(n.valueNode.Pos(), err)
+		}
+	}
+
+	return value, nil
 }
 
 // Pos returns the position

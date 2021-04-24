@@ -16,10 +16,12 @@ import (
 
 var _ basil.BlockDirective = &Directive{}
 
-//go:generate basil generate
+// @block
 type Directive struct {
-	IDField           basil.ID    `basil:"id"`
-	Value             interface{} `basil:"value"`
+	// @id
+	IDField basil.ID
+	// @value
+	Value             interface{}
 	FieldString       string
 	FieldInt          int64
 	FieldFloat        float64
@@ -27,9 +29,11 @@ type Directive struct {
 	FieldArray        []interface{}
 	FieldMap          map[string]interface{}
 	FieldTimeDuration time.Duration
-	FieldCustomName   string `basil:"name=custom_field"`
+	// @name "custom_field"
+	FieldCustomName string
 
-	Blocks []*Block `basil:"block,name=testblock"`
+	// @name "testblock"
+	Blocks []*Block
 }
 
 func (d *Directive) ID() basil.ID {

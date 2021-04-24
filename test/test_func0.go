@@ -6,7 +6,7 @@
 
 package test
 
-//go:generate basil generate
+// @function
 func testFunc0() string {
 	return "Hello"
 }

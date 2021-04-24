@@ -11,7 +11,7 @@ import (
 )
 
 // HasPrefix tests whether the string s begins with prefix.
-//go:generate basil generate
+// @function
 func HasPrefix(s string, prefix string) bool {
 	return strings.HasPrefix(s, prefix)
 }

@@ -12,7 +12,7 @@ import (
 
 // TrimPrefix returns s without the provided leading prefix string.
 // If s doesn't start with prefix, s is returned unchanged.
-//go:generate basil generate
+// @function
 func TrimPrefix(s string, prefix string) string {
 	return strings.TrimPrefix(s, prefix)
 }

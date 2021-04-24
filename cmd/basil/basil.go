@@ -11,14 +11,14 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
+	"path"
 
 	"github.com/opsidian/basil/basil/generator"
 )
 
 var usage = `
 USAGE
-    basil generate <struct name>
+    basil generate <path>
 `
 
 func main() {
@@ -42,12 +42,16 @@ func main() {
 }
 
 func generate(dir string, args []string) {
-	packageName := os.Getenv("GOPACKAGE")
-	filename := os.Getenv("GOFILE")
-	line, _ := strconv.Atoi(os.Getenv("GOLINE"))
-	err := generator.Generate(dir, packageName, filename, line)
+	if len(args) > 0 {
+		if path.IsAbs(args[0]) {
+			dir = args[0]
+		} else {
+			dir = path.Join(dir, args[0])
+		}
+	}
+	err := generator.Generate(dir)
 	if err != nil {
-		log.Fatalf(fmt.Sprintf("failed to run generate on %s: %s", filename, err.Error()))
+		log.Fatalf(fmt.Sprintf("Error: %s", err.Error()))
 	}
 }
 

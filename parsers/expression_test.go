@@ -10,6 +10,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	"github.com/opsidian/basil/parsers"
@@ -34,19 +36,16 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`"}}"`, "}}"),
 		test.TableEntry("true", true),
 		test.TableEntry("false", false),
-		test.TableEntry("nil", nil),
+		test.TableEntry("null", nil),
 		test.TableEntry("[1, 2]", []interface{}{int64(1), int64(2)}),
 		test.TableEntry("[1, 2][1]", int64(2)),
-		test.TableEntry(`[1, "foo"]`, []interface{}{int64(1), "foo"}),
-		test.TableEntry(`[1, test.field_string]`, []interface{}{int64(1), "bar"}),
+		test.TableEntry(`["foo", test.field_string]`, []interface{}{"foo", "bar"}),
 		test.TableEntry("[]", []interface{}{}),
-		test.TableEntry("[nil]", []interface{}{nil}),
+		test.TableEntry("[null]", []interface{}{nil}),
 		test.TableEntry("test.field_string", "bar"),
 		test.TableEntry(`test.field_map["key1"]`, "value1"),
-		test.TableEntry(`test.field_map["key2"]["key3"]`, "value3"),
 		test.TableEntry(`test.field_array[0]`, "value1"),
 		test.TableEntry(`test.field_array[test.field_int]`, "value2"),
-		test.TableEntry(`test.field_array[2][0]`, "value2"),
 		test.TableEntry(`1h30m`, time.Hour+30*time.Minute),
 
 		// Function
@@ -59,9 +58,9 @@ var _ = Describe("Expression", func() {
 
 		// Prod
 		test.TableEntry("2 * 3", int64(2*3)),
-		test.TableEntry("4 / 3", int64(4/3)),
-		test.TableEntry("2 * 3 / 4", int64(2*3/4)),
-		test.TableEntry("2 / 3 * 4", int64(2/3*4)),
+		test.TableEntry("4 / 3", 4.0/3.0),
+		test.TableEntry("2 * 3 / 4", 2*3/4.0),
+		test.TableEntry("2 / 3 * 4", 2/3.0*4),
 		test.TableEntry("2 * -3", int64(2*-3)),
 
 		// Modulo
@@ -87,7 +86,7 @@ var _ = Describe("Expression", func() {
 		test.TableEntry("1 < 2", 1 < 2),
 		test.TableEntry("2 <= 3", 2 <= 3),
 		test.TableEntry("1 == 1.0", true),
-		test.TableEntry("1 == 0.9999999", false),
+		test.TableEntry("1 == 0.99999999", false),
 		test.TableEntry("1 == 0.999999999", true),
 		test.TableEntry("1 == 1 == true", 1 == 1 == true),
 		test.TableEntry("1 == 1 != false", 1 == 1 != false),
@@ -107,8 +106,8 @@ var _ = Describe("Expression", func() {
 		test.TableEntry("false ? 1 : 2", int64(2)),
 
 		// Mixed
-		test.TableEntry("1 + 2 * 3 % 4 - 5 / 6", int64(1+2*3%4-5/6)),
-		test.TableEntry("1 + 2 * 3 / 4 + 5 - 6 + 7 * 8 + 9 / 10", int64(1+2*3/4+5-6+7*8+9/10)),
+		test.TableEntry("1 + 2 * 3 % 4 - 5 / 6", 1+2*3%4-5/6.0),
+		test.TableEntry("1 + 2 * 3 / 4 + 5 - 6 + 7 * 8 + 9 / 10", 1+2*3/4.0+5-6+7*8+9/10.0),
 		test.TableEntry("true && false || true", true && false || true),
 		test.TableEntry("1 == 1 && 3 > 2", 1 == 1 && 3 > 2),
 		test.TableEntry("!true && false || false", !true && false || false),
@@ -116,7 +115,7 @@ var _ = Describe("Expression", func() {
 
 		// Using parentheses
 		test.TableEntry("(1 + 2) * 3", int64((1+2)*3)),
-		test.TableEntry("(1 + 2) * 3 / ((4 + 5) -(6 + 7)) * (8 + 9) / 10", int64((1+2)*3/((4+5)-(6+7))*(8+9)/10)),
+		test.TableEntry("(1 + 2) * 3 / ((4 + 5) -(6 + 7)) * (8 + 9) / 10", (1+2)*3/float64((4+5)-(6+7))*(8+9)/10.0),
 	)
 
 	DescribeTable("it returns a parse error",
@@ -179,10 +178,10 @@ var _ = Describe("Expression", func() {
 			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
 		},
 		// And
-		test.TableEntry(`true && "a"`, errors.New("was expecting boolean at testfile:1:9")),
+		test.TableEntry(`true && "a"`, errors.New("must be boolean at testfile:1:9")),
 
 		// Or
-		test.TableEntry(`true || "a"`, errors.New("was expecting boolean at testfile:1:9")),
+		test.TableEntry(`true || "a"`, errors.New("must be boolean at testfile:1:9")),
 
 		// Variable
 		test.TableEntry(`non.existing`, errors.New("block \"non\" does not exist at testfile:1:1")),
@@ -192,43 +191,46 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`non_existing()`, errors.New("\"non_existing\" function does not exist at testfile:1:1")),
 
 		// Compare
-		test.TableEntry(`1 == "a"`, errors.New("unsupported == operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 != "a"`, errors.New("unsupported != operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 > "a"`, errors.New("unsupported > operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 >= "a"`, errors.New("unsupported >= operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 < "a"`, errors.New("unsupported < operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 <= "a"`, errors.New("unsupported <= operation on int64 and string at testfile:1:3")),
+		test.TableEntry(`1 == "a"`, errors.New("unsupported == operation on integer and string at testfile:1:3")),
+		test.TableEntry(`1 != "a"`, errors.New("unsupported != operation on integer and string at testfile:1:3")),
+		test.TableEntry(`1 > "a"`, errors.New("unsupported > operation on integer and string at testfile:1:3")),
+		test.TableEntry(`1 >= "a"`, errors.New("unsupported >= operation on integer and string at testfile:1:3")),
+		test.TableEntry(`1 < "a"`, errors.New("unsupported < operation on integer and string at testfile:1:3")),
+		test.TableEntry(`1 <= "a"`, errors.New("unsupported <= operation on integer and string at testfile:1:3")),
+
+		// Not
+		test.TableEntry(`!5`, errors.New("unsupported ! operation on integer at testfile:1:1")),
+
+		// ProdMod
+		test.TableEntry(`5 * "a"`, errors.New("unsupported * operation on integer and string at testfile:1:3")),
+		test.TableEntry(`5 / "a"`, errors.New("unsupported / operation on integer and string at testfile:1:3")),
+		test.TableEntry(`5 % "a"`, errors.New("unsupported % operation on integer and string at testfile:1:3")),
+
+		// Sum
+		test.TableEntry(`1 + "a"`, errors.New("unsupported + operation on integer and string at testfile:1:3")),
+		test.TableEntry(`1 - "a"`, errors.New("unsupported - operation on integer and string at testfile:1:3")),
+
+		// Ternary
+		test.TableEntry("1 ? 2 : 3", errors.New("must be boolean at testfile:1:1")),
+
+		// Variable
+		test.TableEntry(`test.field_array["key"]`, errors.New("must be integer at testfile:1:18")),
+		test.TableEntry(`test.field_map[1]`, errors.New("must be string at testfile:1:16")),
 	)
 
 	DescribeTable("it returns an eval error",
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveEvalError(p)(input, expectedErr)
 		},
-		// Not
-		test.TableEntry(`!5`, errors.New("unsupported ! operation on int64 at testfile:1:1")),
-
-		// ProdMod
-		test.TableEntry(`5 * "a"`, errors.New("unsupported * operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`5 / "a"`, errors.New("unsupported / operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`5 % "a"`, errors.New("unsupported % operation on int64 and string at testfile:1:3")),
-
-		// Sum
-		test.TableEntry(`1 + "a"`, errors.New("unsupported + operation on int64 and string at testfile:1:3")),
-		test.TableEntry(`1 - "a"`, errors.New("unsupported - operation on int64 and string at testfile:1:3")),
-
-		// Ternary
-		test.TableEntry("1 ? 2 : 3", errors.New("expecting bool, got int64 at testfile:1:1")),
 
 		// Variable
-		test.TableEntry(`test.field_array[3]`, errors.New("array index out of bounds: 3 (0..2) at testfile:1:18")),
-		test.TableEntry(`test.field_array["key"]`, errors.New("non-integer index on array at testfile:1:18")),
+		test.TableEntry(`test.field_array[3]`, errors.New("array index out of bounds: 3 (0..1) at testfile:1:18")),
 		test.TableEntry(`test.field_map["nooo"]`, errors.New("key \"nooo\" does not exist on map at testfile:1:16")),
-		test.TableEntry(`test.field_map[1]`, errors.New("invalid non-string index on map at testfile:1:16")),
 	)
 
 	Context("When there is only one node", func() {
 		It("should return the node", func() {
-			expectedNode := terminal.NewIntegerNode(int64(1), parsley.Pos(1), parsley.Pos(2))
+			expectedNode := terminal.NewIntegerNode(schema.IntegerValue(), int64(1), parsley.Pos(1), parsley.Pos(2))
 			test.ExpectParserToReturn(p, "1", expectedNode)
 		})
 	})

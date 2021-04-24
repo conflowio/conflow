@@ -8,11 +8,14 @@ package fixtures
 
 import "github.com/opsidian/basil/basil"
 
-//go:generate basil generate
+// @block
 type BlockGenerator struct {
-	id     basil.ID              `basil:"id"`
-	items  []interface{}         `basil:"required"`
-	result *BlockGeneratorResult `basil:"generated"`
+	// @id
+	id basil.ID
+	// @required
+	items []interface{}
+	// @generated
+	result *BlockGeneratorResult
 }
 
 func (b *BlockGenerator) ID() basil.ID {
@@ -32,9 +35,10 @@ func (b *BlockGenerator) Main(blockCtx basil.BlockContext) error {
 	return nil
 }
 
-//go:generate basil generate
+// @block
 type BlockGeneratorResult struct {
-	id    basil.ID `basil:"id"`
+	// @id
+	id    basil.ID
 	value interface{}
 }
 

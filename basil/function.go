@@ -7,6 +7,7 @@
 package basil
 
 import (
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -30,6 +31,6 @@ type FunctionTransformerRegistryAware interface {
 // FunctionInterpreter defines an interpreter for functions
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . FunctionInterpreter
 type FunctionInterpreter interface {
-	StaticCheck(ctx interface{}, node FunctionNode) (string, parsley.Error)
+	Schema() schema.Schema
 	Eval(ctx interface{}, node FunctionNode) (interface{}, parsley.Error)
 }

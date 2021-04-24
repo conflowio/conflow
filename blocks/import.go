@@ -16,10 +16,15 @@ import (
 	"github.com/opsidian/basil/parsers"
 )
 
-//go:generate basil generate
+// @block {
+//   eval_stage = "parse"
+// }
 type Import struct {
-	id   basil.ID `basil:"id"`
-	path string   `basil:"value,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	path string
 }
 
 func (i *Import) ID() basil.ID {

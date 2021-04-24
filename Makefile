@@ -9,15 +9,19 @@ test: ## Runs all tests
 	@./test.sh
 
 .PHONY: generate
-generate: bin/basil ## Regenerates all files
-	PATH="$(PWD)/bin:$(PATH)" go generate ./...
+generate: build ## Regenerates all files
+	@PATH="$(PWD)/bin:$(PATH)" basil generate
 
 .PHONY: build
-build: bin/basil
+build: bin/basil ## Build the basil binary
 
 bin/basil:
-	GOBIN="$(PWD)/bin" go install -ldflags="-s -w" ./cmd/basil/
+	@GOBIN="$(PWD)/bin" go install -ldflags="-s -w" ./cmd/basil/
 
 .PHONY: clean
-clean:
-	rm -rf bin
+clean: ## Clean all built files
+	@rm -rf bin
+
+.PHONY: clean-generated
+clean-generated: ## Delete all generated files created by basil
+	@find . -name "*.basil.go" -type f -delete

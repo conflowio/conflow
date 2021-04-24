@@ -9,6 +9,8 @@ package basil
 import (
 	"fmt"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -42,14 +44,14 @@ func (i *IDNode) Token() string {
 	return "ID"
 }
 
-// Type returns with the type of the node
-func (i *IDNode) Type() string {
-	return "basil.ID"
+// Schema returns the schema for the node's value
+func (i *IDNode) Schema() interface{} {
+	return schema.StringValue()
 }
 
 // Value returns with the id of the node
-func (i *IDNode) Value(ctx interface{}) (interface{}, parsley.Error) {
-	return i.id, nil
+func (i *IDNode) Value() interface{} {
+	return i.id
 }
 
 // Pos returns the position

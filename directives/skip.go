@@ -11,10 +11,15 @@ import (
 	"github.com/opsidian/basil/util"
 )
 
-//go:generate basil generate
+// @block {
+//   eval_stage = "init"
+// }
 type Skip struct {
-	id   basil.ID `basil:"id"`
-	when bool     `basil:"value,default=true"`
+	// @id
+	id basil.ID
+	// @value
+	// @default true
+	when bool
 }
 
 func (s *Skip) ID() basil.ID {
@@ -23,8 +28,4 @@ func (s *Skip) ID() basil.ID {
 
 func (s *Skip) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
 	config.Skip = util.BoolPtr(s.when)
-}
-
-func (s *Skip) EvalStage() basil.EvalStage {
-	return basil.EvalStageInit
 }

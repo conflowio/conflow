@@ -9,7 +9,8 @@ package parsers
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
@@ -19,7 +20,7 @@ import (
 // Array will match an array expression defined by the following rule, where P is the input parser:
 //   S -> "[" "]"
 //   S -> "[" P ("," P)* "]"
-func Array(p parsley.Parser) parsley.Parser {
+func Array(p parsley.Parser) *combinator.Sequence {
 	return combinator.SeqOf(
 		terminal.Rune('['),
 		text.LeftTrim(SepByComma(p), text.WsSpacesNl),
@@ -50,7 +51,6 @@ func (a arrayInterpreter) TransformNode(userCtx interface{}, node parsley.Node) 
 		items:     items,
 		pos:       node.Pos(),
 		readerPos: node.ReaderPos(),
-		arrayType: variable.TypeArray,
 	}, nil
 }
 
@@ -58,7 +58,7 @@ type arrayNode struct {
 	items     []parsley.Node
 	pos       parsley.Pos
 	readerPos parsley.Pos
-	arrayType string
+	schema    schema.Schema
 }
 
 // Token returns with the node's token
@@ -66,29 +66,27 @@ func (a *arrayNode) Token() string {
 	return "ARRAY"
 }
 
-// Type returns with the node's type
-func (a *arrayNode) Type() string {
-	return a.arrayType
+// Schema returns the schema for the node's value
+func (a *arrayNode) Schema() interface{} {
+	return a.schema
 }
 
 // StaticCheck runs static analysis on the node
 func (a *arrayNode) StaticCheck(ctx interface{}) parsley.Error {
 	if len(a.items) == 0 {
+		a.schema = schema.NullValue()
 		return nil
 	}
 
-	arrayType := a.items[0].Type()
-	if arrayType != variable.TypeString {
-		return nil
+	s, err := schema.GetSchemaForValues(len(a.items), func(i int) (schema.Schema, error) {
+		return a.items[i].Schema().(schema.Schema), nil
+	})
+
+	if err != nil {
+		return parsley.NewError(a.Pos(), err)
 	}
 
-	for i := 1; i < len(a.items); i++ {
-		if a.items[i].Type() != arrayType {
-			return nil
-		}
-	}
-
-	a.arrayType = "[]" + arrayType
+	a.schema = &schema.Array{Items: s}
 
 	return nil
 }
@@ -101,7 +99,7 @@ func (a *arrayNode) Value(userCtx interface{}) (interface{}, parsley.Error) {
 
 	res := make([]interface{}, len(a.items))
 	for i, item := range a.items {
-		value, err := item.Value(userCtx)
+		value, err := parsley.EvaluateNode(userCtx, item)
 		if err != nil {
 			return nil, err
 		}
@@ -132,5 +130,5 @@ func (a *arrayNode) Children() []parsley.Node {
 
 // String returns with a string representation of the node
 func (a *arrayNode) String() string {
-	return fmt.Sprintf("%s{<%s> %s, %d..%d}", a.Token(), a.arrayType, a.items, a.pos, a.readerPos)
+	return fmt.Sprintf("%s{%s, %d..%d}", a.Token(), a.items, a.pos, a.readerPos)
 }

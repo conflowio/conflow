@@ -44,7 +44,7 @@ func Parameter(expr parsley.Parser, allowNewAssignment bool, allowDirectives boo
 
 	return combinator.SeqOf(
 		directives,
-		ID(basil.IDRegExpPattern),
+		ID(basil.IDRegExpPattern, false),
 		text.LeftTrim(assignment, text.WsSpaces),
 		text.LeftTrim(parameterValue, text.WsSpaces),
 	).Name("parameter").Token(parameter.Token)

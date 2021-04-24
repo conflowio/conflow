@@ -8,10 +8,12 @@ package fixtures
 
 import "github.com/opsidian/basil/basil"
 
-//go:generate basil generate
+// @block
 type BlockRequiredField struct {
-	IDField  basil.ID    `basil:"id"`
-	required interface{} `basil:"required"`
+	// @id
+	IDField basil.ID
+	// @required
+	required interface{}
 }
 
 func (b *BlockRequiredField) ID() basil.ID {

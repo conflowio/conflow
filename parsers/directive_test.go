@@ -58,10 +58,10 @@ var _ = Describe("Directive parser", func() {
 				field_int = 1
 				field_float = 1.2
 				field_bool = true
-				field_array = [1.2, "bar"]
+				field_array = ["foo", "bar"]
 				field_map = map{
-					"a": 1,
-					"b": 1.2,
+					"a": "b",
+					"c": "d",
 				}
 				field_time_duration = 1h30m
 			}`,
@@ -71,21 +71,21 @@ var _ = Describe("Directive parser", func() {
 				FieldInt:          int64(1),
 				FieldFloat:        1.2,
 				FieldBool:         true,
-				FieldArray:        []interface{}{1.2, "bar"},
-				FieldMap:          map[string]interface{}{"a": int64(1), "b": 1.2},
+				FieldArray:        []interface{}{"foo", "bar"},
+				FieldMap:          map[string]interface{}{"a": "b", "c": "d"},
 				FieldTimeDuration: 1*time.Hour + 30*time.Minute,
 			},
 		),
 		Entry(
-			"all parameter types as nil",
+			"all parameter types as null",
 			`@testdirective {
-				field_string = nil
-				field_int = nil
-				field_float = nil
-				field_bool = nil
-				field_array = nil
-				field_map = nil
-				field_time_duration = nil
+				field_string = null
+				field_int = null
+				field_float = null
+				field_bool = null
+				field_array = null
+				field_map = null
+				field_time_duration = null
 			}`,
 			&test.Directive{IDField: "0"},
 		),
@@ -146,6 +146,18 @@ var _ = Describe("Directive parser", func() {
 			`@testdirective {
 				testblock {
 				}
+			}`,
+			&test.Directive{
+				IDField: "0",
+				Blocks: []*test.Block{
+					{IDField: "1"},
+				},
+			},
+		),
+		Entry(
+			"child block with id and no body",
+			`@testdirective {
+				blocks testblock
 			}`,
 			&test.Directive{
 				IDField: "0",
@@ -266,7 +278,7 @@ var _ = Describe("Directive parser", func() {
 			`@testdirective {
 				field_string = 1
 			}`,
-			errors.New("was expecting string at testfile:2:20"),
+			errors.New("must be string at testfile:2:20"),
 		),
 		Entry(
 			"unknown parameter",

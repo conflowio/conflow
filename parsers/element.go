@@ -9,7 +9,8 @@ package parsers
 import (
 	"fmt"
 
-	"github.com/opsidian/parsley/ast"
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
@@ -38,18 +39,55 @@ func Element(p parsley.Parser, index parsley.Parser) *combinator.Sequence {
 	lenCheck := func(len int) bool {
 		return len > 0
 	}
-	return combinator.Seq("VAR", lookup, lenCheck).Bind(ast.InterpreterFunc(evalElement)).ReturnSingle()
+	return combinator.Seq("VAR", lookup, lenCheck).Bind(elementInterpreter{}).ReturnSingle()
 }
 
-func evalElement(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+type elementInterpreter struct{}
+
+func (a elementInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	s := node.Children()[0].Schema().(schema.Schema)
+	nodes := node.Children()[1:]
+	for {
+		if len(nodes) == 0 {
+			break
+		}
+
+		switch st := s.(type) {
+		case schema.ArrayKind:
+			if err := schema.IntegerValue().ValidateSchema(nodes[0].Schema().(schema.Schema), false); err != nil {
+				indexNode := nodes[0].(parsley.NonTerminalNode).Children()[1]
+				return nil, parsley.NewError(indexNode.Pos(), err)
+			}
+			s = st.GetItems()
+		case schema.MapKind:
+			if err := schema.StringValue().ValidateSchema(nodes[0].Schema().(schema.Schema), false); err != nil {
+				indexNode := nodes[0].(parsley.NonTerminalNode).Children()[1]
+				return nil, parsley.NewError(indexNode.Pos(), err)
+			}
+			s = st.GetAdditionalProperties()
+		default:
+			if len(nodes) > 0 {
+				indexNode := nodes[0].(parsley.NonTerminalNode).Children()[1]
+				return nil, parsley.NewErrorf(indexNode.Pos(), "can not get index on %s type", s.TypeString())
+			}
+
+		}
+
+		nodes = nodes[1:]
+	}
+
+	return s, nil
+}
+
+func (a elementInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
-	res, err := nodes[0].Value(ctx)
+	res, err := parsley.EvaluateNode(ctx, nodes[0])
 	if err != nil {
 		return nil, err
 	}
 
 	for i := 1; i < len(nodes); i++ {
-		index, err := nodes[i].Value(ctx)
+		index, err := parsley.EvaluateNode(ctx, nodes[i])
 		if err != nil {
 			return nil, err
 		}

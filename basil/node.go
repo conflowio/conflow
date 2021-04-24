@@ -20,8 +20,8 @@ type Node interface {
 	Directives() []BlockNode
 	Provides() []ID
 	Generates() []ID
-	Generated() bool
 	CreateContainer(ctx *EvalContext, parent BlockContainer, value interface{}, wgs []WaitGroup, pending bool) JobContainer
+	Value(userCtx interface{}) (interface{}, parsley.Error)
 }
 
 // Dependencies is a variable list

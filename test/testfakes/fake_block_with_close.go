@@ -20,16 +20,6 @@ type FakeBlockWithClose struct {
 	closeReturnsOnCall map[int]struct {
 		result1 error
 	}
-	IDStub        func() basil.ID
-	iDMutex       sync.RWMutex
-	iDArgsForCall []struct {
-	}
-	iDReturns struct {
-		result1 basil.ID
-	}
-	iDReturnsOnCall map[int]struct {
-		result1 basil.ID
-	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -94,65 +84,11 @@ func (fake *FakeBlockWithClose) CloseReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeBlockWithClose) ID() basil.ID {
-	fake.iDMutex.Lock()
-	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
-	fake.iDArgsForCall = append(fake.iDArgsForCall, struct {
-	}{})
-	fake.recordInvocation("ID", []interface{}{})
-	fake.iDMutex.Unlock()
-	if fake.IDStub != nil {
-		return fake.IDStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.iDReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeBlockWithClose) IDCallCount() int {
-	fake.iDMutex.RLock()
-	defer fake.iDMutex.RUnlock()
-	return len(fake.iDArgsForCall)
-}
-
-func (fake *FakeBlockWithClose) IDCalls(stub func() basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = stub
-}
-
-func (fake *FakeBlockWithClose) IDReturns(result1 basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = nil
-	fake.iDReturns = struct {
-		result1 basil.ID
-	}{result1}
-}
-
-func (fake *FakeBlockWithClose) IDReturnsOnCall(i int, result1 basil.ID) {
-	fake.iDMutex.Lock()
-	defer fake.iDMutex.Unlock()
-	fake.IDStub = nil
-	if fake.iDReturnsOnCall == nil {
-		fake.iDReturnsOnCall = make(map[int]struct {
-			result1 basil.ID
-		})
-	}
-	fake.iDReturnsOnCall[i] = struct {
-		result1 basil.ID
-	}{result1}
-}
-
 func (fake *FakeBlockWithClose) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.closeMutex.RLock()
 	defer fake.closeMutex.RUnlock()
-	fake.iDMutex.RLock()
-	defer fake.iDMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

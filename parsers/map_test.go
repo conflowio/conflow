@@ -9,7 +9,7 @@ package parsers_test
 import (
 	"errors"
 
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -22,10 +22,10 @@ import (
 var _ = Describe("Map", func() {
 
 	q := combinator.Choice(
-		terminal.String(false),
-		terminal.Integer(),
-		terminal.Nil("nil", variable.TypeNil),
-		test.EvalErrorParser("ERR", variable.TypeUnknown),
+		terminal.String(schema.StringValue(), false),
+		terminal.Integer(schema.IntegerValue()),
+		terminal.Nil(schema.NullValue(), "NULL"),
+		test.EvalErrorParser(schema.UntypedValue(), "ERR"),
 	).Name("value")
 
 	p := parsers.Map(q)
@@ -82,19 +82,19 @@ var _ = Describe("Map", func() {
 		test.TableEntry(
 			`map{
 				"a": "b",
-				"c": 4,
+				"c": "d",
 			}`,
 			map[string]interface{}{
 				"a": "b",
-				"c": int64(4),
+				"c": "d",
 			},
 		),
 		test.TableEntry(
 			`map{
-				"nil": nil,
+				"a": NULL,
 			}`,
 			map[string]interface{}{
-				"nil": nil,
+				"a": nil,
 			},
 		),
 	)
@@ -127,6 +127,19 @@ var _ = Describe("Map", func() {
 				"a": "b",
 			}`,
 			errors.New("was expecting map at testfile:1:1"),
+		),
+	)
+
+	DescribeTable("it returns a static check error",
+		func(input string, expectedErr error) {
+			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
+		},
+		test.TableEntry(
+			`map{
+				"a": "b",
+				"c": 1,
+			}`,
+			errors.New("items must have the same type, but found string and integer at testfile:1:1"),
 		),
 	)
 

@@ -14,13 +14,17 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Benchmark struct {
-	id       basil.ID      `basil:"id"`
-	duration time.Duration `basil:"required"`
+	// @id
+	id basil.ID
+	// @required
+	duration time.Duration
 	elapsed  time.Duration
-	counter  int64         `basil:"output"`
-	run      *BenchmarkRun `basil:"generated"`
+	// @read_only
+	counter int64
+	// @generated
+	run *BenchmarkRun
 }
 
 func (b *Benchmark) ID() basil.ID {
@@ -56,10 +60,12 @@ func (b *Benchmark) ParseContextOverride() basil.ParseContextOverride {
 	}
 }
 
-//go:generate basil generate
+// @block
 type BenchmarkRun struct {
-	id  basil.ID `basil:"id"`
-	cnt int64    `basil:"output"`
+	// @id
+	id basil.ID
+	// @read_only
+	cnt int64
 }
 
 func (b *BenchmarkRun) ID() basil.ID {

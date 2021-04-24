@@ -9,11 +9,12 @@ package json_test
 import (
 	"errors"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/basil/variable"
 	"github.com/opsidian/basil/functions/json"
 	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/test"
@@ -30,28 +31,28 @@ var _ = Describe("Encode", func() {
 		func(input string, expected interface{}) {
 			test.ExpectFunctionToEvaluate(parsers.Expression(), registry)(input, expected)
 		},
-		test.TableEntry(`test(nil)`, "null"),
+		test.TableEntry(`test(null)`, "null"),
 		test.TableEntry(`test(1)`, "1"),
 		test.TableEntry(`test(1.1)`, "1.1"),
 		test.TableEntry(`test("foo")`, "\"foo\""),
 		test.TableEntry(`test(true)`, "true"),
 		test.TableEntry(`test(1m30s)`, "90000000000"),
-		test.TableEntry(`test([1, "foo"])`, "[1,\"foo\"]"),
+		test.TableEntry(`test([1, 2])`, "[1,2]"),
 	)
 
 	DescribeTable("it will have a parse error",
 		func(input string, expectedErr error) {
 			test.ExpectFunctionToHaveParseError(parsers.Expression(), registry)(input, expectedErr)
 		},
-		test.TableEntry(`test()`, errors.New("test expects 1 arguments at testfile:1:1")),
-		test.TableEntry(`test("a", "a")`, errors.New("test expects 1 arguments at testfile:1:1")),
+		test.TableEntry(`test()`, errors.New("test requires exactly 1 argument, but got 0 at testfile:1:1")),
+		test.TableEntry(`test("a", "a")`, errors.New("test requires exactly 1 argument, but got 2 at testfile:1:11")),
 	)
 
 	It("should return with string type", func() {
 		test.ExpectFunctionNode(parsers.Expression(), registry)(
 			`test("")`,
 			func(userCtx interface{}, node parsley.Node) {
-				Expect(node.Type()).To(Equal(variable.TypeString))
+				Expect(node.Schema().(schema.Schema).Type()).To(Equal(schema.TypeString))
 			},
 		)
 	})

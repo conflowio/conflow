@@ -19,9 +19,10 @@ func NewStream(id basil.ID, stream io.ReadCloser) *Stream {
 	}
 }
 
-//go:generate basil generate
+// @block
 type Stream struct {
-	id     basil.ID `basil:"id"`
+	// @id
+	id     basil.ID
 	Stream io.ReadCloser
 }
 

@@ -16,7 +16,6 @@ import (
 func DefaultRegistry() function.InterpreterRegistry {
 	return function.InterpreterRegistry{
 		"array_contains":          ArrayContainsInterpreter{},
-		"is_empty":                IsEmptyInterpreter{},
 		"len":                     LenInterpreter{},
 		"string":                  StringInterpreter{},
 		"math.abs":                math.AbsInterpreter{},

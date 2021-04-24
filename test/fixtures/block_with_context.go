@@ -13,10 +13,13 @@ import (
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type BlockWithContext struct {
-	IDField basil.ID      `basil:"id"`
-	timeout time.Duration `basil:"required,stage=init"`
+	// @id
+	IDField basil.ID
+	// @required
+	// @eval_stage "init"
+	timeout time.Duration
 }
 
 func (b *BlockWithContext) Context(ctx context.Context) (context.Context, context.CancelFunc) {

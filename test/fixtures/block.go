@@ -9,23 +9,22 @@ package fixtures
 import (
 	"time"
 
-	"github.com/opsidian/basil/basil/variable"
-
 	"github.com/opsidian/basil/basil"
 )
 
-//go:generate basil generate
+// @block
 type Block struct {
-	IDField           basil.ID `basil:"id"`
-	FieldInterface    interface{}
-	FieldArray        []interface{}
-	FieldBasic        variable.Basic
-	FieldBool         bool
-	FieldFloat        float64
-	FieldIdentifier   basil.ID
-	FieldInteger      int64
-	FieldMap          map[string]interface{}
-	FieldNumber       variable.Number
+	// @id
+	IDField         basil.ID
+	FieldInterface  interface{}
+	FieldArray      []interface{}
+	FieldBool       bool
+	FieldFloat      float64
+	FieldIdentifier basil.ID
+	FieldInteger    int64
+	FieldMap        map[string]interface{}
+	// @types ["integer", "number"]
+	FieldNumber       interface{}
 	FieldString       string
 	FieldStringArray  []string
 	FieldTime         time.Time

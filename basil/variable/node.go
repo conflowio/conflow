@@ -9,6 +9,8 @@ package variable
 import (
 	"fmt"
 
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/parsley"
@@ -21,7 +23,7 @@ type Node struct {
 	id            basil.ID
 	blockIDNode   *basil.IDNode
 	paramNameNode *basil.IDNode
-	variableType  string
+	schema        schema.Schema
 }
 
 // NewNode creates a new variable node
@@ -53,9 +55,9 @@ func (n *Node) Token() string {
 	return "VAR"
 }
 
-// Type returns with the node's type
-func (n *Node) Type() string {
-	return n.variableType
+// Schema returns the schema for the node's value
+func (n *Node) Schema() interface{} {
+	return n.schema
 }
 
 // StaticCheck runs static analysis on the node
@@ -67,12 +69,12 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 		return parsley.NewErrorf(n.blockIDNode.Pos(), "block %q does not exist", n.blockIDNode.ID())
 	}
 
-	paramType, paramExists := blockNode.ParamType(n.paramNameNode.ID())
+	paramSchema, paramExists := blockNode.GetPropertySchema(n.paramNameNode.ID())
 	if !paramExists {
 		return parsley.NewErrorf(n.paramNameNode.Pos(), "parameter %q does not exist", n.paramNameNode.ID())
 	}
 
-	n.variableType = paramType
+	n.schema = paramSchema
 
 	return nil
 }
@@ -102,8 +104,5 @@ func (n *Node) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 }
 
 func (n *Node) String() string {
-	if n.variableType == "" {
-		return fmt.Sprintf("%s{%s, %d..%d}", n.Token(), n.id, n.Pos(), n.ReaderPos())
-	}
-	return fmt.Sprintf("%s{<%s> %s, %d..%d}", n.Token(), n.variableType, n.id, n.Pos(), n.ReaderPos())
+	return fmt.Sprintf("%s{%s, %d..%d}", n.Token(), n.id, n.Pos(), n.ReaderPos())
 }

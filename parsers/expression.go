@@ -7,7 +7,7 @@
 package parsers
 
 import (
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/ast/interpreter"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/text"
@@ -23,8 +23,8 @@ func Expression() *combinator.Sequence {
 	varp := Variable()
 
 	arrayIndex := combinator.Choice(
-		terminal.Integer(),
-		terminal.String(true),
+		terminal.Integer(schema.IntegerValue()),
+		terminal.String(schema.StringValue(), true),
 		function,
 		varp,
 	)
@@ -36,13 +36,13 @@ func Expression() *combinator.Sequence {
 	), arrayIndex)
 
 	value := combinator.Choice(
-		terminal.TimeDuration(),
-		terminal.Float(),
-		terminal.Integer(),
+		terminal.TimeDuration(schema.TimeDurationValue()),
+		terminal.Float(schema.NumberValue()),
+		terminal.Integer(schema.IntegerValue()),
 		MultilineText(),
-		terminal.String(true),
-		terminal.Bool("true", "false"),
-		terminal.Nil("nil", variable.TypeNil),
+		terminal.String(schema.StringValue(), true),
+		terminal.Bool(schema.BooleanValue(), "true", "false"),
+		terminal.Nil(schema.NullValue(), "null"),
 		valueWithIndex,
 		combinator.SeqOf(
 			terminal.Rune('('),

@@ -59,6 +59,16 @@ type FakeVariableNode struct {
 	readerPosReturnsOnCall map[int]struct {
 		result1 parsley.Pos
 	}
+	SchemaStub        func() interface{}
+	schemaMutex       sync.RWMutex
+	schemaArgsForCall []struct {
+	}
+	schemaReturns struct {
+		result1 interface{}
+	}
+	schemaReturnsOnCall map[int]struct {
+		result1 interface{}
+	}
 	TokenStub        func() string
 	tokenMutex       sync.RWMutex
 	tokenArgsForCall []struct {
@@ -68,29 +78,6 @@ type FakeVariableNode struct {
 	}
 	tokenReturnsOnCall map[int]struct {
 		result1 string
-	}
-	TypeStub        func() string
-	typeMutex       sync.RWMutex
-	typeArgsForCall []struct {
-	}
-	typeReturns struct {
-		result1 string
-	}
-	typeReturnsOnCall map[int]struct {
-		result1 string
-	}
-	ValueStub        func(interface{}) (interface{}, parsley.Error)
-	valueMutex       sync.RWMutex
-	valueArgsForCall []struct {
-		arg1 interface{}
-	}
-	valueReturns struct {
-		result1 interface{}
-		result2 parsley.Error
-	}
-	valueReturnsOnCall map[int]struct {
-		result1 interface{}
-		result2 parsley.Error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -356,6 +343,58 @@ func (fake *FakeVariableNode) ReaderPosReturnsOnCall(i int, result1 parsley.Pos)
 	}{result1}
 }
 
+func (fake *FakeVariableNode) Schema() interface{} {
+	fake.schemaMutex.Lock()
+	ret, specificReturn := fake.schemaReturnsOnCall[len(fake.schemaArgsForCall)]
+	fake.schemaArgsForCall = append(fake.schemaArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Schema", []interface{}{})
+	fake.schemaMutex.Unlock()
+	if fake.SchemaStub != nil {
+		return fake.SchemaStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.schemaReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeVariableNode) SchemaCallCount() int {
+	fake.schemaMutex.RLock()
+	defer fake.schemaMutex.RUnlock()
+	return len(fake.schemaArgsForCall)
+}
+
+func (fake *FakeVariableNode) SchemaCalls(stub func() interface{}) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = stub
+}
+
+func (fake *FakeVariableNode) SchemaReturns(result1 interface{}) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = nil
+	fake.schemaReturns = struct {
+		result1 interface{}
+	}{result1}
+}
+
+func (fake *FakeVariableNode) SchemaReturnsOnCall(i int, result1 interface{}) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = nil
+	if fake.schemaReturnsOnCall == nil {
+		fake.schemaReturnsOnCall = make(map[int]struct {
+			result1 interface{}
+		})
+	}
+	fake.schemaReturnsOnCall[i] = struct {
+		result1 interface{}
+	}{result1}
+}
+
 func (fake *FakeVariableNode) Token() string {
 	fake.tokenMutex.Lock()
 	ret, specificReturn := fake.tokenReturnsOnCall[len(fake.tokenArgsForCall)]
@@ -408,121 +447,6 @@ func (fake *FakeVariableNode) TokenReturnsOnCall(i int, result1 string) {
 	}{result1}
 }
 
-func (fake *FakeVariableNode) Type() string {
-	fake.typeMutex.Lock()
-	ret, specificReturn := fake.typeReturnsOnCall[len(fake.typeArgsForCall)]
-	fake.typeArgsForCall = append(fake.typeArgsForCall, struct {
-	}{})
-	fake.recordInvocation("Type", []interface{}{})
-	fake.typeMutex.Unlock()
-	if fake.TypeStub != nil {
-		return fake.TypeStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	fakeReturns := fake.typeReturns
-	return fakeReturns.result1
-}
-
-func (fake *FakeVariableNode) TypeCallCount() int {
-	fake.typeMutex.RLock()
-	defer fake.typeMutex.RUnlock()
-	return len(fake.typeArgsForCall)
-}
-
-func (fake *FakeVariableNode) TypeCalls(stub func() string) {
-	fake.typeMutex.Lock()
-	defer fake.typeMutex.Unlock()
-	fake.TypeStub = stub
-}
-
-func (fake *FakeVariableNode) TypeReturns(result1 string) {
-	fake.typeMutex.Lock()
-	defer fake.typeMutex.Unlock()
-	fake.TypeStub = nil
-	fake.typeReturns = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeVariableNode) TypeReturnsOnCall(i int, result1 string) {
-	fake.typeMutex.Lock()
-	defer fake.typeMutex.Unlock()
-	fake.TypeStub = nil
-	if fake.typeReturnsOnCall == nil {
-		fake.typeReturnsOnCall = make(map[int]struct {
-			result1 string
-		})
-	}
-	fake.typeReturnsOnCall[i] = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeVariableNode) Value(arg1 interface{}) (interface{}, parsley.Error) {
-	fake.valueMutex.Lock()
-	ret, specificReturn := fake.valueReturnsOnCall[len(fake.valueArgsForCall)]
-	fake.valueArgsForCall = append(fake.valueArgsForCall, struct {
-		arg1 interface{}
-	}{arg1})
-	fake.recordInvocation("Value", []interface{}{arg1})
-	fake.valueMutex.Unlock()
-	if fake.ValueStub != nil {
-		return fake.ValueStub(arg1)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	fakeReturns := fake.valueReturns
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeVariableNode) ValueCallCount() int {
-	fake.valueMutex.RLock()
-	defer fake.valueMutex.RUnlock()
-	return len(fake.valueArgsForCall)
-}
-
-func (fake *FakeVariableNode) ValueCalls(stub func(interface{}) (interface{}, parsley.Error)) {
-	fake.valueMutex.Lock()
-	defer fake.valueMutex.Unlock()
-	fake.ValueStub = stub
-}
-
-func (fake *FakeVariableNode) ValueArgsForCall(i int) interface{} {
-	fake.valueMutex.RLock()
-	defer fake.valueMutex.RUnlock()
-	argsForCall := fake.valueArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *FakeVariableNode) ValueReturns(result1 interface{}, result2 parsley.Error) {
-	fake.valueMutex.Lock()
-	defer fake.valueMutex.Unlock()
-	fake.ValueStub = nil
-	fake.valueReturns = struct {
-		result1 interface{}
-		result2 parsley.Error
-	}{result1, result2}
-}
-
-func (fake *FakeVariableNode) ValueReturnsOnCall(i int, result1 interface{}, result2 parsley.Error) {
-	fake.valueMutex.Lock()
-	defer fake.valueMutex.Unlock()
-	fake.ValueStub = nil
-	if fake.valueReturnsOnCall == nil {
-		fake.valueReturnsOnCall = make(map[int]struct {
-			result1 interface{}
-			result2 parsley.Error
-		})
-	}
-	fake.valueReturnsOnCall[i] = struct {
-		result1 interface{}
-		result2 parsley.Error
-	}{result1, result2}
-}
-
 func (fake *FakeVariableNode) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -536,12 +460,10 @@ func (fake *FakeVariableNode) Invocations() map[string][][]interface{} {
 	defer fake.posMutex.RUnlock()
 	fake.readerPosMutex.RLock()
 	defer fake.readerPosMutex.RUnlock()
+	fake.schemaMutex.RLock()
+	defer fake.schemaMutex.RUnlock()
 	fake.tokenMutex.RLock()
 	defer fake.tokenMutex.RUnlock()
-	fake.typeMutex.RLock()
-	defer fake.typeMutex.RUnlock()
-	fake.valueMutex.RLock()
-	defer fake.valueMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

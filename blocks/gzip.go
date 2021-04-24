@@ -15,11 +15,14 @@ import (
 	"github.com/opsidian/basil/basil/block"
 )
 
-//go:generate basil generate
+// @block
 type Gzip struct {
-	id  basil.ID      `basil:"id"`
-	in  io.ReadCloser `basil:"required"`
-	out *Stream       `basil:"generated"`
+	// @id
+	id basil.ID
+	// @required
+	in io.ReadCloser
+	// @generated
+	out *Stream
 }
 
 func (g *Gzip) ID() basil.ID {

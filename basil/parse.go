@@ -17,37 +17,31 @@ import (
 	"github.com/opsidian/parsley/text"
 )
 
-var keywords = []string{"true", "false", "nil", "map"}
-
 // ParseText parses the text input with the given parser
-func ParseText(ctx *ParseContext, p parsley.Parser, input string) error {
+func ParseText(ctx *ParseContext, p parsley.Parser, input string) (parsley.Node, error) {
 	f := text.NewFile("", []byte(input))
 	return parseFile(ctx, p, f)
 }
 
 // ParseFile parses a file with the given parser
-func ParseFile(ctx *ParseContext, p parsley.Parser, path string) error {
+func ParseFile(ctx *ParseContext, p parsley.Parser, path string) (parsley.Node, error) {
 	f, err := text.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("failed to read %s", path)
+		return nil, fmt.Errorf("failed to read %s", path)
 	}
 	return parseFile(ctx, p, f)
 }
 
-func parseFile(ctx *ParseContext, p parsley.Parser, f *text.File) error {
+func parseFile(ctx *ParseContext, p parsley.Parser, f *text.File) (parsley.Node, error) {
 	ctx.FileSet().AddFile(f)
 
 	parsleyCtx := parsley.NewContext(ctx.FileSet(), text.NewReader(f))
 	parsleyCtx.EnableStaticCheck()
 	parsleyCtx.EnableTransformation()
-	parsleyCtx.RegisterKeywords(keywords...)
+	parsleyCtx.RegisterKeywords(Keywords...)
 	parsleyCtx.SetUserContext(ctx)
 
-	if _, err := parsley.Parse(parsleyCtx, combinator.Sentence(p)); err != nil {
-		return err
-	}
-
-	return nil
+	return parsley.Parse(parsleyCtx, combinator.Sentence(p))
 }
 
 // ParseFiles parses multiple files as one

@@ -8,10 +8,15 @@ package directives
 
 import "github.com/opsidian/basil/basil"
 
-//go:generate basil generate
+// @block {
+//   eval_stage = "resolve"
+// }
 type Triggers struct {
-	id       basil.ID      `basil:"id"`
-	blockIDs []interface{} `basil:"value,name=block_ids,required"`
+	// @id
+	id basil.ID
+	// @value
+	// @required
+	blockIDs []interface{} `json:"block_ids"`
 }
 
 func (t *Triggers) ID() basil.ID {
@@ -25,8 +30,4 @@ func (t *Triggers) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
 		triggers[i] = basil.ID(id.(string))
 	}
 	config.Triggers = triggers
-}
-
-func (t *Triggers) EvalStage() basil.EvalStage {
-	return basil.EvalStageResolve
 }

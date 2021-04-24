@@ -9,61 +9,165 @@ package generator
 import (
 	"bytes"
 	"go/ast"
+	"strings"
 	"text/template"
 
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/block"
+
+	"github.com/opsidian/basil/basil/generator/parser"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // GenerateInterpreter generates an interpreter for the given block
-func GenerateInterpreter(str *ast.StructType, file *ast.File, pkgName string, name string) ([]byte, error) {
-	params, err := generateTemplateParams(str, file, pkgName, name)
+func GenerateInterpreter(
+	parseCtx *parser.Context,
+	str *ast.StructType,
+	pkg string,
+	name string,
+	comments []*ast.Comment,
+) ([]byte, *Struct, error) {
+	metadata, err := parser.ParseMetadataFromComments(name, comments)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	tmpl := template.New("block_interpreter")
-	tmpl.Funcs(map[string]interface{}{
-		"filterInputs":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsOutput }) },
-		"filterParams":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsBlock }) },
-		"filterBlocks":   func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return f.IsBlock }) },
-		"filterNonID":    func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return !f.IsID }) },
-		"filterDefaults": func(fs Fields) Fields { return fs.Filter(func(f *Field) bool { return f.Default != nil }) },
+	s, err := ParseStruct(parseCtx, str, pkg, name, metadata)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	params, err := generateTemplateParams(parseCtx, s, pkg)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	bodyTmpl := template.New("block_interpreter_body")
+	bodyTmpl.Funcs(map[string]interface{}{
+		"assignValue": func(s schema.Schema, valueName, resultName string) string {
+			return s.AssignValue(params.Imports, valueName, resultName)
+		},
+		"filterInputs": func(props map[string]schema.Schema) map[string]schema.Schema {
+			return filterSchemaProperties(props, func(s schema.Schema) bool {
+				return !s.GetReadOnly()
+			})
+		},
+		"filterParams": func(props map[string]schema.Schema) map[string]schema.Schema {
+			return filterSchemaProperties(props, func(s schema.Schema) bool {
+				return !block.IsBlockSchema(s)
+			})
+		},
+		"filterBlocks": func(props map[string]schema.Schema) map[string]schema.Schema {
+			return filterSchemaProperties(props, block.IsBlockSchema)
+		},
+		"filterNonID": func(props map[string]schema.Schema) map[string]schema.Schema {
+			return filterSchemaProperties(props, func(s schema.Schema) bool {
+				return !schema.HasAnnotationValue(s, "id", "true")
+			})
+		},
+		"filterDefaults": func(props map[string]schema.Schema) map[string]schema.Schema {
+			return filterSchemaProperties(props, func(s schema.Schema) bool {
+				return s.DefaultValue() != nil
+			})
+		},
+		"getStructProperty": func(name string) string {
+			if p, ok := params.Schema.(schema.ObjectKind).GetStructProperties()[name]; ok {
+				return p
+			}
+			return name
+		},
+		"getType": func(s schema.Schema) string {
+			return s.GoType(params.Imports)
+		},
+		"isArray": func(s schema.Schema) bool {
+			_, ok := s.(schema.ArrayKind)
+			return ok
+		},
 	})
-	if _, parseErr := tmpl.Parse(interpreterTemplate); parseErr != nil {
-		return nil, parseErr
+	if _, parseErr := bodyTmpl.Parse(interpreterTemplate); parseErr != nil {
+		return nil, nil, parseErr
 	}
 
 	res := &bytes.Buffer{}
-	err = tmpl.Execute(res, params)
+	err = bodyTmpl.Execute(res, params)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return res.Bytes(), nil
+	body := res.Bytes()
+
+	headerTmpl := template.New("block_interpreter_header")
+	headerTmpl.Funcs(map[string]interface{}{
+		"last": func(path string) string {
+			parts := strings.Split(path, "/")
+			return parts[len(parts)-1]
+		},
+	})
+	if _, parseErr := headerTmpl.Parse(interpreterHeaderTemplate); parseErr != nil {
+		return nil, nil, parseErr
+	}
+
+	res = &bytes.Buffer{}
+	err = headerTmpl.Execute(res, params)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	res.Write(body)
+
+	return res.Bytes(), s, nil
 }
 
-func generateTemplateParams(str *ast.StructType, file *ast.File, pkgName string, name string) (*InterpreterTemplateParams, error) {
-	fields, err := ParseFields(str, file)
-	if err != nil {
-		return nil, err
+func filterSchemaProperties(props map[string]schema.Schema, f func(p schema.Schema) bool) map[string]schema.Schema {
+	res := map[string]schema.Schema{}
+	for pn, p := range props {
+		if f(p) {
+			res[pn] = p
+		}
+	}
+	return res
+}
+
+func generateTemplateParams(
+	parseCtx *parser.Context,
+	s *Struct,
+	pkg string,
+) (*InterpreterTemplateParams, error) {
+	imports := map[string]string{
+		".":      pkg,
+		"fmt":    "fmt",
+		"basil":  "github.com/opsidian/basil/basil",
+		"schema": "github.com/opsidian/basil/basil/schema",
 	}
 
-	var idField, valueField *Field
-	for _, field := range fields {
+	var nameSelector string
+	if s.InterpreterPath != "" {
+		nameSelector = schema.EnsureUniqueGoPackageName(imports, pkg) + "."
+	}
+
+	var idPropertyName, valuePropertyName string
+	for name, property := range s.Schema.(schema.ObjectKind).GetProperties() {
 		switch {
-		case field.IsID:
-			idField = field
-		case field.IsValue:
-			valueField = field
+		case schema.HasAnnotationValue(property, "id", "true"):
+			idPropertyName = name
+		case schema.HasAnnotationValue(property, "value", "true"):
+			valuePropertyName = name
 		}
 	}
 
+	pkgName := parseCtx.File.Name.Name
+	if s.InterpreterPath != "" {
+		parts := strings.Split(strings.Trim(s.InterpreterPath, "/"), "/")
+		pkgName = parts[len(parts)-1]
+	}
+
 	return &InterpreterTemplateParams{
-		Package:            pkgName,
-		Name:               name,
-		Fields:             fields,
-		IDField:            idField,
-		ValueField:         valueField,
-		ValueFunctionNames: variable.ValueFunctionNames,
+		Package:           pkgName,
+		NameSelector:      nameSelector,
+		Name:              s.Name,
+		Schema:            s.Schema,
+		IDPropertyName:    idPropertyName,
+		ValuePropertyName: valuePropertyName,
+		Imports:           imports,
 	}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -23,19 +24,15 @@ type FakeFunctionInterpreter struct {
 		result1 interface{}
 		result2 parsley.Error
 	}
-	StaticCheckStub        func(interface{}, basil.FunctionNode) (string, parsley.Error)
-	staticCheckMutex       sync.RWMutex
-	staticCheckArgsForCall []struct {
-		arg1 interface{}
-		arg2 basil.FunctionNode
+	SchemaStub        func() schema.Schema
+	schemaMutex       sync.RWMutex
+	schemaArgsForCall []struct {
 	}
-	staticCheckReturns struct {
-		result1 string
-		result2 parsley.Error
+	schemaReturns struct {
+		result1 schema.Schema
 	}
-	staticCheckReturnsOnCall map[int]struct {
-		result1 string
-		result2 parsley.Error
+	schemaReturnsOnCall map[int]struct {
+		result1 schema.Schema
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -105,68 +102,56 @@ func (fake *FakeFunctionInterpreter) EvalReturnsOnCall(i int, result1 interface{
 	}{result1, result2}
 }
 
-func (fake *FakeFunctionInterpreter) StaticCheck(arg1 interface{}, arg2 basil.FunctionNode) (string, parsley.Error) {
-	fake.staticCheckMutex.Lock()
-	ret, specificReturn := fake.staticCheckReturnsOnCall[len(fake.staticCheckArgsForCall)]
-	fake.staticCheckArgsForCall = append(fake.staticCheckArgsForCall, struct {
-		arg1 interface{}
-		arg2 basil.FunctionNode
-	}{arg1, arg2})
-	fake.recordInvocation("StaticCheck", []interface{}{arg1, arg2})
-	fake.staticCheckMutex.Unlock()
-	if fake.StaticCheckStub != nil {
-		return fake.StaticCheckStub(arg1, arg2)
+func (fake *FakeFunctionInterpreter) Schema() schema.Schema {
+	fake.schemaMutex.Lock()
+	ret, specificReturn := fake.schemaReturnsOnCall[len(fake.schemaArgsForCall)]
+	fake.schemaArgsForCall = append(fake.schemaArgsForCall, struct {
+	}{})
+	fake.recordInvocation("Schema", []interface{}{})
+	fake.schemaMutex.Unlock()
+	if fake.SchemaStub != nil {
+		return fake.SchemaStub()
 	}
 	if specificReturn {
-		return ret.result1, ret.result2
+		return ret.result1
 	}
-	fakeReturns := fake.staticCheckReturns
-	return fakeReturns.result1, fakeReturns.result2
+	fakeReturns := fake.schemaReturns
+	return fakeReturns.result1
 }
 
-func (fake *FakeFunctionInterpreter) StaticCheckCallCount() int {
-	fake.staticCheckMutex.RLock()
-	defer fake.staticCheckMutex.RUnlock()
-	return len(fake.staticCheckArgsForCall)
+func (fake *FakeFunctionInterpreter) SchemaCallCount() int {
+	fake.schemaMutex.RLock()
+	defer fake.schemaMutex.RUnlock()
+	return len(fake.schemaArgsForCall)
 }
 
-func (fake *FakeFunctionInterpreter) StaticCheckCalls(stub func(interface{}, basil.FunctionNode) (string, parsley.Error)) {
-	fake.staticCheckMutex.Lock()
-	defer fake.staticCheckMutex.Unlock()
-	fake.StaticCheckStub = stub
+func (fake *FakeFunctionInterpreter) SchemaCalls(stub func() schema.Schema) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = stub
 }
 
-func (fake *FakeFunctionInterpreter) StaticCheckArgsForCall(i int) (interface{}, basil.FunctionNode) {
-	fake.staticCheckMutex.RLock()
-	defer fake.staticCheckMutex.RUnlock()
-	argsForCall := fake.staticCheckArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+func (fake *FakeFunctionInterpreter) SchemaReturns(result1 schema.Schema) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = nil
+	fake.schemaReturns = struct {
+		result1 schema.Schema
+	}{result1}
 }
 
-func (fake *FakeFunctionInterpreter) StaticCheckReturns(result1 string, result2 parsley.Error) {
-	fake.staticCheckMutex.Lock()
-	defer fake.staticCheckMutex.Unlock()
-	fake.StaticCheckStub = nil
-	fake.staticCheckReturns = struct {
-		result1 string
-		result2 parsley.Error
-	}{result1, result2}
-}
-
-func (fake *FakeFunctionInterpreter) StaticCheckReturnsOnCall(i int, result1 string, result2 parsley.Error) {
-	fake.staticCheckMutex.Lock()
-	defer fake.staticCheckMutex.Unlock()
-	fake.StaticCheckStub = nil
-	if fake.staticCheckReturnsOnCall == nil {
-		fake.staticCheckReturnsOnCall = make(map[int]struct {
-			result1 string
-			result2 parsley.Error
+func (fake *FakeFunctionInterpreter) SchemaReturnsOnCall(i int, result1 schema.Schema) {
+	fake.schemaMutex.Lock()
+	defer fake.schemaMutex.Unlock()
+	fake.SchemaStub = nil
+	if fake.schemaReturnsOnCall == nil {
+		fake.schemaReturnsOnCall = make(map[int]struct {
+			result1 schema.Schema
 		})
 	}
-	fake.staticCheckReturnsOnCall[i] = struct {
-		result1 string
-		result2 parsley.Error
-	}{result1, result2}
+	fake.schemaReturnsOnCall[i] = struct {
+		result1 schema.Schema
+	}{result1}
 }
 
 func (fake *FakeFunctionInterpreter) Invocations() map[string][][]interface{} {
@@ -174,8 +159,8 @@ func (fake *FakeFunctionInterpreter) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.evalMutex.RLock()
 	defer fake.evalMutex.RUnlock()
-	fake.staticCheckMutex.RLock()
-	defer fake.staticCheckMutex.RUnlock()
+	fake.schemaMutex.RLock()
+	defer fake.schemaMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

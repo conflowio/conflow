@@ -7,7 +7,12 @@
 package test
 
 import (
+	"fmt"
 	"time"
+
+	"github.com/onsi/ginkgo"
+
+	"github.com/opsidian/basil/basil/schema"
 
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/basil/basil"
@@ -32,10 +37,12 @@ type BlockWithClose interface {
 	basil.BlockCloser
 }
 
-//go:generate basil generate
+// @block
 type Block struct {
-	IDField           basil.ID    `basil:"id"`
-	Value             interface{} `basil:"value"`
+	// @id
+	IDField basil.ID
+	// @value
+	Value             interface{}
 	FieldString       string
 	FieldInt          int64
 	FieldFloat        float64
@@ -43,9 +50,11 @@ type Block struct {
 	FieldArray        []interface{}
 	FieldMap          map[string]interface{}
 	FieldTimeDuration time.Duration
-	FieldCustomName   string `basil:"name=custom_field"`
+	// @name "custom_field"
+	FieldCustomName string
 
-	Blocks []*Block `basil:"block,name=testblock"`
+	// @name "testblock"
+	Blocks []*Block
 }
 
 func (b *Block) ID() basil.ID {
@@ -64,24 +73,35 @@ func (b *Block) Compare(b2 *Block, input string) {
 	interpreter := BlockInterpreter{}
 	compareBlocks(b, b2, interpreter, input)
 	Expect(len(b.Blocks)).To(Equal(len(b2.Blocks)), "child block count does not match, input: %s", input)
-	for i, c := range b2.Blocks {
-		compareBlocks(c, b2.Blocks[i], interpreter, input)
+	for i2 := range b2.Blocks {
+		found := false
+		for i := range b.Blocks {
+			if b.Blocks[i].ID() == b2.Blocks[i2].ID() {
+				compareBlocks(b.Blocks[i], b2.Blocks[i2], interpreter, input)
+				found = true
+				break
+			}
+		}
+		if !found {
+			ginkgo.Fail(fmt.Sprintf("block not found with id %s", b2.Blocks[i2].ID()))
+		}
 	}
 }
 
-func compareBlocks(i1, i2 interface{}, interpreter basil.BlockInterpreter, input string) {
-	b1 := i1.(basil.Block)
-	b2 := i2.(basil.Block)
-
+func compareBlocks(b1, b2 basil.Identifiable, interpreter basil.BlockInterpreter, input string) {
 	Expect(b1.ID()).To(Equal(b2.ID()), "id does not match, input: %s", input)
 
-	for paramName, _ := range interpreter.Params() {
-		v1 := interpreter.Param(b1, paramName)
-		v2 := interpreter.Param(b2, paramName)
+	for propertyName, p := range interpreter.Schema().(schema.ObjectKind).GetProperties() {
+		if block.IsBlockSchema(p) {
+			continue
+		}
+
+		v1 := interpreter.Param(b1, basil.ID(propertyName))
+		v2 := interpreter.Param(b2, basil.ID(propertyName))
 		if v2 != nil {
-			Expect(v1).To(Equal(v2), "%s does not match, input: %s", paramName, input)
+			Expect(v1).To(Equal(v2), "%s does not match, input: %s", propertyName, input)
 		} else {
-			Expect(v1).To(BeNil(), "%s does not match, input: %s", paramName, input)
+			Expect(v1).To(BeNil(), "%s does not match, input: %s", propertyName, input)
 		}
 	}
 }

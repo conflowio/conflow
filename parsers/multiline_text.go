@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"errors"
 
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/text/terminal"
 
 	"github.com/opsidian/parsley/data"
@@ -104,7 +105,7 @@ func MultilineText() parser.Func {
 		})
 
 		if res != nil {
-			return terminal.NewStringNode(string(res), pos, readerPos), data.EmptyIntSet, nil
+			return terminal.NewStringNode(schema.StringValue(), string(res), pos, readerPos), data.EmptyIntSet, nil
 		}
 
 		if err == nil {

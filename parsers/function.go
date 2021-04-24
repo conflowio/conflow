@@ -23,7 +23,7 @@ import (
 //          -> P ("," P)*
 func Function(p parsley.Parser) *combinator.Sequence {
 	return combinator.SeqOf(
-		ID(basil.FunctionNameRegExpPattern),
+		ID(basil.FunctionNameRegExpPattern, true),
 		terminal.Rune('('),
 		text.LeftTrim(SepByComma(p), text.WsSpacesNl),
 		text.LeftTrim(terminal.Rune(')'), text.WsSpaces),
@@ -41,7 +41,7 @@ func (f functionInterpreter) TransformNode(userCtx interface{}, node parsley.Nod
 
 	nodes := node.(parsley.NonTerminalNode).Children()
 	nameNode := nodes[0]
-	name, _ := nameNode.Value(nil)
+	name := nameNode.(parsley.LiteralNode).Value()
 
 	transformer, exists := registry.NodeTransformer(string(name.(basil.ID)))
 	if !exists {

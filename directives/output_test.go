@@ -9,6 +9,7 @@ package directives_test
 func ExampleOutput_SingleLine() {
 	eval(`
 		@output
+		@string
 		output_param := ""
 	`)
 	// Output:

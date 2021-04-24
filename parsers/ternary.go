@@ -7,9 +7,11 @@
 package parsers
 
 import (
+	"errors"
 	"reflect"
 
-	"github.com/opsidian/parsley/ast"
+	"github.com/opsidian/basil/basil/schema"
+
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
@@ -40,20 +42,42 @@ func TernaryIf(p parsley.Parser) *combinator.Sequence {
 	}
 	return combinator.Seq(
 		"TERNARY_IF", lookup, lenCheck,
-	).Bind(ast.InterpreterFunc(evalTernaryIf)).ReturnSingle()
+	).Bind(ternaryInterpreter{}).ReturnSingle()
 }
 
-func evalTernaryIf(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+type ternaryInterpreter struct{}
+
+func (t ternaryInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
-	cond, err := nodes[0].Value(ctx)
+
+	if nodes[0].Schema().(schema.Schema).Type() != schema.TypeBoolean {
+		return nil, parsley.NewError(nodes[0].Pos(), errors.New("must be boolean"))
+	}
+
+	s, err := schema.GetCommonSchema(nodes[2].Schema().(schema.Schema), nodes[4].Schema().(schema.Schema))
+	if err != nil {
+		return nil, parsley.NewErrorf(
+			nodes[2].Pos(),
+			"both expressions must have the same type, but got %s and %s",
+			nodes[2].Schema().(schema.Schema).TypeString(),
+			nodes[4].Schema().(schema.Schema).TypeString(),
+		)
+	}
+
+	return s, nil
+}
+
+func (t ternaryInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	nodes := node.Children()
+	cond, err := parsley.EvaluateNode(ctx, nodes[0])
 	if err != nil {
 		return nil, err
 	}
 	switch cond {
 	case true:
-		return nodes[2].Value(ctx)
+		return parsley.EvaluateNode(ctx, nodes[2])
 	case false:
-		return nodes[4].Value(ctx)
+		return parsley.EvaluateNode(ctx, nodes[4])
 	default:
 		return nil, parsley.NewErrorf(nodes[0].Pos(), "expecting bool, got %s", reflect.ValueOf(cond).Kind())
 	}

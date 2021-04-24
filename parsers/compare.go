@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/basil/basil/schema"
 
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
@@ -42,49 +42,45 @@ func Compare(p parsley.Parser) *combinator.Sequence {
 
 type compareInterpreter struct{}
 
-func (a compareInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (string, parsley.Error) {
-	nodes := node.Children()
-	var resType string
+func (a compareInterpreter) StaticCheck(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+	var resultSchema schema.Schema
 	var op string
 	var opPos parsley.Pos
 	expectsOp := false
 
-	for i, node := range nodes {
-		nodeType := node.Type()
+	for i, node := range node.Children() {
 		if i == 0 {
-			resType = nodeType
+			resultSchema = node.Schema().(schema.Schema)
 		} else if expectsOp {
-			v, err := node.Value(nil)
-			if err != nil {
-				return "", err
-			}
-			op = v.(string)
+			op = node.(parsley.LiteralNode).Value().(string)
 			opPos = node.Pos()
 		} else {
-			var ok bool
-			switch resType {
-			case variable.TypeBool:
-				ok = nodeType == variable.TypeBool
-			case variable.TypeInteger, variable.TypeFloat, variable.TypeNumber:
-				ok = nodeType == variable.TypeInteger || nodeType == variable.TypeFloat || nodeType == variable.TypeNumber
-			case variable.TypeString:
-				ok = nodeType == variable.TypeString
-			case variable.TypeTime:
-				ok = nodeType == variable.TypeTime
-			case variable.TypeTimeDuration:
-				ok = nodeType == variable.TypeTimeDuration
-			default:
-				ok = nodeType == resType
-			}
-			if !ok {
-				return "", parsley.NewErrorf(opPos, "unsupported %s operation on %s and %s", op, resType, nodeType)
+			if err := resultSchema.ValidateSchema(node.Schema().(schema.Schema), true); err != nil {
+				return nil, parsley.NewErrorf(
+					opPos,
+					"unsupported %s operation on %s and %s",
+					op,
+					resultSchema.TypeString(),
+					node.Schema().(schema.Schema).TypeString(),
+				)
 			}
 
-			resType = variable.TypeBool
+			if op != "==" && op != "!=" {
+				switch resultSchema.(type) {
+				case schema.ArrayKind:
+					return "", parsley.NewErrorf(opPos, "%q operator is invalid for arrays", op)
+				case schema.MapKind:
+					return "", parsley.NewErrorf(opPos, "%q operator is invalid for maps", op)
+				case schema.ObjectKind:
+					return "", parsley.NewErrorf(opPos, "%q operator is invalid for objects", op)
+				}
+			}
+
+			resultSchema = schema.BooleanValue()
 		}
 		expectsOp = !expectsOp
 	}
-	return resType, nil
+	return resultSchema, nil
 }
 
 func (a compareInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
@@ -97,7 +93,7 @@ func (a compareInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) 
 
 	for i, node := range nodes {
 		var v interface{}
-		v, err = node.Value(ctx)
+		v, err = parsley.EvaluateNode(ctx, node)
 		if err != nil {
 			return nil, err
 		}
@@ -133,7 +129,7 @@ func (a compareInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) 
 }
 
 func floatsEqual(f1 float64, f2 float64) bool {
-	return f1-f2 < Epsilon && f2-f1 < Epsilon
+	return f1-f2 < schema.Epsilon && f2-f1 < schema.Epsilon
 }
 
 func compareInt(res interface{}, op string, v int64, opPos parsley.Pos) (interface{}, parsley.Error) {
