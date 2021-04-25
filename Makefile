@@ -25,3 +25,8 @@ clean: ## Clean all built files
 .PHONY: clean-generated
 clean-generated: ## Delete all generated files created by basil
 	@find . -name "*.basil.go" -type f -delete
+
+.PHONY: goimports
+goimports: ## Run goimports on all files
+	@echo "Running goimports on all files"
+	@./scripts/goimports.sh
