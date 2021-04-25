@@ -7,12 +7,13 @@
 package test
 
 import (
-	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // EvalErrorParser returns with a parser which will read the "ERR" string but the result node evaluation will throw an error

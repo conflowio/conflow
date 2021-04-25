@@ -9,9 +9,10 @@ package block
 import (
 	"runtime/debug"
 
+	"github.com/opsidian/parsley/parsley"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/parsley/parsley"
 )
 
 type containerStage struct {

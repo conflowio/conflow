@@ -9,11 +9,10 @@ package blocks
 import (
 	"context"
 
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/parsley/parsley"
 
 	"github.com/opsidian/basil/basil"
-
-	"github.com/opsidian/parsley/parsley"
+	"github.com/opsidian/basil/basil/schema"
 )
 
 func NewModule(id basil.ID, interpreter basil.BlockInterpreter, node parsley.Node) basil.Block {

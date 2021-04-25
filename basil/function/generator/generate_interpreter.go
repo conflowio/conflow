@@ -13,7 +13,6 @@ import (
 	"text/template"
 
 	"github.com/opsidian/basil/basil/generator/parser"
-
 	"github.com/opsidian/basil/basil/schema"
 )
 

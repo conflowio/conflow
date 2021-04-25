@@ -11,12 +11,11 @@ import (
 	"time"
 
 	"github.com/onsi/ginkgo"
-
-	"github.com/opsidian/basil/basil/schema"
-
 	. "github.com/onsi/gomega"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/basil/schema"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithInit

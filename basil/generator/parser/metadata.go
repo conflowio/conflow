@@ -12,15 +12,16 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/opsidian/parsley/ast"
+	"github.com/opsidian/parsley/combinator"
+	"github.com/opsidian/parsley/parsley"
+	"github.com/opsidian/parsley/text"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/basil/basil/schema/directives"
 	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/parsley/ast"
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
 )
 
 type Metadata struct {

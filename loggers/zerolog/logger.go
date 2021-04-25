@@ -10,8 +10,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/basil/basil"
 	"github.com/rs/zerolog"
+
+	"github.com/opsidian/basil/basil"
 )
 
 func init() {

@@ -10,11 +10,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/parsley/parsley"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/parameter"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // StaticContainer is a container for blocks where there is no dynamic child evaluation required

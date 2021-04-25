@@ -9,10 +9,10 @@ package function
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/parsley/parsley"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/opsidian/basil/basil/schema"
 )
 
 var _ basil.FunctionNode = &Node{}

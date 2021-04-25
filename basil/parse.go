@@ -9,10 +9,8 @@ package basil
 import (
 	"fmt"
 
-	"github.com/opsidian/parsley/combinator"
-
 	"github.com/opsidian/parsley/ast"
-
+	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 )

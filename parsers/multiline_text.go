@@ -10,13 +10,13 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/opsidian/basil/basil/schema"
-	"github.com/opsidian/parsley/text/terminal"
-
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
+	"github.com/opsidian/parsley/text/terminal"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // MultilineText parses a multiline text in the following format:

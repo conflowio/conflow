@@ -7,15 +7,13 @@
 package main
 
 import (
-	"github.com/opsidian/basil/blocks"
-	"github.com/opsidian/basil/functions"
-	"github.com/opsidian/basil/parsers"
-
-	"github.com/opsidian/basil/examples/common"
-	"github.com/opsidian/basil/util"
-
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/blocks"
+	"github.com/opsidian/basil/examples/common"
+	"github.com/opsidian/basil/functions"
+	"github.com/opsidian/basil/parsers"
+	"github.com/opsidian/basil/util"
 )
 
 // @block

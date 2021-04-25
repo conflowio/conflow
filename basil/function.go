@@ -7,8 +7,9 @@
 package basil
 
 import (
-	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/parsley"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // FunctionNameRegExpPattern defines a valid function name

@@ -10,21 +10,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/opsidian/basil/basil/schema"
-
-	"github.com/opsidian/basil/basil/job"
-
-	"github.com/opsidian/basil/util"
-
-	"github.com/opsidian/basil/basil/directive"
-
 	"github.com/opsidian/parsley/ast"
-
-	"github.com/opsidian/basil/basil/dependency"
-	"github.com/opsidian/basil/basil/parameter"
+	"github.com/opsidian/parsley/parsley"
 
 	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/opsidian/basil/basil/dependency"
+	"github.com/opsidian/basil/basil/directive"
+	"github.com/opsidian/basil/basil/job"
+	"github.com/opsidian/basil/basil/parameter"
+	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/basil/util"
 )
 
 func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockInterpreter) (parsley.Node, parsley.Error) {

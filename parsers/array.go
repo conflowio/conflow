@@ -9,12 +9,12 @@ package parsers
 import (
 	"fmt"
 
-	"github.com/opsidian/basil/basil/schema"
-
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // Array will match an array expression defined by the following rule, where P is the input parser:

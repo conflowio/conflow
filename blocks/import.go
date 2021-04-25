@@ -10,9 +10,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/opsidian/basil/basil/block"
-
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/parsers"
 )
 

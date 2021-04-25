@@ -7,8 +7,9 @@
 package basil
 
 import (
-	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/parsley"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // ParameterNode is the AST node for a parameter

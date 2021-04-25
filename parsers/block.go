@@ -9,15 +9,14 @@ package parsers
 import (
 	"fmt"
 
-	"github.com/opsidian/parsley/parser"
-
-	"github.com/opsidian/basil/basil/block"
-
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/combinator"
+	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
+
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/block"
 )
 
 // Block returns a parser for parsing blocks

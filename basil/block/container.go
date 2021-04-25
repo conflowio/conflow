@@ -12,14 +12,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/opsidian/basil/basil/schema"
-
-	"github.com/opsidian/basil/basil/job"
+	"github.com/opsidian/parsley/parsley"
 
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/basil/parameter"
+	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/basil/util"
-	"github.com/opsidian/parsley/parsley"
 )
 
 const (

@@ -22,10 +22,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/opsidian/basil/basil/generator/parser"
-
 	blockgenerator "github.com/opsidian/basil/basil/block/generator"
 	functiongenerator "github.com/opsidian/basil/basil/function/generator"
+	"github.com/opsidian/basil/basil/generator/parser"
 )
 
 // Generate generates code for the given types

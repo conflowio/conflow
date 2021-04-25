@@ -7,8 +7,9 @@
 package parameter
 
 import (
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/parsley"
+
+	"github.com/opsidian/basil/basil"
 )
 
 var _ basil.ParameterContainer = &Container{}

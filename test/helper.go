@@ -10,23 +10,18 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/opsidian/basil/basil/block"
-
-	"github.com/opsidian/basil/directives"
-
-	"github.com/opsidian/basil/loggers/zerolog"
-
-	"github.com/opsidian/basil/basil/basilfakes"
-
-	"github.com/onsi/gomega/types"
-
-	"github.com/opsidian/basil/basil/function"
-
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/basil/basil"
+	"github.com/onsi/gomega/types"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
+
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/basilfakes"
+	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/basil/basil/function"
+	"github.com/opsidian/basil/directives"
+	"github.com/opsidian/basil/loggers/zerolog"
 )
 
 func ParseCtx(

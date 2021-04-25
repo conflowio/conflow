@@ -9,9 +9,10 @@ package parameter
 import (
 	"errors"
 
+	"github.com/opsidian/parsley/parsley"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/directive"
-	"github.com/opsidian/parsley/parsley"
 )
 
 func TransformNode(

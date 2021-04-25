@@ -13,13 +13,13 @@ import (
 	"path/filepath"
 
 	"github.com/opsidian/parsley/ast"
-
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
+
+	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/block"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)

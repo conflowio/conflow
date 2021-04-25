@@ -10,6 +10,7 @@ import (
 	"time"
 
 	. "github.com/onsi/gomega"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
 )

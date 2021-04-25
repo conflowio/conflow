@@ -7,11 +7,12 @@
 package parsers
 
 import (
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
+
+	"github.com/opsidian/basil/basil"
 )
 
 // ID parses an identifier:

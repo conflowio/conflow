@@ -11,12 +11,12 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/opsidian/basil/util/multierror"
+	"golang.org/x/xerrors"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/util"
-	"golang.org/x/xerrors"
+	"github.com/opsidian/basil/util/multierror"
 )
 
 // @block

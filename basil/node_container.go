@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/opsidian/basil/util"
-
 	"github.com/opsidian/parsley/parsley"
+
+	"github.com/opsidian/basil/util"
 )
 
 // NodeContainer wraps a node and registers the dependencies as they become available

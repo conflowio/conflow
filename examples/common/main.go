@@ -15,12 +15,12 @@ import (
 	"runtime"
 
 	"github.com/opsidian/parsley/parsley"
+	uzerolog "github.com/rs/zerolog"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/directives"
 	"github.com/opsidian/basil/loggers/zerolog"
-	uzerolog "github.com/rs/zerolog"
 )
 
 func NewParseContext() *basil.ParseContext {

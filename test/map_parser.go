@@ -7,9 +7,10 @@
 package test
 
 import (
-	"github.com/opsidian/basil/basil/schema"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/text/terminal"
+
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // MapParser returns with a parser which will read the "MAP" string but the result will return a sample map
