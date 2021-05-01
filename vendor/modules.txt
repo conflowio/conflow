@@ -50,7 +50,7 @@ github.com/onsi/gomega/matchers/support/goraph/edge
 github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
-# github.com/opsidian/parsley v0.16.1-0.20210423124219-bc3e7f57f75a
+# github.com/opsidian/parsley v0.16.1-0.20210501065106-86e58e646d55
 ## explicit
 github.com/opsidian/parsley/ast
 github.com/opsidian/parsley/ast/interpreter
