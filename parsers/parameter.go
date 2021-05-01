@@ -13,7 +13,6 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/parameter"
 )
 
@@ -45,7 +44,7 @@ func Parameter(expr parsley.Parser, allowNewAssignment bool, allowDirectives boo
 
 	return combinator.SeqOf(
 		directives,
-		ID(basil.IDRegExpPattern, false),
+		ID(),
 		text.LeftTrim(assignment, text.WsSpaces),
 		text.LeftTrim(parameterValue, text.WsSpaces),
 	).Name("parameter").Token(parameter.Token)

@@ -18,7 +18,7 @@ func transformNode(
 	interpreter basil.FunctionInterpreter,
 ) (parsley.Node, parsley.Error) {
 	nodes := node.(parsley.NonTerminalNode).Children()
-	nameNode := nodes[0].(*basil.IDNode)
+	nameNode := nodes[0]
 
 	var argumentNodes []parsley.Node
 

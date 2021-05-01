@@ -47,6 +47,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
+			Required:         []string{"items"},
 			StructProperties: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
 		}
 	}

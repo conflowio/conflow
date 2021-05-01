@@ -155,18 +155,6 @@ var _ = Describe("Directive parser", func() {
 			},
 		),
 		Entry(
-			"child block with id and no body",
-			`@testdirective {
-				blocks testblock
-			}`,
-			&test.Directive{
-				IDField: "0",
-				Blocks: []*test.Block{
-					{IDField: "1"},
-				},
-			},
-		),
-		Entry(
 			"child block with parameter defined",
 			`@testdirective {
 				testblock {
@@ -256,7 +244,7 @@ var _ = Describe("Directive parser", func() {
 		Entry(
 			"unknown block type",
 			`@unknowndirective {}`,
-			errors.New("\"@unknowndirective\" directive is unknown or not allowed at testfile:1:1"),
+			errors.New("@unknowndirective directive is unknown or not allowed at testfile:1:1"),
 		),
 		Entry(
 			"unknown child block type",

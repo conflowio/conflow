@@ -12,36 +12,6 @@ import (
 	"github.com/opsidian/basil/basil/schema"
 )
 
-// Block field tag constants
-const (
-	BlockTagBlock      ID = "block"
-	BlockTagDeprecated    = "deprecated"
-	BlockTagGenerated     = "generated"
-	BlockTagID            = "id"
-	BlockTagIgnore        = "ignore"
-	BlockTagName          = "name"
-	BlockTagOutput        = "output"
-	BlockTagRequired      = "required"
-	BlockTagStage         = "stage"
-	BlockTagValue         = "value"
-	BlockTagDefault       = "default"
-)
-
-// BlockTags contains the valid block tags with descriptions
-var BlockTags = map[ID]string{
-	BlockTagBlock:      "marks an array field which should store child blocks",
-	BlockTagDeprecated: "marks the field as deprecated (for documentation purposes)",
-	BlockTagGenerated:  "marks the block as generated",
-	BlockTagID:         "marks the id field in the block",
-	BlockTagIgnore:     "the field is ignored when processing the block",
-	BlockTagName:       "overrides the parameter name, otherwise the field name will be converted to under_score",
-	BlockTagOutput:     "marks the field as output",
-	BlockTagRequired:   "marks the field as required (must be set but can be empty)",
-	BlockTagStage:      "sets the evaluation stage for the field",
-	BlockTagValue:      "sets the field as the value field to be used for the short block format",
-	BlockTagDefault:    "sets the default value for the field",
-}
-
 // Block is an interface for a block object
 type Block interface {
 }
@@ -78,6 +48,7 @@ type BlockCloser interface {
 type BlockNode interface {
 	Node
 	Children() []Node
+	ParameterName() ID
 	BlockType() ID
 	Interpreter() BlockInterpreter
 	SetSchema(schema.Schema)

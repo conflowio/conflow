@@ -22,7 +22,8 @@ type Array struct {
 	Const   []interface{}   `json:"const,omitempty"`
 	Default []interface{}   `json:"default,omitempty"`
 	Enum    [][]interface{} `json:"enum,omitempty"`
-	Items   Schema          `json:"items,omitempty"`
+	// @required
+	Items Schema `json:"items,omitempty"`
 }
 
 func (a *Array) AssignValue(imports map[string]string, valueName, resultName string) string {

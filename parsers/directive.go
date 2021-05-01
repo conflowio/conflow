@@ -8,7 +8,6 @@ package parsers
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parser"
@@ -31,7 +30,7 @@ import (
 func Directive(expr parsley.Parser) *combinator.Sequence {
 	paramOrBlock := combinator.Choice(
 		Parameter(expr, false, false),
-		blockWithOptions(expr, false, false),
+		blockWithOptions(expr, false, false, false),
 	).Name("parameter or block")
 
 	emptyBody := combinator.SeqOf(
@@ -55,7 +54,7 @@ func Directive(expr parsley.Parser) *combinator.Sequence {
 
 	return combinator.SeqOf(
 		parser.Empty(), // no directives for a directive
-		ID("@"+basil.IDRegExpPattern, false),
+		IDWithClassifier(basil.ClassifierAnnotation),
 		combinator.Choice(
 			text.LeftTrim(blockValue, text.WsSpaces),
 			parser.Empty(),
@@ -75,10 +74,13 @@ func (d directiveInterpreter) TransformNode(userCtx interface{}, node parsley.No
 	nodes := node.(parsley.NonTerminalNode).Children()
 
 	typeNode := nodes[1].(*basil.IDNode)
-	typeID := strings.TrimPrefix(string(typeNode.ID()), "@")
-	transformer, exists := registry.NodeTransformer(typeID)
+	transformer, exists := registry.NodeTransformer(string(typeNode.ID()))
 	if !exists {
-		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf("%q directive is unknown or not allowed", typeNode.ID()))
+		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf(
+			"%s%s directive is unknown or not allowed",
+			string(typeNode.Classifier()),
+			typeNode.ID()),
+		)
 	}
 
 	return transformer.TransformNode(userCtx, node)

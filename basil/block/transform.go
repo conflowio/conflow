@@ -39,20 +39,28 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 	}
 
 	var idNode *basil.IDNode
-	var typeNode *basil.IDNode
+	var nameNode *basil.NameNode
 	switch n := nodes[1].(type) {
 	case parsley.NonTerminalNode:
-		idNode = n.Children()[0].(*basil.IDNode)
-		typeNode = n.Children()[1].(*basil.IDNode)
-		if err := parseCtx.RegisterID(idNode.ID()); err != nil {
-			return nil, parsley.NewError(idNode.Pos(), err)
+		if _, isEmpty := n.Children()[0].(ast.EmptyNode); !isEmpty {
+			idNode = n.Children()[0].(*basil.IDNode)
+			if err := parseCtx.RegisterID(idNode.ID()); err != nil {
+				return nil, parsley.NewError(idNode.Pos(), err)
+			}
 		}
+
+		nameNode = n.Children()[1].(*basil.NameNode)
+	case *basil.NameNode:
+		nameNode = n
 	case *basil.IDNode:
-		typeNode = n
-		id := parseCtx.GenerateID()
-		idNode = basil.NewIDNode(id, typeNode.ReaderPos(), typeNode.ReaderPos())
+		nameNode = basil.NewNameNode(nil, nil, n)
 	default:
 		panic(fmt.Errorf("unexpected identifier node: %T", nodes[1]))
+	}
+
+	if idNode == nil {
+		id := parseCtx.GenerateID()
+		idNode = basil.NewIDNode(id, basil.ClassifierNone, nameNode.Pos(), nameNode.Pos())
 	}
 
 	var children []basil.Node
@@ -78,7 +86,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 		} else if _, empty := blockValueNode.(ast.EmptyNode); !empty { // We have an expression as the value of the block
 			valueParamName := interpreter.ValueParamName()
 			if valueParamName == "" {
-				return nil, parsley.NewErrorf(typeNode.Pos(), "%q block does not support short format", typeNode.ID())
+				return nil, parsley.NewErrorf(nameNode.Pos(), "%q block does not support short format", nameNode.NameNode().ID())
 			}
 			valueNode, err := parsley.Transform(parseCtx, blockValueNode)
 			if err != nil {
@@ -87,7 +95,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 			children = []basil.Node{
 				parameter.NewNode(
 					idNode.ID(),
-					basil.NewIDNode(valueParamName, blockValueNode.Pos(), blockValueNode.Pos()),
+					basil.NewIDNode(valueParamName, basil.ClassifierNone, blockValueNode.Pos(), blockValueNode.Pos()),
 					valueNode,
 					false,
 					nil,
@@ -98,7 +106,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 
 	res := NewNode(
 		idNode,
-		typeNode,
+		nameNode,
 		children,
 		node.Token(),
 		directives,
@@ -147,8 +155,8 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id basil.ID, interpre
 	}
 
 	res := NewNode(
-		basil.NewIDNode(id, node.Pos(), node.Pos()),
-		basil.NewIDNode(basil.ID("main"), node.Pos(), node.Pos()),
+		basil.NewIDNode(id, basil.ClassifierNone, node.Pos(), node.Pos()),
+		basil.NewNameNode(nil, nil, basil.NewIDNode(basil.ID("main"), basil.ClassifierNone, node.Pos(), node.Pos())),
 		children,
 		TokenBlock,
 		nil,
@@ -187,7 +195,7 @@ func TransformChildren(
 
 			if blockSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(blockNode.ID())]; ok {
 				blockNode.SetSchema(blockSchema)
-			} else if blockSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(blockNode.BlockType())]; ok {
+			} else if blockSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(blockNode.ParameterName())]; ok {
 				blockNode.SetSchema(blockSchema)
 			}
 

@@ -14,29 +14,42 @@ import (
 	"github.com/opsidian/basil/basil/schema"
 )
 
+const (
+	ClassifierNone       = rune(0)
+	ClassifierAnnotation = '@'
+)
+
 // IDNode contains an identifier
 type IDNode struct {
-	id        ID
-	pos       parsley.Pos
-	readerPos parsley.Pos
+	id         ID
+	classifier rune
+	pos        parsley.Pos
+	readerPos  parsley.Pos
 }
 
 // NewIDNode creates a new id node
-func NewIDNode(id ID, pos parsley.Pos, readerPos parsley.Pos) *IDNode {
+func NewIDNode(id ID, classifier rune, pos parsley.Pos, readerPos parsley.Pos) *IDNode {
 	if id == "" {
 		panic("identifier can not be empty")
 	}
 
 	return &IDNode{
-		id:        id,
-		pos:       pos,
-		readerPos: readerPos,
+		id:         id,
+		classifier: classifier,
+		pos:        pos,
+		readerPos:  readerPos,
 	}
 }
 
 // ID returns with the identifier string
 func (i *IDNode) ID() ID {
 	return i.id
+}
+
+// Classifier returns with classifier of the id
+// A classifier is a single rune, like '@', '$', '&'.
+func (i *IDNode) Classifier() rune {
+	return i.classifier
 }
 
 // Token returns with the node token

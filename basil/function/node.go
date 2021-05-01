@@ -19,7 +19,7 @@ var _ basil.FunctionNode = &Node{}
 
 // Node is a function node
 type Node struct {
-	nameNode      *basil.IDNode
+	nameNode      parsley.Node
 	argumentNodes []parsley.Node
 	readerPos     parsley.Pos
 	interpreter   basil.FunctionInterpreter
@@ -28,7 +28,15 @@ type Node struct {
 
 // Name returns with the function name
 func (n *Node) Name() basil.ID {
-	return n.nameNode.ID()
+	value, _ := parsley.EvaluateNode(nil, n.nameNode)
+	switch v := value.(type) {
+	case basil.ID:
+		return v
+	case []basil.ID:
+		return basil.ID(fmt.Sprintf("%s.%s", v[0], v[1]))
+	default:
+		panic(fmt.Errorf("unexpected name node value: %T", v))
+	}
 }
 
 // Token returns with the node's token
@@ -44,7 +52,7 @@ func (n *Node) Schema() interface{} {
 // StaticCheck runs static analysis on the node
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	s := n.interpreter.Schema().(*schema.Function)
-	name := n.nameNode.Value()
+	name := n.Name()
 
 	if len(n.argumentNodes) < len(s.Parameters) {
 		pos := n.nameNode.Pos()
@@ -143,5 +151,5 @@ func (n *Node) Children() []parsley.Node {
 }
 
 func (n *Node) String() string {
-	return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.nameNode.ID(), n.argumentNodes, n.Pos(), n.ReaderPos())
+	return fmt.Sprintf("%s{%s, %s, %d..%d}", n.Token(), n.Name(), n.argumentNodes, n.Pos(), n.ReaderPos())
 }

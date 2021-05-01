@@ -198,6 +198,30 @@ var _ = Describe("Block parser", func() {
 			},
 		),
 		Entry(
+			"child block with parameter name",
+			`testblock {
+				testblock:testblock
+			}`,
+			&test.Block{
+				IDField: "0",
+				Blocks: []*test.Block{
+					{IDField: "1"},
+				},
+			},
+		),
+		Entry(
+			"child block with id and parameter name",
+			`testblock {
+				foo testblock:testblock
+			}`,
+			&test.Block{
+				IDField: "0",
+				Blocks: []*test.Block{
+					{IDField: "foo"},
+				},
+			},
+		),
+		Entry(
 			"child block with empty body",
 			`testblock {
 				testblock {

@@ -20,19 +20,35 @@ import (
 //
 // An identifier can only contain lowercase letters, numbers and underscore characters.
 // It must start with a letter, must end with a letter or number, and no duplicate underscores are allowed.
-//
-func ID(regex string, allowKeywords bool) parser.Func {
+func ID() parser.Func {
+	return id(basil.ClassifierNone)
+}
+
+func IDWithClassifier(classifier rune) parser.Func {
+	return id(classifier)
+}
+func id(classifier rune) parser.Func {
 	notFoundErr := parsley.NotFoundError("identifier")
 
-	return parser.Func(func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
+	return func(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
 		tr := ctx.Reader().(*text.Reader)
-		if readerPos, match := tr.ReadRegexp(pos, regex); match != nil {
+
+		idPos := pos
+
+		if classifier != basil.ClassifierNone {
+			var ok bool
+			if pos, ok = tr.ReadRune(pos, classifier); !ok {
+				return nil, data.EmptyIntSet, parsley.NewError(pos, parsley.NotFoundError(classifier))
+			}
+		}
+
+		if readerPos, match := tr.ReadRegexp(pos, basil.IDRegExpPattern); match != nil {
 			id := string(match)
-			if !allowKeywords && ctx.IsKeyword(id) {
+			if ctx.IsKeyword(id) {
 				return nil, data.EmptyIntSet, parsley.NewErrorf(pos, "%s is a reserved keyword", id)
 			}
-			return basil.NewIDNode(basil.ID(id), pos, readerPos), data.EmptyIntSet, nil
+			return basil.NewIDNode(basil.ID(id), classifier, idPos, readerPos), data.EmptyIntSet, nil
 		}
 		return nil, data.EmptyIntSet, parsley.NewError(pos, notFoundErr)
-	})
+	}
 }

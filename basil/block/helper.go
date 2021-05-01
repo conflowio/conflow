@@ -30,9 +30,9 @@ func getNameSchemaForChildBlock(s *schema.Object, node basil.BlockNode) (basil.I
 		return node.ID(), p
 	}
 
-	if p, ok := s.Properties[string(node.BlockType())]; ok {
-		return node.BlockType(), p
+	if p, ok := s.Properties[string(node.ParameterName())]; ok {
+		return node.ParameterName(), p
 	}
 
-	return node.BlockType(), nil
+	return node.ParameterName(), nil
 }

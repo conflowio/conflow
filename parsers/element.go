@@ -39,7 +39,7 @@ func Element(p parsley.Parser, index parsley.Parser) *combinator.Sequence {
 	lenCheck := func(len int) bool {
 		return len > 0
 	}
-	return combinator.Seq("VAR", lookup, lenCheck).Bind(elementInterpreter{}).ReturnSingle()
+	return combinator.Seq("VAR", lookup, lenCheck).Bind(elementInterpreter{}).HandleResult(combinator.ReturnSingle())
 }
 
 type elementInterpreter struct{}

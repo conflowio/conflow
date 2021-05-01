@@ -22,7 +22,7 @@ func And(p parsley.Parser) *combinator.Sequence {
 	return SepByOp(
 		p,
 		terminal.Op("&&"),
-	).Token("AND").Bind(andInterpreter{}).ReturnSingle()
+	).Token("AND").Bind(andInterpreter{}).HandleResult(combinator.ReturnSingle())
 }
 
 type andInterpreter struct{}

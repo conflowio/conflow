@@ -421,7 +421,7 @@ var _ = Describe("ParseStruct", func() {
 			})
 
 			It("should return with error", func() {
-				Expect(parseErr).To(MatchError("failed to parse field \"id\": \"@nonexisting\" directive is unknown or not allowed at 2:1"))
+				Expect(parseErr).To(MatchError("failed to parse field \"id\": @nonexisting directive is unknown or not allowed at 2:1"))
 			})
 		})
 

@@ -29,7 +29,7 @@ func ProdMod(p parsley.Parser) *combinator.Sequence {
 			terminal.Rune('/'),
 			terminal.Rune('%'),
 		),
-	).Token("PROD_MOD").Bind(prodModInterpreter{}).ReturnSingle()
+	).Token("PROD_MOD").Bind(prodModInterpreter{}).HandleResult(combinator.ReturnSingle())
 }
 
 type prodModInterpreter struct{}

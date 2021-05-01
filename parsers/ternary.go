@@ -42,7 +42,7 @@ func TernaryIf(p parsley.Parser) *combinator.Sequence {
 	}
 	return combinator.Seq(
 		"TERNARY_IF", lookup, lenCheck,
-	).Bind(ternaryInterpreter{}).ReturnSingle()
+	).Bind(ternaryInterpreter{}).HandleResult(combinator.ReturnSingle())
 }
 
 type ternaryInterpreter struct{}

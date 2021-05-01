@@ -27,7 +27,7 @@ func Sum(p parsley.Parser) *combinator.Sequence {
 			terminal.Rune('+'),
 			terminal.Rune('-'),
 		),
-	).Token("SUM").Bind(sumInterpreter{}).ReturnSingle()
+	).Token("SUM").Bind(sumInterpreter{}).HandleResult(combinator.ReturnSingle())
 }
 
 type sumInterpreter struct{}

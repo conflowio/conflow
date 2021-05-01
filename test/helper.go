@@ -38,8 +38,8 @@ func ParseCtx(
 	}
 
 	testBlockNode := block.NewNode(
-		basil.NewIDNode("test", parsley.NilPos, parsley.NilPos),
-		basil.NewIDNode("testblock", parsley.NilPos, parsley.NilPos),
+		basil.NewIDNode("test", basil.ClassifierNone, parsley.NilPos, parsley.NilPos),
+		basil.NewNameNode(nil, nil, basil.NewIDNode("testblock", basil.ClassifierNone, parsley.NilPos, parsley.NilPos)),
 		nil,
 		"TESTBLOCK",
 		nil,

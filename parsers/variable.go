@@ -22,9 +22,9 @@ import (
 // Variable refers to a named block's parameter, in the format of `<block ID>.<parameter ID>`.
 func Variable() *combinator.Sequence {
 	return combinator.SeqOf(
-		ID(basil.IDRegExpPattern, false),
+		ID(),
 		terminal.Rune('.'),
-		ID(basil.IDRegExpPattern, false),
+		ID(),
 	).Name("variable").Token("VAR").Bind(variableInterpreter{})
 }
 

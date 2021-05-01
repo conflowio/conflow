@@ -37,7 +37,7 @@ func Compare(p parsley.Parser) *combinator.Sequence {
 			terminal.Op(">="),
 			terminal.Op(">"),
 		),
-	).Token("COMPARE").Bind(compareInterpreter{}).ReturnSingle()
+	).Token("COMPARE").Bind(compareInterpreter{}).HandleResult(combinator.ReturnSingle())
 }
 
 type compareInterpreter struct{}

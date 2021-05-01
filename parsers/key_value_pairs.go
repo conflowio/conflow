@@ -32,7 +32,7 @@ func KeyValuePairs() *combinator.Sequence {
 	).Name("value")
 
 	keyValue := combinator.SeqOf(
-		ID(basil.IDRegExpPattern, false),
+		ID(),
 		text.LeftTrim(terminal.Rune('='), text.WsSpaces),
 		text.LeftTrim(&value, text.WsSpaces),
 	).Name("parameter name and value pair")

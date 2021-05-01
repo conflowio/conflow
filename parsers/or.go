@@ -22,7 +22,7 @@ func Or(p parsley.Parser) *combinator.Sequence {
 	return SepByOp(
 		p,
 		terminal.Op("||"),
-	).Token("COMPARE").Bind(orInterpreter{}).ReturnSingle()
+	).Token("COMPARE").Bind(orInterpreter{}).HandleResult(combinator.ReturnSingle())
 }
 
 type orInterpreter struct{}

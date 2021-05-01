@@ -518,7 +518,7 @@ func (c *Container) PublishBlock(block basil.Block, f func() error) (bool, error
 	blockID := b.ID()
 
 	nodeContainer, ok := c.children[blockID]
-	propertyName := string(nodeContainer.Node().(basil.BlockNode).BlockType())
+	propertyName := string(nodeContainer.Node().(basil.BlockNode).ParameterName())
 	if !ok || c.Node().Schema().(*schema.Object).Properties[propertyName].GetAnnotation("generated") != "true" {
 		return false, fmt.Errorf("%q block does not exist or is not marked as generated", blockID)
 	}

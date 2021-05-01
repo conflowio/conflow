@@ -118,6 +118,16 @@ type FakeBlockNode struct {
 	interpreterReturnsOnCall map[int]struct {
 		result1 basil.BlockInterpreter
 	}
+	ParameterNameStub        func() basil.ID
+	parameterNameMutex       sync.RWMutex
+	parameterNameArgsForCall []struct {
+	}
+	parameterNameReturns struct {
+		result1 basil.ID
+	}
+	parameterNameReturnsOnCall map[int]struct {
+		result1 basil.ID
+	}
 	PosStub        func() parsley.Pos
 	posMutex       sync.RWMutex
 	posArgsForCall []struct {
@@ -738,6 +748,58 @@ func (fake *FakeBlockNode) InterpreterReturnsOnCall(i int, result1 basil.BlockIn
 	}{result1}
 }
 
+func (fake *FakeBlockNode) ParameterName() basil.ID {
+	fake.parameterNameMutex.Lock()
+	ret, specificReturn := fake.parameterNameReturnsOnCall[len(fake.parameterNameArgsForCall)]
+	fake.parameterNameArgsForCall = append(fake.parameterNameArgsForCall, struct {
+	}{})
+	fake.recordInvocation("ParameterName", []interface{}{})
+	fake.parameterNameMutex.Unlock()
+	if fake.ParameterNameStub != nil {
+		return fake.ParameterNameStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.parameterNameReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockNode) ParameterNameCallCount() int {
+	fake.parameterNameMutex.RLock()
+	defer fake.parameterNameMutex.RUnlock()
+	return len(fake.parameterNameArgsForCall)
+}
+
+func (fake *FakeBlockNode) ParameterNameCalls(stub func() basil.ID) {
+	fake.parameterNameMutex.Lock()
+	defer fake.parameterNameMutex.Unlock()
+	fake.ParameterNameStub = stub
+}
+
+func (fake *FakeBlockNode) ParameterNameReturns(result1 basil.ID) {
+	fake.parameterNameMutex.Lock()
+	defer fake.parameterNameMutex.Unlock()
+	fake.ParameterNameStub = nil
+	fake.parameterNameReturns = struct {
+		result1 basil.ID
+	}{result1}
+}
+
+func (fake *FakeBlockNode) ParameterNameReturnsOnCall(i int, result1 basil.ID) {
+	fake.parameterNameMutex.Lock()
+	defer fake.parameterNameMutex.Unlock()
+	fake.ParameterNameStub = nil
+	if fake.parameterNameReturnsOnCall == nil {
+		fake.parameterNameReturnsOnCall = make(map[int]struct {
+			result1 basil.ID
+		})
+	}
+	fake.parameterNameReturnsOnCall[i] = struct {
+		result1 basil.ID
+	}{result1}
+}
+
 func (fake *FakeBlockNode) Pos() parsley.Pos {
 	fake.posMutex.Lock()
 	ret, specificReturn := fake.posReturnsOnCall[len(fake.posArgsForCall)]
@@ -1115,6 +1177,8 @@ func (fake *FakeBlockNode) Invocations() map[string][][]interface{} {
 	defer fake.iDMutex.RUnlock()
 	fake.interpreterMutex.RLock()
 	defer fake.interpreterMutex.RUnlock()
+	fake.parameterNameMutex.RLock()
+	defer fake.parameterNameMutex.RUnlock()
 	fake.posMutex.RLock()
 	defer fake.posMutex.RUnlock()
 	fake.providesMutex.RLock()

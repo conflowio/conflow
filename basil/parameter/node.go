@@ -182,6 +182,12 @@ func (n *Node) ReaderPos() parsley.Pos {
 
 // Walk runs the given function on all child nodes
 func (n *Node) Walk(f func(n parsley.Node) bool) bool {
+	for _, node := range n.directives {
+		if parsley.Walk(node, f) {
+			return true
+		}
+	}
+
 	return parsley.Walk(n.valueNode, f)
 }
 

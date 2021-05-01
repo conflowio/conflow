@@ -86,6 +86,10 @@ func (r *Reference) StringValue(value interface{}) string {
 }
 
 func (r *Reference) Type() Type {
+	if r.schema == nil && r.Resolver == nil {
+		return TypeReference
+	}
+
 	return r.getSchema().Type()
 }
 

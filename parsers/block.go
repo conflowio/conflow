@@ -30,11 +30,12 @@ import (
 //         -> ARRAY
 //         -> MAP
 func Block(expr parsley.Parser) *combinator.Sequence {
-	return blockWithOptions(expr, true, true)
+	return blockWithOptions(expr, true, true, true)
 }
 
 func blockWithOptions(
 	expr parsley.Parser,
+	allowID bool,
 	allowCustomParameters bool,
 	allowDirectives bool,
 ) *combinator.Sequence {
@@ -71,14 +72,19 @@ func blockWithOptions(
 		Map(expr),
 	).Name("block value")
 
-	id := combinator.SeqTry(
-		ID(basil.IDRegExpPattern, false),
-		text.LeftTrim(ID(basil.IDRegExpPattern, false), text.WsSpaces),
-	).Token("TYPE_ID").ReturnSingle()
+	var idName parsley.Parser
+	if allowID {
+		idName = combinator.SeqOf(
+			combinator.Optional(ID()),
+			text.LeftTrim(Name(':'), text.WsSpaces),
+		)
+	} else {
+		idName = Name(':')
+	}
 
 	p = *combinator.SeqOf(
 		directives,
-		id,
+		idName,
 		combinator.Optional(text.LeftTrim(blockValue, text.WsSpaces)),
 	).Name("block").Token(block.TokenBlock).Bind(blockInterpreter{})
 
@@ -96,19 +102,21 @@ func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) 
 
 	nodes := node.(parsley.NonTerminalNode).Children()
 
-	var typeNode *basil.IDNode
+	var nameNode *basil.NameNode
 	switch n := nodes[1].(type) {
 	case parsley.NonTerminalNode:
-		typeNode = n.Children()[1].(*basil.IDNode)
+		nameNode = n.Children()[1].(*basil.NameNode)
+	case *basil.NameNode:
+		nameNode = n
 	case *basil.IDNode:
-		typeNode = n
+		nameNode = basil.NewNameNode(nil, nil, n)
 	default:
 		panic(fmt.Errorf("unexpected node type: %T", nodes[1]))
 	}
 
-	transformer, exists := registry.NodeTransformer(string(typeNode.ID()))
+	transformer, exists := registry.NodeTransformer(string(nameNode.NameNode().ID()))
 	if !exists {
-		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf("%q block is unknown or not allowed", typeNode.ID()))
+		return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q block is unknown or not allowed", nameNode.NameNode().ID()))
 	}
 
 	return transformer.TransformNode(userCtx, node)

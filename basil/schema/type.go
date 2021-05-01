@@ -20,6 +20,7 @@ const (
 	TypeNull         Type = "null"
 	TypeNumber       Type = "number"
 	TypeObject       Type = "object"
+	TypeReference    Type = "reference"
 	TypeString       Type = "string"
 	TypeTime         Type = "time"
 	TypeTimeDuration Type = "time_duration"

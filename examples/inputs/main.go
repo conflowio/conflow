@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/opsidian/basil/functions"
+
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
@@ -40,6 +42,7 @@ func main() {
 			"print":   blocks.PrintInterpreter{},
 			"println": blocks.PrintlnInterpreter{},
 		},
+		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	})
 
 	if err := p.ParseFile(

@@ -16,28 +16,28 @@ import (
 	"github.com/opsidian/basil/test"
 )
 
-var _ = Describe("ID", func() {
+var _ = Describe("Name", func() {
 
-	p := parsers.ID()
+	sep := '.'
+	p := parsers.Name(sep)
 
 	DescribeTable("it evaluates the input correctly",
 		func(input string, expected interface{}) {
 			test.ExpectParserToEvaluate(p)(input, expected)
 		},
 		test.TableEntry(`a`, basil.ID("a")),
-		test.TableEntry(`a_b`, basil.ID("a_b")),
-		test.TableEntry(`abcdefghijklmnopqrstuvwxyz_0123456789`, basil.ID("abcdefghijklmnopqrstuvwxyz_0123456789")),
+		test.TableEntry(`a.b`, basil.ID("a.b")),
 	)
 
 	DescribeTable("it returns a parse error",
 		func(input string, expectedErr error) {
 			test.ExpectParserToHaveParseError(p)(input, expectedErr)
 		},
-		test.TableEntry(`testkeyword`, errors.New("testkeyword is a reserved keyword at testfile:1:1")),
-		test.TableEntry(`a__b`, errors.New("was expecting the end of input at testfile:1:2")),
-		test.TableEntry(`_b`, errors.New("was expecting identifier at testfile:1:1")),
-		test.TableEntry(`b_`, errors.New("was expecting the end of input at testfile:1:2")),
-		test.TableEntry(`0ab`, errors.New("was expecting identifier at testfile:1:1")),
+		test.TableEntry(`a.`, errors.New("was expecting identifier at testfile:1:3")),
+		test.TableEntry(`.b`, errors.New("was expecting identifier at testfile:1:1")),
+		test.TableEntry(`testkeyword.a`, errors.New("testkeyword is a reserved keyword at testfile:1:1")),
+		test.TableEntry(`a.testkeyword`, errors.New("testkeyword is a reserved keyword at testfile:1:3")),
+		test.TableEntry(`a.testkeyword`, errors.New("testkeyword is a reserved keyword at testfile:1:3")),
 	)
 
 })

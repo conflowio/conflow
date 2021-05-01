@@ -20,14 +20,15 @@ const (
 	TokenBlock     = "BLOCK"
 	TokenDirective = "BLOCK_DIRECTIVE"
 	TokenBlockBody = "BLOCK_BODY"
+	TokenName      = "NAME"
 )
 
 var _ basil.BlockNode = &Node{}
 
 // Node is a block node
 type Node struct {
-	typeNode     *basil.IDNode
 	idNode       *basil.IDNode
+	nameNode     *basil.NameNode
 	children     []basil.Node
 	token        string
 	directives   []basil.BlockNode
@@ -42,7 +43,7 @@ type Node struct {
 // NewNode creates a new block node
 func NewNode(
 	idNode *basil.IDNode,
-	typeNode *basil.IDNode,
+	nameNode *basil.NameNode,
 	children []basil.Node,
 	token string,
 	directives []basil.BlockNode,
@@ -67,7 +68,7 @@ func NewNode(
 
 	return &Node{
 		idNode:       idNode,
-		typeNode:     typeNode,
+		nameNode:     nameNode,
 		children:     children,
 		token:        token,
 		directives:   directives,
@@ -85,9 +86,18 @@ func (n *Node) ID() basil.ID {
 	return n.idNode.ID()
 }
 
+// ParameterName returns with the parameter name
+func (n *Node) ParameterName() basil.ID {
+	if n.nameNode.SelectorNode() != nil {
+		return n.nameNode.SelectorNode().ID()
+	}
+
+	return n.nameNode.NameNode().ID()
+}
+
 // BlockType returns with the type of block
 func (n *Node) BlockType() basil.ID {
-	return n.typeNode.ID()
+	return n.nameNode.NameNode().ID()
 }
 
 // Token returns with the node's token
@@ -166,10 +176,16 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case basil.BlockNode:
-			blockCounts[c.BlockType()] = blockCounts[c.BlockType()] + 1
-			if property, ok := n.schema.Properties[string(c.BlockType())]; ok {
-				if blockCounts[c.BlockType()] > 1 && property.Type() != schema.TypeArray {
-					return parsley.NewError(c.Pos(), fmt.Errorf("%q block can only be defined once", c.BlockType()))
+			property, exists := n.schema.Properties[string(c.ParameterName())]
+
+			if !exists && c.ParameterName() != c.BlockType() {
+				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.ParameterName())
+			}
+
+			if exists {
+				blockCounts[c.ParameterName()] = blockCounts[c.ParameterName()] + 1
+				if blockCounts[c.ParameterName()] > 1 && property.Type() != schema.TypeArray {
+					return parsley.NewError(c.Pos(), fmt.Errorf("%q block can only be defined once", c.ParameterName()))
 				}
 			}
 		case basil.ParameterNode:
@@ -195,7 +211,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			for _, child := range n.Children() {
 				switch c := child.(type) {
 				case basil.BlockNode:
-					if string(c.BlockType()) == required {
+					if string(c.ParameterName()) == required {
 						return true
 					}
 				case basil.ParameterNode:
@@ -261,6 +277,12 @@ func (n *Node) Directives() []basil.BlockNode {
 
 // Walk runs the given function on all child nodes
 func (n *Node) Walk(f func(n parsley.Node) bool) bool {
+	for _, node := range n.directives {
+		if parsley.Walk(node, f) {
+			return true
+		}
+	}
+
 	for _, node := range n.children {
 		if parsley.Walk(node, f) {
 			return true
@@ -281,5 +303,5 @@ func (n *Node) CreateContainer(
 }
 
 func (n *Node) String() string {
-	return fmt.Sprintf("%s{%s, %s, %s, %d..%d}", n.Token(), n.typeNode, n.idNode, n.children, n.Pos(), n.ReaderPos())
+	return fmt.Sprintf("%s{%s, %s, %s, %d..%d}", n.Token(), n.nameNode, n.idNode, n.children, n.Pos(), n.ReaderPos())
 }

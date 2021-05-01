@@ -18,6 +18,7 @@ import (
 type Map struct {
 	Metadata
 
+	// @required
 	AdditionalProperties Schema                   `json:"additionalProperties,omitempty"`
 	Const                map[string]interface{}   `json:"const,omitempty"`
 	Default              map[string]interface{}   `json:"default,omitempty"`

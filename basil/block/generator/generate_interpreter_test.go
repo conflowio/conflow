@@ -9,6 +9,7 @@ package generator_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/basil/block/fixtures"
 	"github.com/opsidian/basil/parsers"
@@ -25,6 +26,7 @@ var _ = Describe("GenerateInterpreter", func() {
 		"block_with_one_block":  fixtures.BlockWithOneBlockInterpreter{},
 		"block_with_many_block": fixtures.BlockWithManyBlockInterpreter{},
 		"block_with_default":    fixtures.BlockWithDefaultInterpreter{},
+		"block_with_interface":  fixtures.BlockWithInterfaceInterpreter{},
 	}
 
 	Context("fixtures/block_simple.go", func() {
@@ -134,6 +136,38 @@ var _ = Describe("GenerateInterpreter", func() {
 					b2 := b2i.(*fixtures.BlockWithDefault)
 					Expect(b1.IDField).To(Equal(b2.IDField), "IDProperty does not match, input was %s", input)
 					Expect(b1.Value).To(Equal(b2.Value), "Value does not match, input was %s", input)
+				},
+			)
+		})
+	})
+
+	Context("fixtures/block_with_interface.go", func() {
+		It("should parse the block", func() {
+			test.ExpectBlockToEvaluate(p, registry)(
+				`foo block_with_interface {
+					bar block:block_simple
+				}`,
+				&fixtures.BlockWithInterface{IDField: "foo", Block: &fixtures.BlockSimple{IDField: "bar"}},
+				func(b1i interface{}, b2i interface{}, input string) {
+					b1 := b1i.(*fixtures.BlockWithInterface)
+					b2 := b2i.(*fixtures.BlockWithInterface)
+					Expect(b1.IDField).To(Equal(b2.IDField), "IDProperty does not match, input was %s", input)
+					Expect(b1.Block).To(Equal(b2.Block), "Blocks does not match, input was %s", input)
+				},
+			)
+		})
+
+		It("should parse the blocks array", func() {
+			test.ExpectBlockToEvaluate(p, registry)(
+				`foo block_with_interface {
+					bar blocks:block_simple
+				}`,
+				&fixtures.BlockWithInterface{IDField: "foo", Blocks: []basil.Block{&fixtures.BlockSimple{IDField: "bar"}}},
+				func(b1i interface{}, b2i interface{}, input string) {
+					b1 := b1i.(*fixtures.BlockWithInterface)
+					b2 := b2i.(*fixtures.BlockWithInterface)
+					Expect(b1.IDField).To(Equal(b2.IDField), "IDProperty does not match, input was %s", input)
+					Expect(b1.Blocks).To(Equal(b2.Blocks), "Blocks does not match, input was %s", input)
 				},
 			)
 		})
