@@ -19,12 +19,13 @@ import (
 type Object struct {
 	Metadata
 
-	Const            *map[string]interface{}  `json:"const,omitempty"`
-	Default          *map[string]interface{}  `json:"default,omitempty"`
-	Enum             []map[string]interface{} `json:"enum,omitempty"`
-	Properties       map[string]Schema        `json:"properties,omitempty"`
-	Required         []string                 `json:"required,omitempty"`
-	StructProperties map[string]string        `json:"structProperties,omitempty"`
+	Const         *map[string]interface{}  `json:"const,omitempty"`
+	Default       *map[string]interface{}  `json:"default,omitempty"`
+	Enum          []map[string]interface{} `json:"enum,omitempty"`
+	Properties    map[string]Schema        `json:"properties,omitempty"`
+	Required      []string                 `json:"required,omitempty"`
+	Name          string                   `json:"name,omitempty"`
+	PropertyNames map[string]string        `json:"propertyNames,omitempty"`
 }
 
 func (o *Object) AssignValue(_ map[string]string, _, _ string) string {
@@ -95,12 +96,16 @@ func (o *Object) GetProperties() map[string]Schema {
 	return o.Properties
 }
 
+func (o *Object) GetName() string {
+	return o.Name
+}
+
 func (o *Object) GetRequired() []string {
 	return o.Required
 }
 
-func (o *Object) GetStructProperties() map[string]string {
-	return o.StructProperties
+func (o *Object) GetPropertyNames() map[string]string {
+	return o.PropertyNames
 }
 
 func (o *Object) GoType(imports map[string]string) string {
@@ -142,14 +147,17 @@ func (o *Object) GoString() string {
 	if len(o.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", o.Enum)
 	}
+	if o.Name != "" {
+		_, _ = fmt.Fprintf(buf, "\tName: %q,\n", o.Name)
+	}
 	if len(o.Properties) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tProperties: %s,\n", indent(o.propertiesString()))
 	}
+	if len(o.PropertyNames) > 0 {
+		_, _ = fmt.Fprintf(buf, "\tPropertyNames: %#v,\n", o.PropertyNames)
+	}
 	if len(o.Required) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tRequired: %#v,\n", o.Required)
-	}
-	if len(o.StructProperties) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tStructProperties: %#v,\n", o.StructProperties)
 	}
 	buf.WriteRune('}')
 	return buf.String()

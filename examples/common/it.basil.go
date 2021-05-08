@@ -16,6 +16,7 @@ type ItInterpreter struct {
 func (i ItInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "It",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

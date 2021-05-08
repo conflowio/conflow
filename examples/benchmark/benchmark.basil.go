@@ -17,6 +17,7 @@ type BenchmarkInterpreter struct {
 func (i BenchmarkInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Benchmark",
 			Properties: map[string]schema.Schema{
 				"counter": &schema.Integer{
 					Metadata: schema.Metadata{

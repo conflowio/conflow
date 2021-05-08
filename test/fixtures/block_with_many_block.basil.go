@@ -16,6 +16,7 @@ type BlockWithManyBlockInterpreter struct {
 func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockWithManyBlock",
 			Properties: map[string]schema.Schema{
 				"block": &schema.Array{
 					Items: &schema.Reference{
@@ -33,7 +34,7 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 					Format: "basil.ID",
 				},
 			},
-			StructProperties: map[string]string{"block": "Block", "id_field": "IDField"},
+			PropertyNames: map[string]string{"block": "Block", "id_field": "IDField"},
 		}
 	}
 	return i.s

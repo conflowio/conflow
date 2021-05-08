@@ -53,10 +53,10 @@ func (i {{ .Name }}Interpreter) Schema() schema.Schema {
 func (i {{ .Name }}Interpreter) CreateBlock(id basil.ID) basil.Block {
 	return &{{ .NameSelector }}{{ .Name }}{
 		{{ if .IDPropertyName -}}
-		{{ getStructProperty .IDPropertyName }}: id,
+		{{ getPropertyName .IDPropertyName }}: id,
 		{{ end -}}
 		{{ range $name, $schema := filterDefaults (filterParams .Schema.GetProperties) -}}
-		{{ getStructProperty $name }}: {{ printf "%#v" .DefaultValue }},
+		{{ getPropertyName $name }}: {{ printf "%#v" .DefaultValue }},
 		{{ end }}
 	}
 }
@@ -80,7 +80,7 @@ func (i {{ .Name }}Interpreter) Param(b basil.Block, name basil.ID) interface{} 
 	switch name {
 	{{ range $name, $property := filterParams .Schema.GetProperties -}}
 	case "{{ $name }}":
-		return b.(*{{ $root.NameSelector }}{{ $root.Name }}).{{ getStructProperty $name }}
+		return b.(*{{ $root.NameSelector }}{{ $root.Name }}).{{ getPropertyName $name }}
 	{{ end -}}
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in {{ .Name }}", name))
@@ -93,7 +93,7 @@ func (i {{ .Name }}Interpreter) SetParam(block basil.Block, name basil.ID, value
 	switch name {
 	{{ range $name, $property := filterInputs (filterParams .Schema.GetProperties) -}}
 	case "{{ $name }}":
-		{{ assignValue $property "value" (printf "b.%s" (getStructProperty $name)) }}
+		{{ assignValue $property "value" (printf "b.%s" (getPropertyName $name)) }}
 	{{ end -}}
 	}
 	return nil
@@ -109,9 +109,9 @@ func (i {{ .Name }}Interpreter) SetBlock(block basil.Block, name basil.ID, value
 	{{ range $name, $property := filterInputs (filterBlocks .Schema.GetProperties) -}}
 	case "{{ $name }}":
 		{{ if isArray $property -}}
-		b.{{ getStructProperty $name }} = append(b.{{ getStructProperty $name }}, value.({{ getType $property.GetItems }}))
+		b.{{ getPropertyName $name }} = append(b.{{ getPropertyName $name }}, value.({{ getType $property.GetItems }}))
 		{{ else -}}
-		b.{{ getStructProperty $name }} = value.({{ getType $property }})
+		b.{{ getPropertyName $name }} = value.({{ getType $property }})
 		{{ end -}}
 	{{ end -}}
 	}

@@ -52,6 +52,7 @@ var _ = Describe("ParseStruct", func() {
 				Metadata: schema.Metadata{
 					Description: "It is a test struct",
 				},
+				Name: "Foo",
 				Properties: map[string]schema.Schema{
 					"id": &schema.String{
 						Metadata: schema.Metadata{
@@ -185,7 +186,7 @@ var _ = Describe("ParseStruct", func() {
 			"field string `json:\"custom_field_name\"`",
 			func(s schema.Schema) {
 				s.(*schema.Object).Properties["custom_field_name"] = &schema.String{}
-				s.(*schema.Object).StructProperties = map[string]string{
+				s.(*schema.Object).PropertyNames = map[string]string{
 					"custom_field_name": "field",
 				}
 			},
@@ -196,7 +197,7 @@ var _ = Describe("ParseStruct", func() {
 			"// @name \"custom_field_name\"\nfield string",
 			func(s schema.Schema) {
 				s.(*schema.Object).Properties["custom_field_name"] = &schema.String{}
-				s.(*schema.Object).StructProperties = map[string]string{
+				s.(*schema.Object).PropertyNames = map[string]string{
 					"custom_field_name": "field",
 				}
 			},
@@ -215,7 +216,7 @@ var _ = Describe("ParseStruct", func() {
 			"fieldName string",
 			func(s schema.Schema) {
 				s.(*schema.Object).Properties["field_name"] = &schema.String{}
-				s.(*schema.Object).StructProperties = map[string]string{
+				s.(*schema.Object).PropertyNames = map[string]string{
 					"field_name": "fieldName",
 				}
 			},
@@ -294,7 +295,7 @@ var _ = Describe("ParseStruct", func() {
 			}
 
 			str := file.Decls[(len(file.Decls))-1].(*goast.GenDecl).Specs[0].(*goast.TypeSpec).Type.(*goast.StructType)
-			resultStruct, parseErr = generator.ParseStruct(parseCtx, str, "test", "Test", &parser.Metadata{})
+			resultStruct, parseErr = generator.ParseStruct(parseCtx, str, "test", "Foo", &parser.Metadata{})
 		})
 
 		Context("when the basil package has an alias", func() {
@@ -313,7 +314,7 @@ var _ = Describe("ParseStruct", func() {
 			It("should return with the parsed fields", func() {
 				Expect(parseErr).ToNot(HaveOccurred())
 				Expect(resultStruct.Schema).To(Equal(&schema.Object{
-
+					Name: "Foo",
 					Properties: map[string]schema.Schema{
 						"id": &schema.String{
 							Metadata: schema.Metadata{

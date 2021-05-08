@@ -19,6 +19,7 @@ func (i FunctionInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Description: "It is the directive for marking functions as basil functions",
 			},
+			Name: "Function",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
@@ -29,7 +30,7 @@ func (i FunctionInterpreter) Schema() schema.Schema {
 				},
 				"path": &schema.String{},
 			},
-			StructProperties: map[string]string{"path": "Path"},
+			PropertyNames: map[string]string{"path": "Path"},
 		}
 	}
 	return i.s

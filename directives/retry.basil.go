@@ -19,6 +19,7 @@ func (i RetryInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"eval_stage": "init"},
 			},
+			Name: "Retry",
 			Properties: map[string]schema.Schema{
 				"count": &schema.Integer{
 					Metadata: schema.Metadata{

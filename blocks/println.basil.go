@@ -19,6 +19,7 @@ func (i PrintlnInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Description: "It will write a string followed by a new line to the standard output",
 			},
+			Name: "Println",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

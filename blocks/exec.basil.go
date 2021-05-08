@@ -16,6 +16,7 @@ type ExecInterpreter struct {
 func (i ExecInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Exec",
 			Properties: map[string]schema.Schema{
 				"cmd": &schema.String{},
 				"dir": &schema.String{},
@@ -53,8 +54,8 @@ func (i ExecInterpreter) Schema() schema.Schema {
 					Ref: "http://basil.schema/github.com/opsidian/basil/blocks/Stream",
 				},
 			},
-			Required:         []string{"cmd", "stdout", "stderr"},
-			StructProperties: map[string]string{"exit_code": "exitCode"},
+			PropertyNames: map[string]string{"exit_code": "exitCode"},
+			Required:      []string{"cmd", "stdout", "stderr"},
 		}
 	}
 	return i.s

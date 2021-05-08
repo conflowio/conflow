@@ -19,6 +19,7 @@ func (i BugInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"eval_stage": "ignore"},
 			},
+			Name: "Bug",
 			Properties: map[string]schema.Schema{
 				"description": &schema.String{
 					Metadata: schema.Metadata{

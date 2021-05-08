@@ -16,6 +16,7 @@ type TitleInterpreter struct {
 func (i TitleInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Title",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

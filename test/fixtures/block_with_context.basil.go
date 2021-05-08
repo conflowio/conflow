@@ -17,6 +17,7 @@ type BlockWithContextInterpreter struct {
 func (i BlockWithContextInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockWithContext",
 			Properties: map[string]schema.Schema{
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
@@ -31,8 +32,8 @@ func (i BlockWithContextInterpreter) Schema() schema.Schema {
 					},
 				},
 			},
-			Required:         []string{"timeout"},
-			StructProperties: map[string]string{"id_field": "IDField"},
+			PropertyNames: map[string]string{"id_field": "IDField"},
+			Required:      []string{"timeout"},
 		}
 	}
 	return i.s

@@ -16,6 +16,7 @@ type NameInterpreter struct {
 func (i NameInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Name",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
@@ -30,8 +31,8 @@ func (i NameInterpreter) Schema() schema.Schema {
 					},
 				},
 			},
-			Required:         []string{"value"},
-			StructProperties: map[string]string{"value": "Value"},
+			PropertyNames: map[string]string{"value": "Value"},
+			Required:      []string{"value"},
 		}
 	}
 	return i.s

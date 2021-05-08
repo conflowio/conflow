@@ -16,6 +16,7 @@ type GlobInterpreter struct {
 func (i GlobInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Glob",
 			Properties: map[string]schema.Schema{
 				"exclude": &schema.Array{
 					Items: &schema.String{},

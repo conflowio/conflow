@@ -297,12 +297,12 @@ var _ = Describe("Object", func() {
 }`,
 		),
 		Entry(
-			"structProperties",
+			"propertyNames",
 			&schema.Object{
-				StructProperties: map[string]string{"foo": "Foo"},
+				PropertyNames: map[string]string{"foo": "Foo"},
 			},
 			`&schema.Object{
-	StructProperties: map[string]string{"foo":"Foo"},
+	PropertyNames: map[string]string{"foo":"Foo"},
 }`,
 		),
 	)
@@ -322,7 +322,7 @@ var _ = Describe("Object", func() {
 					},
 				},
 			},
-			StructProperties: map[string]string{
+			PropertyNames: map[string]string{
 				"baz": "Baz",
 			},
 		}

@@ -19,6 +19,7 @@ func (i HelloInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Description: "It is capable to print some greetings",
 			},
+			Name: "Hello",
 			Properties: map[string]schema.Schema{
 				"greeting": &schema.String{
 					Metadata: schema.Metadata{

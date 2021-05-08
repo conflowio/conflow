@@ -19,6 +19,7 @@ func (i InputInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"eval_stage": "parse"},
 			},
+			Name: "Input",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

@@ -16,6 +16,7 @@ type DeprecatedInterpreter struct {
 func (i DeprecatedInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Deprecated",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

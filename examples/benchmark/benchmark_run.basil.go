@@ -16,6 +16,7 @@ type BenchmarkRunInterpreter struct {
 func (i BenchmarkRunInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BenchmarkRun",
 			Properties: map[string]schema.Schema{
 				"cnt": &schema.Integer{
 					Metadata: schema.Metadata{

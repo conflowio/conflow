@@ -16,6 +16,7 @@ type BlockWithInterfaceInterpreter struct {
 func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockWithInterface",
 			Properties: map[string]schema.Schema{
 				"block": &schema.Reference{
 					Ref: "http://basil.schema/github.com/opsidian/basil/basil/Block",
@@ -33,7 +34,7 @@ func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 					Format: "basil.ID",
 				},
 			},
-			StructProperties: map[string]string{"block": "Block", "blocks": "Blocks", "id_field": "IDField"},
+			PropertyNames: map[string]string{"block": "Block", "blocks": "Blocks", "id_field": "IDField"},
 		}
 	}
 	return i.s

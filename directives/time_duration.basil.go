@@ -20,6 +20,7 @@ func (i TimeDurationInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"eval_stage": "parse"},
 			},
+			Name: "TimeDuration",
 			Properties: map[string]schema.Schema{
 				"annotations": &schema.Map{
 					AdditionalProperties: &schema.String{},
@@ -47,7 +48,7 @@ func (i TimeDurationInterpreter) Schema() schema.Schema {
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
-			StructProperties: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
+			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
 		}
 	}
 	return i.s

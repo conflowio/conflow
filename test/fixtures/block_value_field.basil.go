@@ -16,6 +16,7 @@ type BlockValueFieldInterpreter struct {
 func (i BlockValueFieldInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockValueField",
 			Properties: map[string]schema.Schema{
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
@@ -30,7 +31,7 @@ func (i BlockValueFieldInterpreter) Schema() schema.Schema {
 					},
 				},
 			},
-			StructProperties: map[string]string{"id_field": "IDField"},
+			PropertyNames: map[string]string{"id_field": "IDField"},
 		}
 	}
 	return i.s

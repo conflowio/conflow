@@ -16,6 +16,7 @@ type ExamplesInterpreter struct {
 func (i ExamplesInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Examples",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

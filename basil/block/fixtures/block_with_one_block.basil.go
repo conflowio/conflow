@@ -16,6 +16,7 @@ type BlockWithOneBlockInterpreter struct {
 func (i BlockWithOneBlockInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockWithOneBlock",
 			Properties: map[string]schema.Schema{
 				"block_simple": &schema.Reference{
 					Metadata: schema.Metadata{
@@ -31,7 +32,7 @@ func (i BlockWithOneBlockInterpreter) Schema() schema.Schema {
 					Format: "basil.ID",
 				},
 			},
-			StructProperties: map[string]string{"block_simple": "BlockSimple", "id_field": "IDField"},
+			PropertyNames: map[string]string{"block_simple": "BlockSimple", "id_field": "IDField"},
 		}
 	}
 	return i.s

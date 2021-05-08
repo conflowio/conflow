@@ -16,6 +16,7 @@ type BlockGeneratorResultInterpreter struct {
 func (i BlockGeneratorResultInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockGeneratorResult",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

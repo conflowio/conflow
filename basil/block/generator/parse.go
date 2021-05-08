@@ -42,6 +42,7 @@ func ParseStruct(
 		Metadata: schema.Metadata{
 			Description: metadata.Description,
 		},
+		Name:       name,
 		Properties: map[string]schema.Schema{},
 	}
 
@@ -90,7 +91,7 @@ func ParseStruct(
 				}
 
 				fieldName := propertyName
-				if v, ok := fieldStrSchema.StructProperties[propertyName]; ok {
+				if v, ok := fieldStrSchema.PropertyNames[propertyName]; ok {
 					fieldName = v
 				}
 
@@ -201,10 +202,10 @@ func addField(s *schema.Object, idField, valueField *string, field parser.Field)
 
 	s.Properties[field.PropertyName] = field.Schema
 	if field.PropertyName != field.Name {
-		if s.StructProperties == nil {
-			s.StructProperties = map[string]string{}
+		if s.PropertyNames == nil {
+			s.PropertyNames = map[string]string{}
 		}
-		s.StructProperties[field.PropertyName] = field.Name
+		s.PropertyNames[field.PropertyName] = field.Name
 	}
 
 	return nil

@@ -16,6 +16,7 @@ type LicensifyInterpreter struct {
 func (i LicensifyInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Licensify",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

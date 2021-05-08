@@ -17,6 +17,7 @@ type StreamInterpreter struct {
 func (i StreamInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Stream",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
@@ -27,7 +28,7 @@ func (i StreamInterpreter) Schema() schema.Schema {
 				},
 				"stream": &schema.ByteStream{},
 			},
-			StructProperties: map[string]string{"stream": "Stream"},
+			PropertyNames: map[string]string{"stream": "Stream"},
 		}
 	}
 	return i.s

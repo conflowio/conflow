@@ -50,8 +50,9 @@ func IsArray(s Schema) bool {
 type ObjectKind interface {
 	GetProperties() map[string]Schema
 	IsPropertyRequired(name string) bool
+	GetName() string
 	GetRequired() []string
-	GetStructProperties() map[string]string
+	GetPropertyNames() map[string]string
 }
 
 func IsObject(s Schema) bool {

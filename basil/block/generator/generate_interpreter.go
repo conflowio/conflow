@@ -68,8 +68,8 @@ func GenerateInterpreter(
 				return s.DefaultValue() != nil
 			})
 		},
-		"getStructProperty": func(name string) string {
-			if p, ok := params.Schema.(schema.ObjectKind).GetStructProperties()[name]; ok {
+		"getPropertyName": func(name string) string {
+			if p, ok := params.Schema.(schema.ObjectKind).GetPropertyNames()[name]; ok {
 				return p
 			}
 			return name

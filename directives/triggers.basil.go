@@ -19,6 +19,7 @@ func (i TriggersInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"eval_stage": "resolve"},
 			},
+			Name: "Triggers",
 			Properties: map[string]schema.Schema{
 				"block_ids": &schema.Array{
 					Metadata: schema.Metadata{
@@ -34,8 +35,8 @@ func (i TriggersInterpreter) Schema() schema.Schema {
 					Format: "basil.ID",
 				},
 			},
-			Required:         []string{"block_ids"},
-			StructProperties: map[string]string{"block_ids": "blockIDs"},
+			PropertyNames: map[string]string{"block_ids": "blockIDs"},
+			Required:      []string{"block_ids"},
 		}
 	}
 	return i.s

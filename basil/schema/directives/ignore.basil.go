@@ -16,6 +16,7 @@ type IgnoreInterpreter struct {
 func (i IgnoreInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Ignore",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{

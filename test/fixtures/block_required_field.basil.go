@@ -16,6 +16,7 @@ type BlockRequiredFieldInterpreter struct {
 func (i BlockRequiredFieldInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockRequiredField",
 			Properties: map[string]schema.Schema{
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
@@ -26,8 +27,8 @@ func (i BlockRequiredFieldInterpreter) Schema() schema.Schema {
 				},
 				"required": &schema.Untyped{},
 			},
-			Required:         []string{"required"},
-			StructProperties: map[string]string{"id_field": "IDField"},
+			PropertyNames: map[string]string{"id_field": "IDField"},
+			Required:      []string{"required"},
 		}
 	}
 	return i.s

@@ -16,6 +16,7 @@ type RangeInterpreter struct {
 func (i RangeInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "Range",
 			Properties: map[string]schema.Schema{
 				"entry": &schema.Reference{
 					Metadata: schema.Metadata{

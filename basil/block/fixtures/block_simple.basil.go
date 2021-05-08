@@ -16,6 +16,7 @@ type BlockSimpleInterpreter struct {
 func (i BlockSimpleInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockSimple",
 			Properties: map[string]schema.Schema{
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
@@ -30,7 +31,7 @@ func (i BlockSimpleInterpreter) Schema() schema.Schema {
 					},
 				},
 			},
-			StructProperties: map[string]string{"id_field": "IDField", "value": "Value"},
+			PropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
 		}
 	}
 	return i.s

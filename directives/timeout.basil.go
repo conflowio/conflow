@@ -20,6 +20,7 @@ func (i TimeoutInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"eval_stage": "init"},
 			},
+			Name: "Timeout",
 			Properties: map[string]schema.Schema{
 				"duration": &schema.TimeDuration{
 					Metadata: schema.Metadata{

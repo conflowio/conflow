@@ -16,6 +16,7 @@ type BlockNoFieldsInterpreter struct {
 func (i BlockNoFieldsInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Name: "BlockNoFields",
 			Properties: map[string]schema.Schema{
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
@@ -25,7 +26,7 @@ func (i BlockNoFieldsInterpreter) Schema() schema.Schema {
 					Format: "basil.ID",
 				},
 			},
-			StructProperties: map[string]string{"id_field": "IDField"},
+			PropertyNames: map[string]string{"id_field": "IDField"},
 		}
 	}
 	return i.s
