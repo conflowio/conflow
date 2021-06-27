@@ -30,3 +30,7 @@ clean-generated: ## Delete all generated files created by basil
 goimports: ## Run goimports on all files
 	@echo "Running goimports on all files"
 	@./scripts/goimports.sh
+
+.PHONY: lint
+lint: ## Runs linting checks
+	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
