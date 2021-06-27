@@ -34,10 +34,7 @@ func GenerateInterpreter(
 		return nil, nil, err
 	}
 
-	params, err := generateTemplateParams(parseCtx, f, pkg)
-	if err != nil {
-		return nil, nil, err
-	}
+	params := generateTemplateParams(parseCtx, f, pkg)
 
 	bodyTmpl := template.New("block_interpreter_body")
 	bodyTmpl.Funcs(map[string]interface{}{
@@ -84,7 +81,7 @@ func generateTemplateParams(
 	parseCtx *parser.Context,
 	f *Function,
 	pkg string,
-) (*InterpreterTemplateParams, error) {
+) *InterpreterTemplateParams {
 	imports := map[string]string{
 		".":       pkg,
 		"basil":   "github.com/opsidian/basil/basil",
@@ -115,5 +112,5 @@ func generateTemplateParams(
 		Schema:           f.Schema,
 		Imports:          imports,
 		ReturnsError:     f.ReturnsError,
-	}, nil
+	}
 }

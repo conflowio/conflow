@@ -40,7 +40,7 @@ func (w *WaitGroup) Wait() <-chan struct{} {
 func (w *WaitGroup) Done(err error) {
 	w.mu.Lock()
 	if err != nil {
-		w.err.Append(err)
+		_ = w.err.Append(err)
 	}
 	w.cnt--
 	if w.cnt < 0 {

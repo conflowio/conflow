@@ -44,7 +44,7 @@ type keyValuesInterpreter struct {
 }
 
 func (s keyValuesInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
-	nodes := node.(parsley.NonTerminalNode).Children()
+	nodes := node.Children()
 	res := make(map[basil.ID]interface{}, (len(nodes)+1)/2)
 	for i := range nodes {
 		if i%2 == 0 {

@@ -9,7 +9,6 @@ package generator
 import (
 	"fmt"
 	"go/format"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -36,7 +35,7 @@ func writeFile(dir, name string, content []byte) error {
 		}
 	}
 
-	err := ioutil.WriteFile(filepath, content, 0644)
+	err := os.WriteFile(filepath, content, 0644)
 	if err != nil {
 		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
 	}
@@ -46,7 +45,7 @@ func writeFile(dir, name string, content []byte) error {
 		return err
 	}
 
-	err = ioutil.WriteFile(filepath, formatted, 0644)
+	err = os.WriteFile(filepath, formatted, 0644)
 	if err != nil {
 		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
 	}

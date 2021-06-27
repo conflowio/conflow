@@ -9,7 +9,6 @@ package blocks
 import (
 	"compress/gzip"
 	"io"
-	"io/ioutil"
 
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
@@ -43,7 +42,7 @@ func (g *Gzip) Main(ctx basil.BlockContext) error {
 		return err
 	})
 	if !published {
-		_, _ = io.Copy(ioutil.Discard, g.in)
+		_, _ = io.Copy(io.Discard, g.in)
 	}
 
 	return err

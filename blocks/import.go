@@ -43,7 +43,7 @@ func (i *Import) BlockInterpreters(parseCtx *basil.ParseContext) (map[basil.ID]b
 		return nil, errors.New("import is not allowed as the \"module\" block is not registered")
 	}
 
-	p := parsers.NewMain("main", moduleInterpreter.(basil.BlockInterpreter))
+	p := parsers.NewMain("main", moduleInterpreter)
 
 	if err := p.ParseDir(
 		parseCtx,

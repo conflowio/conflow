@@ -12,16 +12,16 @@ import (
 	"os/signal"
 	"syscall"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // CreateDefaultContext will create a default context which will be cancelled if the program is terminated
 // The terminal state will be automatically restored if it was altered in any way
 func CreateDefaultContext() (context.Context, context.CancelFunc) {
-	signalChan := make(chan os.Signal)
+	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP)
 
-	terminalState, _ := terminal.GetState(syscall.Stdin)
+	terminalState, _ := term.GetState(syscall.Stdin)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -31,7 +31,7 @@ func CreateDefaultContext() (context.Context, context.CancelFunc) {
 
 		// make sure we restore the terminal state
 		if terminalState != nil {
-			if err := terminal.Restore(int(syscall.Stdin), terminalState); err != nil {
+			if err := term.Restore(int(syscall.Stdin), terminalState); err != nil {
 				panic(err)
 			}
 		}

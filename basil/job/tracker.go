@@ -29,18 +29,6 @@ type Cancellable interface {
 	Cancel() bool
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . pendingJob
-type pendingJob interface {
-	basil.Job
-	Pending
-}
-
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . cancellableJob
-type cancellableJob interface {
-	basil.Job
-	Cancellable
-}
-
 // Tracker schedules and tracks jobs
 type Tracker struct {
 	name      basil.ID

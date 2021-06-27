@@ -35,10 +35,7 @@ func GenerateInterpreter(
 		return nil, nil, err
 	}
 
-	params, err := generateTemplateParams(parseCtx, s, pkg)
-	if err != nil {
-		return nil, nil, err
-	}
+	params := generateTemplateParams(parseCtx, s, pkg)
 
 	bodyTmpl := template.New("block_interpreter_body")
 	bodyTmpl.Funcs(map[string]interface{}{
@@ -131,7 +128,7 @@ func generateTemplateParams(
 	parseCtx *parser.Context,
 	s *Struct,
 	pkg string,
-) (*InterpreterTemplateParams, error) {
+) *InterpreterTemplateParams {
 	imports := map[string]string{
 		".":      pkg,
 		"fmt":    "fmt",
@@ -168,5 +165,5 @@ func generateTemplateParams(
 		IDPropertyName:    idPropertyName,
 		ValuePropertyName: valuePropertyName,
 		Imports:           imports,
-	}, nil
+	}
 }

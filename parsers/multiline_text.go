@@ -87,7 +87,7 @@ func MultilineText() parser.Func {
 							ws = b[linePos:i]
 							wsl = len(ws)
 						} else {
-							if bytes.Compare(ws, b[linePos:linePos+wsl]) != 0 {
+							if !bytes.Equal(ws, b[linePos:linePos+wsl]) {
 								err = parsley.NewError(
 									pos+parsley.Pos(i),
 									errors.New("every line must be empty or start with the same whitespace characters as the first line"),

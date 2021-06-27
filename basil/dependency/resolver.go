@@ -159,7 +159,7 @@ func (r *Resolver) strongConnect(v *node) parsley.Error {
 
 		if !found {
 			if r.dependencies == nil {
-				r.dependencies = make(basil.Dependencies, 0)
+				r.dependencies = make(basil.Dependencies)
 			}
 			r.dependencies[d.ID()] = d
 			continue

@@ -16,10 +16,23 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
 	"github.com/opsidian/basil/loggers/zerolog"
 )
+
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . pendingJob
+type pendingJob interface {
+	basil.Job
+	job.Pending
+}
+
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . cancellableJob
+type cancellableJob interface {
+	basil.Job
+	job.Cancellable
+}
 
 var _ = Describe("Scheduler", func() {
 	var tracker *job.Tracker

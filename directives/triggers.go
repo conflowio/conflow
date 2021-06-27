@@ -16,7 +16,8 @@ type Triggers struct {
 	id basil.ID
 	// @value
 	// @required
-	blockIDs []interface{} `json:"block_ids"`
+	// @name "block_ids"
+	blockIDs []interface{}
 }
 
 func (t *Triggers) ID() basil.ID {
