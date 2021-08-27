@@ -40,6 +40,9 @@ func Generate(dir string) error {
 		}
 
 		if d.IsDir() {
+			if filePath == path.Join(dir, "vendor") {
+				return fs.SkipDir
+			}
 			return nil
 		}
 
