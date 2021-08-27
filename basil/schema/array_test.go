@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
 	"github.com/opsidian/basil/basil/schema"
 )
 
@@ -134,6 +135,47 @@ var _ = Describe("Array", func() {
 			},
 			[]interface{}{int64(1)},
 		),
+		Entry(
+			"enum value - min length",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MinItems: schema.IntegerPtr(1),
+			},
+			[]interface{}{int64(1)},
+		),
+		Entry(
+			"enum value - min length zero",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MinItems: schema.IntegerPtr(0),
+			},
+			[]interface{}{int64(1)},
+		),
+		Entry(
+			"enum value - max length",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MaxItems: schema.IntegerPtr(1),
+			},
+			[]interface{}{int64(1)},
+		),
+		Entry(
+			"enum value - max length zero",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MaxItems: schema.IntegerPtr(0),
+			},
+			[]interface{}{},
+		),
+		Entry(
+			"enum value - min and max length",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MinItems: schema.IntegerPtr(1),
+				MaxItems: schema.IntegerPtr(2),
+			},
+			[]interface{}{int64(1)},
+		),
 	)
 
 	DescribeTable("Validate errors",
@@ -213,6 +255,61 @@ var _ = Describe("Array", func() {
 			[]interface{}{int64(3)},
 			errors.New("must be one of [1], [2]"),
 		),
+		Entry(
+			"enum value - min length 1, zero items",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MinItems: schema.IntegerPtr(1),
+			},
+			[]interface{}{},
+			errors.New("must have at least one element"),
+		),
+		Entry(
+			"min length 2, 1 item",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MinItems: schema.IntegerPtr(2),
+			},
+			[]interface{}{int64(1)},
+			errors.New("must have at least 2 elements"),
+		),
+		Entry(
+			"max length zero, 1 item",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MaxItems: schema.IntegerPtr(0),
+			},
+			[]interface{}{int64(1)},
+			errors.New("must be empty"),
+		),
+		Entry(
+			"max length 1, 2 items",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MaxItems: schema.IntegerPtr(1),
+			},
+			[]interface{}{int64(1), int64(2)},
+			errors.New("must not contain more than one element"),
+		),
+		Entry(
+			"max length 2, 3 items",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MaxItems: schema.IntegerPtr(2),
+			},
+			[]interface{}{int64(1), int64(2), int64(3)},
+			errors.New("must not contain more than 2 elements"),
+		),
+		Entry(
+			"same min and max length",
+			&schema.Array{
+				Items:    schema.IntegerValue(),
+				MinItems: schema.IntegerPtr(2),
+				MaxItems: schema.IntegerPtr(2),
+			},
+			[]interface{}{int64(1), int64(2), int64(3)},
+			errors.New("must have exactly 2 elements"),
+		),
 	)
 
 	DescribeTable("GoString prints a valid Go struct",
@@ -262,6 +359,24 @@ var _ = Describe("Array", func() {
 	Items: &schema.String{
 		Format: "foo",
 	},
+}`,
+		),
+		Entry(
+			"MaxItems",
+			&schema.Array{
+				MinItems: schema.IntegerPtr(1),
+			},
+			`&schema.Array{
+	MinItems: schema.IntegerPtr(1),
+}`,
+		),
+		Entry(
+			"MaxItems",
+			&schema.Array{
+				MaxItems: schema.IntegerPtr(1),
+			},
+			`&schema.Array{
+	MaxItems: schema.IntegerPtr(1),
 }`,
 		),
 	)
