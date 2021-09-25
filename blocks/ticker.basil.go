@@ -32,7 +32,7 @@ func (i TickerInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks/Tick",
+					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Tick",
 				},
 			},
 			Required: []string{"interval", "tick"},
@@ -42,9 +42,10 @@ func (i TickerInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Ticker block
-func (i TickerInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i TickerInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Ticker{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

@@ -41,9 +41,10 @@ func (i PrintlnInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Println block
-func (i PrintlnInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i PrintlnInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Println{
-		id: id,
+		id:     id,
+		stdout: blockCtx.Stdout(),
 	}
 }
 

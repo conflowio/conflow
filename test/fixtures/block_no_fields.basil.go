@@ -33,7 +33,7 @@ func (i BlockNoFieldsInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockNoFields block
-func (i BlockNoFieldsInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockNoFieldsInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockNoFields{
 		IDField: id,
 	}

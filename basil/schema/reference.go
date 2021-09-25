@@ -62,23 +62,32 @@ func (r *Reference) GoType(imports map[string]string) string {
 	if err != nil {
 		panic(fmt.Errorf("reference %q is invalid: %w", r.Ref, err))
 	}
+	u.Path = strings.TrimPrefix(u.Path, "/")
 
-	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
-
-	if len(parts) == 1 || imports["."] == strings.Join(parts[0:len(parts)-1], "/") {
-		if r.Pointer {
-			return fmt.Sprintf("*%s", parts[len(parts)-1])
+	var path string
+	typeName := u.Path
+	for i := len(u.Path) - 1; i >= 0; i-- {
+		if u.Path[i] == '.' {
+			path = u.Path[0:i]
+			typeName = u.Path[i+1:]
+			break
 		}
-		return parts[len(parts)-1]
 	}
 
-	packageName := EnsureUniqueGoPackageName(imports, strings.Join(parts[0:len(parts)-1], "/"))
+	if path == "" || imports["."] == path {
+		if r.Pointer {
+			return fmt.Sprintf("*%s", typeName)
+		}
+		return typeName
+	}
+
+	packageName := EnsureUniqueGoPackageName(imports, path)
 
 	if r.Pointer {
-		return fmt.Sprintf("*%s.%s", packageName, parts[len(parts)-1])
+		return fmt.Sprintf("*%s.%s", packageName, typeName)
 	}
 
-	return fmt.Sprintf("%s.%s", packageName, parts[len(parts)-1])
+	return fmt.Sprintf("%s.%s", packageName, typeName)
 }
 
 func (r *Reference) StringValue(value interface{}) string {

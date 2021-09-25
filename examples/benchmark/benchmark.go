@@ -7,6 +7,7 @@
 package main
 
 import (
+	"context"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -24,13 +25,15 @@ type Benchmark struct {
 	counter int64
 	// @generated
 	run *BenchmarkRun
+	// @dependency
+	blockPublisher basil.BlockPublisher
 }
 
 func (b *Benchmark) ID() basil.ID {
 	return b.id
 }
 
-func (b *Benchmark) Main(ctx basil.BlockContext) error {
+func (b *Benchmark) Run(ctx context.Context) error {
 	timer := time.NewTimer(b.duration)
 	defer timer.Stop()
 
@@ -43,7 +46,7 @@ func (b *Benchmark) Main(ctx basil.BlockContext) error {
 			return nil
 		default:
 			b.counter++
-			_, _ = ctx.PublishBlock(&BenchmarkRun{
+			_, _ = b.blockPublisher.PublishBlock(&BenchmarkRun{
 				id:  b.run.id,
 				cnt: b.counter,
 			}, nil)

@@ -30,7 +30,7 @@ func (m MainInterpreter) Schema() schema.Schema {
 	return &schema.Object{}
 }
 
-func (m MainInterpreter) CreateBlock(basil.ID) basil.Block {
+func (m MainInterpreter) CreateBlock(basil.ID, *basil.BlockContext) basil.Block {
 	return &Main{
 		params: map[basil.ID]interface{}{},
 	}

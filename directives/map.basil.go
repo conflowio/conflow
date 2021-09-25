@@ -22,7 +22,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 			Name: "Map",
 			Properties: map[string]schema.Schema{
 				"additional_properties": &schema.Reference{
-					Ref: "http://basil.schema/github.com/opsidian/basil/basil/schema/Schema",
+					Ref: "http://basil.schema/github.com/opsidian/basil/basil/schema.Schema",
 				},
 				"annotations": &schema.Map{
 					AdditionalProperties: &schema.String{},
@@ -56,7 +56,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Map block
-func (i MapInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i MapInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Map{}
 }
 

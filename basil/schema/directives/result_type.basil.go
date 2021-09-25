@@ -32,7 +32,7 @@ func (i ResultTypeInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new ResultType block
-func (i ResultTypeInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i ResultTypeInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &ResultType{
 		id: id,
 	}

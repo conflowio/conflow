@@ -32,7 +32,7 @@ func (i IgnoreInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Ignore block
-func (i IgnoreInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i IgnoreInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Ignore{
 		id: id,
 	}

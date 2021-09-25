@@ -69,7 +69,7 @@ func (s *StaticContainer) Run() {
 		return
 	}
 
-	s.block = s.node.Interpreter().CreateBlock(s.node.ID())
+	s.block = s.node.Interpreter().CreateBlock(s.node.ID(), basil.NewBlockContext(s.evalCtx, nil))
 	for _, child := range s.node.Children() {
 		if err := s.evaluateChild(child); err != nil {
 			s.err = err

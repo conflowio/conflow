@@ -32,7 +32,7 @@ func (i ReadOnlyInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new ReadOnly block
-func (i ReadOnlyInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i ReadOnlyInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &ReadOnly{
 		id: id,
 	}

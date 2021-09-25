@@ -41,7 +41,7 @@ func (i ImportInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Import block
-func (i ImportInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i ImportInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Import{
 		id: id,
 	}

@@ -39,7 +39,7 @@ func (i SleepInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Sleep block
-func (i SleepInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i SleepInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Sleep{
 		id: id,
 	}

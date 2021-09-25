@@ -39,7 +39,7 @@ func (i TypesInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Types block
-func (i TypesInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i TypesInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Types{
 		id: id,
 	}

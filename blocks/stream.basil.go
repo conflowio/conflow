@@ -35,7 +35,7 @@ func (i StreamInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Stream block
-func (i StreamInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i StreamInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Stream{
 		id: id,
 	}

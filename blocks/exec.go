@@ -7,6 +7,7 @@
 package blocks
 
 import (
+	"context"
 	"errors"
 	"os/exec"
 	"syscall"
@@ -34,13 +35,15 @@ type Exec struct {
 	stdout *Stream
 	// @generated
 	stderr *Stream
+	// @dependency
+	blockPublisher basil.BlockPublisher
 }
 
 func (e *Exec) ID() basil.ID {
 	return e.id
 }
 
-func (e *Exec) Main(ctx basil.BlockContext) error {
+func (e *Exec) Run(ctx context.Context) error {
 	cmd := exec.CommandContext(ctx, e.cmd, e.params...)
 
 	if e.dir != "" {
@@ -66,11 +69,11 @@ func (e *Exec) Main(ctx basil.BlockContext) error {
 
 	wg := &util.WaitGroup{}
 	wg.Run(func() error {
-		_, err := ctx.PublishBlock(e.stdout, nil)
+		_, err := e.blockPublisher.PublishBlock(e.stdout, nil)
 		return err
 	})
 	wg.Run(func() error {
-		_, err := ctx.PublishBlock(e.stderr, nil)
+		_, err := e.blockPublisher.PublishBlock(e.stderr, nil)
 		return err
 	})
 

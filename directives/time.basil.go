@@ -55,7 +55,7 @@ func (i TimeInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Time block
-func (i TimeInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i TimeInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Time{}
 }
 

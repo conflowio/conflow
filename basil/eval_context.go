@@ -70,7 +70,7 @@ type EvalContext struct {
 	pubSub       *PubSub
 	dependencies map[ID]BlockContainer
 	sem          int64
-	StdOut       io.Writer
+	Stdout       io.Writer
 	InputParams  map[ID]interface{}
 }
 
@@ -91,7 +91,7 @@ func NewEvalContext(
 		jobScheduler: jobScheduler,
 		pubSub:       NewPubSub(),
 		dependencies: dependencies,
-		StdOut:       os.Stdout,
+		Stdout:       os.Stdout,
 	}
 }
 
@@ -110,7 +110,7 @@ func (e *EvalContext) New(
 		jobScheduler: e.jobScheduler,
 		pubSub:       e.pubSub,
 		parentCtx:    e,
-		StdOut:       e.StdOut,
+		Stdout:       e.Stdout,
 	}
 }
 
@@ -173,6 +173,6 @@ func (e *EvalContext) JobScheduler() JobScheduler {
 	return e.jobScheduler
 }
 
-func (e *EvalContext) SetStdOut(stdOut io.Writer) {
-	e.StdOut = stdOut
+func (e *EvalContext) SetStdout(stdout io.Writer) {
+	e.Stdout = stdout
 }

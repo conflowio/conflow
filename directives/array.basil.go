@@ -41,14 +41,24 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 					Items: &schema.Untyped{},
 				},
 				"items": &schema.Reference{
-					Ref: "http://basil.schema/github.com/opsidian/basil/basil/schema/Schema",
+					Ref: "http://basil.schema/github.com/opsidian/basil/basil/schema.Schema",
+				},
+				"max_items": &schema.Integer{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"min_items": &schema.Integer{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
 				},
 				"pointer":    &schema.Boolean{},
 				"read_only":  &schema.Boolean{},
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
+			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "max_items": "MaxItems", "min_items": "MinItems", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
 			Required:      []string{"items"},
 		}
 	}
@@ -56,7 +66,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Array block
-func (i ArrayInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i ArrayInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Array{}
 }
 
@@ -91,6 +101,10 @@ func (i ArrayInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 		return b.(*Array).Enum
 	case "examples":
 		return b.(*Array).Examples
+	case "max_items":
+		return b.(*Array).MaxItems
+	case "min_items":
+		return b.(*Array).MinItems
 	case "pointer":
 		return b.(*Array).Pointer
 	case "read_only":
@@ -127,6 +141,10 @@ func (i ArrayInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
+	case "max_items":
+		b.MaxItems = schema.IntegerPtr(value.(int64))
+	case "min_items":
+		b.MinItems = schema.IntegerPtr(value.(int64))
 	case "pointer":
 		b.Pointer = value.(bool)
 	case "read_only":

@@ -38,7 +38,7 @@ func (i TickInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Tick block
-func (i TickInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i TickInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Tick{
 		id: id,
 	}

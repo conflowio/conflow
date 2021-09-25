@@ -38,7 +38,7 @@ func (i ItInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new It block
-func (i ItInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i ItInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &It{
 		id: id,
 	}

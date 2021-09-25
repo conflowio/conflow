@@ -8,6 +8,7 @@ package blocks
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 
@@ -22,24 +23,26 @@ type Println struct {
 	// @value
 	// @required
 	value interface{}
+	// @dependency
+	stdout io.Writer
 }
 
 func (p *Println) ID() basil.ID {
 	return p.id
 }
 
-func (p *Println) Main(ctx basil.BlockContext) error {
+func (p *Println) Run(ctx context.Context) error {
 	switch v := p.value.(type) {
 	case io.ReadCloser:
 		scanner := bufio.NewScanner(v)
 		for scanner.Scan() {
-			if _, err := fmt.Fprintln(ctx.Stdout(), scanner.Text()); err != nil {
+			if _, err := fmt.Fprintln(p.stdout, scanner.Text()); err != nil {
 				return err
 			}
 		}
 		return nil
 	default:
-		if _, err := fmt.Fprintln(ctx.Stdout(), p.value); err != nil {
+		if _, err := fmt.Fprintln(p.stdout, p.value); err != nil {
 			return err
 		}
 	}

@@ -39,7 +39,7 @@ func (i BlockWithDefaultInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockWithDefault block
-func (i BlockWithDefaultInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockWithDefaultInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockWithDefault{
 		IDField: id,
 		Value:   "foo",

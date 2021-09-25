@@ -2,84 +2,84 @@
 package testfakes
 
 import (
+	"context"
 	"sync"
 
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/test"
 )
 
 type FakeBlockWithMain struct {
-	MainStub        func(basil.BlockContext) error
-	mainMutex       sync.RWMutex
-	mainArgsForCall []struct {
-		arg1 basil.BlockContext
+	RunStub        func(context.Context) error
+	runMutex       sync.RWMutex
+	runArgsForCall []struct {
+		arg1 context.Context
 	}
-	mainReturns struct {
+	runReturns struct {
 		result1 error
 	}
-	mainReturnsOnCall map[int]struct {
+	runReturnsOnCall map[int]struct {
 		result1 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlockWithMain) Main(arg1 basil.BlockContext) error {
-	fake.mainMutex.Lock()
-	ret, specificReturn := fake.mainReturnsOnCall[len(fake.mainArgsForCall)]
-	fake.mainArgsForCall = append(fake.mainArgsForCall, struct {
-		arg1 basil.BlockContext
+func (fake *FakeBlockWithMain) Run(arg1 context.Context) error {
+	fake.runMutex.Lock()
+	ret, specificReturn := fake.runReturnsOnCall[len(fake.runArgsForCall)]
+	fake.runArgsForCall = append(fake.runArgsForCall, struct {
+		arg1 context.Context
 	}{arg1})
-	fake.recordInvocation("Main", []interface{}{arg1})
-	fake.mainMutex.Unlock()
-	if fake.MainStub != nil {
-		return fake.MainStub(arg1)
+	fake.recordInvocation("Run", []interface{}{arg1})
+	fake.runMutex.Unlock()
+	if fake.RunStub != nil {
+		return fake.RunStub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.mainReturns
+	fakeReturns := fake.runReturns
 	return fakeReturns.result1
 }
 
-func (fake *FakeBlockWithMain) MainCallCount() int {
-	fake.mainMutex.RLock()
-	defer fake.mainMutex.RUnlock()
-	return len(fake.mainArgsForCall)
+func (fake *FakeBlockWithMain) RunCallCount() int {
+	fake.runMutex.RLock()
+	defer fake.runMutex.RUnlock()
+	return len(fake.runArgsForCall)
 }
 
-func (fake *FakeBlockWithMain) MainCalls(stub func(basil.BlockContext) error) {
-	fake.mainMutex.Lock()
-	defer fake.mainMutex.Unlock()
-	fake.MainStub = stub
+func (fake *FakeBlockWithMain) RunCalls(stub func(context.Context) error) {
+	fake.runMutex.Lock()
+	defer fake.runMutex.Unlock()
+	fake.RunStub = stub
 }
 
-func (fake *FakeBlockWithMain) MainArgsForCall(i int) basil.BlockContext {
-	fake.mainMutex.RLock()
-	defer fake.mainMutex.RUnlock()
-	argsForCall := fake.mainArgsForCall[i]
+func (fake *FakeBlockWithMain) RunArgsForCall(i int) context.Context {
+	fake.runMutex.RLock()
+	defer fake.runMutex.RUnlock()
+	argsForCall := fake.runArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *FakeBlockWithMain) MainReturns(result1 error) {
-	fake.mainMutex.Lock()
-	defer fake.mainMutex.Unlock()
-	fake.MainStub = nil
-	fake.mainReturns = struct {
+func (fake *FakeBlockWithMain) RunReturns(result1 error) {
+	fake.runMutex.Lock()
+	defer fake.runMutex.Unlock()
+	fake.RunStub = nil
+	fake.runReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *FakeBlockWithMain) MainReturnsOnCall(i int, result1 error) {
-	fake.mainMutex.Lock()
-	defer fake.mainMutex.Unlock()
-	fake.MainStub = nil
-	if fake.mainReturnsOnCall == nil {
-		fake.mainReturnsOnCall = make(map[int]struct {
+func (fake *FakeBlockWithMain) RunReturnsOnCall(i int, result1 error) {
+	fake.runMutex.Lock()
+	defer fake.runMutex.Unlock()
+	fake.RunStub = nil
+	if fake.runReturnsOnCall == nil {
+		fake.runReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.mainReturnsOnCall[i] = struct {
+	fake.runReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -87,8 +87,8 @@ func (fake *FakeBlockWithMain) MainReturnsOnCall(i int, result1 error) {
 func (fake *FakeBlockWithMain) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.mainMutex.RLock()
-	defer fake.mainMutex.RUnlock()
+	fake.runMutex.RLock()
+	defer fake.runMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

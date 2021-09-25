@@ -33,7 +33,7 @@ func (i BlockGeneratorInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/test/fixtures/BlockGeneratorResult",
+					Ref: "http://basil.schema/github.com/opsidian/basil/test/fixtures.BlockGeneratorResult",
 				},
 			},
 			Required: []string{"items", "result"},
@@ -43,9 +43,10 @@ func (i BlockGeneratorInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockGenerator block
-func (i BlockGeneratorInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockGeneratorInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockGenerator{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

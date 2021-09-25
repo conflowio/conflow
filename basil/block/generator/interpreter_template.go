@@ -6,7 +6,10 @@
 
 package generator
 
-import "github.com/opsidian/basil/basil/schema"
+import (
+	"github.com/opsidian/basil/basil/generator/parser"
+	"github.com/opsidian/basil/basil/schema"
+)
 
 type InterpreterTemplateParams struct {
 	Package           string
@@ -16,6 +19,7 @@ type InterpreterTemplateParams struct {
 	IDPropertyName    string
 	ValuePropertyName string
 	Imports           map[string]string
+	Dependencies      []parser.Dependency
 }
 
 const interpreterHeaderTemplate = `
@@ -50,14 +54,17 @@ func (i {{ .Name }}Interpreter) Schema() schema.Schema {
 }
 
 // Create creates a new {{ .Name }} block
-func (i {{ .Name }}Interpreter) CreateBlock(id basil.ID) basil.Block {
+func (i {{ .Name }}Interpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &{{ .NameSelector }}{{ .Name }}{
 		{{ if .IDPropertyName -}}
 		{{ getPropertyName .IDPropertyName }}: id,
 		{{ end -}}
 		{{ range $name, $schema := filterDefaults (filterParams .Schema.GetProperties) -}}
 		{{ getPropertyName $name }}: {{ printf "%#v" .DefaultValue }},
-		{{ end }}
+		{{ end -}}
+		{{ range .Dependencies -}}
+		{{ .FieldName }}: blockCtx.{{ title .Name }}(),
+		{{ end -}}
 	}
 }
 

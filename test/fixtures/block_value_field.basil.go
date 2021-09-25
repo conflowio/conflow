@@ -38,7 +38,7 @@ func (i BlockValueFieldInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockValueField block
-func (i BlockValueFieldInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockValueFieldInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockValueField{
 		IDField: id,
 	}

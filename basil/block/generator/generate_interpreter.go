@@ -78,6 +78,9 @@ func GenerateInterpreter(
 			_, ok := s.(schema.ArrayKind)
 			return ok
 		},
+		"title": func(s string) string {
+			return strings.Title(s)
+		},
 	})
 	if _, parseErr := bodyTmpl.Parse(interpreterTemplate); parseErr != nil {
 		return nil, nil, parseErr
@@ -165,5 +168,6 @@ func generateTemplateParams(
 		IDPropertyName:    idPropertyName,
 		ValuePropertyName: valuePropertyName,
 		Imports:           imports,
+		Dependencies:      s.Dependencies,
 	}
 }

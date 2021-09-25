@@ -7,6 +7,7 @@
 package blocks
 
 import (
+	"context"
 	"time"
 
 	"github.com/opsidian/basil/basil"
@@ -21,20 +22,22 @@ type Ticker struct {
 	interval time.Duration
 	// @generated
 	tick *Tick
+	// @dependency
+	blockPublisher basil.BlockPublisher
 }
 
 func (t *Ticker) ID() basil.ID {
 	return t.id
 }
 
-func (t *Ticker) Main(ctx basil.BlockContext) error {
+func (t *Ticker) Run(ctx context.Context) error {
 	ticker := time.NewTicker(t.interval)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case tickerTime := <-ticker.C:
-			_, err := ctx.PublishBlock(&Tick{
+			_, err := t.blockPublisher.PublishBlock(&Tick{
 				id:   t.tick.id,
 				time: tickerTime,
 			}, nil)

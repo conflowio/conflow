@@ -7,6 +7,7 @@
 package blocks
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/opsidian/basil/basil"
@@ -20,6 +21,8 @@ type Range struct {
 	value interface{}
 	// @generated
 	entry *RangeEntry
+	// @dependency
+	blockPublisher basil.BlockPublisher
 }
 
 func (r *Range) ParseContextOverride() basil.ParseContextOverride {
@@ -34,11 +37,11 @@ func (r *Range) ID() basil.ID {
 	return r.id
 }
 
-func (r *Range) Main(ctx basil.BlockContext) error {
+func (r *Range) Run(ctx context.Context) error {
 	switch val := r.value.(type) {
 	case []interface{}:
 		for k, v := range val {
-			_, err := ctx.PublishBlock(&RangeEntry{
+			_, err := r.blockPublisher.PublishBlock(&RangeEntry{
 				id:    r.entry.id,
 				key:   k,
 				value: v,
@@ -49,7 +52,7 @@ func (r *Range) Main(ctx basil.BlockContext) error {
 		}
 	case map[string]interface{}:
 		for k, v := range val {
-			_, err := ctx.PublishBlock(&RangeEntry{
+			_, err := r.blockPublisher.PublishBlock(&RangeEntry{
 				id:    r.entry.id,
 				key:   k,
 				value: v,

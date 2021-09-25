@@ -41,7 +41,7 @@ func (i DeprecatedInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Deprecated block
-func (i DeprecatedInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i DeprecatedInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Deprecated{
 		id: id,
 	}

@@ -32,7 +32,7 @@ func (i GunzipInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks/Stream",
+					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Stream",
 				},
 			},
 			Required: []string{"in", "out"},
@@ -42,9 +42,10 @@ func (i GunzipInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Gunzip block
-func (i GunzipInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i GunzipInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Gunzip{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

@@ -7,6 +7,7 @@
 package blocks
 
 import (
+	"context"
 	"errors"
 
 	"github.com/opsidian/basil/basil"
@@ -25,6 +26,6 @@ func (f *Fail) ID() basil.ID {
 	return f.id
 }
 
-func (f *Fail) Main(blockCtx basil.BlockContext) error {
+func (f *Fail) Run(ctx context.Context) error {
 	return errors.New(f.msg)
 }

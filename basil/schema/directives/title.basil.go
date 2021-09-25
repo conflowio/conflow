@@ -38,7 +38,7 @@ func (i TitleInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Title block
-func (i TitleInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i TitleInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Title{
 		id: id,
 	}

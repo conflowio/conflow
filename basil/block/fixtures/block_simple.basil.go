@@ -38,7 +38,7 @@ func (i BlockSimpleInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockSimple block
-func (i BlockSimpleInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockSimpleInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockSimple{
 		IDField: id,
 	}

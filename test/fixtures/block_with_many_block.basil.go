@@ -23,7 +23,7 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 						Metadata: schema.Metadata{
 							Pointer: true,
 						},
-						Ref: "http://basil.schema/github.com/opsidian/basil/test/fixtures/Block",
+						Ref: "http://basil.schema/github.com/opsidian/basil/test/fixtures.Block",
 					},
 				},
 				"id_field": &schema.String{
@@ -41,7 +41,7 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockWithManyBlock block
-func (i BlockWithManyBlockInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockWithManyBlockInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockWithManyBlock{
 		IDField: id,
 	}

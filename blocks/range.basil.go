@@ -23,7 +23,7 @@ func (i RangeInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks/RangeEntry",
+					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.RangeEntry",
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
@@ -41,9 +41,10 @@ func (i RangeInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Range block
-func (i RangeInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i RangeInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Range{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

@@ -41,7 +41,7 @@ func (i DocInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Doc block
-func (i DocInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i DocInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Doc{
 		id: id,
 	}

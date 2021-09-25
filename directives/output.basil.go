@@ -35,7 +35,7 @@ func (i OutputInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Output block
-func (i OutputInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i OutputInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Output{
 		id: id,
 	}

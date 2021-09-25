@@ -35,7 +35,7 @@ func (i LicensifyInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Licensify block
-func (i LicensifyInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i LicensifyInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Licensify{
 		id: id,
 	}

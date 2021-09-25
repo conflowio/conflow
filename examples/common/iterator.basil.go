@@ -31,7 +31,7 @@ func (i IteratorInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/examples/common/It",
+					Ref: "http://basil.schema/github.com/opsidian/basil/examples/common.It",
 				},
 			},
 			Required: []string{"count", "it"},
@@ -41,9 +41,10 @@ func (i IteratorInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Iterator block
-func (i IteratorInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i IteratorInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Iterator{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

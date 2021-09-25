@@ -46,7 +46,6 @@ var _ basil.BlockContainer = &Container{}
 type Container struct {
 	evalCtx     *basil.EvalContext
 	node        basil.BlockNode
-	blockCtx    basil.BlockContext
 	parent      basil.BlockContainer
 	block       basil.Block
 	err         parsley.Error
@@ -170,9 +169,8 @@ func (c *Container) Run() {
 	}
 
 	if c.block == nil {
-		c.block = c.node.Interpreter().CreateBlock(c.node.ID())
+		c.block = c.node.Interpreter().CreateBlock(c.node.ID(), basil.NewBlockContext(c.evalCtx, c))
 	}
-	c.blockCtx = basil.NewBlockContext(c.evalCtx, c)
 
 	c.jobTracker = job.NewTracker(c.node.ID(), c.evalCtx.JobScheduler(), c.evalCtx.Logger)
 	c.stateChan = make(chan int64, 1)
@@ -395,7 +393,7 @@ func (c *Container) updateEvalContext() {
 }
 
 func (c *Container) runInitStage() (int64, error) {
-	skipped, err := c.block.(basil.BlockInitialiser).Init(c.blockCtx)
+	skipped, err := c.block.(basil.BlockInitialiser).Init(c.evalCtx)
 	if err != nil {
 		return 0, err
 	}
@@ -406,11 +404,11 @@ func (c *Container) runInitStage() (int64, error) {
 }
 
 func (c *Container) runMainStage() (int64, error) {
-	return containerStateNext, c.block.(basil.BlockRunner).Main(c.blockCtx)
+	return containerStateNext, c.block.(basil.BlockRunner).Run(c.evalCtx)
 }
 
 func (c *Container) runCloseStage() (int64, error) {
-	return containerStateNext, c.block.(basil.BlockCloser).Close(c.blockCtx)
+	return containerStateNext, c.block.(basil.BlockCloser).Close(c.evalCtx)
 }
 
 func (c *Container) evaluateChildren() parsley.Error {

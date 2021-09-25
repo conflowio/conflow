@@ -7,6 +7,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"time"
@@ -32,13 +33,13 @@ func (h *Hello) ID() basil.ID {
 }
 
 // Init will initialise the random generator
-func (h *Hello) Init(ctx basil.BlockContext) (bool, error) {
+func (h *Hello) Init(ctx context.Context) (bool, error) {
 	h.r = rand.New(rand.NewSource(time.Now().Unix()))
 	return false, nil
 }
 
 // Main will generate a random greeting
-func (h *Hello) Main(ctx basil.BlockContext) error {
+func (h *Hello) Run(ctx context.Context) error {
 	greetings := []string{"Hello", "Hi", "Hey", "Yo", "Sup"}
 
 	h.greeting = fmt.Sprintf("%s %s!", greetings[h.r.Intn(len(greetings))], h.to)

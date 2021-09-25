@@ -2,17 +2,17 @@
 package testfakes
 
 import (
+	"context"
 	"sync"
 
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/test"
 )
 
 type FakeBlockWithClose struct {
-	CloseStub        func(basil.BlockContext) error
+	CloseStub        func(context.Context) error
 	closeMutex       sync.RWMutex
 	closeArgsForCall []struct {
-		arg1 basil.BlockContext
+		arg1 context.Context
 	}
 	closeReturns struct {
 		result1 error
@@ -24,11 +24,11 @@ type FakeBlockWithClose struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlockWithClose) Close(arg1 basil.BlockContext) error {
+func (fake *FakeBlockWithClose) Close(arg1 context.Context) error {
 	fake.closeMutex.Lock()
 	ret, specificReturn := fake.closeReturnsOnCall[len(fake.closeArgsForCall)]
 	fake.closeArgsForCall = append(fake.closeArgsForCall, struct {
-		arg1 basil.BlockContext
+		arg1 context.Context
 	}{arg1})
 	fake.recordInvocation("Close", []interface{}{arg1})
 	fake.closeMutex.Unlock()
@@ -48,13 +48,13 @@ func (fake *FakeBlockWithClose) CloseCallCount() int {
 	return len(fake.closeArgsForCall)
 }
 
-func (fake *FakeBlockWithClose) CloseCalls(stub func(basil.BlockContext) error) {
+func (fake *FakeBlockWithClose) CloseCalls(stub func(context.Context) error) {
 	fake.closeMutex.Lock()
 	defer fake.closeMutex.Unlock()
 	fake.CloseStub = stub
 }
 
-func (fake *FakeBlockWithClose) CloseArgsForCall(i int) basil.BlockContext {
+func (fake *FakeBlockWithClose) CloseArgsForCall(i int) context.Context {
 	fake.closeMutex.RLock()
 	defer fake.closeMutex.RUnlock()
 	argsForCall := fake.closeArgsForCall[i]
