@@ -9,19 +9,7 @@ package basil
 import (
 	"context"
 	"io"
-	"time"
 )
-
-// BlockContext is passed to the block objects during evaluation
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockContext
-type BlockContext interface {
-	context.Context
-	UserContext() interface{}
-	Logger() Logger
-	PublishBlock(Block, func() error) (bool, error)
-	Stdout() io.Writer
-	JobScheduler() JobScheduler
-}
 
 // Context defines an interface about creating a new context
 type Contexter interface {
@@ -33,7 +21,7 @@ type UserContexter interface {
 	UserContext(ctx interface{}) interface{}
 }
 
-// UserContexter defines an interface about creating a new logger
+// Loggerer defines an interface about creating a new logger
 type Loggerer interface {
 	Logger(logger Logger) Logger
 }
@@ -41,51 +29,35 @@ type Loggerer interface {
 // NewBlockContext creates a new block context
 func NewBlockContext(
 	evalContext *EvalContext,
-	container BlockContainer,
-) BlockContext {
-	return &blockContext{
-		evalContext: evalContext,
-		container:   container,
+	blockPublisher BlockPublisher,
+) *BlockContext {
+	return &BlockContext{
+		evalContext:    evalContext,
+		blockPublisher: blockPublisher,
 	}
 }
 
-type blockContext struct {
-	evalContext *EvalContext
-	container   BlockContainer
+type BlockContext struct {
+	evalContext    *EvalContext
+	blockPublisher BlockPublisher
 }
 
-func (b *blockContext) Deadline() (deadline time.Time, ok bool) {
-	return b.evalContext.Deadline()
+func (b *BlockContext) BlockPublisher() BlockPublisher {
+	return b.blockPublisher
 }
 
-func (b *blockContext) Done() <-chan struct{} {
-	return b.evalContext.Done()
+func (b *BlockContext) JobScheduler() JobScheduler {
+	return b.evalContext.jobScheduler
 }
 
-func (b *blockContext) Err() error {
-	return b.evalContext.Err()
-}
-
-func (b *blockContext) Value(key interface{}) interface{} {
-	return b.evalContext.Value(key)
-}
-
-func (b *blockContext) UserContext() interface{} {
-	return b.evalContext.UserContext
-}
-
-func (b *blockContext) Logger() Logger {
+func (b *BlockContext) Logger() Logger {
 	return b.evalContext.Logger
 }
 
-func (b *blockContext) PublishBlock(block Block, f func() error) (bool, error) {
-	return b.container.PublishBlock(block, f)
+func (b *BlockContext) Stdout() io.Writer {
+	return b.evalContext.Stdout
 }
 
-func (b *blockContext) Stdout() io.Writer {
-	return b.evalContext.StdOut
-}
-
-func (b *blockContext) JobScheduler() JobScheduler {
-	return b.evalContext.jobScheduler
+func (b *BlockContext) UserContext() interface{} {
+	return b.evalContext.UserContext
 }

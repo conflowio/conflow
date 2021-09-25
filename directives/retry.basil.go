@@ -41,7 +41,7 @@ func (i RetryInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Retry block
-func (i RetryInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i RetryInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Retry{
 		id: id,
 	}

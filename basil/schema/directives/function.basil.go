@@ -37,7 +37,7 @@ func (i FunctionInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Function block
-func (i FunctionInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i FunctionInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Function{
 		id: id,
 	}

@@ -33,7 +33,7 @@ func (i BlockGeneratorResultInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockGeneratorResult block
-func (i BlockGeneratorResultInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockGeneratorResultInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockGeneratorResult{
 		id: id,
 	}

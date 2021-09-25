@@ -39,7 +39,7 @@ func (i BlockValueRequiredInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockValueRequired block
-func (i BlockValueRequiredInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockValueRequiredInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockValueRequired{
 		IDField: id,
 	}

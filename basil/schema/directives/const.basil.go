@@ -38,7 +38,7 @@ func (i ConstInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Const block
-func (i ConstInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i ConstInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Const{
 		id: id,
 	}

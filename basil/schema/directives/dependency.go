@@ -4,34 +4,28 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package blocks
+package directives
 
 import (
-	"context"
-	"errors"
-	"time"
-
 	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/basil/basil/schema"
 )
 
 // @block
-type Sleep struct {
+type Dependency struct {
 	// @id
 	id basil.ID
 	// @value
-	// @required
-	duration time.Duration
+	Name string
 }
 
-func (s *Sleep) ID() basil.ID {
-	return s.id
+func (d *Dependency) ID() basil.ID {
+	return d.id
 }
 
-func (s *Sleep) Run(ctx context.Context) error {
-	select {
-	case <-time.After(s.duration):
+func (d *Dependency) ApplyToSchema(s schema.Schema) error {
+	return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {
+		meta.SetAnnotation("dependency", d.Name)
 		return nil
-	case <-ctx.Done():
-		return errors.New("aborted")
-	}
+	})
 }

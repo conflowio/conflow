@@ -39,7 +39,7 @@ func (i EvalStageInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new EvalStage block
-func (i EvalStageInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i EvalStageInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &EvalStage{
 		id: id,
 	}

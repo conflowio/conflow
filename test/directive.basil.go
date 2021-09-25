@@ -43,7 +43,7 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 						Metadata: schema.Metadata{
 							Pointer: true,
 						},
-						Ref: "http://basil.schema/github.com/opsidian/basil/test/Block",
+						Ref: "http://basil.schema/github.com/opsidian/basil/test.Block",
 					},
 				},
 				"value": &schema.Untyped{
@@ -59,7 +59,7 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Directive block
-func (i DirectiveInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i DirectiveInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Directive{
 		IDField: id,
 	}

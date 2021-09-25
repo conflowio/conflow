@@ -19,11 +19,11 @@ func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 			Name: "BlockWithInterface",
 			Properties: map[string]schema.Schema{
 				"block": &schema.Reference{
-					Ref: "http://basil.schema/github.com/opsidian/basil/basil/Block",
+					Ref: "http://basil.schema/github.com/opsidian/basil/basil.Block",
 				},
 				"blocks": &schema.Array{
 					Items: &schema.Reference{
-						Ref: "http://basil.schema/github.com/opsidian/basil/basil/Block",
+						Ref: "http://basil.schema/github.com/opsidian/basil/basil.Block",
 					},
 				},
 				"id_field": &schema.String{
@@ -41,7 +41,7 @@ func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockWithInterface block
-func (i BlockWithInterfaceInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockWithInterfaceInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockWithInterface{
 		IDField: id,
 	}

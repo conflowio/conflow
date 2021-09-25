@@ -15,6 +15,7 @@ func Registry() block.InterpreterRegistry {
 		"block":       BlockInterpreter{},
 		"const":       ConstInterpreter{},
 		"default":     DefaultInterpreter{},
+		"dependency":  DependencyInterpreter{},
 		"deprecated":  DeprecatedInterpreter{},
 		"enum":        EnumInterpreter{},
 		"eval_stage":  EvalStageInterpreter{},

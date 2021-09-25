@@ -6,7 +6,11 @@
 
 package fixtures
 
-import "github.com/opsidian/basil/basil"
+import (
+	"context"
+
+	"github.com/opsidian/basil/basil"
+)
 
 // @block
 type BlockGenerator struct {
@@ -16,19 +20,21 @@ type BlockGenerator struct {
 	items []interface{}
 	// @generated
 	result *BlockGeneratorResult
+	// @dependency
+	blockPublisher basil.BlockPublisher
 }
 
 func (b *BlockGenerator) ID() basil.ID {
 	return b.id
 }
 
-func (b *BlockGenerator) Main(blockCtx basil.BlockContext) error {
+func (b *BlockGenerator) Run(ctx context.Context) error {
 	for _, item := range b.items {
 		res := &BlockGeneratorResult{
 			id:    b.result.id,
 			value: item,
 		}
-		if _, err := blockCtx.PublishBlock(res, nil); err != nil {
+		if _, err := b.blockPublisher.PublishBlock(res, nil); err != nil {
 			return err
 		}
 	}

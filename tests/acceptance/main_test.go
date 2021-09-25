@@ -17,6 +17,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	uzerolog "github.com/rs/zerolog"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/examples/common"
@@ -24,7 +26,6 @@ import (
 	"github.com/opsidian/basil/parsers"
 	"github.com/opsidian/basil/tests/acceptance"
 	"github.com/opsidian/basil/util"
-	uzerolog "github.com/rs/zerolog"
 )
 
 type testCase struct {
@@ -105,7 +106,7 @@ var _ = Describe("Acceptance tests", func() {
 		stdout := bytes.NewBuffer(make([]byte, 0, 256))
 
 		evalContext := basil.NewEvalContext(ctx, nil, logger, scheduler, nil)
-		evalContext.SetStdOut(stdout)
+		evalContext.SetStdout(stdout)
 
 		_, err := node.Value(evalContext)
 		if err != nil {

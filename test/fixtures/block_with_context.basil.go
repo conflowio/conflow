@@ -40,7 +40,7 @@ func (i BlockWithContextInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockWithContext block
-func (i BlockWithContextInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockWithContextInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockWithContext{
 		IDField: id,
 	}

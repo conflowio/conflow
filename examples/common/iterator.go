@@ -7,6 +7,8 @@
 package common
 
 import (
+	"context"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
 )
@@ -19,15 +21,17 @@ type Iterator struct {
 	count int64
 	// @generated
 	it *It
+	// @dependency
+	blockPublisher basil.BlockPublisher
 }
 
 func (i *Iterator) ID() basil.ID {
 	return i.id
 }
 
-func (it *Iterator) Main(ctx basil.BlockContext) error {
+func (it *Iterator) Run(ctx context.Context) error {
 	for i := int64(0); i < it.count; i++ {
-		_, err := ctx.PublishBlock(&It{
+		_, err := it.blockPublisher.PublishBlock(&It{
 			id:    it.it.id,
 			value: i,
 		}, nil)

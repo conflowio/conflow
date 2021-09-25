@@ -12,13 +12,14 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/opsidian/parsley/parsley"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/basilfakes"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/basil/job"
 	"github.com/opsidian/basil/loggers/zerolog"
 	"github.com/opsidian/basil/test/testfakes"
-	"github.com/opsidian/parsley/parsley"
 )
 
 var _ = Describe("Container", func() {
@@ -138,7 +139,7 @@ var _ = Describe("Container", func() {
 		When("it has no error", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithMain{}
-				fakeBlock.MainReturns(nil)
+				fakeBlock.RunReturns(nil)
 				b = fakeBlock
 			})
 
@@ -147,7 +148,7 @@ var _ = Describe("Container", func() {
 			})
 
 			It("should call the main method on the block", func() {
-				Expect(fakeBlock.MainCallCount()).To(Equal(1))
+				Expect(fakeBlock.RunCallCount()).To(Equal(1))
 			})
 
 			It("should return with the created block", func() {
@@ -158,7 +159,7 @@ var _ = Describe("Container", func() {
 		When("it has an error", func() {
 			BeforeEach(func() {
 				fakeBlock = &testfakes.FakeBlockWithMain{}
-				fakeBlock.MainReturns(errors.New("main error"))
+				fakeBlock.RunReturns(errors.New("main error"))
 				b = fakeBlock
 			})
 

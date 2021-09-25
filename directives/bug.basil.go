@@ -41,7 +41,7 @@ func (i BugInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Bug block
-func (i BugInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BugInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Bug{
 		id: id,
 	}

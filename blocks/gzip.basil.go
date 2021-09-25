@@ -32,7 +32,7 @@ func (i GzipInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks/Stream",
+					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Stream",
 				},
 			},
 			Required: []string{"in", "out"},
@@ -42,9 +42,10 @@ func (i GzipInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Gzip block
-func (i GzipInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i GzipInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Gzip{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

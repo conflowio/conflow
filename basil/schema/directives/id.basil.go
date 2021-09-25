@@ -32,7 +32,7 @@ func (i IDInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new ID block
-func (i IDInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i IDInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &ID{
 		id: id,
 	}

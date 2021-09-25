@@ -9,10 +9,11 @@ import (
 )
 
 type FakeBlockInterpreter struct {
-	CreateBlockStub        func(basil.ID) basil.Block
+	CreateBlockStub        func(basil.ID, *basil.BlockContext) basil.Block
 	createBlockMutex       sync.RWMutex
 	createBlockArgsForCall []struct {
 		arg1 basil.ID
+		arg2 *basil.BlockContext
 	}
 	createBlockReturns struct {
 		result1 basil.Block
@@ -93,16 +94,17 @@ type FakeBlockInterpreter struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlockInterpreter) CreateBlock(arg1 basil.ID) basil.Block {
+func (fake *FakeBlockInterpreter) CreateBlock(arg1 basil.ID, arg2 *basil.BlockContext) basil.Block {
 	fake.createBlockMutex.Lock()
 	ret, specificReturn := fake.createBlockReturnsOnCall[len(fake.createBlockArgsForCall)]
 	fake.createBlockArgsForCall = append(fake.createBlockArgsForCall, struct {
 		arg1 basil.ID
-	}{arg1})
-	fake.recordInvocation("CreateBlock", []interface{}{arg1})
+		arg2 *basil.BlockContext
+	}{arg1, arg2})
+	fake.recordInvocation("CreateBlock", []interface{}{arg1, arg2})
 	fake.createBlockMutex.Unlock()
 	if fake.CreateBlockStub != nil {
-		return fake.CreateBlockStub(arg1)
+		return fake.CreateBlockStub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -117,17 +119,17 @@ func (fake *FakeBlockInterpreter) CreateBlockCallCount() int {
 	return len(fake.createBlockArgsForCall)
 }
 
-func (fake *FakeBlockInterpreter) CreateBlockCalls(stub func(basil.ID) basil.Block) {
+func (fake *FakeBlockInterpreter) CreateBlockCalls(stub func(basil.ID, *basil.BlockContext) basil.Block) {
 	fake.createBlockMutex.Lock()
 	defer fake.createBlockMutex.Unlock()
 	fake.CreateBlockStub = stub
 }
 
-func (fake *FakeBlockInterpreter) CreateBlockArgsForCall(i int) basil.ID {
+func (fake *FakeBlockInterpreter) CreateBlockArgsForCall(i int) (basil.ID, *basil.BlockContext) {
 	fake.createBlockMutex.RLock()
 	defer fake.createBlockMutex.RUnlock()
 	argsForCall := fake.createBlockArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeBlockInterpreter) CreateBlockReturns(result1 basil.Block) {

@@ -33,7 +33,7 @@ func (i FileInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new File block
-func (i FileInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i FileInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &File{
 		id: id,
 	}

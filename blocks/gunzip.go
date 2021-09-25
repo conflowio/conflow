@@ -8,6 +8,7 @@ package blocks
 
 import (
 	"compress/gzip"
+	"context"
 	"io"
 
 	"github.com/opsidian/basil/basil"
@@ -22,13 +23,15 @@ type Gunzip struct {
 	in io.ReadCloser
 	// @generated
 	out *Stream
+	// @dependency
+	blockPublisher basil.BlockPublisher
 }
 
 func (g *Gunzip) ID() basil.ID {
 	return g.id
 }
 
-func (g *Gunzip) Main(blockCtx basil.BlockContext) error {
+func (g *Gunzip) Run(ctx context.Context) error {
 	var err error
 	g.out.Stream, err = gzip.NewReader(g.in)
 	if err != nil {
@@ -36,7 +39,7 @@ func (g *Gunzip) Main(blockCtx basil.BlockContext) error {
 	}
 	defer g.out.Stream.Close()
 
-	published, err := blockCtx.PublishBlock(g.out, nil)
+	published, err := g.blockPublisher.PublishBlock(g.out, nil)
 	if !published {
 		_, _ = io.Copy(io.Discard, g.in)
 	}

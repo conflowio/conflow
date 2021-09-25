@@ -21,9 +21,11 @@ import (
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/schema"
 	schemadirectives "github.com/opsidian/basil/basil/schema/directives"
+	"github.com/opsidian/basil/util"
 )
 
 type Field struct {
+	Dependency     string
 	Name           string
 	PropertyName   string
 	Required       bool
@@ -77,13 +79,56 @@ func ParseField(
 		}
 	}
 
+	var dependencyName string
+
 	for _, directive := range metadata.Directives {
-		switch d := directive.(type) {
-		case *schemadirectives.Ignore:
+		if _, ok := directive.(*schemadirectives.Ignore); ok {
 			if _, ok := parseCtx.Parent.(*ast.StructType); !ok {
 				return nil, errors.New("the @ignore annotation can only be used on struct fields")
 			}
 			return nil, nil
+		}
+	}
+
+	fieldSchema, _, err := getSchemaForField(parseCtx, astField.Type, pkg)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, directive := range metadata.Directives {
+		switch d := directive.(type) {
+		case *schemadirectives.Dependency:
+			if _, ok := parseCtx.Parent.(*ast.StructType); !ok {
+				return nil, errors.New("the @dependency annotation can only be used on struct fields")
+			}
+
+			if d.Name != "" {
+				if !util.StringSliceContains(validDependencies, d.Name) {
+					return nil, fmt.Errorf("%s dependency is invalid, valid values are: %s", d.Name, strings.Join(validDependencies, ", "))
+				}
+				dependencyName = d.Name
+			} else {
+				if util.StringSliceContains(validDependencies, fieldName) {
+					dependencyName = fieldName
+				} else {
+					return nil, errors.New("dependency can not be inferred from the field name, please set the name explicitly (@dependency \"name\"")
+				}
+			}
+
+			var actualType string
+			switch s := fieldSchema.(type) {
+			case *schema.Reference:
+				actualType = strings.TrimPrefix(s.Ref, "http://basil.schema/")
+			case *schema.Untyped:
+				actualType = "interface{}"
+			default:
+				actualType = s.TypeString()
+			}
+
+			if dependencyTypes[dependencyName] != actualType {
+				return nil, fmt.Errorf("%s dependency type can only be defined on a %s field", dependencyName, dependencyTypes[dependencyName])
+			}
+
 		case *schemadirectives.Required:
 			if _, ok := parseCtx.Parent.(*ast.StructType); !ok {
 				return nil, errors.New("the @required annotation can only be used on struct fields")
@@ -100,11 +145,6 @@ func ParseField(
 			}
 			propertyName = d.Value
 		}
-	}
-
-	fieldSchema, _, err := getSchemaForField(parseCtx, astField.Type, pkg)
-	if err != nil {
-		return nil, err
 	}
 
 	fieldSchema.(schema.MetadataAccessor).SetDescription(metadata.Description)
@@ -135,6 +175,7 @@ func ParseField(
 	}
 
 	return &Field{
+		Dependency:     dependencyName,
 		Name:           fieldName,
 		PropertyName:   propertyName,
 		Required:       required,
@@ -173,7 +214,7 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 			}
 
 			s = &schema.Reference{
-				Ref: fmt.Sprintf("http://basil.schema/%s/%s", pkg, tn.String()),
+				Ref: fmt.Sprintf("http://basil.schema/%s.%s", pkg, tn.String()),
 			}
 
 			return s, true, nil
@@ -247,7 +288,7 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 				}
 
 				s = &schema.Reference{
-					Ref: fmt.Sprintf("http://basil.schema/%s/%s", path, tn.Sel.Name),
+					Ref: fmt.Sprintf("http://basil.schema/%s.%s", path, tn.Sel.Name),
 				}
 				return s, true, nil
 			}

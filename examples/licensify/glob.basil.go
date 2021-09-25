@@ -26,7 +26,7 @@ func (i GlobInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/examples/licensify/File",
+					Ref: "http://basil.schema/github.com/opsidian/basil/examples/licensify.File",
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
@@ -47,9 +47,10 @@ func (i GlobInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Glob block
-func (i GlobInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i GlobInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Glob{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

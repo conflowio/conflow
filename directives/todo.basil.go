@@ -41,7 +41,7 @@ func (i TodoInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Todo block
-func (i TodoInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i TodoInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Todo{
 		id: id,
 	}

@@ -39,7 +39,7 @@ func (i EnumInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Enum block
-func (i EnumInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i EnumInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Enum{
 		id: id,
 	}

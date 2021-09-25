@@ -20,6 +20,7 @@ type Struct struct {
 	Name            string
 	InterpreterPath string
 	Schema          schema.Schema
+	Dependencies    []parser.Dependency
 }
 
 // ParseStruct parses all fields of a given go struct
@@ -54,6 +55,7 @@ func ParseStruct(
 
 	var idField string
 	var valueField string
+	var dependencies []parser.Dependency
 
 	parseCtx = parseCtx.WithParent(str)
 
@@ -67,6 +69,14 @@ func ParseStruct(
 			}
 
 			if field == nil {
+				continue
+			}
+
+			if field.Dependency != "" {
+				dependencies = append(dependencies, parser.Dependency{
+					Name:      fieldName,
+					FieldName: field.Dependency,
+				})
 				continue
 			}
 
@@ -118,6 +128,7 @@ func ParseStruct(
 		Name:            name,
 		InterpreterPath: interpreterPath,
 		Schema:          s,
+		Dependencies:    dependencies,
 	}, nil
 }
 

@@ -44,7 +44,7 @@ func (i RangeEntryInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new RangeEntry block
-func (i RangeEntryInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i RangeEntryInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &RangeEntry{
 		id: id,
 	}

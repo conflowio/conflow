@@ -43,7 +43,7 @@ func (i BlockInterpreter) Schema() schema.Schema {
 						Metadata: schema.Metadata{
 							Pointer: true,
 						},
-						Ref: "http://basil.schema/github.com/opsidian/basil/test/Block",
+						Ref: "http://basil.schema/github.com/opsidian/basil/test.Block",
 					},
 				},
 				"value": &schema.Untyped{
@@ -59,7 +59,7 @@ func (i BlockInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Block block
-func (i BlockInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Block{
 		IDField: id,
 	}

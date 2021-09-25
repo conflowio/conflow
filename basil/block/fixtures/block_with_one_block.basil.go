@@ -22,7 +22,7 @@ func (i BlockWithOneBlockInterpreter) Schema() schema.Schema {
 					Metadata: schema.Metadata{
 						Pointer: true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/basil/block/fixtures/BlockSimple",
+					Ref: "http://basil.schema/github.com/opsidian/basil/basil/block/fixtures.BlockSimple",
 				},
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
@@ -39,7 +39,7 @@ func (i BlockWithOneBlockInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockWithOneBlock block
-func (i BlockWithOneBlockInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BlockWithOneBlockInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &BlockWithOneBlock{
 		IDField: id,
 	}

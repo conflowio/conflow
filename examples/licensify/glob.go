@@ -7,6 +7,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -25,13 +26,15 @@ type Glob struct {
 	exclude []string
 	// @generated
 	file *File
+	// @dependency
+	blockPublisher basil.BlockPublisher
 }
 
 func (g *Glob) ID() basil.ID {
 	return g.id
 }
 
-func (g *Glob) Main(ctx basil.BlockContext) error {
+func (g *Glob) Run(ctx context.Context) error {
 	includes, err := g.compileRegexps(g.include)
 	if err != nil {
 		return err
@@ -62,7 +65,7 @@ func (g *Glob) Main(ctx basil.BlockContext) error {
 			}
 		}
 
-		_, perr := ctx.PublishBlock(&File{id: g.file.id, path: path}, nil)
+		_, perr := g.blockPublisher.PublishBlock(&File{id: g.file.id, path: path}, nil)
 		return perr
 	})
 }

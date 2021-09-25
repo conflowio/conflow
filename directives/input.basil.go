@@ -36,7 +36,7 @@ func (i InputInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Input block
-func (i InputInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i InputInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Input{
 		id: id,
 	}

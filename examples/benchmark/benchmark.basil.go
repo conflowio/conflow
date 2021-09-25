@@ -39,7 +39,7 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/examples/benchmark/BenchmarkRun",
+					Ref: "http://basil.schema/github.com/opsidian/basil/examples/benchmark.BenchmarkRun",
 				},
 			},
 			Required: []string{"duration", "run"},
@@ -49,9 +49,10 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Benchmark block
-func (i BenchmarkInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BenchmarkInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Benchmark{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

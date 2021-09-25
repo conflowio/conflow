@@ -42,7 +42,7 @@ func (i TimeoutInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Timeout block
-func (i TimeoutInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i TimeoutInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Timeout{
 		id: id,
 	}

@@ -54,7 +54,7 @@ func (i NumberInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Number block
-func (i NumberInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i NumberInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Number{}
 }
 

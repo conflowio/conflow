@@ -41,7 +41,7 @@ func (i RunInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Run block
-func (i RunInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i RunInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Run{
 		id:   id,
 		when: true,

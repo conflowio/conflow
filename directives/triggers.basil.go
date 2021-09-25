@@ -43,7 +43,7 @@ func (i TriggersInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Triggers block
-func (i TriggersInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i TriggersInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Triggers{
 		id: id,
 	}

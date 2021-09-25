@@ -44,14 +44,14 @@ func (i ExecInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks/Stream",
+					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Stream",
 				},
 				"stdout": &schema.Reference{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks/Stream",
+					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Stream",
 				},
 			},
 			PropertyNames: map[string]string{"exit_code": "exitCode"},
@@ -62,9 +62,10 @@ func (i ExecInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Exec block
-func (i ExecInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i ExecInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Exec{
-		id: id,
+		id:             id,
+		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 

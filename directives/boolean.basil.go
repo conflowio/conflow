@@ -54,7 +54,7 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Boolean block
-func (i BooleanInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i BooleanInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Boolean{}
 }
 

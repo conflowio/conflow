@@ -32,7 +32,7 @@ func (i WriteOnlyInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new WriteOnly block
-func (i WriteOnlyInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i WriteOnlyInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &WriteOnly{
 		id: id,
 	}

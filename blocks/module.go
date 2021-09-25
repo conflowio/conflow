@@ -15,32 +15,26 @@ import (
 	"github.com/opsidian/basil/basil/schema"
 )
 
-func NewModule(id basil.ID, interpreter basil.BlockInterpreter, node parsley.Node) basil.Block {
-	return &module{
-		id:          id,
-		interpreter: interpreter,
-		node:        node,
-		params:      map[basil.ID]interface{}{},
-	}
-}
-
 type module struct {
-	id          basil.ID
-	interpreter basil.BlockInterpreter
-	node        parsley.Node
-	params      map[basil.ID]interface{}
+	id           basil.ID
+	interpreter  basil.BlockInterpreter
+	node         parsley.Node
+	params       map[basil.ID]interface{}
+	logger       basil.Logger
+	userCtx      interface{}
+	jobScheduler basil.JobScheduler
 }
 
 func (m *module) ID() basil.ID {
 	return m.id
 }
 
-func (m *module) Main(blockCtx basil.BlockContext) error {
-	ctx, cancel := context.WithCancel(blockCtx)
-	defer cancel()
+func (m *module) Run(ctx context.Context) error {
+	moduleCtx, moduleCancel := context.WithCancel(ctx)
+	defer moduleCancel()
 
 	evalContext := basil.NewEvalContext(
-		ctx, blockCtx.UserContext(), blockCtx.Logger(), blockCtx.JobScheduler(), nil,
+		moduleCtx, m.userCtx, m.logger, m.jobScheduler, nil,
 	)
 	evalContext.InputParams = m.params
 
@@ -56,4 +50,64 @@ func (m *module) Main(blockCtx basil.BlockContext) error {
 	}
 
 	return nil
+}
+
+// NewModuleInterpreter creates a new interpreter for a module
+func NewModuleInterpreter(
+	interpreter basil.BlockInterpreter,
+	node parsley.Node,
+) basil.BlockInterpreter {
+	s := interpreter.Schema().Copy().(*schema.Object)
+	for _, p := range s.Properties {
+		p.(schema.MetadataAccessor).SetAnnotation("user_defined", "")
+	}
+
+	return &moduleInterpreter{
+		interpreter: interpreter,
+		node:        node,
+		schema:      s,
+	}
+}
+
+type moduleInterpreter struct {
+	node        parsley.Node
+	interpreter basil.BlockInterpreter
+	schema      schema.Schema
+}
+
+func (m *moduleInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+	return &module{
+		id:           id,
+		interpreter:  m.interpreter,
+		node:         m.node,
+		params:       map[basil.ID]interface{}{},
+		logger:       blockCtx.Logger(),
+		userCtx:      blockCtx.UserContext(),
+		jobScheduler: blockCtx.JobScheduler(),
+	}
+}
+
+func (m *moduleInterpreter) Schema() schema.Schema {
+	return m.schema
+}
+
+func (m *moduleInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+	b.(*module).params[name] = value
+	return nil
+}
+
+func (m *moduleInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+	return nil
+}
+
+func (m *moduleInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+	return b.(*module).params[name]
+}
+
+func (m *moduleInterpreter) ValueParamName() basil.ID {
+	return ""
+}
+
+func (m *moduleInterpreter) ParseContext(context *basil.ParseContext) *basil.ParseContext {
+	return context
 }

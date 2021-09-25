@@ -32,7 +32,7 @@ func (i GeneratedInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Generated block
-func (i GeneratedInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i GeneratedInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Generated{
 		id: id,
 	}

@@ -38,7 +38,7 @@ func (i FailInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Fail block
-func (i FailInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i FailInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Fail{
 		id: id,
 	}

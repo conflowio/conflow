@@ -7,6 +7,8 @@
 package basil
 
 import (
+	"context"
+
 	"github.com/opsidian/parsley/parsley"
 
 	"github.com/opsidian/basil/basil/schema"
@@ -23,24 +25,33 @@ type BlockContainer interface {
 	Param(ID) interface{}
 	SetChild(Container)
 	SetError(parsley.Error)
-	PublishBlock(Block, func() error) (bool, error)
 	EvalStage() EvalStage
 }
 
 // BlockInitialiser defines an Init() function which runs before the main evaluation stage
 // If the skipped return value is true then the block won't be evaluated
 type BlockInitialiser interface {
-	Init(blockCtx BlockContext) (skipped bool, err error)
+	Init(context.Context) (skipped bool, err error)
 }
 
-// BlockRunner defines a Main() function which runs the main business logic
+// BlockRunner defines a Run() function which runs the main business logic
 type BlockRunner interface {
-	Main(blockCtx BlockContext) error
+	Run(ctx context.Context) error
 }
 
 // BlockCloser defines a Close function which runs after the main evaluation stage
 type BlockCloser interface {
-	Close(blockCtx BlockContext) error
+	Close(ctx context.Context) error
+}
+
+// BlockPublisher defines an interface which generator blocks should use to publish generated blocks
+// The PublishBlock function will either:
+//  * return immediately with published=false if the block is not a dependency of other blocks
+//  * otherwise it will block until all other blocks depending on the published block will finish running
+//
+// If the onScheduled function is not nil, it will be called after the published block was scheduled
+type BlockPublisher interface {
+	PublishBlock(block Block, onScheduled func() error) (published bool, err error)
 }
 
 // BlockNode is the AST node for a block
@@ -71,7 +82,7 @@ type BlockTransformerRegistryAware interface {
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockInterpreter
 type BlockInterpreter interface {
 	Schema() schema.Schema
-	CreateBlock(ID) Block
+	CreateBlock(ID, *BlockContext) Block
 	SetParam(b Block, name ID, value interface{}) error
 	SetBlock(b Block, name ID, value interface{}) error
 	Param(b Block, name ID) interface{}

@@ -32,7 +32,7 @@ func (i ValueInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Value block
-func (i ValueInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i ValueInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Value{
 		id: id,
 	}

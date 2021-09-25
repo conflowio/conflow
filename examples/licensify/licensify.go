@@ -8,6 +8,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 
@@ -28,7 +29,7 @@ func (l *Licensify) ID() basil.ID {
 	return l.id
 }
 
-func (l *Licensify) Main(ctx basil.BlockContext) error {
+func (l *Licensify) Run(ctx context.Context) error {
 	content, err := ioutil.ReadFile(l.path)
 	if err != nil {
 		return err

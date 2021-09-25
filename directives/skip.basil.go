@@ -41,7 +41,7 @@ func (i SkipInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Skip block
-func (i SkipInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i SkipInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Skip{
 		id:   id,
 		when: true,

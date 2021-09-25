@@ -2,17 +2,17 @@
 package testfakes
 
 import (
+	"context"
 	"sync"
 
-	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/test"
 )
 
 type FakeBlockWithInit struct {
-	InitStub        func(basil.BlockContext) (bool, error)
+	InitStub        func(context.Context) (bool, error)
 	initMutex       sync.RWMutex
 	initArgsForCall []struct {
-		arg1 basil.BlockContext
+		arg1 context.Context
 	}
 	initReturns struct {
 		result1 bool
@@ -26,11 +26,11 @@ type FakeBlockWithInit struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlockWithInit) Init(arg1 basil.BlockContext) (bool, error) {
+func (fake *FakeBlockWithInit) Init(arg1 context.Context) (bool, error) {
 	fake.initMutex.Lock()
 	ret, specificReturn := fake.initReturnsOnCall[len(fake.initArgsForCall)]
 	fake.initArgsForCall = append(fake.initArgsForCall, struct {
-		arg1 basil.BlockContext
+		arg1 context.Context
 	}{arg1})
 	fake.recordInvocation("Init", []interface{}{arg1})
 	fake.initMutex.Unlock()
@@ -50,13 +50,13 @@ func (fake *FakeBlockWithInit) InitCallCount() int {
 	return len(fake.initArgsForCall)
 }
 
-func (fake *FakeBlockWithInit) InitCalls(stub func(basil.BlockContext) (bool, error)) {
+func (fake *FakeBlockWithInit) InitCalls(stub func(context.Context) (bool, error)) {
 	fake.initMutex.Lock()
 	defer fake.initMutex.Unlock()
 	fake.InitStub = stub
 }
 
-func (fake *FakeBlockWithInit) InitArgsForCall(i int) basil.BlockContext {
+func (fake *FakeBlockWithInit) InitArgsForCall(i int) context.Context {
 	fake.initMutex.RLock()
 	defer fake.initMutex.RUnlock()
 	argsForCall := fake.initArgsForCall[i]

@@ -55,7 +55,7 @@ func (i StringInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new String block
-func (i StringInterpreter) CreateBlock(id basil.ID) basil.Block {
+func (i StringInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &String{}
 }
 
