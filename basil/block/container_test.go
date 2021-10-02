@@ -9,6 +9,7 @@ package block_test
 import (
 	"context"
 	"errors"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -57,7 +58,7 @@ var _ = Describe("Container", func() {
 		scheduler.Start()
 		evalCtx = basil.NewEvalContext(ctx, nil, logger, scheduler, nil)
 
-		container = block.NewContainer(evalCtx, blockNode, nil, nil, nil, false)
+		container = block.NewContainer(evalCtx, basil.RuntimeConfig{}, blockNode, nil, nil, nil, false)
 		container.Run()
 		value, err = container.Value()
 	})
@@ -133,13 +134,13 @@ var _ = Describe("Container", func() {
 
 	})
 
-	Context("when a node has an main method", func() {
-		var fakeBlock *testfakes.FakeBlockWithMain
+	Context("when a node has a run method", func() {
+		var fakeBlock *testfakes.FakeBlockWithRun
 
 		When("it has no error", func() {
 			BeforeEach(func() {
-				fakeBlock = &testfakes.FakeBlockWithMain{}
-				fakeBlock.RunReturns(nil)
+				fakeBlock = &testfakes.FakeBlockWithRun{}
+				fakeBlock.RunReturns(nil, nil)
 				b = fakeBlock
 			})
 
@@ -158,13 +159,97 @@ var _ = Describe("Container", func() {
 
 		When("it has an error", func() {
 			BeforeEach(func() {
-				fakeBlock = &testfakes.FakeBlockWithMain{}
-				fakeBlock.RunReturns(errors.New("main error"))
+				fakeBlock = &testfakes.FakeBlockWithRun{}
+				fakeBlock.RunReturns(nil, errors.New("main error"))
 				b = fakeBlock
 			})
 
 			It("should return with the error", func() {
 				Expect(err).To(MatchError("main error"))
+			})
+		})
+
+		When("it returns with a retry result on the first run", func() {
+			BeforeEach(func() {
+				fakeBlock = &testfakes.FakeBlockWithRun{}
+				fakeBlock.RunReturnsOnCall(0, basil.Retry("test retry"), nil)
+				fakeBlock.RunReturnsOnCall(1, nil, nil)
+				b = fakeBlock
+			})
+
+			It("should return with no error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("should call the main method on the block twice", func() {
+				Expect(fakeBlock.RunCallCount()).To(Equal(2))
+			})
+
+			It("should return with the created block", func() {
+				Expect(value).To(Equal(fakeBlock))
+			})
+		})
+
+		When("it returns with a retry result (with delay) on the first run", func() {
+			BeforeEach(func() {
+				fakeBlock = &testfakes.FakeBlockWithRun{}
+				fakeBlock.RunReturnsOnCall(0, basil.RetryAfter(1*time.Millisecond, "test retry"), nil)
+				fakeBlock.RunReturnsOnCall(1, nil, nil)
+				b = fakeBlock
+			})
+
+			It("should return with no error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("should call the main method on the block twice", func() {
+				Expect(fakeBlock.RunCallCount()).To(Equal(2))
+			})
+
+			It("should return with the created block", func() {
+				Expect(value).To(Equal(fakeBlock))
+			})
+		})
+
+		When("it returns with a retryable error on the first run", func() {
+			BeforeEach(func() {
+				fakeBlock = &testfakes.FakeBlockWithRun{}
+				fakeBlock.RunReturnsOnCall(0, nil, basil.RetryableError(errors.New("test error"), 0))
+				fakeBlock.RunReturnsOnCall(1, nil, nil)
+				b = fakeBlock
+			})
+
+			It("should return with no error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("should call the main method on the block twice", func() {
+				Expect(fakeBlock.RunCallCount()).To(Equal(2))
+			})
+
+			It("should return with the created block", func() {
+				Expect(value).To(Equal(fakeBlock))
+			})
+		})
+
+		When("it returns with a retryable error (with duration) on the first run", func() {
+			BeforeEach(func() {
+				fakeBlock = &testfakes.FakeBlockWithRun{}
+				fakeBlock.RunReturnsOnCall(0, nil, basil.RetryableError(errors.New("test error"), 1*time.Millisecond))
+				fakeBlock.RunReturnsOnCall(1, nil, nil)
+				b = fakeBlock
+			})
+
+			It("should return with no error", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("should call the main method on the block twice", func() {
+				Expect(fakeBlock.RunCallCount()).To(Equal(2))
+			})
+
+			It("should return with the created block", func() {
+				Expect(value).To(Equal(fakeBlock))
 			})
 		})
 	})

@@ -1,0 +1,9 @@
+world := "World"
+
+f fail {
+    tries_required = 3
+}
+
+println {
+    value = "Eventually succeeded after " + string(f.tries) + " tries"
+}

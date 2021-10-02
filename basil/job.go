@@ -6,10 +6,6 @@
 
 package basil
 
-import (
-	"time"
-)
-
 // JobScheduler is the job scheduler
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . JobScheduler
 type JobScheduler interface {
@@ -33,16 +29,4 @@ type JobContainer interface {
 	Cancel() bool
 	Pending() bool
 	EvalStage() EvalStage
-}
-
-// Retryable is a simple interface for defining a retry mechanism
-type Retryable interface {
-	RetryCount() int
-	RetryDelay(int) time.Duration
-}
-
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . RetryableJob
-type RetryableJob interface {
-	Job
-	Retryable
 }

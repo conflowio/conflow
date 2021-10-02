@@ -24,7 +24,7 @@ type NodeContainer struct {
 	parent        BlockContainer
 	node          Node
 	scheduler     JobScheduler
-	runtimeConfig *RuntimeConfig
+	runtimeConfig RuntimeConfig
 	dependencies  map[ID]Container
 	missingDeps   int
 	nilDeps       int
@@ -54,14 +54,13 @@ func NewNodeContainer(
 	}
 
 	n := &NodeContainer{
-		ctx:           ctx,
-		parent:        parent,
-		node:          node,
-		scheduler:     scheduler,
-		dependencies:  dependencies,
-		missingDeps:   len(dependencies),
-		mu:            &sync.Mutex{},
-		runtimeConfig: &RuntimeConfig{},
+		ctx:          ctx,
+		parent:       parent,
+		node:         node,
+		scheduler:    scheduler,
+		dependencies: dependencies,
+		missingDeps:  len(dependencies),
+		mu:           &sync.Mutex{},
 	}
 
 	var err parsley.Error
@@ -205,7 +204,7 @@ func (n *NodeContainer) CreateContainer(value interface{}, wgs []WaitGroup) (Job
 	}
 
 	ctx := n.createEvalContext(util.TimeDurationValue(n.runtimeConfig.Timeout))
-	return n.node.CreateContainer(ctx, n.parent, value, wgs, n.pending), nil
+	return n.node.CreateContainer(ctx, n.runtimeConfig, n.parent, value, wgs, n.pending), nil
 }
 
 // CreateEvalContext returns with a new evaluation context
@@ -258,7 +257,7 @@ func (n *NodeContainer) evaluateDirectives(evalStage EvalStage) parsley.Error {
 
 		opt, ok := directive.(RuntimeConfigOption)
 		if ok {
-			opt.ApplyToRuntimeConfig(n.runtimeConfig)
+			opt.ApplyToRuntimeConfig(&n.runtimeConfig)
 		}
 	}
 	return nil

@@ -21,11 +21,6 @@ func (i RetryInterpreter) Schema() schema.Schema {
 			},
 			Name: "Retry",
 			Properties: map[string]schema.Schema{
-				"count": &schema.Integer{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"value": "true"},
-					},
-				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"id": "true"},
@@ -33,8 +28,14 @@ func (i RetryInterpreter) Schema() schema.Schema {
 					},
 					Format: "basil.ID",
 				},
+				"limit": &schema.Integer{
+					Metadata: schema.Metadata{
+						Annotations: map[string]string{"value": "true"},
+					},
+					Default: schema.IntegerPtr(-1),
+				},
 			},
-			Required: []string{"count"},
+			Required: []string{"limit"},
 		}
 	}
 	return i.s
@@ -43,13 +44,14 @@ func (i RetryInterpreter) Schema() schema.Schema {
 // Create creates a new Retry block
 func (i RetryInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
 	return &Retry{
-		id: id,
+		id:    id,
+		limit: -1,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
 func (i RetryInterpreter) ValueParamName() basil.ID {
-	return "count"
+	return "limit"
 }
 
 // ParseContext returns with the parse context for the block
@@ -64,10 +66,10 @@ func (i RetryInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseCont
 
 func (i RetryInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	switch name {
-	case "count":
-		return b.(*Retry).count
 	case "id":
 		return b.(*Retry).id
+	case "limit":
+		return b.(*Retry).limit
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Retry", name))
 	}
@@ -76,8 +78,8 @@ func (i RetryInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 func (i RetryInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
 	b := block.(*Retry)
 	switch name {
-	case "count":
-		b.count = value.(int64)
+	case "limit":
+		b.limit = value.(int64)
 	}
 	return nil
 }

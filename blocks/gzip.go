@@ -31,7 +31,7 @@ func (g *Gzip) ID() basil.ID {
 	return g.id
 }
 
-func (g *Gzip) Run(ctx context.Context) error {
+func (g *Gzip) Run(ctx context.Context) (basil.Result, error) {
 	var pipeWriter io.WriteCloser
 	g.out.Stream, pipeWriter = io.Pipe()
 	defer g.out.Stream.Close()
@@ -48,7 +48,7 @@ func (g *Gzip) Run(ctx context.Context) error {
 		_, _ = io.Copy(io.Discard, g.in)
 	}
 
-	return err
+	return nil, err
 }
 
 func (g *Gzip) ParseContextOverride() basil.ParseContextOverride {

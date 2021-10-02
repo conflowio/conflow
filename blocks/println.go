@@ -31,20 +31,20 @@ func (p *Println) ID() basil.ID {
 	return p.id
 }
 
-func (p *Println) Run(ctx context.Context) error {
+func (p *Println) Run(ctx context.Context) (basil.Result, error) {
 	switch v := p.value.(type) {
 	case io.ReadCloser:
 		scanner := bufio.NewScanner(v)
 		for scanner.Scan() {
 			if _, err := fmt.Fprintln(p.stdout, scanner.Text()); err != nil {
-				return err
+				return nil, err
 			}
 		}
-		return nil
+		return nil, nil
 	default:
 		if _, err := fmt.Fprintln(p.stdout, p.value); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return nil, nil
 }

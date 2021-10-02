@@ -24,10 +24,14 @@ type RuntimeConfigOption interface {
 var _ RuntimeConfigOption = &RuntimeConfig{}
 
 type RuntimeConfig struct {
-	Skip     *bool
-	Timeout  *time.Duration
-	Retry    Retryable
-	Triggers []ID
+	Skip        *bool
+	Timeout     *time.Duration
+	Triggers    []ID
+	RetryConfig *RetryConfig
+}
+
+type RetryConfig struct {
+	Limit int
 }
 
 func (r *RuntimeConfig) ApplyToRuntimeConfig(r2 *RuntimeConfig) {
@@ -37,11 +41,11 @@ func (r *RuntimeConfig) ApplyToRuntimeConfig(r2 *RuntimeConfig) {
 	if r.Timeout != nil {
 		r2.Timeout = r.Timeout
 	}
-	if r.Retry != nil {
-		r2.Retry = r.Retry
-	}
 	if r.Triggers != nil {
 		r2.Triggers = r.Triggers
+	}
+	if r.RetryConfig != nil {
+		r2.RetryConfig = r.RetryConfig
 	}
 }
 

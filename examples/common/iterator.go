@@ -29,18 +29,18 @@ func (i *Iterator) ID() basil.ID {
 	return i.id
 }
 
-func (it *Iterator) Run(ctx context.Context) error {
+func (it *Iterator) Run(ctx context.Context) (basil.Result, error) {
 	for i := int64(0); i < it.count; i++ {
 		_, err := it.blockPublisher.PublishBlock(&It{
 			id:    it.it.id,
 			value: i,
 		}, nil)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (it *Iterator) ParseContextOverride() basil.ParseContextOverride {

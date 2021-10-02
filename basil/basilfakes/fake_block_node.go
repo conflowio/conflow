@@ -30,14 +30,15 @@ type FakeBlockNode struct {
 	childrenReturnsOnCall map[int]struct {
 		result1 []basil.Node
 	}
-	CreateContainerStub        func(*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) basil.JobContainer
+	CreateContainerStub        func(*basil.EvalContext, basil.RuntimeConfig, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) basil.JobContainer
 	createContainerMutex       sync.RWMutex
 	createContainerArgsForCall []struct {
 		arg1 *basil.EvalContext
-		arg2 basil.BlockContainer
-		arg3 interface{}
-		arg4 []basil.WaitGroup
-		arg5 bool
+		arg2 basil.RuntimeConfig
+		arg3 basil.BlockContainer
+		arg4 interface{}
+		arg5 []basil.WaitGroup
+		arg6 bool
 	}
 	createContainerReturns struct {
 		result1 basil.JobContainer
@@ -304,25 +305,26 @@ func (fake *FakeBlockNode) ChildrenReturnsOnCall(i int, result1 []basil.Node) {
 	}{result1}
 }
 
-func (fake *FakeBlockNode) CreateContainer(arg1 *basil.EvalContext, arg2 basil.BlockContainer, arg3 interface{}, arg4 []basil.WaitGroup, arg5 bool) basil.JobContainer {
-	var arg4Copy []basil.WaitGroup
-	if arg4 != nil {
-		arg4Copy = make([]basil.WaitGroup, len(arg4))
-		copy(arg4Copy, arg4)
+func (fake *FakeBlockNode) CreateContainer(arg1 *basil.EvalContext, arg2 basil.RuntimeConfig, arg3 basil.BlockContainer, arg4 interface{}, arg5 []basil.WaitGroup, arg6 bool) basil.JobContainer {
+	var arg5Copy []basil.WaitGroup
+	if arg5 != nil {
+		arg5Copy = make([]basil.WaitGroup, len(arg5))
+		copy(arg5Copy, arg5)
 	}
 	fake.createContainerMutex.Lock()
 	ret, specificReturn := fake.createContainerReturnsOnCall[len(fake.createContainerArgsForCall)]
 	fake.createContainerArgsForCall = append(fake.createContainerArgsForCall, struct {
 		arg1 *basil.EvalContext
-		arg2 basil.BlockContainer
-		arg3 interface{}
-		arg4 []basil.WaitGroup
-		arg5 bool
-	}{arg1, arg2, arg3, arg4Copy, arg5})
-	fake.recordInvocation("CreateContainer", []interface{}{arg1, arg2, arg3, arg4Copy, arg5})
+		arg2 basil.RuntimeConfig
+		arg3 basil.BlockContainer
+		arg4 interface{}
+		arg5 []basil.WaitGroup
+		arg6 bool
+	}{arg1, arg2, arg3, arg4, arg5Copy, arg6})
+	fake.recordInvocation("CreateContainer", []interface{}{arg1, arg2, arg3, arg4, arg5Copy, arg6})
 	fake.createContainerMutex.Unlock()
 	if fake.CreateContainerStub != nil {
-		return fake.CreateContainerStub(arg1, arg2, arg3, arg4, arg5)
+		return fake.CreateContainerStub(arg1, arg2, arg3, arg4, arg5, arg6)
 	}
 	if specificReturn {
 		return ret.result1
@@ -337,17 +339,17 @@ func (fake *FakeBlockNode) CreateContainerCallCount() int {
 	return len(fake.createContainerArgsForCall)
 }
 
-func (fake *FakeBlockNode) CreateContainerCalls(stub func(*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) basil.JobContainer) {
+func (fake *FakeBlockNode) CreateContainerCalls(stub func(*basil.EvalContext, basil.RuntimeConfig, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) basil.JobContainer) {
 	fake.createContainerMutex.Lock()
 	defer fake.createContainerMutex.Unlock()
 	fake.CreateContainerStub = stub
 }
 
-func (fake *FakeBlockNode) CreateContainerArgsForCall(i int) (*basil.EvalContext, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) {
+func (fake *FakeBlockNode) CreateContainerArgsForCall(i int) (*basil.EvalContext, basil.RuntimeConfig, basil.BlockContainer, interface{}, []basil.WaitGroup, bool) {
 	fake.createContainerMutex.RLock()
 	defer fake.createContainerMutex.RUnlock()
 	argsForCall := fake.createContainerArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
 }
 
 func (fake *FakeBlockNode) CreateContainerReturns(result1 basil.JobContainer) {

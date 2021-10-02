@@ -33,7 +33,7 @@ func (b *Benchmark) ID() basil.ID {
 	return b.id
 }
 
-func (b *Benchmark) Run(ctx context.Context) error {
+func (b *Benchmark) Run(ctx context.Context) (basil.Result, error) {
 	timer := time.NewTimer(b.duration)
 	defer timer.Stop()
 
@@ -43,7 +43,7 @@ func (b *Benchmark) Run(ctx context.Context) error {
 		select {
 		case <-timer.C:
 			b.elapsed = time.Now().Sub(started)
-			return nil
+			return nil, nil
 		default:
 			b.counter++
 			_, _ = b.blockPublisher.PublishBlock(&BenchmarkRun{

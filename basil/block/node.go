@@ -199,7 +199,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			case !exists && !c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
 			case !c.IsDeclaration() && !schema.HasAnnotationValue(property, "user_defined", "true") && property.GetReadOnly():
-				return parsley.NewErrorf(c.Pos(), "%q is an read-only parameter and can not be set", c.Name())
+				return parsley.NewErrorf(c.Pos(), "%q is a read-only parameter and can not be set", c.Name())
 			}
 		default:
 			panic(fmt.Errorf("invalid node type: %T", child))
@@ -241,7 +241,9 @@ func (n *Node) Value(userCtx interface{}) (interface{}, parsley.Error) {
 	case n.EvalStage() == basil.EvalStageParse || n.Token() == TokenDirective:
 		container = NewStaticContainer(userCtx.(*basil.EvalContext), n)
 	case n.Token() == TokenBlock || n.Token() == TokenBlockBody:
-		container = NewContainer(userCtx.(*basil.EvalContext), n, nil, nil, nil, false)
+		container = NewContainer(
+			userCtx.(*basil.EvalContext), basil.RuntimeConfig{}, n, nil, nil, nil, false,
+		)
 	default:
 		panic(fmt.Errorf("unknown block type: %s", n.Token()))
 	}
@@ -294,12 +296,13 @@ func (n *Node) Walk(f func(n parsley.Node) bool) bool {
 
 func (n *Node) CreateContainer(
 	ctx *basil.EvalContext,
+	runtimeConfig basil.RuntimeConfig,
 	parent basil.BlockContainer,
 	value interface{},
 	wgs []basil.WaitGroup,
 	pending bool,
 ) basil.JobContainer {
-	return NewContainer(ctx, n, parent, value, wgs, pending)
+	return NewContainer(ctx, runtimeConfig, n, parent, value, wgs, pending)
 }
 
 func (n *Node) String() string {

@@ -31,11 +31,11 @@ func (g *Gunzip) ID() basil.ID {
 	return g.id
 }
 
-func (g *Gunzip) Run(ctx context.Context) error {
+func (g *Gunzip) Run(ctx context.Context) (basil.Result, error) {
 	var err error
 	g.out.Stream, err = gzip.NewReader(g.in)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer g.out.Stream.Close()
 
@@ -45,10 +45,10 @@ func (g *Gunzip) Run(ctx context.Context) error {
 	}
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (g *Gunzip) ParseContextOverride() basil.ParseContextOverride {

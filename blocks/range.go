@@ -37,7 +37,7 @@ func (r *Range) ID() basil.ID {
 	return r.id
 }
 
-func (r *Range) Run(ctx context.Context) error {
+func (r *Range) Run(ctx context.Context) (basil.Result, error) {
 	switch val := r.value.(type) {
 	case []interface{}:
 		for k, v := range val {
@@ -47,7 +47,7 @@ func (r *Range) Run(ctx context.Context) error {
 				value: v,
 			}, nil)
 			if err != nil {
-				return err
+				return nil, err
 			}
 		}
 	case map[string]interface{}:
@@ -58,14 +58,14 @@ func (r *Range) Run(ctx context.Context) error {
 				value: v,
 			}, nil)
 			if err != nil {
-				return err
+				return nil, err
 			}
 		}
 	default:
-		return fmt.Errorf("invalid value for range: %T", r.value)
+		return nil, fmt.Errorf("invalid value for range: %T", r.value)
 	}
 
-	return nil
+	return nil, nil
 }
 
 // @block

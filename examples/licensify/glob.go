@@ -34,18 +34,18 @@ func (g *Glob) ID() basil.ID {
 	return g.id
 }
 
-func (g *Glob) Run(ctx context.Context) error {
+func (g *Glob) Run(ctx context.Context) (basil.Result, error) {
 	includes, err := g.compileRegexps(g.include)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	excludes, err := g.compileRegexps(g.exclude)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return filepath.Walk(g.path, func(path string, info os.FileInfo, err error) error {
+	return nil, filepath.Walk(g.path, func(path string, info os.FileInfo, err error) error {
 		match := len(includes) == 0
 
 		for _, re := range includes {

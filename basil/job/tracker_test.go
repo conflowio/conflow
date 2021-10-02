@@ -41,7 +41,8 @@ var _ = Describe("Scheduler", func() {
 	BeforeEach(func() {
 		scheduler = &basilfakes.FakeJobScheduler{}
 		logger := zerolog.NewDisabledLogger()
-		tracker = job.NewTracker("test_tracker", scheduler, logger)
+		backoff := job.ExponentialRetryBackoff(1.5, 1*time.Millisecond, 1*time.Second)
+		tracker = job.NewTracker("test_tracker", scheduler, logger, backoff)
 	})
 
 	AfterEach(func() {
@@ -82,7 +83,7 @@ var _ = Describe("Scheduler", func() {
 
 		When("finished", func() {
 			BeforeEach(func() {
-				tracker.Finished(1)
+				tracker.Succeeded(1)
 			})
 			It("should decrease the running job count", func() {
 				Expect(tracker.RunningJobCount()).To(Equal(0))
@@ -91,7 +92,7 @@ var _ = Describe("Scheduler", func() {
 
 		When("failed with no retry", func() {
 			BeforeEach(func() {
-				tracker.Finished(1)
+				tracker.Succeeded(1)
 			})
 
 			It("should decrease the running job count", func() {
@@ -103,10 +104,8 @@ var _ = Describe("Scheduler", func() {
 			var tries int64
 			var retried1 bool
 			BeforeEach(func() {
-				retried1 = tracker.Retry(1, 2, 1*time.Millisecond, func(j basil.Job) func() {
-					return func() {
-						atomic.AddInt64(&tries, 1)
-					}
+				retried1 = tracker.Retry(1, 1, 1*time.Millisecond, "test", func() {
+					atomic.AddInt64(&tries, 1)
 				})
 			})
 
@@ -123,10 +122,8 @@ var _ = Describe("Scheduler", func() {
 				When("failing the second time", func() {
 					var retried2 bool
 					BeforeEach(func() {
-						retried2 = tracker.Retry(1, 2, 1*time.Millisecond, func(j basil.Job) func() {
-							return func() {
-								atomic.AddInt64(&tries, 1)
-							}
+						retried2 = tracker.Retry(1, 1, 1*time.Millisecond, "test", func() {
+							atomic.AddInt64(&tries, 1)
 						})
 					})
 
@@ -207,19 +204,19 @@ var _ = Describe("Scheduler", func() {
 
 	When("finished is called for an unknown job", func() {
 		It("should panic", func() {
-			Expect(func() { tracker.Finished(999) }).To(Panic())
+			Expect(func() { tracker.Succeeded(999) }).To(Panic())
 		})
 	})
 
 	When("failed is called for an unknown job", func() {
 		It("should panic", func() {
-			Expect(func() { tracker.Finished(999) }).To(Panic())
+			Expect(func() { tracker.Succeeded(999) }).To(Panic())
 		})
 	})
 
 	When("retry is called for an unknown job", func() {
 		It("should panic", func() {
-			Expect(func() { tracker.Retry(999, 1, 0, nil) }).To(Panic())
+			Expect(func() { tracker.Retry(999, 1, 0, "test", nil) }).To(Panic())
 		})
 	})
 
