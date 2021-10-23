@@ -27,11 +27,11 @@ func (s *Sleep) ID() basil.ID {
 	return s.id
 }
 
-func (s *Sleep) Run(ctx context.Context) error {
+func (s *Sleep) Run(ctx context.Context) (basil.Result, error) {
 	select {
 	case <-time.After(s.duration):
-		return nil
+		return nil, nil
 	case <-ctx.Done():
-		return errors.New("aborted")
+		return nil, errors.New("aborted")
 	}
 }

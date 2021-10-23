@@ -29,7 +29,7 @@ func (m *module) ID() basil.ID {
 	return m.id
 }
 
-func (m *module) Run(ctx context.Context) error {
+func (m *module) Run(ctx context.Context) (basil.Result, error) {
 	moduleCtx, moduleCancel := context.WithCancel(ctx)
 	defer moduleCancel()
 
@@ -40,7 +40,7 @@ func (m *module) Run(ctx context.Context) error {
 
 	value, err := parsley.EvaluateNode(evalContext, m.node)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for propertyName, property := range m.interpreter.Schema().(schema.ObjectKind).GetProperties() {
@@ -49,7 +49,7 @@ func (m *module) Run(ctx context.Context) error {
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
 // NewModuleInterpreter creates a new interpreter for a module

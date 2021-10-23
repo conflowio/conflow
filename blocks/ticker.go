@@ -30,7 +30,7 @@ func (t *Ticker) ID() basil.ID {
 	return t.id
 }
 
-func (t *Ticker) Run(ctx context.Context) error {
+func (t *Ticker) Run(ctx context.Context) (basil.Result, error) {
 	ticker := time.NewTicker(t.interval)
 	defer ticker.Stop()
 
@@ -42,10 +42,10 @@ func (t *Ticker) Run(ctx context.Context) error {
 				time: tickerTime,
 			}, nil)
 			if err != nil {
-				return err
+				return nil, err
 			}
 		case <-ctx.Done():
-			return nil
+			return nil, nil
 		}
 	}
 }

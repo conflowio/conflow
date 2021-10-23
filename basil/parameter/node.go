@@ -193,6 +193,7 @@ func (n *Node) Walk(f func(n parsley.Node) bool) bool {
 
 func (n *Node) CreateContainer(
 	ctx *basil.EvalContext,
+	_ basil.RuntimeConfig,
 	parent basil.BlockContainer,
 	value interface{},
 	wgs []basil.WaitGroup,

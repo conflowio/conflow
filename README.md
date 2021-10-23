@@ -30,6 +30,7 @@ At first you will write your Hello struct in `hello.go`:
 package hello
 
 import (
+	"context"
 	"fmt"
 	"github.com/opsidian/basil/basil"
 )
@@ -46,9 +47,9 @@ func (h *Hello) ID() basil.ID {
 	return h.id
 }
 
-func (h *Hello) Main(ctx basil.BlockContext) error {
+func (h *Hello) Run(ctx context.Context) (basil.Result, error) {
 	fmt.Printf("Hello %s!\n", h.to)
-	return nil
+	return nil, nil
 }
 ```
 
@@ -117,17 +118,17 @@ type SampleBlock struct {
 }
 
 // basil.BlockInitialiser interface
-func (s *SampleBlock) Init(ctx basil.BlockContext) (bool, error) {
+func (s *SampleBlock) Init(ctx context.Context) (bool, error) {
 	return s.skipped, nil
 }
 
 // basil.BlockRunner interface
-func (s *SampleBlock) Main(ctx basil.BlockContext) error {
-	return nil
+func (s *SampleBlock) Run(ctx context.Context) (basil.Result, error) {
+	return nil, nil
 }
 
 // basil.BlockCloser interface
-func (s *SampleBlock) Close(ctx basil.BlockContext) error {
+func (s *SampleBlock) Close(ctx context.Context) error {
 	return nil
 }
 ```
@@ -142,19 +143,30 @@ func (s *SampleBlock) Close(ctx basil.BlockContext) error {
 * An error will be returned if any dependent blocks had an error during run.
 
 ```go
-func (it *Iterator) Main(ctx basil.BlockContext) error {
+// @block
+type Iterator struct {
+	// @id
+	id basil.ID
+	// @required
+	count int64
+	// @generated
+	it *It
+	// @dependency
+	blockPublisher basil.BlockPublisher
+}
+
+func (it *Iterator) Run(ctx context.Context) (basil.Result, error) {
 	for i := int64(0); i < it.count; i++ {
-		// This call will block
-		_, err := ctx.PublishBlock(&It{
+		_, err := it.blockPublisher.PublishBlock(&It{
 			id:    it.it.id,
 			value: i,
 		}, nil)
 		if err != nil {
-			// ...
+			return nil, err
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 ```
 

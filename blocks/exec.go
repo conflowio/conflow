@@ -43,7 +43,7 @@ func (e *Exec) ID() basil.ID {
 	return e.id
 }
 
-func (e *Exec) Run(ctx context.Context) error {
+func (e *Exec) Run(ctx context.Context) (basil.Result, error) {
 	cmd := exec.CommandContext(ctx, e.cmd, e.params...)
 
 	if e.dir != "" {
@@ -56,15 +56,15 @@ func (e *Exec) Run(ctx context.Context) error {
 	var err error
 	e.stdout.Stream, err = cmd.StdoutPipe()
 	if err != nil {
-		return xerrors.Errorf("failed to create stdout reader: %v", err)
+		return nil, xerrors.Errorf("failed to create stdout reader: %v", err)
 	}
 	e.stderr.Stream, err = cmd.StderrPipe()
 	if err != nil {
-		return xerrors.Errorf("failed to create stderr reader: %v", err)
+		return nil, xerrors.Errorf("failed to create stderr reader: %v", err)
 	}
 
 	if startErr := cmd.Start(); startErr != nil {
-		return xerrors.Errorf("Failed to start command: %v", startErr)
+		return nil, xerrors.Errorf("Failed to start command: %v", startErr)
 	}
 
 	wg := &util.WaitGroup{}
@@ -82,7 +82,7 @@ func (e *Exec) Run(ctx context.Context) error {
 	case <-wg.Wait():
 		retErr = wg.Err()
 	case <-ctx.Done():
-		return errors.New("aborted")
+		return nil, errors.New("aborted")
 	}
 
 	// Wait shouldn't be called until both stdin/stderr was read
@@ -96,7 +96,7 @@ func (e *Exec) Run(ctx context.Context) error {
 		retErr = multierror.Append(retErr, err)
 	}
 
-	return retErr
+	return nil, retErr
 }
 
 func (e *Exec) ParseContextOverride() basil.ParseContextOverride {

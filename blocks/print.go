@@ -31,7 +31,7 @@ func (p *Print) ID() basil.ID {
 	return p.id
 }
 
-func (p *Print) Run(ctx context.Context) error {
+func (p *Print) Run(ctx context.Context) (basil.Result, error) {
 	switch v := p.value.(type) {
 	case io.ReadCloser:
 		first := true
@@ -39,19 +39,19 @@ func (p *Print) Run(ctx context.Context) error {
 		for scanner.Scan() {
 			if !first {
 				if _, err := fmt.Fprintln(p.stdout); err != nil {
-					return err
+					return nil, err
 				}
 			}
 			if _, err := fmt.Fprint(p.stdout, scanner.Text()); err != nil {
-				return err
+				return nil, err
 			}
 			first = false
 		}
-		return nil
+		return nil, nil
 	default:
 		if _, err := fmt.Fprint(p.stdout, v); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return nil, nil
 }

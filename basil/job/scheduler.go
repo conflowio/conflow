@@ -20,8 +20,9 @@ type Scheduler struct {
 	maxQueueSize int
 	workers      []Worker
 	jobQueue     chan basil.Job
-	quit         chan bool
 	lastID       int64
+	stopped      bool
+	stoppedChan  chan struct{}
 }
 
 // NewScheduler creates a new scheduler instance
@@ -32,7 +33,7 @@ func NewScheduler(logger basil.Logger, maxWorkers int, maxQueueSize int) *Schedu
 		maxWorkers:   maxWorkers,
 		maxQueueSize: maxQueueSize,
 		jobQueue:     make(chan basil.Job, maxQueueSize),
-		quit:         make(chan bool),
+		stoppedChan:  make(chan struct{}),
 	}
 }
 
@@ -51,9 +52,8 @@ func (s *Scheduler) Start() {
 
 // Stop stops all the workers and the dispatcher process
 func (s *Scheduler) Stop() {
-	go func() {
-		s.quit <- true
-	}()
+	s.stopped = true
+	close(s.stoppedChan)
 
 	for i := 0; i < s.maxWorkers; i++ {
 		s.workers[i].Stop()
@@ -62,9 +62,15 @@ func (s *Scheduler) Stop() {
 	s.logger.Debug().Msg("job scheduler stopped")
 }
 
-// Schedule schedules a new job
+// ScheduleJob schedules a new job
 func (s *Scheduler) ScheduleJob(job basil.Job) error {
-	job.SetJobID(int(atomic.AddInt64(&s.lastID, 1)))
+	if s.stopped {
+		return errors.New("job scheduler was stopped")
+	}
+
+	if job.JobID() == 0 {
+		job.SetJobID(int(atomic.AddInt64(&s.lastID, 1)))
+	}
 
 	if job.Lightweight() {
 		go func() {
@@ -75,8 +81,8 @@ func (s *Scheduler) ScheduleJob(job basil.Job) error {
 		select {
 		case s.jobQueue <- job:
 			return nil
-		case <-s.quit:
-			return errors.New("job scheduler is shutting down")
+		case <-s.stoppedChan: // If jobQueue was full, we still want to return if the scheduler was stopped
+			return errors.New("job scheduler was stopped")
 		}
 	}
 }

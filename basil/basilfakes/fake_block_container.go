@@ -44,20 +44,6 @@ type FakeBlockContainer struct {
 	paramReturnsOnCall map[int]struct {
 		result1 interface{}
 	}
-	PublishBlockStub        func(basil.Block, func() error) (bool, error)
-	publishBlockMutex       sync.RWMutex
-	publishBlockArgsForCall []struct {
-		arg1 basil.Block
-		arg2 func() error
-	}
-	publishBlockReturns struct {
-		result1 bool
-		result2 error
-	}
-	publishBlockReturnsOnCall map[int]struct {
-		result1 bool
-		result2 error
-	}
 	SetChildStub        func(basil.Container)
 	setChildMutex       sync.RWMutex
 	setChildArgsForCall []struct {
@@ -281,70 +267,6 @@ func (fake *FakeBlockContainer) ParamReturnsOnCall(i int, result1 interface{}) {
 	}{result1}
 }
 
-func (fake *FakeBlockContainer) PublishBlock(arg1 basil.Block, arg2 func() error) (bool, error) {
-	fake.publishBlockMutex.Lock()
-	ret, specificReturn := fake.publishBlockReturnsOnCall[len(fake.publishBlockArgsForCall)]
-	fake.publishBlockArgsForCall = append(fake.publishBlockArgsForCall, struct {
-		arg1 basil.Block
-		arg2 func() error
-	}{arg1, arg2})
-	fake.recordInvocation("PublishBlock", []interface{}{arg1, arg2})
-	fake.publishBlockMutex.Unlock()
-	if fake.PublishBlockStub != nil {
-		return fake.PublishBlockStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	fakeReturns := fake.publishBlockReturns
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeBlockContainer) PublishBlockCallCount() int {
-	fake.publishBlockMutex.RLock()
-	defer fake.publishBlockMutex.RUnlock()
-	return len(fake.publishBlockArgsForCall)
-}
-
-func (fake *FakeBlockContainer) PublishBlockCalls(stub func(basil.Block, func() error) (bool, error)) {
-	fake.publishBlockMutex.Lock()
-	defer fake.publishBlockMutex.Unlock()
-	fake.PublishBlockStub = stub
-}
-
-func (fake *FakeBlockContainer) PublishBlockArgsForCall(i int) (basil.Block, func() error) {
-	fake.publishBlockMutex.RLock()
-	defer fake.publishBlockMutex.RUnlock()
-	argsForCall := fake.publishBlockArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *FakeBlockContainer) PublishBlockReturns(result1 bool, result2 error) {
-	fake.publishBlockMutex.Lock()
-	defer fake.publishBlockMutex.Unlock()
-	fake.PublishBlockStub = nil
-	fake.publishBlockReturns = struct {
-		result1 bool
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeBlockContainer) PublishBlockReturnsOnCall(i int, result1 bool, result2 error) {
-	fake.publishBlockMutex.Lock()
-	defer fake.publishBlockMutex.Unlock()
-	fake.PublishBlockStub = nil
-	if fake.publishBlockReturnsOnCall == nil {
-		fake.publishBlockReturnsOnCall = make(map[int]struct {
-			result1 bool
-			result2 error
-		})
-	}
-	fake.publishBlockReturnsOnCall[i] = struct {
-		result1 bool
-		result2 error
-	}{result1, result2}
-}
-
 func (fake *FakeBlockContainer) SetChild(arg1 basil.Container) {
 	fake.setChildMutex.Lock()
 	fake.setChildArgsForCall = append(fake.setChildArgsForCall, struct {
@@ -525,8 +447,6 @@ func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	defer fake.nodeMutex.RUnlock()
 	fake.paramMutex.RLock()
 	defer fake.paramMutex.RUnlock()
-	fake.publishBlockMutex.RLock()
-	defer fake.publishBlockMutex.RUnlock()
 	fake.setChildMutex.RLock()
 	defer fake.setChildMutex.RUnlock()
 	fake.setErrorMutex.RLock()

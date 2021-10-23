@@ -23,6 +23,7 @@ type containerStage struct {
 	f           func() (int64, error)
 	jobID       int
 	sem         job.Semaphore
+	retryConfig basil.RetryConfig
 }
 
 func newContainerStage(
@@ -30,6 +31,7 @@ func newContainerStage(
 	name basil.ID,
 	evalStage basil.EvalStage,
 	lightweight bool,
+	retryConfig basil.RetryConfig,
 	f func() (int64, error),
 ) *containerStage {
 	return &containerStage{
@@ -37,6 +39,7 @@ func newContainerStage(
 		name:        name,
 		evalStage:   evalStage,
 		lightweight: lightweight,
+		retryConfig: retryConfig,
 		f:           f,
 	}
 }
@@ -58,9 +61,11 @@ func (c *containerStage) Run() {
 		return
 	}
 
+	jobID := c.jobID
+
 	defer func() {
 		if r := recover(); r != nil {
-			c.container.jobTracker.Failed(c.jobID)
+			c.container.jobTracker.Failed(jobID)
 			c.container.errChan <- parsley.NewErrorf(
 				c.container.node.Pos(),
 				"%s stage panicked in %q: %s\n%s",
@@ -74,12 +79,25 @@ func (c *containerStage) Run() {
 
 	nextStage, err := c.f()
 	if err != nil {
-		c.container.jobTracker.Failed(c.jobID)
+		if re, ok := err.(retryError); ok && c.retryConfig.Limit != 0 {
+			c.sem.Reset()
+
+			if c.container.jobTracker.Retry(jobID, c.retryConfig.Limit, re.Duration, re.Reason, func() {
+				if err := c.container.jobTracker.ScheduleJob(c); err != nil {
+					c.container.jobTracker.Failed(jobID)
+					c.container.errChan <- parsley.NewError(c.container.node.Pos(), err)
+				}
+			}) {
+				return
+			}
+		}
+
+		c.container.jobTracker.Failed(jobID)
 		c.container.errChan <- parsley.NewError(c.container.node.Pos(), err)
 		return
 	}
 
-	c.container.jobTracker.Finished(c.jobID)
+	c.container.jobTracker.Succeeded(jobID)
 	c.container.stateChan <- nextStage
 }
 

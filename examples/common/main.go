@@ -57,6 +57,7 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext, inputParams map[bas
 		"main",
 		inputParams,
 	); err != nil {
-		panic(err)
+		fmt.Printf("Error: %s", err.Error())
+		os.Exit(1)
 	}
 }

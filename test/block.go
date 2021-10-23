@@ -24,8 +24,8 @@ type BlockWithInit interface {
 	basil.BlockInitialiser
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithMain
-type BlockWithMain interface {
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithRun
+type BlockWithRun interface {
 	basil.Block
 	basil.BlockRunner
 }

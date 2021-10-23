@@ -4,22 +4,23 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package blocks
+package main
 
 import (
 	"context"
-	"errors"
 
 	"github.com/opsidian/basil/basil"
 )
 
+// Fail will error for the given tries
 // @block
 type Fail struct {
 	// @id
 	id basil.ID
-	// @value
 	// @required
-	msg string
+	triesRequired int64
+	// @read_only
+	tries int64
 }
 
 func (f *Fail) ID() basil.ID {
@@ -27,5 +28,10 @@ func (f *Fail) ID() basil.ID {
 }
 
 func (f *Fail) Run(ctx context.Context) (basil.Result, error) {
-	return nil, errors.New(f.msg)
+	f.tries++
+	if f.tries < f.triesRequired {
+		return basil.Retry("I am destined to fail, but eventually I will succeed"), nil
+	}
+
+	return nil, nil
 }

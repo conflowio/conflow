@@ -36,7 +36,7 @@ type BlockInitialiser interface {
 
 // BlockRunner defines a Run() function which runs the main business logic
 type BlockRunner interface {
-	Run(ctx context.Context) error
+	Run(ctx context.Context) (Result, error)
 }
 
 // BlockCloser defines a Close function which runs after the main evaluation stage

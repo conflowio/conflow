@@ -14,6 +14,10 @@ func (s *Semaphore) Run() bool {
 	return atomic.CompareAndSwapInt64((*int64)(s), 0, 1)
 }
 
+func (s *Semaphore) Reset() {
+	atomic.CompareAndSwapInt64((*int64)(s), 1, 0)
+}
+
 func (s *Semaphore) Cancel() bool {
 	return atomic.CompareAndSwapInt64((*int64)(s), 0, 2)
 }

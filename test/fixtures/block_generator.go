@@ -28,17 +28,17 @@ func (b *BlockGenerator) ID() basil.ID {
 	return b.id
 }
 
-func (b *BlockGenerator) Run(ctx context.Context) error {
+func (b *BlockGenerator) Run(ctx context.Context) (basil.Result, error) {
 	for _, item := range b.items {
 		res := &BlockGeneratorResult{
 			id:    b.result.id,
 			value: item,
 		}
 		if _, err := b.blockPublisher.PublishBlock(res, nil); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 // @block

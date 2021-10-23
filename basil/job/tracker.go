@@ -9,6 +9,7 @@ package job
 import (
 	"errors"
 	"fmt"
+	"math"
 	"sync"
 	"time"
 
@@ -29,26 +30,48 @@ type Cancellable interface {
 	Cancel() bool
 }
 
+type RetryBackoff func(i int) time.Duration
+
+func ExponentialRetryBackoff(base float64, baseDelay, maxDelay time.Duration) RetryBackoff {
+	return func(i int) time.Duration {
+		backoff := float64(baseDelay.Nanoseconds()) * math.Pow(base, float64(i))
+		if backoff > math.MaxInt64 {
+			return maxDelay
+		}
+
+		res := time.Duration(backoff)
+		if res > maxDelay {
+			return maxDelay
+		}
+
+		return res
+	}
+}
+
 // Tracker schedules and tracks jobs
 type Tracker struct {
-	name      basil.ID
-	scheduler basil.JobScheduler
-	logger    basil.Logger
-	jobs      map[int]*jobState
-	running   int
-	pending   int
-	stopped   bool
-	mu        *sync.Mutex
+	name         basil.ID
+	scheduler    basil.JobScheduler
+	logger       basil.Logger
+	retryBackoff RetryBackoff
+	jobs         map[int]*jobState
+	running      int
+	pending      int
+	stopped      bool
+	stoppedChan  chan struct{}
+	mu           *sync.Mutex
 }
 
 // NewTracker creates a new job tracker
-func NewTracker(name basil.ID, scheduler basil.JobScheduler, logger basil.Logger) *Tracker {
+func NewTracker(name basil.ID, scheduler basil.JobScheduler, logger basil.Logger, retryBackoff RetryBackoff) *Tracker {
 	return &Tracker{
-		name:      name,
-		scheduler: scheduler,
-		logger:    logger.With().ID("scheduler", name).Logger(),
-		jobs:      make(map[int]*jobState),
-		mu:        &sync.Mutex{},
+		name:         name,
+		scheduler:    scheduler,
+		logger:       logger.With().ID("scheduler", name).Logger(),
+		retryBackoff: retryBackoff,
+		jobs:         make(map[int]*jobState),
+		mu:           &sync.Mutex{},
+		stoppedChan:  make(chan struct{}),
 	}
 }
 
@@ -61,10 +84,11 @@ func (t *Tracker) Stop() int {
 	if !t.stopped {
 		t.debug().Msg("job manager stopping")
 		t.stopped = true
+		close(t.stoppedChan)
 
 		for id, job := range t.jobs {
 			if jc, ok := job.Job.(Cancellable); ok && jc.Cancel() {
-				t.debug().ID("jobName", job.Job.JobName()).Int("jobID", id).Msg("job cancelled")
+				t.debug().ID("job_name", job.Job.JobName()).Int("job_id", id).Msg("job cancelled")
 				t.running--
 			}
 		}
@@ -76,7 +100,7 @@ func (t *Tracker) Stop() int {
 	return running
 }
 
-// Schedule schedules a new job
+// ScheduleJob schedules a new job
 func (t *Tracker) ScheduleJob(job basil.Job) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -109,14 +133,14 @@ func (t *Tracker) ScheduleJob(job basil.Job) error {
 	t.running++
 	j.Tries++
 
-	t.debug().ID("jobName", job.JobName()).Int("jobID", job.JobID()).Msg("job scheduled")
+	t.debug().ID("job_name", job.JobName()).Int("job_id", job.JobID()).Msg("job scheduled")
 
 	return nil
 }
 
-// Finished must be called when a process finished
-func (t *Tracker) Finished(id int) {
-	t.done(id, "job finished")
+// Succeeded must be called when a process finished successfully
+func (t *Tracker) Succeeded(id int) {
+	t.done(id, "job succeeded")
 }
 
 func (t *Tracker) Failed(id int) {
@@ -130,24 +154,26 @@ func (t *Tracker) Cancelled(id int) {
 
 func (t *Tracker) done(id int, msg string) {
 	t.mu.Lock()
+	defer t.mu.Unlock()
 
 	j := t.jobs[id]
-	if j != nil {
-		t.running--
-		delete(t.jobs, id)
-		t.debug().ID("jobName", j.Job.JobName()).Int("jobID", id).Msg(msg)
-
-	}
-
-	t.mu.Unlock()
 	if j == nil {
 		panic(fmt.Errorf("job %q wasn't run by the job manager", id))
 	}
+
+	t.running--
+	delete(t.jobs, id)
+	t.debug().ID("job_name", j.Job.JobName()).Int("job_id", id).Msg(msg)
 }
 
 // Retry must be called when a job failed but can be retried.
 // It schedules the job again if there are any retries left
-func (t *Tracker) Retry(id int, maxTries int, retryDelay time.Duration, f func(job basil.Job) func()) bool {
+// If Retry returns false, you are expected to call Failed()
+func (t *Tracker) Retry(id int, limit int, delay time.Duration, reason string, f func()) bool {
+	if limit == 0 {
+		panic("Retry should not be called with limit = 0")
+	}
+
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -156,32 +182,37 @@ func (t *Tracker) Retry(id int, maxTries int, retryDelay time.Duration, f func(j
 		panic(fmt.Errorf("job %q wasn't run by the job manager", id))
 	}
 
-	t.running--
-
-	if j.Tries >= maxTries {
-		t.debug().
-			ID("jobName", j.Job.JobName()).
-			Int("jobID", id).
-			Int("tries", j.Tries).
-			Int("max_tries", maxTries).
-			Msg("job failed permanently")
-		delete(t.jobs, id)
-		return false
-	}
-
-	t.debug().
-		ID("jobName", j.Job.JobName()).
-		Int("jobID", id).
-		Int("tries", j.Tries).
-		Int("max_tries", maxTries).
-		Dur("retry_delay", retryDelay).
-		Msg("job failed, retrying")
-
 	// make sure we cancel any previous timers just to be sure
 	if j.RetryTimer != nil {
 		j.RetryTimer.Stop()
+		j.RetryTimer = nil
 	}
-	j.RetryTimer = time.AfterFunc(retryDelay, f(j.Job))
+
+	if limit > 0 && j.Tries >= limit+1 {
+		return false
+	}
+
+	t.running--
+
+	if delay <= 0 && t.retryBackoff != nil {
+		delay = t.retryBackoff(j.Tries - 1)
+	}
+
+	t.debug().
+		ID("job_name", j.Job.JobName()).
+		Int("job_id", id).
+		Int("tries", j.Tries).
+		Int("retry_limit", limit).
+		Str("retry_delay", delay.String()).
+		Str("retry_reason", reason).
+		Msg("job failed, retrying")
+
+	if delay <= 0 {
+		go f()
+	} else {
+		j.RetryTimer = time.AfterFunc(delay, f)
+	}
+
 	return true
 }
 

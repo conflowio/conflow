@@ -39,10 +39,10 @@ func (h *Hello) Init(ctx context.Context) (bool, error) {
 }
 
 // Main will generate a random greeting
-func (h *Hello) Run(ctx context.Context) error {
+func (h *Hello) Run(ctx context.Context) (basil.Result, error) {
 	greetings := []string{"Hello", "Hi", "Hey", "Yo", "Sup"}
 
 	h.greeting = fmt.Sprintf("%s %s!", greetings[h.r.Intn(len(greetings))], h.to)
 
-	return nil
+	return nil, nil
 }

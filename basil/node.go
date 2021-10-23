@@ -20,7 +20,14 @@ type Node interface {
 	Directives() []BlockNode
 	Provides() []ID
 	Generates() []ID
-	CreateContainer(ctx *EvalContext, parent BlockContainer, value interface{}, wgs []WaitGroup, pending bool) JobContainer
+	CreateContainer(
+		ctx *EvalContext,
+		runtimeConfig RuntimeConfig,
+		parent BlockContainer,
+		value interface{},
+		wgs []WaitGroup,
+		pending bool,
+	) JobContainer
 	Value(userCtx interface{}) (interface{}, parsley.Error)
 }
 

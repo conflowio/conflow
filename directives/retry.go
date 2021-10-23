@@ -7,8 +7,6 @@
 package directives
 
 import (
-	"time"
-
 	"github.com/opsidian/basil/basil"
 )
 
@@ -20,7 +18,8 @@ type Retry struct {
 	id basil.ID
 	// @value
 	// @required
-	count int64
+	// @default -1
+	limit int64
 }
 
 func (r *Retry) ID() basil.ID {
@@ -28,13 +27,5 @@ func (r *Retry) ID() basil.ID {
 }
 
 func (r *Retry) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
-	config.Retry = r
-}
-
-func (r *Retry) RetryCount() int {
-	return int(r.count)
-}
-
-func (r *Retry) RetryDelay(int) time.Duration {
-	return 0
+	config.RetryConfig = &basil.RetryConfig{Limit: int(r.limit)}
 }

@@ -42,29 +42,33 @@ var ContainerGracefulTimeoutSec = 10
 
 var _ basil.BlockContainer = &Container{}
 
+// This will result in approximately 10 tries in the first minute (assuming no meaningful delay in the job queue of course)
+var defaultBackoff = job.ExponentialRetryBackoff(1.57, 1*time.Second, 15*time.Minute)
+
 // Container is a block container
 type Container struct {
-	evalCtx     *basil.EvalContext
-	node        basil.BlockNode
-	parent      basil.BlockContainer
-	block       basil.Block
-	err         parsley.Error
-	extraParams map[basil.ID]interface{}
-	evalStage   basil.EvalStage
-	state       int64
-	stateChan   chan int64
-	resultChan  chan basil.Container
-	errChan     chan parsley.Error
-	jobTracker  *job.Tracker
-	jobID       int
-	children    map[basil.ID]*basil.NodeContainer
-	wgs         []basil.WaitGroup
-	retry       basil.Retryable
+	evalCtx       *basil.EvalContext
+	node          basil.BlockNode
+	parent        basil.BlockContainer
+	block         basil.Block
+	err           parsley.Error
+	extraParams   map[basil.ID]interface{}
+	evalStage     basil.EvalStage
+	state         int64
+	stateChan     chan int64
+	resultChan    chan basil.Container
+	errChan       chan parsley.Error
+	jobTracker    *job.Tracker
+	jobID         int
+	children      map[basil.ID]*basil.NodeContainer
+	wgs           []basil.WaitGroup
+	runtimeConfig basil.RuntimeConfig
 }
 
 // NewContainer creates a new block container instance
 func NewContainer(
 	evalCtx *basil.EvalContext,
+	runtimeConfig basil.RuntimeConfig,
 	node basil.BlockNode,
 	parent basil.BlockContainer,
 	value interface{},
@@ -84,12 +88,13 @@ func NewContainer(
 	}
 
 	return &Container{
-		evalCtx: evalCtx,
-		node:    node,
-		parent:  parent,
-		block:   block,
-		wgs:     wgs,
-		state:   state,
+		evalCtx:       evalCtx,
+		runtimeConfig: runtimeConfig,
+		node:          node,
+		parent:        parent,
+		block:         block,
+		wgs:           wgs,
+		state:         state,
 	}
 }
 
@@ -172,7 +177,7 @@ func (c *Container) Run() {
 		c.block = c.node.Interpreter().CreateBlock(c.node.ID(), basil.NewBlockContext(c.evalCtx, c))
 	}
 
-	c.jobTracker = job.NewTracker(c.node.ID(), c.evalCtx.JobScheduler(), c.evalCtx.Logger)
+	c.jobTracker = job.NewTracker(c.node.ID(), c.evalCtx.JobScheduler(), c.evalCtx.Logger, defaultBackoff)
 	c.stateChan = make(chan int64, 1)
 	c.resultChan = make(chan basil.Container, 8)
 	c.errChan = make(chan parsley.Error, 1)
@@ -197,7 +202,7 @@ func (c *Container) mainLoop() {
 
 		case child := <-c.resultChan:
 			if j, ok := child.(basil.Job); ok {
-				c.jobTracker.Finished(j.JobID())
+				c.jobTracker.Succeeded(j.JobID())
 			}
 			if nc, ok := child.(basil.NilContainer); ok && nc.Pending() {
 				c.jobTracker.RemovePending(1)
@@ -248,7 +253,7 @@ func (c *Container) shutdownLoop() {
 		case <-c.stateChan:
 		case child := <-c.resultChan:
 			if j, ok := child.(basil.Job); ok {
-				c.jobTracker.Finished(j.JobID())
+				c.jobTracker.Succeeded(j.JobID())
 			}
 			if nc, ok := child.(basil.NilContainer); ok && nc.Pending() {
 				c.jobTracker.RemovePending(1)
@@ -317,6 +322,7 @@ func (c *Container) setState(state int64) {
 				"init",
 				basil.EvalStageInit,
 				false,
+				basil.RetryConfig{},
 				c.runInitStage,
 			))
 			if err != nil {
@@ -333,11 +339,17 @@ func (c *Container) setState(state int64) {
 		}
 	case containerStateMain:
 		if _, ok := c.block.(basil.BlockRunner); ok {
+			retryConfig := basil.RetryConfig{Limit: -1}
+			if c.runtimeConfig.RetryConfig != nil {
+				retryConfig = *c.runtimeConfig.RetryConfig
+			}
+
 			err := c.jobTracker.ScheduleJob(newContainerStage(
 				c,
 				"main",
 				basil.EvalStageMain,
 				len(c.node.Generates()) > 0,
+				retryConfig,
 				c.runMainStage,
 			))
 			if err != nil {
@@ -359,6 +371,7 @@ func (c *Container) setState(state int64) {
 				"close",
 				basil.EvalStageClose,
 				false,
+				basil.RetryConfig{},
 				c.runCloseStage,
 			))
 			if err != nil {
@@ -404,7 +417,27 @@ func (c *Container) runInitStage() (int64, error) {
 }
 
 func (c *Container) runMainStage() (int64, error) {
-	return containerStateNext, c.block.(basil.BlockRunner).Run(c.evalCtx)
+	result, err := c.block.(basil.BlockRunner).Run(c.evalCtx)
+	if err != nil {
+		if re, ok := err.(basil.Retryable); ok {
+			if re.Retry() || re.RetryAfter() > 0 {
+				return containerStateNext, retryError{
+					Duration: re.RetryAfter(),
+					Reason:   err.Error(),
+				}
+			}
+		}
+		return 0, err
+	}
+
+	if result != nil && (result.Retry() || result.RetryAfter() > 0) {
+		return 0, retryError{
+			Duration: result.RetryAfter(),
+			Reason:   result.RetryReason(),
+		}
+	}
+
+	return containerStateNext, nil
 }
 
 func (c *Container) runCloseStage() (int64, error) {
@@ -563,20 +596,6 @@ func (c *Container) Close() {
 // WaitGroups returns nil
 func (c *Container) WaitGroups() []basil.WaitGroup {
 	return c.wgs
-}
-
-func (c *Container) RetryCount() int {
-	if c.retry != nil {
-		return c.retry.RetryCount()
-	}
-	return 0
-}
-
-func (c *Container) RetryDelay(retryIndex int) time.Duration {
-	if c.retry != nil {
-		return c.retry.RetryDelay(retryIndex)
-	}
-	return 0
 }
 
 func (c *Container) debug() basil.LogEvent {

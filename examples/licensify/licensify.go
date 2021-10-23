@@ -29,24 +29,24 @@ func (l *Licensify) ID() basil.ID {
 	return l.id
 }
 
-func (l *Licensify) Run(ctx context.Context) error {
+func (l *Licensify) Run(ctx context.Context) (basil.Result, error) {
 	content, err := ioutil.ReadFile(l.path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if bytes.HasPrefix(content, []byte("// Code generated")) {
-		return nil
+		return nil, nil
 	}
 
 	if bytes.Compare(content[0:len(l.license)], []byte(l.license)) != 0 {
 		buf := bytes.NewBufferString(l.license)
 		buf.Write(content)
 		if err := ioutil.WriteFile(l.path, buf.Bytes(), 0644); err != nil {
-			return err
+			return nil, err
 		}
 		fmt.Printf("%s was updated\n", l.path)
 	}
 
-	return nil
+	return nil, nil
 }
