@@ -7,6 +7,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/opsidian/basil/basil"
 	"github.com/opsidian/basil/basil/block"
 	"github.com/opsidian/basil/blocks"
@@ -47,7 +50,8 @@ func main() {
 		parseCtx,
 		"main.basil",
 	); err != nil {
-		panic(err)
+		fmt.Printf("Error: %s\n", err.Error())
+		os.Exit(1)
 	}
 
 	common.Main(ctx, parseCtx, nil)

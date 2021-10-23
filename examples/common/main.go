@@ -34,7 +34,8 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext, inputParams map[bas
 		var err error
 		level, err = uzerolog.ParseLevel(envLevel)
 		if err != nil {
-			panic(fmt.Errorf("invalid log level %q", envLevel))
+			fmt.Printf("Error: invalid log level %q\n", envLevel)
+			os.Exit(1)
 		}
 	}
 
@@ -57,7 +58,7 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext, inputParams map[bas
 		"main",
 		inputParams,
 	); err != nil {
-		fmt.Printf("Error: %s", err.Error())
+		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
 }
