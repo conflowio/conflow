@@ -7,13 +7,14 @@
 package schema_test
 
 import (
-	"encoding/json"
 	"errors"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
 	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/basil/basil/schema/internal/testhelper"
 )
 
 var _ schema.Schema = &schema.Integer{}
@@ -29,6 +30,13 @@ var _ = Describe("Integer", func() {
 		Entry("const value", &schema.Integer{Const: schema.IntegerPtr(1)}, int64(1)),
 		Entry("enum value - single", &schema.Integer{Enum: []int64{1}}, int64(1)),
 		Entry("enum value - multiple", &schema.Integer{Enum: []int64{1, 2}}, int64(1)),
+		Entry("enum value - minimum - equal", &schema.Integer{Minimum: schema.IntegerPtr(1)}, int64(1)),
+		Entry("enum value - minimum - greater", &schema.Integer{Minimum: schema.IntegerPtr(1)}, int64(2)),
+		Entry("enum value - maximum - equal", &schema.Integer{Maximum: schema.IntegerPtr(2)}, int64(2)),
+		Entry("enum value - maximum - greater", &schema.Integer{Maximum: schema.IntegerPtr(2)}, int64(1)),
+		Entry("enum value - exclusive minimum", &schema.Integer{ExclusiveMinimum: schema.IntegerPtr(1)}, int64(2)),
+		Entry("enum value - exclusive maximum", &schema.Integer{ExclusiveMaximum: schema.IntegerPtr(2)}, int64(1)),
+		Entry("enum value - multiple of", &schema.Integer{MultipleOf: schema.IntegerPtr(2)}, int64(4)),
 	)
 
 	DescribeTable("Validate errors",
@@ -59,6 +67,48 @@ var _ = Describe("Integer", func() {
 			&schema.Integer{Enum: []int64{1, 2}},
 			int64(3),
 			errors.New("must be one of 1, 2"),
+		),
+		Entry(
+			"enum value - minimum",
+			&schema.Integer{Minimum: schema.IntegerPtr(2)},
+			int64(1),
+			errors.New("must be greater than or equal to 2"),
+		),
+		Entry(
+			"enum value - maximum",
+			&schema.Integer{Maximum: schema.IntegerPtr(2)},
+			int64(3),
+			errors.New("must be less than or equal to 2"),
+		),
+		Entry(
+			"enum value - exclusive minimum - equal",
+			&schema.Integer{ExclusiveMinimum: schema.IntegerPtr(2)},
+			int64(2),
+			errors.New("must be greater than 2"),
+		),
+		Entry(
+			"enum value - exclusive minimum - less",
+			&schema.Integer{ExclusiveMinimum: schema.IntegerPtr(2)},
+			int64(1),
+			errors.New("must be greater than 2"),
+		),
+		Entry(
+			"enum value - exclusive maximum - equal",
+			&schema.Integer{ExclusiveMaximum: schema.IntegerPtr(2)},
+			int64(2),
+			errors.New("must be less than 2"),
+		),
+		Entry(
+			"enum value - exclusive maximum - greater",
+			&schema.Integer{ExclusiveMaximum: schema.IntegerPtr(2)},
+			int64(3),
+			errors.New("must be less than 2"),
+		),
+		Entry(
+			"enum value - multiple of",
+			&schema.Integer{MultipleOf: schema.IntegerPtr(2)},
+			int64(3),
+			errors.New("must be multiple of 2"),
 		),
 	)
 
@@ -94,20 +144,58 @@ var _ = Describe("Integer", func() {
 	Enum: []int64{1},
 }`,
 		),
+		Entry(
+			"minimum",
+			&schema.Integer{Minimum: schema.IntegerPtr(1)},
+			`&schema.Integer{
+	Minimum: schema.IntegerPtr(1),
+}`,
+		),
+		Entry(
+			"maximum",
+			&schema.Integer{Maximum: schema.IntegerPtr(1)},
+			`&schema.Integer{
+	Maximum: schema.IntegerPtr(1),
+}`,
+		),
+		Entry(
+			"exclusive minimum",
+			&schema.Integer{ExclusiveMinimum: schema.IntegerPtr(1)},
+			`&schema.Integer{
+	ExclusiveMinimum: schema.IntegerPtr(1),
+}`,
+		),
+		Entry(
+			"exclusive maximum",
+			&schema.Integer{ExclusiveMaximum: schema.IntegerPtr(1)},
+			`&schema.Integer{
+	ExclusiveMaximum: schema.IntegerPtr(1),
+}`,
+		),
+		Entry(
+			"multiple of",
+			&schema.Integer{MultipleOf: schema.IntegerPtr(1)},
+			`&schema.Integer{
+	MultipleOf: schema.IntegerPtr(1),
+}`,
+		),
 	)
 
-	It("should marshal/unmarshal", func() {
-		i := &schema.Integer{
-			Const:   schema.IntegerPtr(1),
-			Default: schema.IntegerPtr(2),
-			Enum:    []int64{3},
-		}
-		j, err := json.Marshal(i)
-		Expect(err).ToNot(HaveOccurred())
-
-		i2 := &schema.Integer{}
-		err = json.Unmarshal(j, &i2)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(i2).To(Equal(i))
+	It("should unmarshal/marshal a json", func() {
+		testhelper.ExpectConsistentJSONMarshalling(
+			`{
+				"const": 1,
+				"default": 2,
+				"enum": [3, 4],
+				"exclusiveMinimum": 5,
+				"exclusiveMaximum": 6,
+				"maximum": 7,
+				"minimum": 8,
+				"multipleOf": 9,
+				"type": "integer"
+			}`,
+			&schema.Integer{},
+		)
 	})
+
 })

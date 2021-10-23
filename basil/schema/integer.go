@@ -19,9 +19,14 @@ import (
 type Integer struct {
 	Metadata
 
-	Const   *int64  `json:"const,omitempty"`
-	Default *int64  `json:"default,omitempty"`
-	Enum    []int64 `json:"enum,omitempty"`
+	Const            *int64  `json:"const,omitempty"`
+	Default          *int64  `json:"default,omitempty"`
+	Enum             []int64 `json:"enum,omitempty"`
+	ExclusiveMinimum *int64  `json:"exclusiveMinimum,omitempty"`
+	ExclusiveMaximum *int64  `json:"exclusiveMaximum,omitempty"`
+	Maximum          *int64  `json:"maximum,omitempty"`
+	Minimum          *int64  `json:"minimum,omitempty"`
+	MultipleOf       *int64  `json:"multipleOf,omitempty"`
 }
 
 func (i *Integer) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -100,6 +105,21 @@ func (i *Integer) GoString() string {
 	if len(i.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", i.Enum)
 	}
+	if i.Minimum != nil {
+		_, _ = fmt.Fprintf(buf, "\tMinimum: schema.IntegerPtr(%#v),\n", *i.Minimum)
+	}
+	if i.Maximum != nil {
+		_, _ = fmt.Fprintf(buf, "\tMaximum: schema.IntegerPtr(%#v),\n", *i.Maximum)
+	}
+	if i.ExclusiveMinimum != nil {
+		_, _ = fmt.Fprintf(buf, "\tExclusiveMinimum: schema.IntegerPtr(%#v),\n", *i.ExclusiveMinimum)
+	}
+	if i.ExclusiveMaximum != nil {
+		_, _ = fmt.Fprintf(buf, "\tExclusiveMaximum: schema.IntegerPtr(%#v),\n", *i.ExclusiveMaximum)
+	}
+	if i.MultipleOf != nil {
+		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.IntegerPtr(%#v),\n", *i.MultipleOf)
+	}
 	buf.WriteRune('}')
 	return buf.String()
 }
@@ -137,6 +157,17 @@ func (i *Integer) Type() Type {
 
 func (i *Integer) TypeString() string {
 	return string(TypeInteger)
+}
+
+func (i *Integer) UnmarshalJSON(input []byte) error {
+	type Alias Integer
+	return json.Unmarshal(input, &struct {
+		Type string `json:"type"`
+		*Alias
+	}{
+		Type:  string(i.Type()),
+		Alias: (*Alias)(i),
+	})
 }
 
 func (i *Integer) ValidateSchema(i2 Schema, compare bool) error {
@@ -180,6 +211,26 @@ func (i *Integer) ValidateValue(value interface{}) error {
 		if !allowed() {
 			return fmt.Errorf("must be one of %s", i.join(i.Enum, ", "))
 		}
+	}
+
+	if i.Minimum != nil && v < *i.Minimum {
+		return fmt.Errorf("must be greater than or equal to %d", *i.Minimum)
+	}
+
+	if i.ExclusiveMinimum != nil && v <= *i.ExclusiveMinimum {
+		return fmt.Errorf("must be greater than %d", *i.ExclusiveMinimum)
+	}
+
+	if i.Maximum != nil && v > *i.Maximum {
+		return fmt.Errorf("must be less than or equal to %d", *i.Maximum)
+	}
+
+	if i.ExclusiveMaximum != nil && v >= *i.ExclusiveMaximum {
+		return fmt.Errorf("must be less than %d", *i.ExclusiveMaximum)
+	}
+
+	if i.MultipleOf != nil && v%*i.MultipleOf != 0 {
+		return fmt.Errorf("must be multiple of %d", *i.MultipleOf)
 	}
 
 	return nil
