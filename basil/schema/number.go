@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -22,9 +23,14 @@ const Epsilon = 0.000000001
 type Number struct {
 	Metadata
 
-	Const   *float64  `json:"const,omitempty"`
-	Default *float64  `json:"default,omitempty"`
-	Enum    []float64 `json:"enum,omitempty"`
+	Const            *float64  `json:"const,omitempty"`
+	Default          *float64  `json:"default,omitempty"`
+	Enum             []float64 `json:"enum,omitempty"`
+	ExclusiveMinimum *float64  `json:"exclusiveMinimum,omitempty"`
+	ExclusiveMaximum *float64  `json:"exclusiveMaximum,omitempty"`
+	Maximum          *float64  `json:"maximum,omitempty"`
+	Minimum          *float64  `json:"minimum,omitempty"`
+	MultipleOf       *float64  `json:"multipleOf,omitempty"`
 }
 
 func (n *Number) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -114,6 +120,21 @@ func (n *Number) GoString() string {
 	if len(n.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", n.Enum)
 	}
+	if n.Minimum != nil {
+		_, _ = fmt.Fprintf(buf, "\tMinimum: schema.NumberPtr(%#v),\n", *n.Minimum)
+	}
+	if n.Maximum != nil {
+		_, _ = fmt.Fprintf(buf, "\tMaximum: schema.NumberPtr(%#v),\n", *n.Maximum)
+	}
+	if n.ExclusiveMinimum != nil {
+		_, _ = fmt.Fprintf(buf, "\tExclusiveMinimum: schema.NumberPtr(%#v),\n", *n.ExclusiveMinimum)
+	}
+	if n.ExclusiveMaximum != nil {
+		_, _ = fmt.Fprintf(buf, "\tExclusiveMaximum: schema.NumberPtr(%#v),\n", *n.ExclusiveMaximum)
+	}
+	if n.MultipleOf != nil {
+		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.NumberPtr(%#v),\n", *n.MultipleOf)
+	}
 	buf.WriteRune('}')
 	return buf.String()
 }
@@ -144,6 +165,17 @@ func (n *Number) TypeString() string {
 	return string(TypeNumber)
 }
 
+func (n *Number) UnmarshalJSON(input []byte) error {
+	type Alias Number
+	return json.Unmarshal(input, &struct {
+		Type string `json:"type"`
+		*Alias
+	}{
+		Type:  string(n.Type()),
+		Alias: (*Alias)(n),
+	})
+}
+
 func (n *Number) ValidateSchema(n2 Schema, _ bool) error {
 	if n2.Type() != TypeNumber && n2.Type() != TypeInteger {
 		return typeError("must be number")
@@ -167,14 +199,14 @@ func (n *Number) ValidateValue(value interface{}) error {
 		return fmt.Errorf("must be %s", n.StringValue(*n.Const))
 	}
 
-	if len(n.Enum) == 1 && n.Enum[0] != v {
+	if len(n.Enum) == 1 && !NumberEquals(n.Enum[0], v) {
 		return fmt.Errorf("must be %s", n.StringValue(n.Enum[0]))
 	}
 
 	if len(n.Enum) > 0 {
 		allowed := func() bool {
 			for _, e := range n.Enum {
-				if e == v {
+				if NumberEquals(e, v) {
 					return true
 				}
 			}
@@ -183,6 +215,26 @@ func (n *Number) ValidateValue(value interface{}) error {
 		if !allowed() {
 			return fmt.Errorf("must be one of %s", n.join(n.Enum, ", "))
 		}
+	}
+
+	if n.Minimum != nil && !NumberGreaterThanOrEqualsTo(v, *n.Minimum) {
+		return fmt.Errorf("must be greater than or equal to %s", n.StringValue(*n.Minimum))
+	}
+
+	if n.ExclusiveMinimum != nil && !NumberGreaterThan(v, *n.ExclusiveMinimum) {
+		return fmt.Errorf("must be greater than %s", n.StringValue(*n.ExclusiveMinimum))
+	}
+
+	if n.Maximum != nil && !NumberLessThanOrEqualsTo(v, *n.Maximum) {
+		return fmt.Errorf("must be less than or equal to %s", n.StringValue(*n.Maximum))
+	}
+
+	if n.ExclusiveMaximum != nil && !NumberLessThan(v, *n.ExclusiveMaximum) {
+		return fmt.Errorf("must be less than %s", n.StringValue(*n.ExclusiveMaximum))
+	}
+
+	if n.MultipleOf != nil && !NumberMultipleOf(v, *n.MultipleOf) {
+		return fmt.Errorf("must be multiple of %s", n.StringValue(*n.MultipleOf))
 	}
 
 	return nil
@@ -227,4 +279,29 @@ func (n *numberValue) GoString() string {
 
 func NumberPtr(v float64) *float64 {
 	return &v
+}
+
+func NumberEquals(a, b float64) bool {
+	return math.Abs(a-b) < Epsilon
+}
+
+func NumberLessThan(v1, v2 float64) bool {
+	return v1 <= v2-Epsilon
+}
+
+func NumberLessThanOrEqualsTo(v1, v2 float64) bool {
+	return v1 < v2+Epsilon
+}
+
+func NumberGreaterThan(v1, v2 float64) bool {
+	return v1 >= v2+Epsilon
+}
+
+func NumberGreaterThanOrEqualsTo(v1, v2 float64) bool {
+	return v1 > v2-Epsilon
+}
+
+func NumberMultipleOf(v1, v2 float64) bool {
+	div := v1 / v2
+	return math.Abs(div-math.Round(div)) < Epsilon
 }
