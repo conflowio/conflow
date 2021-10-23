@@ -102,7 +102,12 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 			)
 			paramNode.SetSchema(interpreter.Schema().(*schema.Object).Properties[string(valueParamName)])
 
-			children = []basil.Node{paramNode}
+			var deps basil.Dependencies
+			children, deps, err = dependency.NewResolver(idNode.ID(), paramNode).Resolve()
+			if err != nil {
+				return nil, err
+			}
+			dependencies.Add(deps)
 		}
 	}
 
