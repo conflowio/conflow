@@ -42,12 +42,37 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 				"examples": &schema.Array{
 					Items: &schema.Untyped{},
 				},
+				"exclusive_maximum": &schema.Integer{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"exclusive_minimum": &schema.Integer{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"maximum": &schema.Integer{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"minimum": &schema.Integer{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"multiple_of": &schema.Integer{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
 				"pointer":    &schema.Boolean{},
 				"read_only":  &schema.Boolean{},
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
+			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusive_maximum": "ExclusiveMaximum", "exclusive_minimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multiple_of": "MultipleOf", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
 		}
 	}
 	return i.s
@@ -89,6 +114,16 @@ func (i IntegerInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 		return b.(*Integer).Enum
 	case "examples":
 		return b.(*Integer).Examples
+	case "exclusive_maximum":
+		return b.(*Integer).ExclusiveMaximum
+	case "exclusive_minimum":
+		return b.(*Integer).ExclusiveMinimum
+	case "maximum":
+		return b.(*Integer).Maximum
+	case "minimum":
+		return b.(*Integer).Minimum
+	case "multiple_of":
+		return b.(*Integer).MultipleOf
 	case "pointer":
 		return b.(*Integer).Pointer
 	case "read_only":
@@ -125,6 +160,16 @@ func (i IntegerInterpreter) SetParam(block basil.Block, name basil.ID, value int
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
+	case "exclusive_maximum":
+		b.ExclusiveMaximum = schema.IntegerPtr(value.(int64))
+	case "exclusive_minimum":
+		b.ExclusiveMinimum = schema.IntegerPtr(value.(int64))
+	case "maximum":
+		b.Maximum = schema.IntegerPtr(value.(int64))
+	case "minimum":
+		b.Minimum = schema.IntegerPtr(value.(int64))
+	case "multiple_of":
+		b.MultipleOf = schema.IntegerPtr(value.(int64))
 	case "pointer":
 		b.Pointer = value.(bool)
 	case "read_only":

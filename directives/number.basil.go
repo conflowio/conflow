@@ -42,12 +42,37 @@ func (i NumberInterpreter) Schema() schema.Schema {
 				"examples": &schema.Array{
 					Items: &schema.Untyped{},
 				},
+				"exclusive_maximum": &schema.Number{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"exclusive_minimum": &schema.Number{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"maximum": &schema.Number{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"minimum": &schema.Number{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"multiple_of": &schema.Number{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
 				"pointer":    &schema.Boolean{},
 				"read_only":  &schema.Boolean{},
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
+			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusive_maximum": "ExclusiveMaximum", "exclusive_minimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multiple_of": "MultipleOf", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
 		}
 	}
 	return i.s
@@ -89,6 +114,16 @@ func (i NumberInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 		return b.(*Number).Enum
 	case "examples":
 		return b.(*Number).Examples
+	case "exclusive_maximum":
+		return b.(*Number).ExclusiveMaximum
+	case "exclusive_minimum":
+		return b.(*Number).ExclusiveMinimum
+	case "maximum":
+		return b.(*Number).Maximum
+	case "minimum":
+		return b.(*Number).Minimum
+	case "multiple_of":
+		return b.(*Number).MultipleOf
 	case "pointer":
 		return b.(*Number).Pointer
 	case "read_only":
@@ -125,6 +160,16 @@ func (i NumberInterpreter) SetParam(block basil.Block, name basil.ID, value inte
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
+	case "exclusive_maximum":
+		b.ExclusiveMaximum = schema.NumberPtr(value.(float64))
+	case "exclusive_minimum":
+		b.ExclusiveMinimum = schema.NumberPtr(value.(float64))
+	case "maximum":
+		b.Maximum = schema.NumberPtr(value.(float64))
+	case "minimum":
+		b.Minimum = schema.NumberPtr(value.(float64))
+	case "multiple_of":
+		b.MultipleOf = schema.NumberPtr(value.(float64))
 	case "pointer":
 		b.Pointer = value.(bool)
 	case "read_only":

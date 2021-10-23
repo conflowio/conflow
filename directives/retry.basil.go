@@ -33,6 +33,8 @@ func (i RetryInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"value": "true"},
 					},
 					Default: schema.IntegerPtr(-1),
+					Minimum: schema.IntegerPtr(-1),
+					Maximum: schema.IntegerPtr(2147483647),
 				},
 			},
 			Required: []string{"limit"},

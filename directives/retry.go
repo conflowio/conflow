@@ -19,6 +19,8 @@ type Retry struct {
 	// @value
 	// @required
 	// @default -1
+	// @minimum -1
+	// @maximum 2147483647
 	limit int64
 }
 
