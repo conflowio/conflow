@@ -92,15 +92,17 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter basil.BlockIn
 			if err != nil {
 				return nil, err
 			}
-			children = []basil.Node{
-				parameter.NewNode(
-					idNode.ID(),
-					basil.NewIDNode(valueParamName, basil.ClassifierNone, blockValueNode.Pos(), blockValueNode.Pos()),
-					valueNode,
-					false,
-					nil,
-				),
-			}
+
+			paramNode := parameter.NewNode(
+				idNode.ID(),
+				basil.NewIDNode(valueParamName, basil.ClassifierNone, blockValueNode.Pos(), blockValueNode.Pos()),
+				valueNode,
+				false,
+				nil,
+			)
+			paramNode.SetSchema(interpreter.Schema().(*schema.Object).Properties[string(valueParamName)])
+
+			children = []basil.Node{paramNode}
 		}
 	}
 
