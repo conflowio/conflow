@@ -89,15 +89,16 @@ func (fake *FakeFunctionNode) ArgumentNodes() []parsley.Node {
 	ret, specificReturn := fake.argumentNodesReturnsOnCall[len(fake.argumentNodesArgsForCall)]
 	fake.argumentNodesArgsForCall = append(fake.argumentNodesArgsForCall, struct {
 	}{})
+	stub := fake.ArgumentNodesStub
+	fakeReturns := fake.argumentNodesReturns
 	fake.recordInvocation("ArgumentNodes", []interface{}{})
 	fake.argumentNodesMutex.Unlock()
-	if fake.ArgumentNodesStub != nil {
-		return fake.ArgumentNodesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.argumentNodesReturns
 	return fakeReturns.result1
 }
 
@@ -141,15 +142,16 @@ func (fake *FakeFunctionNode) Name() basil.ID {
 	ret, specificReturn := fake.nameReturnsOnCall[len(fake.nameArgsForCall)]
 	fake.nameArgsForCall = append(fake.nameArgsForCall, struct {
 	}{})
+	stub := fake.NameStub
+	fakeReturns := fake.nameReturns
 	fake.recordInvocation("Name", []interface{}{})
 	fake.nameMutex.Unlock()
-	if fake.NameStub != nil {
-		return fake.NameStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.nameReturns
 	return fakeReturns.result1
 }
 
@@ -193,15 +195,16 @@ func (fake *FakeFunctionNode) Pos() parsley.Pos {
 	ret, specificReturn := fake.posReturnsOnCall[len(fake.posArgsForCall)]
 	fake.posArgsForCall = append(fake.posArgsForCall, struct {
 	}{})
+	stub := fake.PosStub
+	fakeReturns := fake.posReturns
 	fake.recordInvocation("Pos", []interface{}{})
 	fake.posMutex.Unlock()
-	if fake.PosStub != nil {
-		return fake.PosStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.posReturns
 	return fakeReturns.result1
 }
 
@@ -245,15 +248,16 @@ func (fake *FakeFunctionNode) ReaderPos() parsley.Pos {
 	ret, specificReturn := fake.readerPosReturnsOnCall[len(fake.readerPosArgsForCall)]
 	fake.readerPosArgsForCall = append(fake.readerPosArgsForCall, struct {
 	}{})
+	stub := fake.ReaderPosStub
+	fakeReturns := fake.readerPosReturns
 	fake.recordInvocation("ReaderPos", []interface{}{})
 	fake.readerPosMutex.Unlock()
-	if fake.ReaderPosStub != nil {
-		return fake.ReaderPosStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.readerPosReturns
 	return fakeReturns.result1
 }
 
@@ -297,15 +301,16 @@ func (fake *FakeFunctionNode) Schema() interface{} {
 	ret, specificReturn := fake.schemaReturnsOnCall[len(fake.schemaArgsForCall)]
 	fake.schemaArgsForCall = append(fake.schemaArgsForCall, struct {
 	}{})
+	stub := fake.SchemaStub
+	fakeReturns := fake.schemaReturns
 	fake.recordInvocation("Schema", []interface{}{})
 	fake.schemaMutex.Unlock()
-	if fake.SchemaStub != nil {
-		return fake.SchemaStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.schemaReturns
 	return fakeReturns.result1
 }
 
@@ -350,15 +355,16 @@ func (fake *FakeFunctionNode) StaticCheck(arg1 interface{}) parsley.Error {
 	fake.staticCheckArgsForCall = append(fake.staticCheckArgsForCall, struct {
 		arg1 interface{}
 	}{arg1})
+	stub := fake.StaticCheckStub
+	fakeReturns := fake.staticCheckReturns
 	fake.recordInvocation("StaticCheck", []interface{}{arg1})
 	fake.staticCheckMutex.Unlock()
-	if fake.StaticCheckStub != nil {
-		return fake.StaticCheckStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.staticCheckReturns
 	return fakeReturns.result1
 }
 
@@ -409,15 +415,16 @@ func (fake *FakeFunctionNode) Token() string {
 	ret, specificReturn := fake.tokenReturnsOnCall[len(fake.tokenArgsForCall)]
 	fake.tokenArgsForCall = append(fake.tokenArgsForCall, struct {
 	}{})
+	stub := fake.TokenStub
+	fakeReturns := fake.tokenReturns
 	fake.recordInvocation("Token", []interface{}{})
 	fake.tokenMutex.Unlock()
-	if fake.TokenStub != nil {
-		return fake.TokenStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.tokenReturns
 	return fakeReturns.result1
 }
 

@@ -22,9 +22,10 @@ func (fake *FakeBlockDirective) ApplyToRuntimeConfig(arg1 *basil.RuntimeConfig) 
 	fake.applyToRuntimeConfigArgsForCall = append(fake.applyToRuntimeConfigArgsForCall, struct {
 		arg1 *basil.RuntimeConfig
 	}{arg1})
+	stub := fake.ApplyToRuntimeConfigStub
 	fake.recordInvocation("ApplyToRuntimeConfig", []interface{}{arg1})
 	fake.applyToRuntimeConfigMutex.Unlock()
-	if fake.ApplyToRuntimeConfigStub != nil {
+	if stub != nil {
 		fake.ApplyToRuntimeConfigStub(arg1)
 	}
 }

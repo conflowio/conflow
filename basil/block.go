@@ -19,7 +19,7 @@ type Block interface {
 }
 
 // BlockContainer is a simple wrapper around a block object
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockContainer
+//counterfeiter:generate . BlockContainer
 type BlockContainer interface {
 	Container
 	Param(ID) interface{}
@@ -55,7 +55,7 @@ type BlockPublisher interface {
 }
 
 // BlockNode is the AST node for a block
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockNode
+//counterfeiter:generate . BlockNode
 type BlockNode interface {
 	Node
 	Children() []Node
@@ -67,7 +67,7 @@ type BlockNode interface {
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockNodeRegistry
+//counterfeiter:generate . BlockNodeRegistry
 type BlockNodeRegistry interface {
 	BlockNode(ID) (BlockNode, bool)
 	AddBlockNode(BlockNode) error
@@ -79,7 +79,7 @@ type BlockTransformerRegistryAware interface {
 }
 
 // BlockInterpreter defines an interpreter for blocks
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockInterpreter
+//counterfeiter:generate . BlockInterpreter
 type BlockInterpreter interface {
 	Schema() schema.Schema
 	CreateBlock(ID, *BlockContext) Block

@@ -2,11 +2,11 @@ version: 2
 jobs:
   test:
     docker:
-      - image: circleci/golang:1.16
+      - image: circleci/golang:1.17
     working_directory: /go/src/github.com/opsidian/basil
     steps:
       - checkout
-      - run: make lint
+      - run: make check
       - run: make test
 
 workflows:

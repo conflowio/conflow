@@ -42,15 +42,16 @@ func (fake *FakeBlockNodeRegistry) AddBlockNode(arg1 basil.BlockNode) error {
 	fake.addBlockNodeArgsForCall = append(fake.addBlockNodeArgsForCall, struct {
 		arg1 basil.BlockNode
 	}{arg1})
+	stub := fake.AddBlockNodeStub
+	fakeReturns := fake.addBlockNodeReturns
 	fake.recordInvocation("AddBlockNode", []interface{}{arg1})
 	fake.addBlockNodeMutex.Unlock()
-	if fake.AddBlockNodeStub != nil {
-		return fake.AddBlockNodeStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.addBlockNodeReturns
 	return fakeReturns.result1
 }
 
@@ -102,15 +103,16 @@ func (fake *FakeBlockNodeRegistry) BlockNode(arg1 basil.ID) (basil.BlockNode, bo
 	fake.blockNodeArgsForCall = append(fake.blockNodeArgsForCall, struct {
 		arg1 basil.ID
 	}{arg1})
+	stub := fake.BlockNodeStub
+	fakeReturns := fake.blockNodeReturns
 	fake.recordInvocation("BlockNode", []interface{}{arg1})
 	fake.blockNodeMutex.Unlock()
-	if fake.BlockNodeStub != nil {
-		return fake.BlockNodeStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.blockNodeReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

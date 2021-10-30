@@ -206,15 +206,16 @@ func (fake *FakeBlockNode) BlockType() basil.ID {
 	ret, specificReturn := fake.blockTypeReturnsOnCall[len(fake.blockTypeArgsForCall)]
 	fake.blockTypeArgsForCall = append(fake.blockTypeArgsForCall, struct {
 	}{})
+	stub := fake.BlockTypeStub
+	fakeReturns := fake.blockTypeReturns
 	fake.recordInvocation("BlockType", []interface{}{})
 	fake.blockTypeMutex.Unlock()
-	if fake.BlockTypeStub != nil {
-		return fake.BlockTypeStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.blockTypeReturns
 	return fakeReturns.result1
 }
 
@@ -258,15 +259,16 @@ func (fake *FakeBlockNode) Children() []basil.Node {
 	ret, specificReturn := fake.childrenReturnsOnCall[len(fake.childrenArgsForCall)]
 	fake.childrenArgsForCall = append(fake.childrenArgsForCall, struct {
 	}{})
+	stub := fake.ChildrenStub
+	fakeReturns := fake.childrenReturns
 	fake.recordInvocation("Children", []interface{}{})
 	fake.childrenMutex.Unlock()
-	if fake.ChildrenStub != nil {
-		return fake.ChildrenStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.childrenReturns
 	return fakeReturns.result1
 }
 
@@ -321,15 +323,16 @@ func (fake *FakeBlockNode) CreateContainer(arg1 *basil.EvalContext, arg2 basil.R
 		arg5 []basil.WaitGroup
 		arg6 bool
 	}{arg1, arg2, arg3, arg4, arg5Copy, arg6})
+	stub := fake.CreateContainerStub
+	fakeReturns := fake.createContainerReturns
 	fake.recordInvocation("CreateContainer", []interface{}{arg1, arg2, arg3, arg4, arg5Copy, arg6})
 	fake.createContainerMutex.Unlock()
-	if fake.CreateContainerStub != nil {
-		return fake.CreateContainerStub(arg1, arg2, arg3, arg4, arg5, arg6)
+	if stub != nil {
+		return stub(arg1, arg2, arg3, arg4, arg5, arg6)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.createContainerReturns
 	return fakeReturns.result1
 }
 
@@ -380,15 +383,16 @@ func (fake *FakeBlockNode) Dependencies() basil.Dependencies {
 	ret, specificReturn := fake.dependenciesReturnsOnCall[len(fake.dependenciesArgsForCall)]
 	fake.dependenciesArgsForCall = append(fake.dependenciesArgsForCall, struct {
 	}{})
+	stub := fake.DependenciesStub
+	fakeReturns := fake.dependenciesReturns
 	fake.recordInvocation("Dependencies", []interface{}{})
 	fake.dependenciesMutex.Unlock()
-	if fake.DependenciesStub != nil {
-		return fake.DependenciesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.dependenciesReturns
 	return fakeReturns.result1
 }
 
@@ -432,15 +436,16 @@ func (fake *FakeBlockNode) Directives() []basil.BlockNode {
 	ret, specificReturn := fake.directivesReturnsOnCall[len(fake.directivesArgsForCall)]
 	fake.directivesArgsForCall = append(fake.directivesArgsForCall, struct {
 	}{})
+	stub := fake.DirectivesStub
+	fakeReturns := fake.directivesReturns
 	fake.recordInvocation("Directives", []interface{}{})
 	fake.directivesMutex.Unlock()
-	if fake.DirectivesStub != nil {
-		return fake.DirectivesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.directivesReturns
 	return fakeReturns.result1
 }
 
@@ -484,15 +489,16 @@ func (fake *FakeBlockNode) EvalStage() basil.EvalStage {
 	ret, specificReturn := fake.evalStageReturnsOnCall[len(fake.evalStageArgsForCall)]
 	fake.evalStageArgsForCall = append(fake.evalStageArgsForCall, struct {
 	}{})
+	stub := fake.EvalStageStub
+	fakeReturns := fake.evalStageReturns
 	fake.recordInvocation("EvalStage", []interface{}{})
 	fake.evalStageMutex.Unlock()
-	if fake.EvalStageStub != nil {
-		return fake.EvalStageStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.evalStageReturns
 	return fakeReturns.result1
 }
 
@@ -536,15 +542,16 @@ func (fake *FakeBlockNode) Generates() []basil.ID {
 	ret, specificReturn := fake.generatesReturnsOnCall[len(fake.generatesArgsForCall)]
 	fake.generatesArgsForCall = append(fake.generatesArgsForCall, struct {
 	}{})
+	stub := fake.GeneratesStub
+	fakeReturns := fake.generatesReturns
 	fake.recordInvocation("Generates", []interface{}{})
 	fake.generatesMutex.Unlock()
-	if fake.GeneratesStub != nil {
-		return fake.GeneratesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.generatesReturns
 	return fakeReturns.result1
 }
 
@@ -589,15 +596,16 @@ func (fake *FakeBlockNode) GetPropertySchema(arg1 basil.ID) (schema.Schema, bool
 	fake.getPropertySchemaArgsForCall = append(fake.getPropertySchemaArgsForCall, struct {
 		arg1 basil.ID
 	}{arg1})
+	stub := fake.GetPropertySchemaStub
+	fakeReturns := fake.getPropertySchemaReturns
 	fake.recordInvocation("GetPropertySchema", []interface{}{arg1})
 	fake.getPropertySchemaMutex.Unlock()
-	if fake.GetPropertySchemaStub != nil {
-		return fake.GetPropertySchemaStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getPropertySchemaReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -651,15 +659,16 @@ func (fake *FakeBlockNode) ID() basil.ID {
 	ret, specificReturn := fake.iDReturnsOnCall[len(fake.iDArgsForCall)]
 	fake.iDArgsForCall = append(fake.iDArgsForCall, struct {
 	}{})
+	stub := fake.IDStub
+	fakeReturns := fake.iDReturns
 	fake.recordInvocation("ID", []interface{}{})
 	fake.iDMutex.Unlock()
-	if fake.IDStub != nil {
-		return fake.IDStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.iDReturns
 	return fakeReturns.result1
 }
 
@@ -703,15 +712,16 @@ func (fake *FakeBlockNode) Interpreter() basil.BlockInterpreter {
 	ret, specificReturn := fake.interpreterReturnsOnCall[len(fake.interpreterArgsForCall)]
 	fake.interpreterArgsForCall = append(fake.interpreterArgsForCall, struct {
 	}{})
+	stub := fake.InterpreterStub
+	fakeReturns := fake.interpreterReturns
 	fake.recordInvocation("Interpreter", []interface{}{})
 	fake.interpreterMutex.Unlock()
-	if fake.InterpreterStub != nil {
-		return fake.InterpreterStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.interpreterReturns
 	return fakeReturns.result1
 }
 
@@ -755,15 +765,16 @@ func (fake *FakeBlockNode) ParameterName() basil.ID {
 	ret, specificReturn := fake.parameterNameReturnsOnCall[len(fake.parameterNameArgsForCall)]
 	fake.parameterNameArgsForCall = append(fake.parameterNameArgsForCall, struct {
 	}{})
+	stub := fake.ParameterNameStub
+	fakeReturns := fake.parameterNameReturns
 	fake.recordInvocation("ParameterName", []interface{}{})
 	fake.parameterNameMutex.Unlock()
-	if fake.ParameterNameStub != nil {
-		return fake.ParameterNameStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.parameterNameReturns
 	return fakeReturns.result1
 }
 
@@ -807,15 +818,16 @@ func (fake *FakeBlockNode) Pos() parsley.Pos {
 	ret, specificReturn := fake.posReturnsOnCall[len(fake.posArgsForCall)]
 	fake.posArgsForCall = append(fake.posArgsForCall, struct {
 	}{})
+	stub := fake.PosStub
+	fakeReturns := fake.posReturns
 	fake.recordInvocation("Pos", []interface{}{})
 	fake.posMutex.Unlock()
-	if fake.PosStub != nil {
-		return fake.PosStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.posReturns
 	return fakeReturns.result1
 }
 
@@ -859,15 +871,16 @@ func (fake *FakeBlockNode) Provides() []basil.ID {
 	ret, specificReturn := fake.providesReturnsOnCall[len(fake.providesArgsForCall)]
 	fake.providesArgsForCall = append(fake.providesArgsForCall, struct {
 	}{})
+	stub := fake.ProvidesStub
+	fakeReturns := fake.providesReturns
 	fake.recordInvocation("Provides", []interface{}{})
 	fake.providesMutex.Unlock()
-	if fake.ProvidesStub != nil {
-		return fake.ProvidesStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.providesReturns
 	return fakeReturns.result1
 }
 
@@ -911,15 +924,16 @@ func (fake *FakeBlockNode) ReaderPos() parsley.Pos {
 	ret, specificReturn := fake.readerPosReturnsOnCall[len(fake.readerPosArgsForCall)]
 	fake.readerPosArgsForCall = append(fake.readerPosArgsForCall, struct {
 	}{})
+	stub := fake.ReaderPosStub
+	fakeReturns := fake.readerPosReturns
 	fake.recordInvocation("ReaderPos", []interface{}{})
 	fake.readerPosMutex.Unlock()
-	if fake.ReaderPosStub != nil {
-		return fake.ReaderPosStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.readerPosReturns
 	return fakeReturns.result1
 }
 
@@ -963,15 +977,16 @@ func (fake *FakeBlockNode) Schema() interface{} {
 	ret, specificReturn := fake.schemaReturnsOnCall[len(fake.schemaArgsForCall)]
 	fake.schemaArgsForCall = append(fake.schemaArgsForCall, struct {
 	}{})
+	stub := fake.SchemaStub
+	fakeReturns := fake.schemaReturns
 	fake.recordInvocation("Schema", []interface{}{})
 	fake.schemaMutex.Unlock()
-	if fake.SchemaStub != nil {
-		return fake.SchemaStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.schemaReturns
 	return fakeReturns.result1
 }
 
@@ -1015,9 +1030,10 @@ func (fake *FakeBlockNode) SetSchema(arg1 schema.Schema) {
 	fake.setSchemaArgsForCall = append(fake.setSchemaArgsForCall, struct {
 		arg1 schema.Schema
 	}{arg1})
+	stub := fake.SetSchemaStub
 	fake.recordInvocation("SetSchema", []interface{}{arg1})
 	fake.setSchemaMutex.Unlock()
-	if fake.SetSchemaStub != nil {
+	if stub != nil {
 		fake.SetSchemaStub(arg1)
 	}
 }
@@ -1046,15 +1062,16 @@ func (fake *FakeBlockNode) Token() string {
 	ret, specificReturn := fake.tokenReturnsOnCall[len(fake.tokenArgsForCall)]
 	fake.tokenArgsForCall = append(fake.tokenArgsForCall, struct {
 	}{})
+	stub := fake.TokenStub
+	fakeReturns := fake.tokenReturns
 	fake.recordInvocation("Token", []interface{}{})
 	fake.tokenMutex.Unlock()
-	if fake.TokenStub != nil {
-		return fake.TokenStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.tokenReturns
 	return fakeReturns.result1
 }
 
@@ -1099,15 +1116,16 @@ func (fake *FakeBlockNode) Value(arg1 interface{}) (interface{}, parsley.Error) 
 	fake.valueArgsForCall = append(fake.valueArgsForCall, struct {
 		arg1 interface{}
 	}{arg1})
+	stub := fake.ValueStub
+	fakeReturns := fake.valueReturns
 	fake.recordInvocation("Value", []interface{}{arg1})
 	fake.valueMutex.Unlock()
-	if fake.ValueStub != nil {
-		return fake.ValueStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.valueReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 

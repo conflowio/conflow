@@ -11,7 +11,7 @@ import (
 )
 
 // Container is a basil object container
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Container
+//counterfeiter:generate . Container
 type Container interface {
 	Node() Node
 	Value() (interface{}, parsley.Error)

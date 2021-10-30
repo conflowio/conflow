@@ -6,7 +6,7 @@
 
 package basil
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . WaitGroup
+//counterfeiter:generate . WaitGroup
 type WaitGroup interface {
 	Add(delta int)
 	Wait() <-chan struct{}

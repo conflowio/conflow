@@ -34,7 +34,7 @@ func (i ID) Concat(s string) ID {
 }
 
 // Identifiable makes an object to have a string identifier and have an identifiable parent
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Identifiable
+//counterfeiter:generate . Identifiable
 type Identifiable interface {
 	ID() ID
 }

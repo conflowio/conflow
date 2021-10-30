@@ -47,9 +47,10 @@ func (fake *FakeWaitGroup) Add(arg1 int) {
 	fake.addArgsForCall = append(fake.addArgsForCall, struct {
 		arg1 int
 	}{arg1})
+	stub := fake.AddStub
 	fake.recordInvocation("Add", []interface{}{arg1})
 	fake.addMutex.Unlock()
-	if fake.AddStub != nil {
+	if stub != nil {
 		fake.AddStub(arg1)
 	}
 }
@@ -78,9 +79,10 @@ func (fake *FakeWaitGroup) Done(arg1 error) {
 	fake.doneArgsForCall = append(fake.doneArgsForCall, struct {
 		arg1 error
 	}{arg1})
+	stub := fake.DoneStub
 	fake.recordInvocation("Done", []interface{}{arg1})
 	fake.doneMutex.Unlock()
-	if fake.DoneStub != nil {
+	if stub != nil {
 		fake.DoneStub(arg1)
 	}
 }
@@ -109,15 +111,16 @@ func (fake *FakeWaitGroup) Err() error {
 	ret, specificReturn := fake.errReturnsOnCall[len(fake.errArgsForCall)]
 	fake.errArgsForCall = append(fake.errArgsForCall, struct {
 	}{})
+	stub := fake.ErrStub
+	fakeReturns := fake.errReturns
 	fake.recordInvocation("Err", []interface{}{})
 	fake.errMutex.Unlock()
-	if fake.ErrStub != nil {
-		return fake.ErrStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.errReturns
 	return fakeReturns.result1
 }
 
@@ -161,15 +164,16 @@ func (fake *FakeWaitGroup) Wait() <-chan struct{} {
 	ret, specificReturn := fake.waitReturnsOnCall[len(fake.waitArgsForCall)]
 	fake.waitArgsForCall = append(fake.waitArgsForCall, struct {
 	}{})
+	stub := fake.WaitStub
+	fakeReturns := fake.waitReturns
 	fake.recordInvocation("Wait", []interface{}{})
 	fake.waitMutex.Unlock()
-	if fake.WaitStub != nil {
-		return fake.WaitStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.waitReturns
 	return fakeReturns.result1
 }
 

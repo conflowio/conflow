@@ -9,7 +9,7 @@ package basil
 import "github.com/opsidian/parsley/parsley"
 
 // VariableNode stores a variable reference. It always refers to a named block's parameter.
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . VariableNode
+//counterfeiter:generate . VariableNode
 type VariableNode interface {
 	parsley.Node
 	Identifiable

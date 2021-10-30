@@ -9,7 +9,7 @@ package basil
 import "github.com/opsidian/basil/basil/schema"
 
 // ParameterDirective provides a way to add metadata for parameters
-//go:generate counterfeiter . ParameterDirective
+//counterfeiter:generate . ParameterDirective
 type ParameterDirective interface {
 	Block
 	ApplyToParameterConfig(*ParameterConfig)
