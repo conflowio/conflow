@@ -9,12 +9,12 @@ package strings_test
 import (
 	"errors"
 
+	"github.com/conflowio/conflow/conflow/function"
+	"github.com/conflowio/conflow/functions/strings"
+	"github.com/conflowio/conflow/parsers"
+	"github.com/conflowio/conflow/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/conflow/conflow/function"
-	"github.com/opsidian/conflow/functions/strings"
-	"github.com/opsidian/conflow/parsers"
-	"github.com/opsidian/conflow/test"
 )
 
 var _ = Describe("Join", func() {

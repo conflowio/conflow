@@ -4,8 +4,8 @@ package blocks
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 	"time"
 )
 
@@ -32,7 +32,7 @@ func (i TickerInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/blocks.Tick",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.Tick",
 				},
 			},
 			Required: []string{"interval", "tick"},

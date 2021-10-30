@@ -1,4 +1,4 @@
-module github.com/opsidian/conflow
+module github.com/conflowio/conflow
 
 require (
 	github.com/golangci/golangci-lint v1.42.1

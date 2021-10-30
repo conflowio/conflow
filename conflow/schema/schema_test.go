@@ -12,10 +12,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/conflowio/conflow/conflow/schema"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/conflow/conflow/schema"
 )
 
 var _ = Describe("Metadata", func() {

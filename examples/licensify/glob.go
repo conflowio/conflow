@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/block"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/block"
 )
 
 // @block

@@ -35,7 +35,7 @@ type Number struct {
 
 func (n *Number) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if n.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/opsidian/conflow/conflow/schema")
+		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf("%s = %s.NumberPtr(%s.(float64))", resultName, schemaPackageName, valueName)
 	}
 

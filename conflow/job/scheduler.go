@@ -10,7 +10,7 @@ import (
 	"errors"
 	"sync/atomic"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // Scheduler handles workers and schedules jobs

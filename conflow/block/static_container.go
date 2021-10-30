@@ -12,9 +12,9 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/parameter"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/parameter"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // StaticContainer is a container for blocks where there is no dynamic child evaluation required

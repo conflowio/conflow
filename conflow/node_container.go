@@ -15,7 +15,7 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/util"
+	"github.com/conflowio/conflow/util"
 )
 
 // NodeContainer wraps a node and registers the dependencies as they become available

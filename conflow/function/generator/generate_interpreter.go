@@ -12,8 +12,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/opsidian/conflow/conflow/generator/parser"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/generator/parser"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // GenerateInterpreter generates an interpreter for the given function
@@ -84,13 +84,13 @@ func generateTemplateParams(
 ) *InterpreterTemplateParams {
 	imports := map[string]string{
 		".":       pkg,
-		"conflow": "github.com/opsidian/conflow/conflow",
-		"schema":  "github.com/opsidian/conflow/conflow/schema",
+		"conflow": "github.com/conflowio/conflow/conflow",
+		"schema":  "github.com/conflowio/conflow/conflow/schema",
 		"parsley": "github.com/opsidian/parsley/parsley",
 	}
 
 	if f.ReturnsError {
-		imports["function"] = "github.com/opsidian/conflow/conflow/function"
+		imports["function"] = "github.com/conflowio/conflow/conflow/function"
 	}
 
 	var nameSelector string

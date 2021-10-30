@@ -27,7 +27,7 @@ type TimeDuration struct {
 func (s *TimeDuration) AssignValue(imports map[string]string, valueName, resultName string) string {
 	timePackageName := EnsureUniqueGoPackageName(imports, "time")
 	if s.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/opsidian/conflow/conflow/schema")
+		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf(
 			"%s = %s.TimeDurationPtr(%s.(%s.Duration))",
 			resultName,

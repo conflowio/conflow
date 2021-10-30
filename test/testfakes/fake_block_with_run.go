@@ -5,8 +5,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/test"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/test"
 )
 
 type FakeBlockWithRun struct {

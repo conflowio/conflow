@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/opsidian/conflow/conflow/function"
+	"github.com/conflowio/conflow/conflow/function"
 )
 
 // Decode converts the given json string to a data structure

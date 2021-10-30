@@ -17,7 +17,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/opsidian/conflow/conflow/generator/parser"
+	"github.com/conflowio/conflow/conflow/generator/parser"
 )
 
 func writeFile(dir, name string, content []byte) error {

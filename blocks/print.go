@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // Print will write a string to the standard output

@@ -7,13 +7,13 @@
 package generator_test
 
 import (
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/block"
+	"github.com/conflowio/conflow/conflow/block/fixtures"
+	"github.com/conflowio/conflow/parsers"
+	"github.com/conflowio/conflow/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/block"
-	"github.com/opsidian/conflow/conflow/block/fixtures"
-	"github.com/opsidian/conflow/parsers"
-	"github.com/opsidian/conflow/test"
 )
 
 var _ = Describe("GenerateInterpreter", func() {

@@ -6,7 +6,7 @@
 
 package job
 
-import "github.com/opsidian/conflow/conflow"
+import "github.com/conflowio/conflow/conflow"
 
 // Worker is a goroutine processing jobs
 type Worker struct {

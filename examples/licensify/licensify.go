@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // @block

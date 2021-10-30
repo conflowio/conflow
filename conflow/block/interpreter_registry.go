@@ -9,7 +9,7 @@ package block
 import (
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // InterpreterRegistry contains a list of block interpreters and behaves as a node transformer registry

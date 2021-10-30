@@ -6,7 +6,7 @@
 
 package generator
 
-import "github.com/opsidian/conflow/conflow/schema"
+import "github.com/conflowio/conflow/conflow/schema"
 
 type InterpreterTemplateParams struct {
 	Package          string

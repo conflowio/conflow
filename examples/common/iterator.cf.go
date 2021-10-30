@@ -4,8 +4,8 @@ package common
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // IteratorInterpreter is the conflow interpreter for the Iterator block
@@ -31,7 +31,7 @@ func (i IteratorInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/examples/common.It",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/examples/common.It",
 				},
 			},
 			Required: []string{"count", "it"},

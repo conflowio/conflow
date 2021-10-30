@@ -4,8 +4,8 @@ package fixtures
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // BlockGeneratorInterpreter is the conflow interpreter for the BlockGenerator block
@@ -33,7 +33,7 @@ func (i BlockGeneratorInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/test/fixtures.BlockGeneratorResult",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/test/fixtures.BlockGeneratorResult",
 				},
 			},
 			Required: []string{"items", "result"},

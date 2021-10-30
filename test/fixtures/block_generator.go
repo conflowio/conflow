@@ -9,7 +9,7 @@ package fixtures
 import (
 	"context"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // @block

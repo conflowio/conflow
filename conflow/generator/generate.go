@@ -22,9 +22,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	blockgenerator "github.com/opsidian/conflow/conflow/block/generator"
-	functiongenerator "github.com/opsidian/conflow/conflow/function/generator"
-	"github.com/opsidian/conflow/conflow/generator/parser"
+	blockgenerator "github.com/conflowio/conflow/conflow/block/generator"
+	functiongenerator "github.com/conflowio/conflow/conflow/function/generator"
+	"github.com/conflowio/conflow/conflow/generator/parser"
 )
 
 // Generate generates code for the given types

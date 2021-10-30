@@ -4,7 +4,7 @@ package jobfakes
 import (
 	"sync"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 type FakeCancellableJob struct {

@@ -10,16 +10,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/job/jobfakes"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/job/jobfakes"
 
-	"github.com/opsidian/conflow/conflow/job"
+	"github.com/conflowio/conflow/conflow/job"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/conflow/conflow/conflowfakes"
-	"github.com/opsidian/conflow/loggers/zerolog"
+	"github.com/conflowio/conflow/conflow/conflowfakes"
+	"github.com/conflowio/conflow/loggers/zerolog"
 )
 
 //counterfeiter:generate . pendingJob

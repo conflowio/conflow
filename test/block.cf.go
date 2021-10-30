@@ -4,8 +4,8 @@ package test
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 	"time"
 )
 
@@ -43,7 +43,7 @@ func (i BlockInterpreter) Schema() schema.Schema {
 						Metadata: schema.Metadata{
 							Pointer: true,
 						},
-						Ref: "http://conflow.schema/github.com/opsidian/conflow/test.Block",
+						Ref: "http://conflow.schema/github.com/conflowio/conflow/test.Block",
 					},
 				},
 				"value": &schema.Untyped{

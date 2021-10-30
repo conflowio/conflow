@@ -4,8 +4,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 	"time"
 )
 
@@ -39,7 +39,7 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/examples/benchmark.BenchmarkRun",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
 				},
 			},
 			Required: []string{"duration", "run"},

@@ -4,8 +4,8 @@ package fixtures
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // BlockWithOneBlockInterpreter is the conflow interpreter for the BlockWithOneBlock block
@@ -22,7 +22,7 @@ func (i BlockWithOneBlockInterpreter) Schema() schema.Schema {
 					Metadata: schema.Metadata{
 						Pointer: true,
 					},
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/conflow/block/fixtures.BlockSimple",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/conflow/block/fixtures.BlockSimple",
 				},
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{

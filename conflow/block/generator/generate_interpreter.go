@@ -12,9 +12,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/opsidian/conflow/conflow/block"
-	"github.com/opsidian/conflow/conflow/generator/parser"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/block"
+	"github.com/conflowio/conflow/conflow/generator/parser"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // GenerateInterpreter generates an interpreter for the given block
@@ -135,8 +135,8 @@ func generateTemplateParams(
 	imports := map[string]string{
 		".":       pkg,
 		"fmt":     "fmt",
-		"conflow": "github.com/opsidian/conflow/conflow",
-		"schema":  "github.com/opsidian/conflow/conflow/schema",
+		"conflow": "github.com/conflowio/conflow/conflow",
+		"schema":  "github.com/conflowio/conflow/conflow/schema",
 	}
 
 	var nameSelector string

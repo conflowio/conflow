@@ -13,7 +13,7 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/conflow/conflow/parameter"
+	"github.com/conflowio/conflow/conflow/parameter"
 )
 
 // Parameter returns with a parameter parser

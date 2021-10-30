@@ -3,9 +3,9 @@
 package math
 
 import (
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/function"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/function"
+	"github.com/conflowio/conflow/conflow/schema"
 	"github.com/opsidian/parsley/parsley"
 )
 

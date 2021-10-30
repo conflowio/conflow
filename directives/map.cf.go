@@ -4,8 +4,8 @@ package directives
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // MapInterpreter is the conflow interpreter for the Map block
@@ -22,7 +22,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 			Name: "Map",
 			Properties: map[string]schema.Schema{
 				"additional_properties": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/conflow/schema.Schema",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/conflow/schema.Schema",
 				},
 				"annotations": &schema.Map{
 					AdditionalProperties: &schema.String{},

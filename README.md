@@ -32,7 +32,7 @@ package hello
 import (
 	"context"
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // @block

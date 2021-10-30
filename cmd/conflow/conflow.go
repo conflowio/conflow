@@ -13,7 +13,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/opsidian/conflow/conflow/generator"
+	"github.com/conflowio/conflow/conflow/generator"
 )
 
 var usage = `

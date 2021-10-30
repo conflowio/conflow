@@ -9,7 +9,7 @@ package function
 import (
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // InterpreterRegistry contains a list of function interpreters and behaves as a node transformer registry

@@ -4,8 +4,8 @@ package fixtures
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // BlockGeneratorResultInterpreter is the conflow interpreter for the BlockGeneratorResult block

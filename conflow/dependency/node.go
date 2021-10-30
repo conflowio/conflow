@@ -6,7 +6,7 @@
 
 package dependency
 
-import "github.com/opsidian/conflow/conflow"
+import "github.com/conflowio/conflow/conflow"
 
 type node struct {
 	Node                  conflow.Node

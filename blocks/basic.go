@@ -6,7 +6,7 @@
 
 package blocks
 
-import "github.com/opsidian/conflow/conflow"
+import "github.com/conflowio/conflow/conflow"
 
 // @block
 type Basic struct {
