@@ -10,34 +10,34 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type Range struct {
 	// @id
-	id    basil.ID
+	id    conflow.ID
 	value interface{}
 	// @generated
 	entry *RangeEntry
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (r *Range) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (r *Range) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"entry": RangeEntryInterpreter{},
 		},
 	}
 }
 
-func (r *Range) ID() basil.ID {
+func (r *Range) ID() conflow.ID {
 	return r.id
 }
 
-func (r *Range) Run(ctx context.Context) (basil.Result, error) {
+func (r *Range) Run(ctx context.Context) (conflow.Result, error) {
 	switch val := r.value.(type) {
 	case []interface{}:
 		for k, v := range val {
@@ -71,13 +71,13 @@ func (r *Range) Run(ctx context.Context) (basil.Result, error) {
 // @block
 type RangeEntry struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @read_only
 	key interface{}
 	// @read_only
 	value interface{}
 }
 
-func (r *RangeEntry) ID() basil.ID {
+func (r *RangeEntry) ID() conflow.ID {
 	return r.id
 }

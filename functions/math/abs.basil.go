@@ -3,9 +3,9 @@
 package math
 
 import (
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/function"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -36,7 +36,7 @@ func (i AbsInterpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i AbsInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
+func (i AbsInterpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
 	parameters := i.Schema().(*schema.Function).GetParameters()
 	arguments := node.ArgumentNodes()
 

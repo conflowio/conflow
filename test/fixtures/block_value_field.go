@@ -6,16 +6,16 @@
 
 package fixtures
 
-import "github.com/opsidian/conflow/basil"
+import "github.com/opsidian/conflow/conflow"
 
 // @block
 type BlockValueField struct {
 	// @id
-	IDField basil.ID
+	IDField conflow.ID
 	// @value
 	value interface{}
 }
 
-func (b *BlockValueField) ID() basil.ID {
+func (b *BlockValueField) ID() conflow.ID {
 	return b.IDField
 }

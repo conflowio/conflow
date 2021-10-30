@@ -7,8 +7,8 @@
 package directives
 
 import (
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block {
@@ -18,6 +18,6 @@ type Boolean struct {
 	schema.Boolean
 }
 
-func (b *Boolean) ApplyToParameterConfig(config *basil.ParameterConfig) {
+func (b *Boolean) ApplyToParameterConfig(config *conflow.ParameterConfig) {
 	config.Schema = &b.Boolean
 }

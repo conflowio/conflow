@@ -7,7 +7,7 @@
 package directives
 
 import (
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/conflow/util"
 )
 
@@ -16,15 +16,15 @@ import (
 // }
 type Input struct {
 	// @id
-	id       basil.ID
+	id       conflow.ID
 	required bool
 }
 
-func (i *Input) ID() basil.ID {
+func (i *Input) ID() conflow.ID {
 	return i.id
 }
 
-func (i *Input) ApplyToParameterConfig(config *basil.ParameterConfig) {
+func (i *Input) ApplyToParameterConfig(config *conflow.ParameterConfig) {
 	config.Input = util.BoolPtr(true)
 	config.Required = util.BoolPtr(i.required)
 }

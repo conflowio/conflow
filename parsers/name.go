@@ -11,8 +11,8 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Name parses a name expression:
@@ -36,8 +36,8 @@ func Name(sep rune) *combinator.Sequence {
 	return combinator.Seq(block.TokenName, lookup, lenCheck).
 		HandleResult(combinator.SeqResultHandlerFunc(func(_ parsley.Pos, _ string, nodes []parsley.Node, _ parsley.Interpreter) parsley.Node {
 			if len(nodes) == 1 {
-				return basil.NewNameNode(nil, nil, nodes[0].(*basil.IDNode))
+				return conflow.NewNameNode(nil, nil, nodes[0].(*conflow.IDNode))
 			}
-			return basil.NewNameNode(nodes[0].(*basil.IDNode), nodes[1].(parsley.LiteralNode), nodes[2].(*basil.IDNode))
+			return conflow.NewNameNode(nodes[0].(*conflow.IDNode), nodes[1].(parsley.LiteralNode), nodes[2].(*conflow.IDNode))
 		}))
 }

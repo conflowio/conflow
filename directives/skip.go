@@ -7,7 +7,7 @@
 package directives
 
 import (
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/conflow/util"
 )
 
@@ -16,16 +16,16 @@ import (
 // }
 type Skip struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @default true
 	when bool
 }
 
-func (s *Skip) ID() basil.ID {
+func (s *Skip) ID() conflow.ID {
 	return s.id
 }
 
-func (s *Skip) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
+func (s *Skip) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
 	config.Skip = util.BoolPtr(s.when)
 }

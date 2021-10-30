@@ -10,10 +10,10 @@ import (
 	"context"
 
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/basilfakes"
 	"github.com/opsidian/conflow/loggers/zerolog"
 	"github.com/opsidian/conflow/parsers"
@@ -26,7 +26,7 @@ var _ = Describe("Variable", func() {
 
 	var p = parsers.Variable()
 	var parsleyContext *parsley.Context
-	var evalCtx *basil.EvalContext
+	var evalCtx *conflow.EvalContext
 	var res parsley.Node
 	var parseErr, evalErr error
 	var value interface{}
@@ -35,7 +35,7 @@ var _ = Describe("Variable", func() {
 
 	BeforeEach(func() {
 		logger := zerolog.NewDisabledLogger()
-		evalCtx = basil.NewEvalContext(context.Background(), nil, logger, &test.Scheduler{}, nil)
+		evalCtx = conflow.NewEvalContext(context.Background(), nil, logger, &test.Scheduler{}, nil)
 		parseErr = nil
 		evalErr = nil
 		value = nil
@@ -44,9 +44,9 @@ var _ = Describe("Variable", func() {
 
 	JustBeforeEach(func() {
 		parsleyContext = test.ParseCtx(input, nil, nil)
-		parseCtx := basil.NewParseContext(
+		parseCtx := conflow.NewParseContext(
 			parsleyContext.FileSet(),
-			basil.NewIDRegistry(8, 16),
+			conflow.NewIDRegistry(8, 16),
 			nil,
 		)
 		parsleyContext.SetUserContext(parseCtx)
@@ -75,8 +75,8 @@ var _ = Describe("Variable", func() {
 	Context("when referencing a block module parameter", func() {
 		BeforeEach(func() {
 			blockNode = &basilfakes.FakeBlockNode{}
-			blockNode.IDReturns(basil.ID("foo"))
-			blockNode.GetPropertySchemaStub = func(id basil.ID) (schema.Schema, bool) {
+			blockNode.IDReturns(conflow.ID("foo"))
+			blockNode.GetPropertySchemaStub = func(id conflow.ID) (schema.Schema, bool) {
 				if string(id) == "param1" {
 					return schema.StringValue(), true
 				}
@@ -88,7 +88,7 @@ var _ = Describe("Variable", func() {
 			cont.NodeReturns(blockNode)
 
 			ctx, cancel := context.WithCancel(context.Background())
-			evalCtx = evalCtx.New(ctx, cancel, map[basil.ID]basil.BlockContainer{"foo": cont})
+			evalCtx = evalCtx.New(ctx, cancel, map[conflow.ID]conflow.BlockContainer{"foo": cont})
 		})
 
 		Context("with an existing parameter", func() {

@@ -5,8 +5,8 @@ package directives
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // TodoInterpreter is the basil interpreter for the Todo block
@@ -42,28 +42,28 @@ func (i TodoInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Todo block
-func (i TodoInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i TodoInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Todo{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i TodoInterpreter) ValueParamName() basil.ID {
+func (i TodoInterpreter) ValueParamName() conflow.ID {
 	return "description"
 }
 
 // ParseContext returns with the parse context for the block
-func (i TodoInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i TodoInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Todo
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i TodoInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i TodoInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "description":
 		return b.(*Todo).description
@@ -74,7 +74,7 @@ func (i TodoInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i TodoInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i TodoInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Todo)
 	switch name {
 	case "description":
@@ -83,6 +83,6 @@ func (i TodoInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 	return nil
 }
 
-func (i TodoInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i TodoInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

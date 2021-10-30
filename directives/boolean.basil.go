@@ -5,8 +5,8 @@ package directives
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // BooleanInterpreter is the basil interpreter for the Boolean block
@@ -55,26 +55,26 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Boolean block
-func (i BooleanInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i BooleanInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Boolean{}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i BooleanInterpreter) ValueParamName() basil.ID {
+func (i BooleanInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i BooleanInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i BooleanInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Boolean
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i BooleanInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "annotations":
 		return b.(*Boolean).Annotations
@@ -103,7 +103,7 @@ func (i BooleanInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i BooleanInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Boolean)
 	switch name {
 	case "annotations":
@@ -138,6 +138,6 @@ func (i BooleanInterpreter) SetParam(block basil.Block, name basil.ID, value int
 	return nil
 }
 
-func (i BooleanInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i BooleanInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

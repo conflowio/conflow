@@ -5,8 +5,8 @@ package fixtures
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // BlockWithOneBlockInterpreter is the basil interpreter for the BlockWithOneBlock block
@@ -40,28 +40,28 @@ func (i BlockWithOneBlockInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockWithOneBlock block
-func (i BlockWithOneBlockInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i BlockWithOneBlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &BlockWithOneBlock{
 		IDField: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i BlockWithOneBlockInterpreter) ValueParamName() basil.ID {
+func (i BlockWithOneBlockInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i BlockWithOneBlockInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i BlockWithOneBlockInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *BlockWithOneBlock
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i BlockWithOneBlockInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i BlockWithOneBlockInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id_field":
 		return b.(*BlockWithOneBlock).IDField
@@ -70,11 +70,11 @@ func (i BlockWithOneBlockInterpreter) Param(b basil.Block, name basil.ID) interf
 	}
 }
 
-func (i BlockWithOneBlockInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i BlockWithOneBlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }
 
-func (i BlockWithOneBlockInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i BlockWithOneBlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*BlockWithOneBlock)
 	switch name {
 	case "block":

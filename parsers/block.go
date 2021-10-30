@@ -15,8 +15,8 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Block returns a parser for parsing blocks
@@ -98,18 +98,18 @@ func (b blockInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode
 }
 
 func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	registry := userCtx.(basil.BlockTransformerRegistryAware).BlockTransformerRegistry()
+	registry := userCtx.(conflow.BlockTransformerRegistryAware).BlockTransformerRegistry()
 
 	nodes := node.(parsley.NonTerminalNode).Children()
 
-	var nameNode *basil.NameNode
+	var nameNode *conflow.NameNode
 	switch n := nodes[1].(type) {
 	case parsley.NonTerminalNode:
-		nameNode = n.Children()[1].(*basil.NameNode)
-	case *basil.NameNode:
+		nameNode = n.Children()[1].(*conflow.NameNode)
+	case *conflow.NameNode:
 		nameNode = n
-	case *basil.IDNode:
-		nameNode = basil.NewNameNode(nil, nil, n)
+	case *conflow.IDNode:
+		nameNode = conflow.NewNameNode(nil, nil, n)
 	default:
 		panic(fmt.Errorf("unexpected node type: %T", nodes[1]))
 	}

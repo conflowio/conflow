@@ -5,8 +5,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // LicensifyInterpreter is the basil interpreter for the Licensify block
@@ -36,28 +36,28 @@ func (i LicensifyInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Licensify block
-func (i LicensifyInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i LicensifyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Licensify{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i LicensifyInterpreter) ValueParamName() basil.ID {
+func (i LicensifyInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i LicensifyInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i LicensifyInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Licensify
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i LicensifyInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i LicensifyInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*Licensify).id
@@ -70,7 +70,7 @@ func (i LicensifyInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i LicensifyInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i LicensifyInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Licensify)
 	switch name {
 	case "license":
@@ -81,6 +81,6 @@ func (i LicensifyInterpreter) SetParam(block basil.Block, name basil.ID, value i
 	return nil
 }
 
-func (i LicensifyInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i LicensifyInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

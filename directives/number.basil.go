@@ -5,8 +5,8 @@ package directives
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // NumberInterpreter is the basil interpreter for the Number block
@@ -80,26 +80,26 @@ func (i NumberInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Number block
-func (i NumberInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i NumberInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Number{}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i NumberInterpreter) ValueParamName() basil.ID {
+func (i NumberInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i NumberInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i NumberInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Number
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i NumberInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i NumberInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "annotations":
 		return b.(*Number).Annotations
@@ -138,7 +138,7 @@ func (i NumberInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i NumberInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Number)
 	switch name {
 	case "annotations":
@@ -183,6 +183,6 @@ func (i NumberInterpreter) SetParam(block basil.Block, name basil.ID, value inte
 	return nil
 }
 
-func (i NumberInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i NumberInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // DirectiveInterpreter is the basil interpreter for the Directive block
@@ -60,28 +60,28 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Directive block
-func (i DirectiveInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i DirectiveInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Directive{
 		IDField: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i DirectiveInterpreter) ValueParamName() basil.ID {
+func (i DirectiveInterpreter) ValueParamName() conflow.ID {
 	return "value"
 }
 
 // ParseContext returns with the parse context for the block
-func (i DirectiveInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i DirectiveInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Directive
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i DirectiveInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i DirectiveInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "custom_field":
 		return b.(*Directive).FieldCustomName
@@ -108,7 +108,7 @@ func (i DirectiveInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i DirectiveInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i DirectiveInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Directive)
 	switch name {
 	case "custom_field":
@@ -133,7 +133,7 @@ func (i DirectiveInterpreter) SetParam(block basil.Block, name basil.ID, value i
 	return nil
 }
 
-func (i DirectiveInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i DirectiveInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Directive)
 	switch name {
 	case "testblock":

@@ -16,10 +16,10 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/basilfakes"
 	"github.com/opsidian/conflow/basil/block"
 	"github.com/opsidian/conflow/basil/function"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/conflow/directives"
 	"github.com/opsidian/conflow/loggers/zerolog"
 )
@@ -38,8 +38,8 @@ func ParseCtx(
 	}
 
 	testBlockNode := block.NewNode(
-		basil.NewIDNode("test", basil.ClassifierNone, parsley.NilPos, parsley.NilPos),
-		basil.NewNameNode(nil, nil, basil.NewIDNode("testblock", basil.ClassifierNone, parsley.NilPos, parsley.NilPos)),
+		conflow.NewIDNode("test", conflow.ClassifierNone, parsley.NilPos, parsley.NilPos),
+		conflow.NewNameNode(nil, nil, conflow.NewIDNode("testblock", conflow.ClassifierNone, parsley.NilPos, parsley.NilPos)),
 		nil,
 		"TESTBLOCK",
 		nil,
@@ -56,7 +56,7 @@ func ParseCtx(
 		Register("testdirective", DirectiveInterpreter{}).
 		Register("testdirective2", DirectiveInterpreter{})
 
-	parseCtx := basil.NewParseContext(fs, newIDRegistry(), directiveTransformerRegistry).New(basil.ParseContextOverride{
+	parseCtx := conflow.NewParseContext(fs, newIDRegistry(), directiveTransformerRegistry).New(conflow.ParseContextOverride{
 		BlockTransformerRegistry:    blockRegistry,
 		FunctionTransformerRegistry: functionRegistry,
 	})
@@ -71,7 +71,7 @@ func ParseCtx(
 	return ctx
 }
 
-func EvalUserCtx() *basil.EvalContext {
+func EvalUserCtx() *conflow.EvalContext {
 	testBlock :=
 		&Block{
 			FieldString: "bar",
@@ -87,15 +87,15 @@ func EvalUserCtx() *basil.EvalContext {
 		}
 
 	testBlockContainer := &basilfakes.FakeBlockContainer{}
-	testBlockContainer.ParamCalls(func(name basil.ID) interface{} {
+	testBlockContainer.ParamCalls(func(name conflow.ID) interface{} {
 		return BlockInterpreter{}.Param(testBlock, name)
 	})
 
-	containers := map[basil.ID]basil.BlockContainer{
+	containers := map[conflow.ID]conflow.BlockContainer{
 		"test": testBlockContainer,
 	}
 
-	evalCtx := basil.NewEvalContext(
+	evalCtx := conflow.NewEvalContext(
 		context.Background(),
 		"userCtx",
 		zerolog.NewDisabledLogger(),

@@ -5,8 +5,8 @@ package blocks
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // BasicInterpreter is the basil interpreter for the Basic block
@@ -33,28 +33,28 @@ func (i BasicInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Basic block
-func (i BasicInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i BasicInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Basic{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i BasicInterpreter) ValueParamName() basil.ID {
+func (i BasicInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i BasicInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i BasicInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Basic
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i BasicInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i BasicInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*Basic).id
@@ -63,10 +63,10 @@ func (i BasicInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i BasicInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i BasicInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }
 
-func (i BasicInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i BasicInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

@@ -5,8 +5,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // FileInterpreter is the basil interpreter for the File block
@@ -34,28 +34,28 @@ func (i FileInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new File block
-func (i FileInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i FileInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &File{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i FileInterpreter) ValueParamName() basil.ID {
+func (i FileInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i FileInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i FileInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *File
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i FileInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i FileInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*File).id
@@ -66,7 +66,7 @@ func (i FileInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i FileInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i FileInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*File)
 	switch name {
 	case "path":
@@ -75,6 +75,6 @@ func (i FileInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 	return nil
 }
 
-func (i FileInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i FileInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

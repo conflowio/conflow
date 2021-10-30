@@ -5,8 +5,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // FailInterpreter is the basil interpreter for the Fail block
@@ -45,28 +45,28 @@ func (i FailInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Fail block
-func (i FailInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i FailInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Fail{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i FailInterpreter) ValueParamName() basil.ID {
+func (i FailInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i FailInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i FailInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Fail
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i FailInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i FailInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*Fail).id
@@ -79,7 +79,7 @@ func (i FailInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i FailInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i FailInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Fail)
 	switch name {
 	case "tries_required":
@@ -88,6 +88,6 @@ func (i FailInterpreter) SetParam(block basil.Block, name basil.ID, value interf
 	return nil
 }
 
-func (i FailInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i FailInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

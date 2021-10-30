@@ -12,14 +12,14 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Print will write a string to the standard output
 // @block
 type Print struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	value interface{}
@@ -27,11 +27,11 @@ type Print struct {
 	stdout io.Writer
 }
 
-func (p *Print) ID() basil.ID {
+func (p *Print) ID() conflow.ID {
 	return p.id
 }
 
-func (p *Print) Run(ctx context.Context) (basil.Result, error) {
+func (p *Print) Run(ctx context.Context) (conflow.Result, error) {
 	switch v := p.value.(type) {
 	case io.ReadCloser:
 		first := true

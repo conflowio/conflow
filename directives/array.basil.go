@@ -5,8 +5,8 @@ package directives
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // ArrayInterpreter is the basil interpreter for the Array block
@@ -67,26 +67,26 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Array block
-func (i ArrayInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i ArrayInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Array{}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i ArrayInterpreter) ValueParamName() basil.ID {
+func (i ArrayInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i ArrayInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i ArrayInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Array
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i ArrayInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i ArrayInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "annotations":
 		return b.(*Array).Annotations
@@ -119,7 +119,7 @@ func (i ArrayInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i ArrayInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Array)
 	switch name {
 	case "annotations":
@@ -158,7 +158,7 @@ func (i ArrayInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 	return nil
 }
 
-func (i ArrayInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i ArrayInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Array)
 	switch name {
 	case "items":

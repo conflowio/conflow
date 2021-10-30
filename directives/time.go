@@ -7,8 +7,8 @@
 package directives
 
 import (
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block {
@@ -18,6 +18,6 @@ type Time struct {
 	schema.Time
 }
 
-func (t *Time) ApplyToParameterConfig(config *basil.ParameterConfig) {
+func (t *Time) ApplyToParameterConfig(config *conflow.ParameterConfig) {
 	config.Schema = &t.Time
 }

@@ -10,27 +10,27 @@ import (
 	"context"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type Ticker struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	interval time.Duration
 	// @generated
 	tick *Tick
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (t *Ticker) ID() basil.ID {
+func (t *Ticker) ID() conflow.ID {
 	return t.id
 }
 
-func (t *Ticker) Run(ctx context.Context) (basil.Result, error) {
+func (t *Ticker) Run(ctx context.Context) (conflow.Result, error) {
 	ticker := time.NewTicker(t.interval)
 	defer ticker.Stop()
 
@@ -50,8 +50,8 @@ func (t *Ticker) Run(ctx context.Context) (basil.Result, error) {
 	}
 }
 
-func (t *Ticker) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (t *Ticker) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"tick": TickInterpreter{},
 		},
@@ -61,11 +61,11 @@ func (t *Ticker) ParseContextOverride() basil.ParseContextOverride {
 // @block
 type Tick struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @read_only
 	time time.Time
 }
 
-func (t *Tick) ID() basil.ID {
+func (t *Tick) ID() conflow.ID {
 	return t.id
 }

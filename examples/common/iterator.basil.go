@@ -5,8 +5,8 @@ package common
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // IteratorInterpreter is the basil interpreter for the Iterator block
@@ -42,7 +42,7 @@ func (i IteratorInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Iterator block
-func (i IteratorInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i IteratorInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Iterator{
 		id:             id,
 		blockPublisher: blockCtx.BlockPublisher(),
@@ -50,21 +50,21 @@ func (i IteratorInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockConte
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i IteratorInterpreter) ValueParamName() basil.ID {
+func (i IteratorInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i IteratorInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i IteratorInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Iterator
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i IteratorInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i IteratorInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "count":
 		return b.(*Iterator).count
@@ -75,7 +75,7 @@ func (i IteratorInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i IteratorInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i IteratorInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Iterator)
 	switch name {
 	case "count":
@@ -84,7 +84,7 @@ func (i IteratorInterpreter) SetParam(block basil.Block, name basil.ID, value in
 	return nil
 }
 
-func (i IteratorInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i IteratorInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Iterator)
 	switch name {
 	case "it":

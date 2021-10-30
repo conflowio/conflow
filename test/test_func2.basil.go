@@ -3,8 +3,8 @@
 package test
 
 import (
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -33,7 +33,7 @@ func (i TestFunc2Interpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i TestFunc2Interpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
+func (i TestFunc2Interpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
 	parameters := i.Schema().(*schema.Function).GetParameters()
 	arguments := node.ArgumentNodes()
 

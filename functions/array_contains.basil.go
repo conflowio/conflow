@@ -3,9 +3,9 @@
 package functions
 
 import (
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/function"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -39,7 +39,7 @@ func (i ArrayContainsInterpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i ArrayContainsInterpreter) Eval(ctx interface{}, node basil.FunctionNode) (interface{}, parsley.Error) {
+func (i ArrayContainsInterpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
 	parameters := i.Schema().(*schema.Function).GetParameters()
 	arguments := node.ArgumentNodes()
 

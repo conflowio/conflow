@@ -11,7 +11,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/conflow/parsers"
 	"github.com/opsidian/conflow/test"
 )
@@ -25,8 +25,8 @@ var _ = Describe("Name", func() {
 		func(input string, expected interface{}) {
 			test.ExpectParserToEvaluate(p)(input, expected)
 		},
-		test.TableEntry(`a`, basil.ID("a")),
-		test.TableEntry(`a.b`, basil.ID("a.b")),
+		test.TableEntry(`a`, conflow.ID("a")),
+		test.TableEntry(`a.b`, conflow.ID("a.b")),
 	)
 
 	DescribeTable("it returns a parse error",

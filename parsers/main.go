@@ -18,8 +18,8 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)
@@ -29,7 +29,7 @@ import (
 //   VALUE -> EXPRESSION
 //         -> ARRAY
 //         -> MAP
-func NewMain(id basil.ID, interpreter basil.BlockInterpreter) *Main {
+func NewMain(id conflow.ID, interpreter conflow.BlockInterpreter) *Main {
 	m := &Main{
 		id:          id,
 		interpreter: interpreter,
@@ -64,8 +64,8 @@ func NewMain(id basil.ID, interpreter basil.BlockInterpreter) *Main {
 // It will parse a block body (list of params and blocks)
 // and will return with a block with the given id and the type "main"
 type Main struct {
-	id          basil.ID
-	interpreter basil.BlockInterpreter
+	id          conflow.ID
+	interpreter conflow.BlockInterpreter
 	p           parsley.Parser
 }
 
@@ -75,18 +75,18 @@ func (m *Main) Parse(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.P
 }
 
 // ParseText parses the string input as a main block
-func (m *Main) ParseText(ctx *basil.ParseContext, input string) error {
-	_, err := basil.ParseText(ctx, m.p, input)
+func (m *Main) ParseText(ctx *conflow.ParseContext, input string) error {
+	_, err := conflow.ParseText(ctx, m.p, input)
 	return err
 }
 
 // ParseFile parses the given file as a main block
-func (m *Main) ParseFile(ctx *basil.ParseContext, path string) error {
-	_, err := basil.ParseFile(ctx, m.p, path)
+func (m *Main) ParseFile(ctx *conflow.ParseContext, path string) error {
+	_, err := conflow.ParseFile(ctx, m.p, path)
 	return err
 }
 
-func (m *Main) ParseDir(ctx *basil.ParseContext, dir string) error {
+func (m *Main) ParseDir(ctx *conflow.ParseContext, dir string) error {
 	info, err := os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -106,11 +106,11 @@ func (m *Main) ParseDir(ctx *basil.ParseContext, dir string) error {
 }
 
 // ParseFiles parses multiple files as one block
-func (m *Main) ParseFiles(ctx *basil.ParseContext, paths ...string) error {
+func (m *Main) ParseFiles(ctx *conflow.ParseContext, paths ...string) error {
 	nodeBuilder := func(nodes []parsley.Node) parsley.Node {
 		return ast.NewNonTerminalNode("BLOCK_BODY", nodes, m)
 	}
-	return basil.ParseFiles(ctx, m.p, nodeBuilder, paths)
+	return conflow.ParseFiles(ctx, m.p, nodeBuilder, paths)
 }
 
 // Eval will panic as it should not be called on a raw block node

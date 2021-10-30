@@ -5,8 +5,8 @@ package fixtures
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // BlockValueFieldInterpreter is the basil interpreter for the BlockValueField block
@@ -39,28 +39,28 @@ func (i BlockValueFieldInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockValueField block
-func (i BlockValueFieldInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i BlockValueFieldInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &BlockValueField{
 		IDField: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i BlockValueFieldInterpreter) ValueParamName() basil.ID {
+func (i BlockValueFieldInterpreter) ValueParamName() conflow.ID {
 	return "value"
 }
 
 // ParseContext returns with the parse context for the block
-func (i BlockValueFieldInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i BlockValueFieldInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *BlockValueField
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i BlockValueFieldInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i BlockValueFieldInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id_field":
 		return b.(*BlockValueField).IDField
@@ -71,7 +71,7 @@ func (i BlockValueFieldInterpreter) Param(b basil.Block, name basil.ID) interfac
 	}
 }
 
-func (i BlockValueFieldInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i BlockValueFieldInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*BlockValueField)
 	switch name {
 	case "value":
@@ -80,6 +80,6 @@ func (i BlockValueFieldInterpreter) SetParam(block basil.Block, name basil.ID, v
 	return nil
 }
 
-func (i BlockValueFieldInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i BlockValueFieldInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

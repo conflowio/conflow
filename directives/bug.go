@@ -6,25 +6,25 @@
 
 package directives
 
-import "github.com/opsidian/conflow/basil"
+import "github.com/opsidian/conflow/conflow"
 
 // @block {
 //   eval_stage = "ignore"
 // }
 type Bug struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	description string
 }
 
-func (b *Bug) ID() basil.ID {
+func (b *Bug) ID() conflow.ID {
 	return b.id
 }
 
-func (b *Bug) ApplyToRuntimeConfig(*basil.RuntimeConfig) {
+func (b *Bug) ApplyToRuntimeConfig(*conflow.RuntimeConfig) {
 }
 
-func (b *Bug) ApplyToParameterConfig(*basil.ParameterConfig) {
+func (b *Bug) ApplyToParameterConfig(*conflow.ParameterConfig) {
 }

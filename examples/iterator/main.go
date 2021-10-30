@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/block"
 	"github.com/opsidian/conflow/blocks"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/conflow/examples/common"
 	"github.com/opsidian/conflow/functions"
 	"github.com/opsidian/conflow/parsers"
@@ -22,15 +22,15 @@ import (
 // @block
 type Main struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 }
 
-func (m *Main) ID() basil.ID {
+func (m *Main) ID() conflow.ID {
 	return m.id
 }
 
-func (m *Main) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (m *Main) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"iterator": common.IteratorInterpreter{},
 			"print":    blocks.PrintInterpreter{},

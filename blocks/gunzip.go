@@ -11,27 +11,27 @@ import (
 	"context"
 	"io"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type Gunzip struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	in io.ReadCloser
 	// @generated
 	out *Stream
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (g *Gunzip) ID() basil.ID {
+func (g *Gunzip) ID() conflow.ID {
 	return g.id
 }
 
-func (g *Gunzip) Run(ctx context.Context) (basil.Result, error) {
+func (g *Gunzip) Run(ctx context.Context) (conflow.Result, error) {
 	var err error
 	g.out.Stream, err = gzip.NewReader(g.in)
 	if err != nil {
@@ -51,8 +51,8 @@ func (g *Gunzip) Run(ctx context.Context) (basil.Result, error) {
 	return nil, nil
 }
 
-func (g *Gunzip) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (g *Gunzip) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"out": StreamInterpreter{},
 		},

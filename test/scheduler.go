@@ -9,7 +9,7 @@ package test
 import (
 	"sync/atomic"
 
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Scheduler is a test scheduler, it will simply run the given job in a goroutine in the background
@@ -17,7 +17,7 @@ type Scheduler struct {
 	lastID int64
 }
 
-func (s *Scheduler) ScheduleJob(job basil.Job) error {
+func (s *Scheduler) ScheduleJob(job conflow.Job) error {
 	job.SetJobID(int(atomic.AddInt64(&s.lastID, 1)))
 	go job.Run()
 	return nil

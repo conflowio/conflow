@@ -5,8 +5,8 @@ package blocks
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // RangeInterpreter is the basil interpreter for the Range block
@@ -42,7 +42,7 @@ func (i RangeInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Range block
-func (i RangeInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i RangeInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Range{
 		id:             id,
 		blockPublisher: blockCtx.BlockPublisher(),
@@ -50,21 +50,21 @@ func (i RangeInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext)
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i RangeInterpreter) ValueParamName() basil.ID {
+func (i RangeInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i RangeInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i RangeInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Range
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i RangeInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i RangeInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*Range).id
@@ -75,7 +75,7 @@ func (i RangeInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i RangeInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i RangeInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Range)
 	switch name {
 	case "value":
@@ -84,7 +84,7 @@ func (i RangeInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 	return nil
 }
 
-func (i RangeInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i RangeInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Range)
 	switch name {
 	case "entry":

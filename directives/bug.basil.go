@@ -5,8 +5,8 @@ package directives
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // BugInterpreter is the basil interpreter for the Bug block
@@ -42,28 +42,28 @@ func (i BugInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Bug block
-func (i BugInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i BugInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Bug{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i BugInterpreter) ValueParamName() basil.ID {
+func (i BugInterpreter) ValueParamName() conflow.ID {
 	return "description"
 }
 
 // ParseContext returns with the parse context for the block
-func (i BugInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i BugInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Bug
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i BugInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i BugInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "description":
 		return b.(*Bug).description
@@ -74,7 +74,7 @@ func (i BugInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i BugInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i BugInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Bug)
 	switch name {
 	case "description":
@@ -83,6 +83,6 @@ func (i BugInterpreter) SetParam(block basil.Block, name basil.ID, value interfa
 	return nil
 }
 
-func (i BugInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i BugInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

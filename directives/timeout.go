@@ -9,7 +9,7 @@ package directives
 import (
 	"time"
 
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/conflow/util"
 )
 
@@ -18,16 +18,16 @@ import (
 // }
 type Timeout struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	duration time.Duration
 }
 
-func (t *Timeout) ID() basil.ID {
+func (t *Timeout) ID() conflow.ID {
 	return t.id
 }
 
-func (t *Timeout) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
+func (t *Timeout) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
 	config.Timeout = util.TimeDurationPtr(t.duration)
 }

@@ -5,8 +5,8 @@ package fixtures
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // BlockRequiredFieldInterpreter is the basil interpreter for the BlockRequiredField block
@@ -36,28 +36,28 @@ func (i BlockRequiredFieldInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new BlockRequiredField block
-func (i BlockRequiredFieldInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i BlockRequiredFieldInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &BlockRequiredField{
 		IDField: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i BlockRequiredFieldInterpreter) ValueParamName() basil.ID {
+func (i BlockRequiredFieldInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i BlockRequiredFieldInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i BlockRequiredFieldInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *BlockRequiredField
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i BlockRequiredFieldInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i BlockRequiredFieldInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id_field":
 		return b.(*BlockRequiredField).IDField
@@ -68,7 +68,7 @@ func (i BlockRequiredFieldInterpreter) Param(b basil.Block, name basil.ID) inter
 	}
 }
 
-func (i BlockRequiredFieldInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i BlockRequiredFieldInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*BlockRequiredField)
 	switch name {
 	case "required":
@@ -77,6 +77,6 @@ func (i BlockRequiredFieldInterpreter) SetParam(block basil.Block, name basil.ID
 	return nil
 }
 
-func (i BlockRequiredFieldInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i BlockRequiredFieldInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

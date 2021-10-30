@@ -15,8 +15,8 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 func KeyValuePairs() *combinator.Sequence {
@@ -45,11 +45,11 @@ type keyValuesInterpreter struct {
 
 func (s keyValuesInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	nodes := node.Children()
-	res := make(map[basil.ID]interface{}, (len(nodes)+1)/2)
+	res := make(map[conflow.ID]interface{}, (len(nodes)+1)/2)
 	for i := range nodes {
 		if i%2 == 0 {
 			parts := nodes[i].(parsley.NonTerminalNode).Children()
-			idNode := parts[0].(*basil.IDNode)
+			idNode := parts[0].(*conflow.IDNode)
 
 			if _, exists := res[idNode.ID()]; exists {
 				return nil, parsley.NewError(idNode.Pos(), fmt.Errorf("parameter %q was already defined", idNode.ID()))

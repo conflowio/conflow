@@ -6,29 +6,29 @@
 
 package directives
 
-import "github.com/opsidian/conflow/basil"
+import "github.com/opsidian/conflow/conflow"
 
 // @block {
 //   eval_stage = "resolve"
 // }
 type Triggers struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	// @name "block_ids"
 	blockIDs []interface{}
 }
 
-func (t *Triggers) ID() basil.ID {
+func (t *Triggers) ID() conflow.ID {
 	return t.id
 }
 
-func (t *Triggers) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
+func (t *Triggers) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
 	// TODO: introduce the []basil.ID type for blockIDs
-	triggers := make([]basil.ID, len(t.blockIDs))
+	triggers := make([]conflow.ID, len(t.blockIDs))
 	for i, id := range t.blockIDs {
-		triggers[i] = basil.ID(id.(string))
+		triggers[i] = conflow.ID(id.(string))
 	}
 	config.Triggers = triggers
 }

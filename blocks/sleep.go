@@ -11,23 +11,23 @@ import (
 	"errors"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type Sleep struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	duration time.Duration
 }
 
-func (s *Sleep) ID() basil.ID {
+func (s *Sleep) ID() conflow.ID {
 	return s.id
 }
 
-func (s *Sleep) Run(ctx context.Context) (basil.Result, error) {
+func (s *Sleep) Run(ctx context.Context) (conflow.Result, error) {
 	select {
 	case <-time.After(s.duration):
 		return nil, nil

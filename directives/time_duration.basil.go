@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // TimeDurationInterpreter is the basil interpreter for the TimeDuration block
@@ -56,26 +56,26 @@ func (i TimeDurationInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new TimeDuration block
-func (i TimeDurationInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i TimeDurationInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &TimeDuration{}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i TimeDurationInterpreter) ValueParamName() basil.ID {
+func (i TimeDurationInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i TimeDurationInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i TimeDurationInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *TimeDuration
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i TimeDurationInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i TimeDurationInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "annotations":
 		return b.(*TimeDuration).Annotations
@@ -104,7 +104,7 @@ func (i TimeDurationInterpreter) Param(b basil.Block, name basil.ID) interface{}
 	}
 }
 
-func (i TimeDurationInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i TimeDurationInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*TimeDuration)
 	switch name {
 	case "annotations":
@@ -139,6 +139,6 @@ func (i TimeDurationInterpreter) SetParam(block basil.Block, name basil.ID, valu
 	return nil
 }
 
-func (i TimeDurationInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i TimeDurationInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

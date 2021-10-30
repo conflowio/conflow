@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // TickerInterpreter is the basil interpreter for the Ticker block
@@ -43,7 +43,7 @@ func (i TickerInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Ticker block
-func (i TickerInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i TickerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Ticker{
 		id:             id,
 		blockPublisher: blockCtx.BlockPublisher(),
@@ -51,21 +51,21 @@ func (i TickerInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i TickerInterpreter) ValueParamName() basil.ID {
+func (i TickerInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i TickerInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i TickerInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Ticker
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i TickerInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i TickerInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*Ticker).id
@@ -76,7 +76,7 @@ func (i TickerInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i TickerInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i TickerInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Ticker)
 	switch name {
 	case "interval":
@@ -85,7 +85,7 @@ func (i TickerInterpreter) SetParam(block basil.Block, name basil.ID, value inte
 	return nil
 }
 
-func (i TickerInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i TickerInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Ticker)
 	switch name {
 	case "tick":

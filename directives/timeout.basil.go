@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // TimeoutInterpreter is the basil interpreter for the Timeout block
@@ -43,28 +43,28 @@ func (i TimeoutInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Timeout block
-func (i TimeoutInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i TimeoutInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Timeout{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i TimeoutInterpreter) ValueParamName() basil.ID {
+func (i TimeoutInterpreter) ValueParamName() conflow.ID {
 	return "duration"
 }
 
 // ParseContext returns with the parse context for the block
-func (i TimeoutInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i TimeoutInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Timeout
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i TimeoutInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i TimeoutInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "duration":
 		return b.(*Timeout).duration
@@ -75,7 +75,7 @@ func (i TimeoutInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i TimeoutInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i TimeoutInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Timeout)
 	switch name {
 	case "duration":
@@ -84,6 +84,6 @@ func (i TimeoutInterpreter) SetParam(block basil.Block, name basil.ID, value int
 	return nil
 }
 
-func (i TimeoutInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i TimeoutInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

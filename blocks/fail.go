@@ -10,22 +10,22 @@ import (
 	"context"
 	"errors"
 
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type Fail struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	msg string
 }
 
-func (f *Fail) ID() basil.ID {
+func (f *Fail) ID() conflow.ID {
 	return f.id
 }
 
-func (f *Fail) Run(ctx context.Context) (basil.Result, error) {
+func (f *Fail) Run(ctx context.Context) (conflow.Result, error) {
 	return nil, errors.New(f.msg)
 }

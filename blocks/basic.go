@@ -6,14 +6,14 @@
 
 package blocks
 
-import "github.com/opsidian/conflow/basil"
+import "github.com/opsidian/conflow/conflow"
 
 // @block
 type Basic struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 }
 
-func (b *Basic) ID() basil.ID {
+func (b *Basic) ID() conflow.ID {
 	return b.id
 }

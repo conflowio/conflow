@@ -7,13 +7,12 @@
 package zerolog
 
 import (
+	"github.com/opsidian/conflow/conflow"
 	"github.com/rs/zerolog"
-
-	"github.com/opsidian/conflow/basil"
 )
 
 type ObjectMarshalerWrapper struct {
-	obj basil.LogObjectMarshaler
+	obj conflow.LogObjectMarshaler
 }
 
 func (o *ObjectMarshalerWrapper) MarshalZerologObject(e *zerolog.Event) {

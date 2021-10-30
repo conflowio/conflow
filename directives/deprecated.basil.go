@@ -5,8 +5,8 @@ package directives
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // DeprecatedInterpreter is the basil interpreter for the Deprecated block
@@ -42,28 +42,28 @@ func (i DeprecatedInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Deprecated block
-func (i DeprecatedInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i DeprecatedInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Deprecated{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i DeprecatedInterpreter) ValueParamName() basil.ID {
+func (i DeprecatedInterpreter) ValueParamName() conflow.ID {
 	return "description"
 }
 
 // ParseContext returns with the parse context for the block
-func (i DeprecatedInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i DeprecatedInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Deprecated
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i DeprecatedInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i DeprecatedInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "description":
 		return b.(*Deprecated).description
@@ -74,7 +74,7 @@ func (i DeprecatedInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i DeprecatedInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i DeprecatedInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Deprecated)
 	switch name {
 	case "description":
@@ -83,6 +83,6 @@ func (i DeprecatedInterpreter) SetParam(block basil.Block, name basil.ID, value 
 	return nil
 }
 
-func (i DeprecatedInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i DeprecatedInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

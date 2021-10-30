@@ -5,8 +5,8 @@ package blocks
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // PrintlnInterpreter is the basil interpreter for the Println block
@@ -42,7 +42,7 @@ func (i PrintlnInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Println block
-func (i PrintlnInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i PrintlnInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Println{
 		id:     id,
 		stdout: blockCtx.Stdout(),
@@ -50,21 +50,21 @@ func (i PrintlnInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContex
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i PrintlnInterpreter) ValueParamName() basil.ID {
+func (i PrintlnInterpreter) ValueParamName() conflow.ID {
 	return "value"
 }
 
 // ParseContext returns with the parse context for the block
-func (i PrintlnInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i PrintlnInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Println
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i PrintlnInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i PrintlnInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*Println).id
@@ -75,7 +75,7 @@ func (i PrintlnInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i PrintlnInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i PrintlnInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Println)
 	switch name {
 	case "value":
@@ -84,6 +84,6 @@ func (i PrintlnInterpreter) SetParam(block basil.Block, name basil.ID, value int
 	return nil
 }
 
-func (i PrintlnInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i PrintlnInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

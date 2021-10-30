@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // SleepInterpreter is the basil interpreter for the Sleep block
@@ -40,28 +40,28 @@ func (i SleepInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Sleep block
-func (i SleepInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i SleepInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Sleep{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i SleepInterpreter) ValueParamName() basil.ID {
+func (i SleepInterpreter) ValueParamName() conflow.ID {
 	return "duration"
 }
 
 // ParseContext returns with the parse context for the block
-func (i SleepInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i SleepInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Sleep
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i SleepInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i SleepInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "duration":
 		return b.(*Sleep).duration
@@ -72,7 +72,7 @@ func (i SleepInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i SleepInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i SleepInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Sleep)
 	switch name {
 	case "duration":
@@ -81,6 +81,6 @@ func (i SleepInterpreter) SetParam(block basil.Block, name basil.ID, value inter
 	return nil
 }
 
-func (i SleepInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i SleepInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

@@ -11,16 +11,16 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow"
 )
 
-var _ basil.BlockDirective = &Directive{}
+var _ conflow.BlockDirective = &Directive{}
 
 // @block
 type Directive struct {
 	// @id
-	IDField basil.ID
+	IDField conflow.ID
 	// @value
 	Value             interface{}
 	FieldString       string
@@ -37,19 +37,19 @@ type Directive struct {
 	Blocks []*Block
 }
 
-func (d *Directive) ID() basil.ID {
+func (d *Directive) ID() conflow.ID {
 	return d.IDField
 }
 
-func (d *Directive) EvalStage() basil.EvalStage {
-	return basil.EvalStageInit
+func (d *Directive) EvalStage() conflow.EvalStage {
+	return conflow.EvalStageInit
 }
 
-func (d *Directive) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
+func (d *Directive) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
 }
 
-func (d *Directive) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (d *Directive) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"testblock": BlockInterpreter{},
 		},

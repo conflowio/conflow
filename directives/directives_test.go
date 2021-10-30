@@ -15,12 +15,12 @@ import (
 	"github.com/opsidian/parsley/text"
 
 	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/conflow/functions"
 	"github.com/opsidian/conflow/parsers"
 
 	"github.com/opsidian/conflow/blocks"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/job"
 	"github.com/opsidian/conflow/directives"
 	"github.com/opsidian/conflow/loggers/zerolog"
@@ -29,8 +29,8 @@ import (
 func eval(input string) {
 	f := text.NewFile("test", []byte(input))
 	fs := parsley.NewFileSet(f)
-	idRegistry := basil.NewIDRegistry(8, 16)
-	parseCtx := basil.NewParseContext(fs, idRegistry, directives.DefaultRegistry())
+	idRegistry := conflow.NewIDRegistry(8, 16)
+	parseCtx := conflow.NewParseContext(fs, idRegistry, directives.DefaultRegistry())
 	logger := zerolog.NewDisabledLogger()
 	scheduler := job.NewScheduler(logger, runtime.NumCPU()*2, 100)
 	scheduler.Start()
@@ -51,7 +51,7 @@ func eval(input string) {
 		return
 	}
 
-	if _, err := basil.Evaluate(parseCtx, context.Background(), nil, logger, scheduler, "main", nil); err != nil {
+	if _, err := conflow.Evaluate(parseCtx, context.Background(), nil, logger, scheduler, "main", nil); err != nil {
 		fmt.Printf("Example errored: %s\n", err.Error())
 		return
 	}

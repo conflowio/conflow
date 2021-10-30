@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // BenchmarkInterpreter is the basil interpreter for the Benchmark block
@@ -50,7 +50,7 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 }
 
 // Create creates a new Benchmark block
-func (i BenchmarkInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (i BenchmarkInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &Benchmark{
 		id:             id,
 		blockPublisher: blockCtx.BlockPublisher(),
@@ -58,21 +58,21 @@ func (i BenchmarkInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockCont
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i BenchmarkInterpreter) ValueParamName() basil.ID {
+func (i BenchmarkInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i BenchmarkInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
+func (i BenchmarkInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
 	var nilBlock *Benchmark
-	if b, ok := basil.Block(nilBlock).(basil.ParseContextOverrider); ok {
+	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i BenchmarkInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (i BenchmarkInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "counter":
 		return b.(*Benchmark).counter
@@ -87,7 +87,7 @@ func (i BenchmarkInterpreter) Param(b basil.Block, name basil.ID) interface{} {
 	}
 }
 
-func (i BenchmarkInterpreter) SetParam(block basil.Block, name basil.ID, value interface{}) error {
+func (i BenchmarkInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Benchmark)
 	switch name {
 	case "duration":
@@ -98,7 +98,7 @@ func (i BenchmarkInterpreter) SetParam(block basil.Block, name basil.ID, value i
 	return nil
 }
 
-func (i BenchmarkInterpreter) SetBlock(block basil.Block, name basil.ID, value interface{}) error {
+func (i BenchmarkInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Benchmark)
 	switch name {
 	case "run":

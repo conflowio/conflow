@@ -12,24 +12,24 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type Licensify struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	path string
 	// @required
 	license string
 }
 
-func (l *Licensify) ID() basil.ID {
+func (l *Licensify) ID() conflow.ID {
 	return l.id
 }
 
-func (l *Licensify) Run(ctx context.Context) (basil.Result, error) {
+func (l *Licensify) Run(ctx context.Context) (conflow.Result, error) {
 	content, err := ioutil.ReadFile(l.path)
 	if err != nil {
 		return nil, err

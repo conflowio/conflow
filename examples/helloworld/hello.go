@@ -12,14 +12,14 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Hello is capable to print some greetings
 // @block
 type Hello struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	to string
 	// @read_only
@@ -28,7 +28,7 @@ type Hello struct {
 	r *rand.Rand
 }
 
-func (h *Hello) ID() basil.ID {
+func (h *Hello) ID() conflow.ID {
 	return h.id
 }
 
@@ -39,7 +39,7 @@ func (h *Hello) Init(ctx context.Context) (bool, error) {
 }
 
 // Main will generate a random greeting
-func (h *Hello) Run(ctx context.Context) (basil.Result, error) {
+func (h *Hello) Run(ctx context.Context) (conflow.Result, error) {
 	greetings := []string{"Hello", "Hi", "Hey", "Yo", "Sup"}
 
 	h.greeting = fmt.Sprintf("%s %s!", greetings[h.r.Intn(len(greetings))], h.to)

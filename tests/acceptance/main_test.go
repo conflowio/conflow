@@ -19,8 +19,8 @@ import (
 	. "github.com/onsi/gomega"
 	uzerolog "github.com/rs/zerolog"
 
-	"github.com/opsidian/conflow/basil"
 	"github.com/opsidian/conflow/basil/job"
+	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/conflow/examples/common"
 	"github.com/opsidian/conflow/loggers/zerolog"
 	"github.com/opsidian/conflow/parsers"
@@ -83,7 +83,7 @@ func readTestCases(dir string, name string, testCases testCases) error {
 
 var _ = Describe("Acceptance tests", func() {
 
-	var logger basil.Logger
+	var logger conflow.Logger
 	var scheduler *job.Scheduler
 
 	runTest := func(input string) (string, error) {
@@ -105,7 +105,7 @@ var _ = Describe("Acceptance tests", func() {
 
 		stdout := bytes.NewBuffer(make([]byte, 0, 256))
 
-		evalContext := basil.NewEvalContext(ctx, nil, logger, scheduler, nil)
+		evalContext := conflow.NewEvalContext(ctx, nil, logger, scheduler, nil)
 		evalContext.SetStdout(stdout)
 
 		_, err := node.Value(evalContext)
