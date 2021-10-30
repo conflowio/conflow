@@ -12,7 +12,7 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // Expression returns with an expression parser

@@ -9,27 +9,27 @@ package common
 import (
 	"context"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 )
 
 // @block
 type Iterator struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	count int64
 	// @generated
 	it *It
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (i *Iterator) ID() basil.ID {
+func (i *Iterator) ID() conflow.ID {
 	return i.id
 }
 
-func (it *Iterator) Run(ctx context.Context) (basil.Result, error) {
+func (it *Iterator) Run(ctx context.Context) (conflow.Result, error) {
 	for i := int64(0); i < it.count; i++ {
 		_, err := it.blockPublisher.PublishBlock(&It{
 			id:    it.it.id,
@@ -43,8 +43,8 @@ func (it *Iterator) Run(ctx context.Context) (basil.Result, error) {
 	return nil, nil
 }
 
-func (it *Iterator) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (it *Iterator) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"it": ItInterpreter{},
 		},
@@ -54,11 +54,11 @@ func (it *Iterator) ParseContextOverride() basil.ParseContextOverride {
 // @block
 type It struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @read_only
 	value int64
 }
 
-func (i *It) ID() basil.ID {
+func (i *It) ID() conflow.ID {
 	return i.id
 }

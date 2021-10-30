@@ -10,12 +10,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/parsers"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/parsers"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/basil/test"
+	"github.com/opsidian/conflow/test"
 )
 
 var _ = Describe("KeyValuePairs", func() {
@@ -26,18 +26,18 @@ var _ = Describe("KeyValuePairs", func() {
 		func(input string, expected interface{}) {
 			test.ExpectParserToEvaluate(p)(input, expected)
 		},
-		test.TableEntry("", map[basil.ID]interface{}{}),
-		test.TableEntry(`key_1="foo bar"`, map[basil.ID]interface{}{"key_1": "foo bar"}),
-		test.TableEntry("key_1=2", map[basil.ID]interface{}{"key_1": int64(2)}),
-		test.TableEntry("key_1=1.2", map[basil.ID]interface{}{"key_1": 1.2}),
-		test.TableEntry("key_1=1h30m", map[basil.ID]interface{}{"key_1": 90 * time.Minute}),
-		test.TableEntry("key_1=true", map[basil.ID]interface{}{"key_1": true}),
-		test.TableEntry("key_1=false", map[basil.ID]interface{}{"key_1": false}),
-		test.TableEntry("key_1=[]", map[basil.ID]interface{}{"key_1": []interface{}{}}),
-		test.TableEntry("key_1=[1]", map[basil.ID]interface{}{"key_1": []interface{}{int64(1)}}),
-		test.TableEntry("key_1=[1,2]", map[basil.ID]interface{}{"key_1": []interface{}{int64(1), int64(2)}}),
-		test.TableEntry("key_1=2,key_2=4", map[basil.ID]interface{}{"key_1": int64(2), "key_2": int64(4)}),
-		test.TableEntry("key_1 = 1 , key_2 = [1 , 2]", map[basil.ID]interface{}{"key_1": int64(1), "key_2": []interface{}{int64(1), int64(2)}}),
+		test.TableEntry("", map[conflow.ID]interface{}{}),
+		test.TableEntry(`key_1="foo bar"`, map[conflow.ID]interface{}{"key_1": "foo bar"}),
+		test.TableEntry("key_1=2", map[conflow.ID]interface{}{"key_1": int64(2)}),
+		test.TableEntry("key_1=1.2", map[conflow.ID]interface{}{"key_1": 1.2}),
+		test.TableEntry("key_1=1h30m", map[conflow.ID]interface{}{"key_1": 90 * time.Minute}),
+		test.TableEntry("key_1=true", map[conflow.ID]interface{}{"key_1": true}),
+		test.TableEntry("key_1=false", map[conflow.ID]interface{}{"key_1": false}),
+		test.TableEntry("key_1=[]", map[conflow.ID]interface{}{"key_1": []interface{}{}}),
+		test.TableEntry("key_1=[1]", map[conflow.ID]interface{}{"key_1": []interface{}{int64(1)}}),
+		test.TableEntry("key_1=[1,2]", map[conflow.ID]interface{}{"key_1": []interface{}{int64(1), int64(2)}}),
+		test.TableEntry("key_1=2,key_2=4", map[conflow.ID]interface{}{"key_1": int64(2), "key_2": int64(4)}),
+		test.TableEntry("key_1 = 1 , key_2 = [1 , 2]", map[conflow.ID]interface{}{"key_1": int64(1), "key_2": []interface{}{int64(1), int64(2)}}),
 	)
 
 	DescribeTable("it returns a parse error",

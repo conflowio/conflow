@@ -10,9 +10,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/parsers"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/parsers"
 )
 
 // @block {
@@ -20,21 +20,21 @@ import (
 // }
 type Import struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	path string
 }
 
-func (i *Import) ID() basil.ID {
+func (i *Import) ID() conflow.ID {
 	return i.id
 }
 
-func (i *Import) EvalStage() basil.EvalStage {
-	return basil.EvalStageParse
+func (i *Import) EvalStage() conflow.EvalStage {
+	return conflow.EvalStageParse
 }
 
-func (i *Import) BlockInterpreters(parseCtx *basil.ParseContext) (map[basil.ID]basil.BlockInterpreter, error) {
+func (i *Import) BlockInterpreters(parseCtx *conflow.ParseContext) (map[conflow.ID]conflow.BlockInterpreter, error) {
 	parseCtx = parseCtx.NewForModule()
 	registry := parseCtx.BlockTransformerRegistry().(block.InterpreterRegistry)
 
@@ -57,7 +57,7 @@ func (i *Import) BlockInterpreters(parseCtx *basil.ParseContext) (map[basil.ID]b
 		return nil, fmt.Errorf("block \"main\" does not exist in module %s", i.path)
 	}
 
-	return map[basil.ID]basil.BlockInterpreter{
+	return map[conflow.ID]conflow.BlockInterpreter{
 		i.id: NewModuleInterpreter(node.Interpreter(), node),
 	}, nil
 }

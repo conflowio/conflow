@@ -11,29 +11,29 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 type module struct {
-	id           basil.ID
-	interpreter  basil.BlockInterpreter
+	id           conflow.ID
+	interpreter  conflow.BlockInterpreter
 	node         parsley.Node
-	params       map[basil.ID]interface{}
-	logger       basil.Logger
+	params       map[conflow.ID]interface{}
+	logger       conflow.Logger
 	userCtx      interface{}
-	jobScheduler basil.JobScheduler
+	jobScheduler conflow.JobScheduler
 }
 
-func (m *module) ID() basil.ID {
+func (m *module) ID() conflow.ID {
 	return m.id
 }
 
-func (m *module) Run(ctx context.Context) (basil.Result, error) {
+func (m *module) Run(ctx context.Context) (conflow.Result, error) {
 	moduleCtx, moduleCancel := context.WithCancel(ctx)
 	defer moduleCancel()
 
-	evalContext := basil.NewEvalContext(
+	evalContext := conflow.NewEvalContext(
 		moduleCtx, m.userCtx, m.logger, m.jobScheduler, nil,
 	)
 	evalContext.InputParams = m.params
@@ -45,7 +45,7 @@ func (m *module) Run(ctx context.Context) (basil.Result, error) {
 
 	for propertyName, property := range m.interpreter.Schema().(schema.ObjectKind).GetProperties() {
 		if property.GetReadOnly() {
-			m.params[basil.ID(propertyName)] = m.interpreter.Param(value.(basil.Block), basil.ID(propertyName))
+			m.params[conflow.ID(propertyName)] = m.interpreter.Param(value.(conflow.Block), conflow.ID(propertyName))
 		}
 	}
 
@@ -54,9 +54,9 @@ func (m *module) Run(ctx context.Context) (basil.Result, error) {
 
 // NewModuleInterpreter creates a new interpreter for a module
 func NewModuleInterpreter(
-	interpreter basil.BlockInterpreter,
+	interpreter conflow.BlockInterpreter,
 	node parsley.Node,
-) basil.BlockInterpreter {
+) conflow.BlockInterpreter {
 	s := interpreter.Schema().Copy().(*schema.Object)
 	for _, p := range s.Properties {
 		p.(schema.MetadataAccessor).SetAnnotation("user_defined", "")
@@ -71,16 +71,16 @@ func NewModuleInterpreter(
 
 type moduleInterpreter struct {
 	node        parsley.Node
-	interpreter basil.BlockInterpreter
+	interpreter conflow.BlockInterpreter
 	schema      schema.Schema
 }
 
-func (m *moduleInterpreter) CreateBlock(id basil.ID, blockCtx *basil.BlockContext) basil.Block {
+func (m *moduleInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &module{
 		id:           id,
 		interpreter:  m.interpreter,
 		node:         m.node,
-		params:       map[basil.ID]interface{}{},
+		params:       map[conflow.ID]interface{}{},
 		logger:       blockCtx.Logger(),
 		userCtx:      blockCtx.UserContext(),
 		jobScheduler: blockCtx.JobScheduler(),
@@ -91,23 +91,23 @@ func (m *moduleInterpreter) Schema() schema.Schema {
 	return m.schema
 }
 
-func (m *moduleInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+func (m *moduleInterpreter) SetParam(b conflow.Block, name conflow.ID, value interface{}) error {
 	b.(*module).params[name] = value
 	return nil
 }
 
-func (m *moduleInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (m *moduleInterpreter) SetBlock(b conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }
 
-func (m *moduleInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (m *moduleInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	return b.(*module).params[name]
 }
 
-func (m *moduleInterpreter) ValueParamName() basil.ID {
+func (m *moduleInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
-func (m *moduleInterpreter) ParseContext(context *basil.ParseContext) *basil.ParseContext {
+func (m *moduleInterpreter) ParseContext(context *conflow.ParseContext) *conflow.ParseContext {
 	return context
 }

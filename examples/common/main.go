@@ -17,20 +17,20 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	uzerolog "github.com/rs/zerolog"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/basil/directives"
-	"github.com/opsidian/basil/loggers/zerolog"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/job"
+	"github.com/opsidian/conflow/directives"
+	"github.com/opsidian/conflow/loggers/zerolog"
 )
 
-func NewParseContext() *basil.ParseContext {
-	idRegistry := basil.NewIDRegistry(8, 16)
-	return basil.NewParseContext(parsley.NewFileSet(), idRegistry, directives.DefaultRegistry())
+func NewParseContext() *conflow.ParseContext {
+	idRegistry := conflow.NewIDRegistry(8, 16)
+	return conflow.NewParseContext(parsley.NewFileSet(), idRegistry, directives.DefaultRegistry())
 }
 
-func Main(ctx context.Context, parseCtx *basil.ParseContext, inputParams map[basil.ID]interface{}) {
+func Main(ctx context.Context, parseCtx *conflow.ParseContext, inputParams map[conflow.ID]interface{}) {
 	level := uzerolog.InfoLevel
-	if envLevel := os.Getenv("BASIL_LOG"); envLevel != "" {
+	if envLevel := os.Getenv("CONFLOW_LOG"); envLevel != "" {
 		var err error
 		level, err = uzerolog.ParseLevel(envLevel)
 		if err != nil {
@@ -49,7 +49,7 @@ func Main(ctx context.Context, parseCtx *basil.ParseContext, inputParams map[bas
 		logger.Debug().Err(err).Msg("http server stopped")
 	}()
 
-	if _, err := basil.Evaluate(
+	if _, err := conflow.Evaluate(
 		parseCtx,
 		ctx,
 		nil,

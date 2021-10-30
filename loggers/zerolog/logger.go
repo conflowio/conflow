@@ -12,12 +12,12 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 func init() {
 	zerolog.CallerSkipFrameCount = 3
-	zerolog.TimeFieldFormat = basil.LogTimeFormat
+	zerolog.TimeFieldFormat = conflow.LogTimeFormat
 }
 
 var nilEvent *Event
@@ -44,55 +44,55 @@ func NewDisabledLogger() *Logger {
 	return NewLogger(zerolog.New(os.Stderr).Level(zerolog.Disabled))
 }
 
-func (l *Logger) With() basil.LoggerContext {
+func (l *Logger) With() conflow.LoggerContext {
 	return &Context{
 		context: l.logger.With(),
 	}
 }
 
-func (l *Logger) Debug() basil.LogEvent {
+func (l *Logger) Debug() conflow.LogEvent {
 	if e := l.logger.Debug(); e != nil {
 		return &Event{e: e}
 	}
 	return nilEvent
 }
 
-func (l *Logger) Info() basil.LogEvent {
+func (l *Logger) Info() conflow.LogEvent {
 	if e := l.logger.Info(); e != nil {
 		return &Event{e: e}
 	}
 	return nilEvent
 }
 
-func (l *Logger) Warn() basil.LogEvent {
+func (l *Logger) Warn() conflow.LogEvent {
 	if e := l.logger.Warn(); e != nil {
 		return &Event{e: e}
 	}
 	return nilEvent
 }
 
-func (l *Logger) Error() basil.LogEvent {
+func (l *Logger) Error() conflow.LogEvent {
 	if e := l.logger.Error(); e != nil {
 		return &Event{e: e}
 	}
 	return nilEvent
 }
 
-func (l *Logger) Fatal() basil.LogEvent {
+func (l *Logger) Fatal() conflow.LogEvent {
 	if e := l.logger.Fatal(); e != nil {
 		return &Event{e: e}
 	}
 	return nilEvent
 }
 
-func (l *Logger) Panic() basil.LogEvent {
+func (l *Logger) Panic() conflow.LogEvent {
 	if e := l.logger.Panic(); e != nil {
 		return &Event{e: e}
 	}
 	return nilEvent
 }
 
-func (l *Logger) Log() basil.LogEvent {
+func (l *Logger) Log() conflow.LogEvent {
 	if e := l.logger.Log(); e != nil {
 		return &Event{e: e}
 	}
@@ -111,7 +111,7 @@ func (l *Logger) Printf(format string, v ...interface{}) {
 	}
 }
 
-func (l *Logger) Array() basil.LogArray {
+func (l *Logger) Array() conflow.LogArray {
 	return &Array{
 		arr: zerolog.Arr(),
 	}

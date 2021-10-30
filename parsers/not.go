@@ -15,7 +15,7 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // Not will match a logical not expression defined by the following rule, where P is the input parser:

@@ -14,16 +14,16 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/util"
-	"github.com/opsidian/basil/util/multierror"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/util"
+	"github.com/opsidian/conflow/util/multierror"
 )
 
 // @block
 type Exec struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	cmd    string
 	params []string
@@ -36,14 +36,14 @@ type Exec struct {
 	// @generated
 	stderr *Stream
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (e *Exec) ID() basil.ID {
+func (e *Exec) ID() conflow.ID {
 	return e.id
 }
 
-func (e *Exec) Run(ctx context.Context) (basil.Result, error) {
+func (e *Exec) Run(ctx context.Context) (conflow.Result, error) {
 	cmd := exec.CommandContext(ctx, e.cmd, e.params...)
 
 	if e.dir != "" {
@@ -99,8 +99,8 @@ func (e *Exec) Run(ctx context.Context) (basil.Result, error) {
 	return nil, retErr
 }
 
-func (e *Exec) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (e *Exec) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"stdout": StreamInterpreter{},
 			"stderr": StreamInterpreter{},

@@ -11,8 +11,8 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/variable"
 )
 
 // Variable will match a variable expression defined by the following rule, where P is the input parser:
@@ -36,5 +36,5 @@ func (v variableInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalN
 
 func (v variableInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
 	nodes := node.(parsley.NonTerminalNode).Children()
-	return variable.NewNode(nodes[0].(*basil.IDNode), nodes[2].(*basil.IDNode)), nil
+	return variable.NewNode(nodes[0].(*conflow.IDNode), nodes[2].(*conflow.IDNode)), nil
 }

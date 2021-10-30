@@ -12,14 +12,14 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Println will write a string followed by a new line to the standard output
 // @block
 type Println struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	value interface{}
@@ -27,11 +27,11 @@ type Println struct {
 	stdout io.Writer
 }
 
-func (p *Println) ID() basil.ID {
+func (p *Println) ID() conflow.ID {
 	return p.id
 }
 
-func (p *Println) Run(ctx context.Context) (basil.Result, error) {
+func (p *Println) Run(ctx context.Context) (conflow.Result, error) {
 	switch v := p.value.(type) {
 	case io.ReadCloser:
 		scanner := bufio.NewScanner(v)

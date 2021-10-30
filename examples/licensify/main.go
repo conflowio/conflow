@@ -10,26 +10,26 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/blocks"
-	"github.com/opsidian/basil/examples/common"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/blocks"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/examples/common"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/util"
 )
 
 // @block
 type Main struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 }
 
-func (m *Main) ID() basil.ID {
+func (m *Main) ID() conflow.ID {
 	return m.id
 }
 
-func (m *Main) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (m *Main) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"glob":      GlobInterpreter{},
 			"licensify": LicensifyInterpreter{},
@@ -49,7 +49,7 @@ func main() {
 
 	if err := p.ParseFile(
 		parseCtx,
-		"main.basil",
+		"main.cf",
 	); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)

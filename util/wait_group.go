@@ -9,7 +9,7 @@ package util
 import (
 	"sync"
 
-	"github.com/opsidian/basil/util/multierror"
+	"github.com/opsidian/conflow/util/multierror"
 )
 
 // WaitGroup is a slightly different version of sync.WaitGroup with error handling

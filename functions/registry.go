@@ -7,10 +7,10 @@
 package functions
 
 import (
-	"github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/functions/json"
-	"github.com/opsidian/basil/functions/math"
-	"github.com/opsidian/basil/functions/strings"
+	"github.com/opsidian/conflow/conflow/function"
+	"github.com/opsidian/conflow/functions/json"
+	"github.com/opsidian/conflow/functions/math"
+	"github.com/opsidian/conflow/functions/strings"
 )
 
 func DefaultRegistry() function.InterpreterRegistry {

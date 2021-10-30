@@ -10,13 +10,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type BlockWithContext struct {
 	// @id
-	IDField basil.ID
+	IDField conflow.ID
 	// @required
 	// @eval_stage "init"
 	timeout time.Duration
@@ -26,6 +26,6 @@ func (b *BlockWithContext) Context(ctx context.Context) (context.Context, contex
 	return context.WithTimeout(ctx, b.timeout)
 }
 
-func (b *BlockWithContext) ID() basil.ID {
+func (b *BlockWithContext) ID() conflow.ID {
 	return b.IDField
 }

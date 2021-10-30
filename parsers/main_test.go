@@ -13,9 +13,9 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/test"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/test"
 )
 
 var _ = Describe("Main block parser", func() {

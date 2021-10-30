@@ -1,12 +1,12 @@
-# Basil - Domain specific language generator and workflow engine
+# Conflow - Domain specific language generator and workflow engine
 
 :exclamation: This project is a technology preview and heavily under development. If you would like to have a chat or contribute, please open an issue or drop an email to andras@[this github org].co.uk.
 
 ## Introduction
 
-Basil is able to **generate, parse and evaluate your own domain specific language (DSL)**. Your DSL can be used purely for configuration or you can define **complex workflows** with custom business logic. It's **written in Go** and similar to the Go language's syntax where applicable.
+Conflow is able to **generate, parse and evaluate your own domain specific language (DSL)**. Your DSL can be used purely for configuration or you can define **complex workflows** with custom business logic. It's **written in Go** and similar to the Go language's syntax where applicable.
 
-Basil's main aim to generate languages used by people by focusing on **simplicity and readability**.
+Conflow's main aim to generate languages used by people by focusing on **simplicity and readability**.
 
 It generates a **parallel programming language** where a piece of code will be evaluated and run when all its dependencies are available. This capability makes it especially suitable for creating **workflow-as-code** languages.
 
@@ -14,13 +14,13 @@ It generates a **weakly typed language** but runs **static checking** to catch m
 
 It doesn't have iterators, but introduces generators instead to be more closer to a real workflow. You can of course still write a generator which will emulate a simple numeric iterator.
 
-As a language creator you only need to define simple Go structs or functions and Basil will generate the necessary Go code for parsing and evaluation. **No reflection is used runtime.**
+As a language creator you only need to define simple Go structs or functions and Conflow will generate the necessary Go code for parsing and evaluation. **No reflection is used runtime.**
 
 ## Simple demonstration
 
 Let's say you want to write a DSL where you can say hello to the world.
 
-This example assumes you've built or downloaded the `basil` binary and it's available on your PATH.
+This example assumes you've built or downloaded the `conflow` binary and it's available on your PATH.
 
 This example is kept simple for demonstrational purposes, but a fully working version can be found in [examples/helloworld](examples/helloworld).
 
@@ -32,22 +32,22 @@ package hello
 import (
 	"context"
 	"fmt"
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type Hello struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	to string
 }
 
-func (h *Hello) ID() basil.ID {
+func (h *Hello) ID() conflow.ID {
 	return h.id
 }
 
-func (h *Hello) Run(ctx context.Context) (basil.Result, error) {
+func (h *Hello) Run(ctx context.Context) (conflow.Result, error) {
 	fmt.Printf("Hello %s!\n", h.to)
 	return nil, nil
 }
@@ -55,11 +55,11 @@ func (h *Hello) Run(ctx context.Context) (basil.Result, error) {
 
 This will define a block type called `hello` with a required parameter called `to` which will print "Hello [to]" to the stdout.
 
-After running `go generate` a new file called `hello.basil.go` will be generated in the same directory, containing a struct called `HelloInterpreter`.
+After running `go generate` a new file called `hello.cf.go` will be generated in the same directory, containing a struct called `HelloInterpreter`.
 
 Then you can write code like this:
 
-```basil
+```conflow
 hello {
   to = "World"
 }
@@ -84,7 +84,7 @@ See [examples/helloworld](examples/helloworld) for the rest of the code.
  * A block's body is optional
  * Blocks are registered in a global context, so a block can reference any named block's parameters
 
-```basil
+```conflow
 
 // This is the body of the top level block called "main"
 
@@ -112,22 +112,22 @@ print "Result was: " + test.stdout
 // @block
 type SampleBlock struct {
     // @id
-	id      basil.ID
+	id      conflow.ID
 	// @eval_stage "init"
 	skipped bool
 }
 
-// basil.BlockInitialiser interface
+// conflow.BlockInitialiser interface
 func (s *SampleBlock) Init(ctx context.Context) (bool, error) {
 	return s.skipped, nil
 }
 
-// basil.BlockRunner interface
-func (s *SampleBlock) Run(ctx context.Context) (basil.Result, error) {
+// conflow.BlockRunner interface
+func (s *SampleBlock) Run(ctx context.Context) (conflow.Result, error) {
 	return nil, nil
 }
 
-// basil.BlockCloser interface
+// conflow.BlockCloser interface
 func (s *SampleBlock) Close(ctx context.Context) error {
 	return nil
 }
@@ -146,16 +146,16 @@ func (s *SampleBlock) Close(ctx context.Context) error {
 // @block
 type Iterator struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	count int64
 	// @generated
 	it *It
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (it *Iterator) Run(ctx context.Context) (basil.Result, error) {
+func (it *Iterator) Run(ctx context.Context) (conflow.Result, error) {
 	for i := int64(0); i < it.count; i++ {
 		_, err := it.blockPublisher.PublishBlock(&It{
 			id:    it.it.id,
@@ -170,7 +170,7 @@ func (it *Iterator) Run(ctx context.Context) (basil.Result, error) {
 }
 ```
 
-```basil
+```conflow
 iterator {
     count = 3
     i1 it // This will be the output block (no body)
@@ -189,7 +189,7 @@ See [examples/iterator](examples/iterator), [examples/ticker](examples/ticker) o
  * Parameters can depend on other block parameters or parameters from the same block
  * A parameter or child block will be evaluated if its the matching evaluation stage and all dependencies were evaluated previously
 
-```basil
+```conflow
 baz block { // "baz" will be evaluated after "bar"
     p2 = bar.p1
 }
@@ -202,10 +202,10 @@ bar block {
 
 ### Code generation
 
-* A block can be defined as a Go struct and adding special _basil_ Go tags to its fields.
+* A block can be defined as a Go struct
 * Custom functions can be defined as simple Go functions
-* You have to add the `@block` and `@function` directives to the comment header of your block structs and functions and run "basil generate" whenever you change your implementations
-* Basil will generate a file next to your implementation with a `.basil.go` extension containing an Interpreter struct.
+* You have to add the `@block` and `@function` directives to the comment header of your block structs and functions and run "conflow generate" whenever you change your implementations
+* Conflow will generate a file next to your implementation with a `.cf.go` extension containing an Interpreter struct.
 
 See [examples](examples) for various block definitions.
 

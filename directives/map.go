@@ -7,8 +7,8 @@
 package directives
 
 import (
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // @block {
@@ -18,12 +18,12 @@ type Map struct {
 	schema.Map
 }
 
-func (m *Map) ApplyToParameterConfig(config *basil.ParameterConfig) {
+func (m *Map) ApplyToParameterConfig(config *conflow.ParameterConfig) {
 	config.Schema = &m.Map
 }
 
-func (m *Map) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (m *Map) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: schemaRegistry,
 	}
 }

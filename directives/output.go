@@ -7,8 +7,8 @@
 package directives
 
 import (
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/util"
 )
 
 // @block {
@@ -16,13 +16,13 @@ import (
 // }
 type Output struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 }
 
-func (o *Output) ID() basil.ID {
+func (o *Output) ID() conflow.ID {
 	return o.id
 }
 
-func (o *Output) ApplyToParameterConfig(config *basil.ParameterConfig) {
+func (o *Output) ApplyToParameterConfig(config *conflow.ParameterConfig) {
 	config.Output = util.BoolPtr(true)
 }

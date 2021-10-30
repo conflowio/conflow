@@ -14,7 +14,7 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Function will match a function call defined by the following rule, where P is the input parser:
@@ -38,13 +38,13 @@ func (f functionInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalN
 }
 
 func (f functionInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	registry := userCtx.(basil.FunctionTransformerRegistryAware).FunctionTransformerRegistry()
+	registry := userCtx.(conflow.FunctionTransformerRegistryAware).FunctionTransformerRegistry()
 
 	nodes := node.(parsley.NonTerminalNode).Children()
 	nameNode := nodes[0]
 	name, _ := parsley.EvaluateNode(nil, nameNode)
 
-	transformer, exists := registry.NodeTransformer(string(name.(basil.ID)))
+	transformer, exists := registry.NodeTransformer(string(name.(conflow.ID)))
 	if !exists {
 		return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q function does not exist", name))
 	}

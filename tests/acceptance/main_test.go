@@ -19,13 +19,13 @@ import (
 	. "github.com/onsi/gomega"
 	uzerolog "github.com/rs/zerolog"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/basil/examples/common"
-	"github.com/opsidian/basil/loggers/zerolog"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/tests/acceptance"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/job"
+	"github.com/opsidian/conflow/examples/common"
+	"github.com/opsidian/conflow/loggers/zerolog"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/tests/acceptance"
+	"github.com/opsidian/conflow/util"
 )
 
 type testCase struct {
@@ -60,8 +60,8 @@ func readTestCases(dir string, name string, testCases testCases) error {
 		}
 		if !f.IsDir() {
 			switch {
-			case strings.HasSuffix(f.Name(), ".basil"):
-				tcName := path.Join(name, strings.TrimSuffix(f.Name(), ".basil"))
+			case strings.HasSuffix(f.Name(), ".cf"):
+				tcName := path.Join(name, strings.TrimSuffix(f.Name(), ".cf"))
 				tc := testCases.get(tcName)
 				tc.fixture, err = ioutil.ReadFile(path.Join(dir, f.Name()))
 				if err != nil {
@@ -83,7 +83,7 @@ func readTestCases(dir string, name string, testCases testCases) error {
 
 var _ = Describe("Acceptance tests", func() {
 
-	var logger basil.Logger
+	var logger conflow.Logger
 	var scheduler *job.Scheduler
 
 	runTest := func(input string) (string, error) {
@@ -105,7 +105,7 @@ var _ = Describe("Acceptance tests", func() {
 
 		stdout := bytes.NewBuffer(make([]byte, 0, 256))
 
-		evalContext := basil.NewEvalContext(ctx, nil, logger, scheduler, nil)
+		evalContext := conflow.NewEvalContext(ctx, nil, logger, scheduler, nil)
 		evalContext.SetStdout(stdout)
 
 		_, err := node.Value(evalContext)
@@ -118,7 +118,7 @@ var _ = Describe("Acceptance tests", func() {
 
 	BeforeSuite(func() {
 		level := uzerolog.InfoLevel
-		if envLevel := os.Getenv("BASIL_LOG"); envLevel != "" {
+		if envLevel := os.Getenv("CONFLOW_LOG"); envLevel != "" {
 			var err error
 			level, err = uzerolog.ParseLevel(envLevel)
 			if err != nil {

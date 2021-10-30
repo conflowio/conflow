@@ -6,16 +6,14 @@
 
 package directives
 
-import (
-	"github.com/opsidian/basil/basil"
-)
+import "github.com/opsidian/conflow/conflow"
 
 // @block {
 //   eval_stage = "init"
 // }
 type Retry struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	// @default -1
@@ -24,10 +22,10 @@ type Retry struct {
 	limit int64
 }
 
-func (r *Retry) ID() basil.ID {
+func (r *Retry) ID() conflow.ID {
 	return r.id
 }
 
-func (r *Retry) ApplyToRuntimeConfig(config *basil.RuntimeConfig) {
-	config.RetryConfig = &basil.RetryConfig{Limit: int(r.limit)}
+func (r *Retry) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
+	config.RetryConfig = &conflow.RetryConfig{Limit: int(r.limit)}
 }

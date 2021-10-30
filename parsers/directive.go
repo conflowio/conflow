@@ -15,8 +15,8 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 )
 
 // Directive returns a parser for parsing directives
@@ -54,7 +54,7 @@ func Directive(expr parsley.Parser) *combinator.Sequence {
 
 	return combinator.SeqOf(
 		parser.Empty(), // no directives for a directive
-		IDWithClassifier(basil.ClassifierAnnotation),
+		IDWithClassifier(conflow.ClassifierAnnotation),
 		combinator.Choice(
 			text.LeftTrim(blockValue, text.WsSpaces),
 			parser.Empty(),
@@ -69,11 +69,11 @@ func (d directiveInterpreter) Eval(userCtx interface{}, node parsley.NonTerminal
 }
 
 func (d directiveInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	registry := userCtx.(basil.DirectiveTransformerRegistryAware).DirectiveTransformerRegistry()
+	registry := userCtx.(conflow.DirectiveTransformerRegistryAware).DirectiveTransformerRegistry()
 
 	nodes := node.(parsley.NonTerminalNode).Children()
 
-	typeNode := nodes[1].(*basil.IDNode)
+	typeNode := nodes[1].(*conflow.IDNode)
 	transformer, exists := registry.NodeTransformer(string(typeNode.ID()))
 	if !exists {
 		return nil, parsley.NewError(typeNode.Pos(), fmt.Errorf(

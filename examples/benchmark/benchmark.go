@@ -10,14 +10,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 )
 
 // @block
 type Benchmark struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	duration time.Duration
 	elapsed  time.Duration
@@ -26,14 +26,14 @@ type Benchmark struct {
 	// @generated
 	run *BenchmarkRun
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (b *Benchmark) ID() basil.ID {
+func (b *Benchmark) ID() conflow.ID {
 	return b.id
 }
 
-func (b *Benchmark) Run(ctx context.Context) (basil.Result, error) {
+func (b *Benchmark) Run(ctx context.Context) (conflow.Result, error) {
 	timer := time.NewTimer(b.duration)
 	defer timer.Stop()
 
@@ -54,8 +54,8 @@ func (b *Benchmark) Run(ctx context.Context) (basil.Result, error) {
 	}
 }
 
-func (b *Benchmark) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (b *Benchmark) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"run": BenchmarkRunInterpreter{},
 		},
@@ -65,11 +65,11 @@ func (b *Benchmark) ParseContextOverride() basil.ParseContextOverride {
 // @block
 type BenchmarkRun struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @read_only
 	cnt int64
 }
 
-func (b *BenchmarkRun) ID() basil.ID {
+func (b *BenchmarkRun) ID() conflow.ID {
 	return b.id
 }

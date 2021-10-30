@@ -9,10 +9,10 @@ package blocks
 import (
 	"io"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
-func NewStream(id basil.ID, stream io.ReadCloser) *Stream {
+func NewStream(id conflow.ID, stream io.ReadCloser) *Stream {
 	return &Stream{
 		id:     id,
 		Stream: stream,
@@ -22,10 +22,10 @@ func NewStream(id basil.ID, stream io.ReadCloser) *Stream {
 // @block
 type Stream struct {
 	// @id
-	id     basil.ID
+	id     conflow.ID
 	Stream io.ReadCloser
 }
 
-func (s Stream) ID() basil.ID {
+func (s Stream) ID() conflow.ID {
 	return s.id
 }

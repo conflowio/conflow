@@ -6,25 +6,25 @@
 
 package directives
 
-import "github.com/opsidian/basil/basil"
+import "github.com/opsidian/conflow/conflow"
 
 // @block {
 //   eval_stage = "ignore"
 // }
 type Deprecated struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @value
 	// @required
 	description string
 }
 
-func (d *Deprecated) ID() basil.ID {
+func (d *Deprecated) ID() conflow.ID {
 	return d.id
 }
 
-func (d *Deprecated) ApplyToRuntimeConfig(*basil.RuntimeConfig) {
+func (d *Deprecated) ApplyToRuntimeConfig(*conflow.RuntimeConfig) {
 }
 
-func (d *Deprecated) ApplyToParameterConfig(*basil.ParameterConfig) {
+func (d *Deprecated) ApplyToParameterConfig(*conflow.ParameterConfig) {
 }

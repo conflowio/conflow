@@ -5,29 +5,29 @@ import (
 	"context"
 	"sync"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/test"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/test"
 )
 
 type FakeBlockWithRun struct {
-	RunStub        func(context.Context) (basil.Result, error)
+	RunStub        func(context.Context) (conflow.Result, error)
 	runMutex       sync.RWMutex
 	runArgsForCall []struct {
 		arg1 context.Context
 	}
 	runReturns struct {
-		result1 basil.Result
+		result1 conflow.Result
 		result2 error
 	}
 	runReturnsOnCall map[int]struct {
-		result1 basil.Result
+		result1 conflow.Result
 		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeBlockWithRun) Run(arg1 context.Context) (basil.Result, error) {
+func (fake *FakeBlockWithRun) Run(arg1 context.Context) (conflow.Result, error) {
 	fake.runMutex.Lock()
 	ret, specificReturn := fake.runReturnsOnCall[len(fake.runArgsForCall)]
 	fake.runArgsForCall = append(fake.runArgsForCall, struct {
@@ -52,7 +52,7 @@ func (fake *FakeBlockWithRun) RunCallCount() int {
 	return len(fake.runArgsForCall)
 }
 
-func (fake *FakeBlockWithRun) RunCalls(stub func(context.Context) (basil.Result, error)) {
+func (fake *FakeBlockWithRun) RunCalls(stub func(context.Context) (conflow.Result, error)) {
 	fake.runMutex.Lock()
 	defer fake.runMutex.Unlock()
 	fake.RunStub = stub
@@ -65,28 +65,28 @@ func (fake *FakeBlockWithRun) RunArgsForCall(i int) context.Context {
 	return argsForCall.arg1
 }
 
-func (fake *FakeBlockWithRun) RunReturns(result1 basil.Result, result2 error) {
+func (fake *FakeBlockWithRun) RunReturns(result1 conflow.Result, result2 error) {
 	fake.runMutex.Lock()
 	defer fake.runMutex.Unlock()
 	fake.RunStub = nil
 	fake.runReturns = struct {
-		result1 basil.Result
+		result1 conflow.Result
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeBlockWithRun) RunReturnsOnCall(i int, result1 basil.Result, result2 error) {
+func (fake *FakeBlockWithRun) RunReturnsOnCall(i int, result1 conflow.Result, result2 error) {
 	fake.runMutex.Lock()
 	defer fake.runMutex.Unlock()
 	fake.RunStub = nil
 	if fake.runReturnsOnCall == nil {
 		fake.runReturnsOnCall = make(map[int]struct {
-			result1 basil.Result
+			result1 conflow.Result
 			result2 error
 		})
 	}
 	fake.runReturnsOnCall[i] = struct {
-		result1 basil.Result
+		result1 conflow.Result
 		result2 error
 	}{result1, result2}
 }

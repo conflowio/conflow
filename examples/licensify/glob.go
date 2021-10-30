@@ -12,14 +12,14 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 )
 
 // @block
 type Glob struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	path    string
 	include []string
@@ -27,14 +27,14 @@ type Glob struct {
 	// @generated
 	file *File
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (g *Glob) ID() basil.ID {
+func (g *Glob) ID() conflow.ID {
 	return g.id
 }
 
-func (g *Glob) Run(ctx context.Context) (basil.Result, error) {
+func (g *Glob) Run(ctx context.Context) (conflow.Result, error) {
 	includes, err := g.compileRegexps(g.include)
 	if err != nil {
 		return nil, err
@@ -70,8 +70,8 @@ func (g *Glob) Run(ctx context.Context) (basil.Result, error) {
 	})
 }
 
-func (g *Glob) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (g *Glob) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"file": FileInterpreter{},
 		},
@@ -93,10 +93,10 @@ func (g *Glob) compileRegexps(exprs []string) ([]*regexp.Regexp, error) {
 // @block
 type File struct {
 	// @id
-	id   basil.ID
+	id   conflow.ID
 	path string
 }
 
-func (f *File) ID() basil.ID {
+func (f *File) ID() conflow.ID {
 	return f.id
 }

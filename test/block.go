@@ -13,33 +13,33 @@ import (
 	"github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 //counterfeiter:generate . BlockWithInit
 type BlockWithInit interface {
-	basil.Block
-	basil.BlockInitialiser
+	conflow.Block
+	conflow.BlockInitialiser
 }
 
 //counterfeiter:generate . BlockWithRun
 type BlockWithRun interface {
-	basil.Block
-	basil.BlockRunner
+	conflow.Block
+	conflow.BlockRunner
 }
 
 //counterfeiter:generate . BlockWithClose
 type BlockWithClose interface {
-	basil.Block
-	basil.BlockCloser
+	conflow.Block
+	conflow.BlockCloser
 }
 
 // @block
 type Block struct {
 	// @id
-	IDField basil.ID
+	IDField conflow.ID
 	// @value
 	Value             interface{}
 	FieldString       string
@@ -56,12 +56,12 @@ type Block struct {
 	Blocks []*Block
 }
 
-func (b *Block) ID() basil.ID {
+func (b *Block) ID() conflow.ID {
 	return b.IDField
 }
 
-func (b *Block) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (b *Block) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"testblock": BlockInterpreter{},
 		},
@@ -87,7 +87,7 @@ func (b *Block) Compare(b2 *Block, input string) {
 	}
 }
 
-func compareBlocks(b1, b2 basil.Identifiable, interpreter basil.BlockInterpreter, input string) {
+func compareBlocks(b1, b2 conflow.Identifiable, interpreter conflow.BlockInterpreter, input string) {
 	Expect(b1.ID()).To(Equal(b2.ID()), "id does not match, input: %s", input)
 
 	for propertyName, p := range interpreter.Schema().(schema.ObjectKind).GetProperties() {
@@ -95,8 +95,8 @@ func compareBlocks(b1, b2 basil.Identifiable, interpreter basil.BlockInterpreter
 			continue
 		}
 
-		v1 := interpreter.Param(b1, basil.ID(propertyName))
-		v2 := interpreter.Param(b2, basil.ID(propertyName))
+		v1 := interpreter.Param(b1, conflow.ID(propertyName))
+		v2 := interpreter.Param(b2, conflow.ID(propertyName))
 		if v2 != nil {
 			Expect(v1).To(Equal(v2), "%s does not match, input: %s", propertyName, input)
 		} else {

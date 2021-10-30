@@ -10,12 +10,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/blocks"
-	"github.com/opsidian/basil/examples/common"
-	"github.com/opsidian/basil/functions"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/blocks"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/examples/common"
+	"github.com/opsidian/conflow/functions"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/util"
 )
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 
 	if err := p.ParseFile(
 		parseCtx,
-		"main.basil",
+		"main.cf",
 	); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)

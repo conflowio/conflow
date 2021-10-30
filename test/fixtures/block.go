@@ -9,18 +9,18 @@ package fixtures
 import (
 	"time"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type Block struct {
 	// @id
-	IDField         basil.ID
+	IDField         conflow.ID
 	FieldInterface  interface{}
 	FieldArray      []interface{}
 	FieldBool       bool
 	FieldFloat      float64
-	FieldIdentifier basil.ID
+	FieldIdentifier conflow.ID
 	FieldInteger    int64
 	FieldMap        map[string]interface{}
 	// @types ["integer", "number"]
@@ -31,6 +31,6 @@ type Block struct {
 	FieldTimeDuration time.Duration
 }
 
-func (t *Block) ID() basil.ID {
+func (t *Block) ID() conflow.ID {
 	return t.IDField
 }

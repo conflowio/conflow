@@ -14,23 +14,23 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/functions"
-	"github.com/opsidian/basil/parsers"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/functions"
+	"github.com/opsidian/conflow/parsers"
 
-	"github.com/opsidian/basil/blocks"
+	"github.com/opsidian/conflow/blocks"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/basil/directives"
-	"github.com/opsidian/basil/loggers/zerolog"
+	"github.com/opsidian/conflow/conflow/job"
+	"github.com/opsidian/conflow/directives"
+	"github.com/opsidian/conflow/loggers/zerolog"
 )
 
 func eval(input string) {
 	f := text.NewFile("test", []byte(input))
 	fs := parsley.NewFileSet(f)
-	idRegistry := basil.NewIDRegistry(8, 16)
-	parseCtx := basil.NewParseContext(fs, idRegistry, directives.DefaultRegistry())
+	idRegistry := conflow.NewIDRegistry(8, 16)
+	parseCtx := conflow.NewParseContext(fs, idRegistry, directives.DefaultRegistry())
 	logger := zerolog.NewDisabledLogger()
 	scheduler := job.NewScheduler(logger, runtime.NumCPU()*2, 100)
 	scheduler.Start()
@@ -51,7 +51,7 @@ func eval(input string) {
 		return
 	}
 
-	if _, err := basil.Evaluate(parseCtx, context.Background(), nil, logger, scheduler, "main", nil); err != nil {
+	if _, err := conflow.Evaluate(parseCtx, context.Background(), nil, logger, scheduler, "main", nil); err != nil {
 		fmt.Printf("Example errored: %s\n", err.Error())
 		return
 	}

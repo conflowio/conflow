@@ -9,15 +9,15 @@ package blocks
 import (
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 type Main struct {
-	params map[basil.ID]interface{}
+	params map[conflow.ID]interface{}
 }
 
-func (m *Main) ID() basil.ID {
+func (m *Main) ID() conflow.ID {
 	return "main"
 }
 
@@ -30,31 +30,31 @@ func (m MainInterpreter) Schema() schema.Schema {
 	return &schema.Object{}
 }
 
-func (m MainInterpreter) CreateBlock(basil.ID, *basil.BlockContext) basil.Block {
+func (m MainInterpreter) CreateBlock(conflow.ID, *conflow.BlockContext) conflow.Block {
 	return &Main{
-		params: map[basil.ID]interface{}{},
+		params: map[conflow.ID]interface{}{},
 	}
 }
 
-func (m MainInterpreter) SetParam(b basil.Block, name basil.ID, value interface{}) error {
+func (m MainInterpreter) SetParam(b conflow.Block, name conflow.ID, value interface{}) error {
 	b.(*Main).params[name] = value
 	return nil
 }
 
-func (m MainInterpreter) SetBlock(b basil.Block, name basil.ID, value interface{}) error {
+func (m MainInterpreter) SetBlock(b conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }
 
-func (m MainInterpreter) Param(b basil.Block, name basil.ID) interface{} {
+func (m MainInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	return b.(*Main).params[name]
 }
 
-func (m MainInterpreter) ValueParamName() basil.ID {
+func (m MainInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
-func (m MainInterpreter) ParseContext(ctx *basil.ParseContext) *basil.ParseContext {
-	return ctx.New(basil.ParseContextOverride{
+func (m MainInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
+	return ctx.New(conflow.ParseContextOverride{
 		BlockTransformerRegistry:    m.BlockTransformerRegistry,
 		FunctionTransformerRegistry: m.FunctionTransformerRegistry,
 	})

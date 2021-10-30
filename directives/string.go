@@ -7,8 +7,8 @@
 package directives
 
 import (
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // @block {
@@ -18,6 +18,6 @@ type String struct {
 	schema.String
 }
 
-func (s *String) ApplyToParameterConfig(config *basil.ParameterConfig) {
+func (s *String) ApplyToParameterConfig(config *conflow.ParameterConfig) {
 	config.Schema = &s.String
 }

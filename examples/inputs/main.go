@@ -15,13 +15,13 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/blocks"
-	"github.com/opsidian/basil/examples/common"
-	"github.com/opsidian/basil/functions"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/blocks"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/examples/common"
+	"github.com/opsidian/conflow/functions"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/util"
 )
 
 func main() {
@@ -46,7 +46,7 @@ func main() {
 
 	if err := p.ParseFile(
 		parseCtx,
-		"main.basil",
+		"main.cf",
 	); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
@@ -55,7 +55,7 @@ func main() {
 	common.Main(ctx, parseCtx, inputParams)
 }
 
-func evalParams() (map[basil.ID]interface{}, error) {
+func evalParams() (map[conflow.ID]interface{}, error) {
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	params := flags.String("params", "", "List of key-value pairs, separated by comma")
 	if err := flags.Parse(os.Args[1:]); err != nil {
@@ -70,5 +70,5 @@ func evalParams() (map[basil.ID]interface{}, error) {
 		return nil, err
 	}
 
-	return value.(map[basil.ID]interface{}), nil
+	return value.(map[conflow.ID]interface{}), nil
 }

@@ -7,23 +7,23 @@
 package fixtures
 
 import (
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 )
 
 // @block
 type BlockWithManyBlock struct {
 	// @id
-	IDField basil.ID
+	IDField conflow.ID
 	Block   []*Block
 }
 
-func (b *BlockWithManyBlock) ID() basil.ID {
+func (b *BlockWithManyBlock) ID() conflow.ID {
 	return b.IDField
 }
 
-func (b *BlockWithManyBlock) ParseContextOverride() basil.ParseContextOverride {
-	return basil.ParseContextOverride{
+func (b *BlockWithManyBlock) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"block": BlockInterpreter{},
 		},

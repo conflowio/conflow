@@ -9,26 +9,26 @@ package fixtures
 import (
 	"context"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // @block
 type BlockGenerator struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	items []interface{}
 	// @generated
 	result *BlockGeneratorResult
 	// @dependency
-	blockPublisher basil.BlockPublisher
+	blockPublisher conflow.BlockPublisher
 }
 
-func (b *BlockGenerator) ID() basil.ID {
+func (b *BlockGenerator) ID() conflow.ID {
 	return b.id
 }
 
-func (b *BlockGenerator) Run(ctx context.Context) (basil.Result, error) {
+func (b *BlockGenerator) Run(ctx context.Context) (conflow.Result, error) {
 	for _, item := range b.items {
 		res := &BlockGeneratorResult{
 			id:    b.result.id,
@@ -44,10 +44,10 @@ func (b *BlockGenerator) Run(ctx context.Context) (basil.Result, error) {
 // @block
 type BlockGeneratorResult struct {
 	// @id
-	id    basil.ID
+	id    conflow.ID
 	value interface{}
 }
 
-func (b *BlockGeneratorResult) ID() basil.ID {
+func (b *BlockGeneratorResult) ID() conflow.ID {
 	return b.id
 }

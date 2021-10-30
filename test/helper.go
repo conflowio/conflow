@@ -16,12 +16,12 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/directives"
-	"github.com/opsidian/basil/loggers/zerolog"
+	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/conflow/conflowfakes"
+	"github.com/opsidian/conflow/conflow/function"
+	"github.com/opsidian/conflow/directives"
+	"github.com/opsidian/conflow/loggers/zerolog"
 )
 
 func ParseCtx(
@@ -38,8 +38,8 @@ func ParseCtx(
 	}
 
 	testBlockNode := block.NewNode(
-		basil.NewIDNode("test", basil.ClassifierNone, parsley.NilPos, parsley.NilPos),
-		basil.NewNameNode(nil, nil, basil.NewIDNode("testblock", basil.ClassifierNone, parsley.NilPos, parsley.NilPos)),
+		conflow.NewIDNode("test", conflow.ClassifierNone, parsley.NilPos, parsley.NilPos),
+		conflow.NewNameNode(nil, nil, conflow.NewIDNode("testblock", conflow.ClassifierNone, parsley.NilPos, parsley.NilPos)),
 		nil,
 		"TESTBLOCK",
 		nil,
@@ -56,7 +56,7 @@ func ParseCtx(
 		Register("testdirective", DirectiveInterpreter{}).
 		Register("testdirective2", DirectiveInterpreter{})
 
-	parseCtx := basil.NewParseContext(fs, newIDRegistry(), directiveTransformerRegistry).New(basil.ParseContextOverride{
+	parseCtx := conflow.NewParseContext(fs, newIDRegistry(), directiveTransformerRegistry).New(conflow.ParseContextOverride{
 		BlockTransformerRegistry:    blockRegistry,
 		FunctionTransformerRegistry: functionRegistry,
 	})
@@ -71,7 +71,7 @@ func ParseCtx(
 	return ctx
 }
 
-func EvalUserCtx() *basil.EvalContext {
+func EvalUserCtx() *conflow.EvalContext {
 	testBlock :=
 		&Block{
 			FieldString: "bar",
@@ -86,16 +86,16 @@ func EvalUserCtx() *basil.EvalContext {
 			FieldInt: int64(1),
 		}
 
-	testBlockContainer := &basilfakes.FakeBlockContainer{}
-	testBlockContainer.ParamCalls(func(name basil.ID) interface{} {
+	testBlockContainer := &conflowfakes.FakeBlockContainer{}
+	testBlockContainer.ParamCalls(func(name conflow.ID) interface{} {
 		return BlockInterpreter{}.Param(testBlock, name)
 	})
 
-	containers := map[basil.ID]basil.BlockContainer{
+	containers := map[conflow.ID]conflow.BlockContainer{
 		"test": testBlockContainer,
 	}
 
-	evalCtx := basil.NewEvalContext(
+	evalCtx := conflow.NewEvalContext(
 		context.Background(),
 		"userCtx",
 		zerolog.NewDisabledLogger(),

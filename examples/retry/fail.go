@@ -9,28 +9,28 @@ package main
 import (
 	"context"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Fail will error for the given tries
 // @block
 type Fail struct {
 	// @id
-	id basil.ID
+	id conflow.ID
 	// @required
 	triesRequired int64
 	// @read_only
 	tries int64
 }
 
-func (f *Fail) ID() basil.ID {
+func (f *Fail) ID() conflow.ID {
 	return f.id
 }
 
-func (f *Fail) Run(ctx context.Context) (basil.Result, error) {
+func (f *Fail) Run(ctx context.Context) (conflow.Result, error) {
 	f.tries++
 	if f.tries < f.triesRequired {
-		return basil.Retry("I am destined to fail, but eventually I will succeed"), nil
+		return conflow.Retry("I am destined to fail, but eventually I will succeed"), nil
 	}
 
 	return nil, nil
