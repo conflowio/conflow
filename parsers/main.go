@@ -18,8 +18,8 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/block"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)

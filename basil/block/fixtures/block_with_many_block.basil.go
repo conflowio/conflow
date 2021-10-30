@@ -4,8 +4,9 @@ package fixtures
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // BlockWithManyBlockInterpreter is the basil interpreter for the BlockWithManyBlock block
@@ -23,7 +24,7 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 						Metadata: schema.Metadata{
 							Pointer: true,
 						},
-						Ref: "http://basil.schema/github.com/opsidian/basil/basil/block/fixtures.BlockSimple",
+						Ref: "http://basil.schema/github.com/opsidian/conflow/basil/block/fixtures.BlockSimple",
 					},
 				},
 				"id_field": &schema.String{

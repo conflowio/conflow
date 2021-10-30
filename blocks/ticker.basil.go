@@ -4,9 +4,10 @@ package blocks
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
 	"time"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // TickerInterpreter is the basil interpreter for the Ticker block
@@ -32,7 +33,7 @@ func (i TickerInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Tick",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/blocks.Tick",
 				},
 			},
 			Required: []string{"interval", "tick"},

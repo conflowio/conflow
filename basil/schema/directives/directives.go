@@ -7,7 +7,7 @@
 package directives
 
 import (
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/basil/block"
 )
 
 func Registry() block.InterpreterRegistry {

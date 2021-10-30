@@ -12,7 +12,7 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 // Resolver will resolve all process dependencies in a workflow

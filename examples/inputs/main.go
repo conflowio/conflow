@@ -15,13 +15,13 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/blocks"
-	"github.com/opsidian/basil/examples/common"
-	"github.com/opsidian/basil/functions"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/blocks"
+	"github.com/opsidian/conflow/examples/common"
+	"github.com/opsidian/conflow/functions"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/util"
 )
 
 func main() {

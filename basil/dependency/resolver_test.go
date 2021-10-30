@@ -12,9 +12,9 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/basil/dependency"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/basilfakes"
+	"github.com/opsidian/conflow/basil/dependency"
 	"github.com/opsidian/parsley/parsley"
 )
 

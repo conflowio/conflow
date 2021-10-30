@@ -1,4 +1,4 @@
-module github.com/opsidian/basil
+module github.com/opsidian/conflow
 
 require (
 	github.com/golangci/golangci-lint v1.42.1

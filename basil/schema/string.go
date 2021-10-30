@@ -31,7 +31,7 @@ type String struct {
 
 func (s *String) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if s.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/opsidian/basil/basil/schema")
+		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/opsidian/conflow/basil/schema")
 		return fmt.Sprintf("%s = %s.StringPtr(%s.(string))", resultName, schemaPackageName, valueName)
 	}
 

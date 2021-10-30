@@ -14,10 +14,10 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/util"
-	"github.com/opsidian/basil/util/multierror"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/util"
+	"github.com/opsidian/conflow/util/multierror"
 )
 
 // @block

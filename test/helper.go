@@ -16,12 +16,12 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/directives"
-	"github.com/opsidian/basil/loggers/zerolog"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/basilfakes"
+	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/basil/function"
+	"github.com/opsidian/conflow/directives"
+	"github.com/opsidian/conflow/loggers/zerolog"
 )
 
 func ParseCtx(

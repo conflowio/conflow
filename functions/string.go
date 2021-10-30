@@ -7,7 +7,7 @@
 package functions
 
 import (
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // String converts the given value to a string

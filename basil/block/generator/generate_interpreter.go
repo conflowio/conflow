@@ -12,9 +12,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/generator/parser"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/basil/generator/parser"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // GenerateInterpreter generates an interpreter for the given block
@@ -135,8 +135,8 @@ func generateTemplateParams(
 	imports := map[string]string{
 		".":      pkg,
 		"fmt":    "fmt",
-		"basil":  "github.com/opsidian/basil/basil",
-		"schema": "github.com/opsidian/basil/basil/schema",
+		"basil":  "github.com/opsidian/conflow/basil",
+		"schema": "github.com/opsidian/conflow/basil/schema",
 	}
 
 	var nameSelector string

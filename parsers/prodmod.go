@@ -13,7 +13,7 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // ProdMod will match *, /, % arithmetic operations defined by the following rule, where P is the input parser:

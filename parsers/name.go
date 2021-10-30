@@ -11,8 +11,8 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/block"
 )
 
 // Name parses a name expression:

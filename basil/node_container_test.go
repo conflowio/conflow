@@ -11,17 +11,17 @@ import (
 	"errors"
 	"time"
 
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/util"
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/basil/loggers/zerolog"
+	"github.com/opsidian/conflow/loggers/zerolog"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/basilfakes"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/basilfakes"
 )
 
 var _ = Describe("NodeContainer", func() {

@@ -4,8 +4,9 @@ package blocks
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // RangeInterpreter is the basil interpreter for the Range block
@@ -23,7 +24,7 @@ func (i RangeInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.RangeEntry",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/blocks.RangeEntry",
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{

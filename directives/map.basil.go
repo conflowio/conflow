@@ -4,8 +4,9 @@ package directives
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // MapInterpreter is the basil interpreter for the Map block
@@ -22,7 +23,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 			Name: "Map",
 			Properties: map[string]schema.Schema{
 				"additional_properties": &schema.Reference{
-					Ref: "http://basil.schema/github.com/opsidian/basil/basil/schema.Schema",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/basil/schema.Schema",
 				},
 				"annotations": &schema.Map{
 					AdditionalProperties: &schema.String{},

@@ -11,7 +11,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 // @block

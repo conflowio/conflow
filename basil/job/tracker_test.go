@@ -10,16 +10,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/opsidian/basil/basil/job/jobfakes"
+	"github.com/opsidian/conflow/basil/job/jobfakes"
 
-	"github.com/opsidian/basil/basil/job"
+	"github.com/opsidian/conflow/basil/job"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/loggers/zerolog"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/basilfakes"
+	"github.com/opsidian/conflow/loggers/zerolog"
 )
 
 //counterfeiter:generate . pendingJob

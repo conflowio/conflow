@@ -4,7 +4,7 @@ package jobfakes
 import (
 	"sync"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 type FakePendingJob struct {

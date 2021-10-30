@@ -5,8 +5,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/test"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/test"
 )
 
 type FakeBlockWithRun struct {

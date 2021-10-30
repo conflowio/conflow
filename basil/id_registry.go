@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/util"
 )
 
 // IDRegistry generates and stores identifiers

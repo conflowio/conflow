@@ -3,9 +3,9 @@
 package json
 
 import (
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/function"
+	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/parsley/parsley"
 )
 

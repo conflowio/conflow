@@ -7,8 +7,8 @@
 package generator
 
 import (
-	"github.com/opsidian/basil/basil/generator/parser"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil/generator/parser"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 type InterpreterTemplateParams struct {

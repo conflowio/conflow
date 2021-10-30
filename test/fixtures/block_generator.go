@@ -9,7 +9,7 @@ package fixtures
 import (
 	"context"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 // @block

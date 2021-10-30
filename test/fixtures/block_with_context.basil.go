@@ -4,9 +4,10 @@ package fixtures
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
 	"time"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // BlockWithContextInterpreter is the basil interpreter for the BlockWithContext block

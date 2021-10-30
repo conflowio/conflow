@@ -10,7 +10,7 @@ import (
 	"errors"
 	"sync/atomic"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 // Scheduler handles workers and schedules jobs

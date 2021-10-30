@@ -4,9 +4,10 @@ package test
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
 	"time"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // DirectiveInterpreter is the basil interpreter for the Directive block
@@ -43,7 +44,7 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 						Metadata: schema.Metadata{
 							Pointer: true,
 						},
-						Ref: "http://basil.schema/github.com/opsidian/basil/test.Block",
+						Ref: "http://basil.schema/github.com/opsidian/conflow/test.Block",
 					},
 				},
 				"value": &schema.Untyped{

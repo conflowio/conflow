@@ -4,9 +4,10 @@ package blocks
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
 	"io"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // GzipInterpreter is the basil interpreter for the Gzip block
@@ -32,7 +33,7 @@ func (i GzipInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Stream",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/blocks.Stream",
 				},
 			},
 			Required: []string{"in", "out"},

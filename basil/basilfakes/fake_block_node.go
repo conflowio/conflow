@@ -4,8 +4,8 @@ package basilfakes
 import (
 	"sync"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/parsley/parsley"
 )
 

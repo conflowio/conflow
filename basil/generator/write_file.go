@@ -17,7 +17,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/opsidian/basil/basil/generator/parser"
+	"github.com/opsidian/conflow/basil/generator/parser"
 )
 
 func writeFile(dir, name string, content []byte) error {

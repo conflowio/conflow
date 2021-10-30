@@ -7,7 +7,7 @@
 package dependency
 
 import (
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 type node struct {

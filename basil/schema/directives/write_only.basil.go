@@ -4,8 +4,9 @@ package directives
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // WriteOnlyInterpreter is the basil interpreter for the WriteOnly block

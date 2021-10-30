@@ -31,7 +31,7 @@ type Integer struct {
 
 func (i *Integer) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if i.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/opsidian/basil/basil/schema")
+		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/opsidian/conflow/basil/schema")
 		return fmt.Sprintf("%s = %s.IntegerPtr(%s.(int64))", resultName, schemaPackageName, valueName)
 	}
 

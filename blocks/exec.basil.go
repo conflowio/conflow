@@ -4,8 +4,9 @@ package blocks
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // ExecInterpreter is the basil interpreter for the Exec block
@@ -44,14 +45,14 @@ func (i ExecInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Stream",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/blocks.Stream",
 				},
 				"stdout": &schema.Reference{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Stream",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/blocks.Stream",
 				},
 			},
 			PropertyNames: map[string]string{"exit_code": "exitCode"},

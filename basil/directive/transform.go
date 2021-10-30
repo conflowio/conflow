@@ -9,7 +9,7 @@ package directive
 import (
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 func Transform(

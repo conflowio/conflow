@@ -9,11 +9,11 @@ package generator_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/block/fixtures"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/test"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/basil/block/fixtures"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/test"
 )
 
 var _ = Describe("GenerateInterpreter", func() {

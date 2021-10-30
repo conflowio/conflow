@@ -23,9 +23,9 @@ var validDependencies = []string{
 }
 
 var dependencyTypes = map[string]string{
-	DependencyBlockPublisher: "github.com/opsidian/basil/basil.BlockPublisher",
-	DependencyJobScheduler:   "github.com/opsidian/basil/basil.JobScheduler",
-	DependencyLogger:         "github.com/opsidian/basil/basil.Logger",
+	DependencyBlockPublisher: "github.com/opsidian/conflow/basil.BlockPublisher",
+	DependencyJobScheduler:   "github.com/opsidian/conflow/basil.JobScheduler",
+	DependencyLogger:         "github.com/opsidian/conflow/basil.Logger",
 	DependencyStdout:         "io.Writer",
 	DependencyUserContext:    "interface{}",
 }

@@ -6,7 +6,7 @@
 
 package directives
 
-import "github.com/opsidian/basil/basil/block"
+import "github.com/opsidian/conflow/basil/block"
 
 func DefaultRegistry() block.InterpreterRegistry {
 	return block.InterpreterRegistry{

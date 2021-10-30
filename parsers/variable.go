@@ -11,8 +11,8 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/variable"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/variable"
 )
 
 // Variable will match a variable expression defined by the following rule, where P is the input parser:

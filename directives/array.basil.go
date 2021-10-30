@@ -4,8 +4,9 @@ package directives
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // ArrayInterpreter is the basil interpreter for the Array block
@@ -41,7 +42,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 					Items: &schema.Untyped{},
 				},
 				"items": &schema.Reference{
-					Ref: "http://basil.schema/github.com/opsidian/basil/basil/schema.Schema",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/basil/schema.Schema",
 				},
 				"max_items": &schema.Integer{
 					Metadata: schema.Metadata{

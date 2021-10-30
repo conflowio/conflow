@@ -12,10 +12,10 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
-	"github.com/opsidian/basil/basil/generator/parser"
+	"github.com/opsidian/conflow/basil/generator/parser"
 
-	"github.com/opsidian/basil/basil/block/generator"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil/block/generator"
+	"github.com/opsidian/conflow/basil/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -33,7 +33,7 @@ var _ = Describe("ParseStruct", func() {
 			package foo
 			import (
 				"time"
-				"github.com/opsidian/basil/basil"
+				"github.com/opsidian/conflow/basil"
 			)
 			// Foo is a test struct
 			type Foo struct {
@@ -303,7 +303,7 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					basilalias "github.com/opsidian/basil/basil"
+					basilalias "github.com/opsidian/conflow/basil"
 				)
 				type Foo struct {
 					// @id
@@ -348,7 +348,7 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					"github.com/opsidian/basil/basil"
+					"github.com/opsidian/conflow/basil"
 				)
 				type Foo struct {
 					// @id
@@ -368,7 +368,7 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					"github.com/opsidian/basil/basil"
+					"github.com/opsidian/conflow/basil"
 				)
 				type Foo struct {
 					// @id
@@ -390,7 +390,7 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					"github.com/opsidian/basil/basil"
+					"github.com/opsidian/conflow/basil"
 				)
 				type Foo struct {
 					// @id
@@ -412,7 +412,7 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					"github.com/opsidian/basil/basil"
+					"github.com/opsidian/conflow/basil"
 				)
 				type Foo struct {
 					// @id

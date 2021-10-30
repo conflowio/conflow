@@ -7,7 +7,7 @@
 package job
 
 import (
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 // Worker is a goroutine processing jobs

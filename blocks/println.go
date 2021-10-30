@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 // Println will write a string followed by a new line to the standard output

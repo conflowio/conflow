@@ -13,9 +13,9 @@ import (
 	"github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 //counterfeiter:generate . BlockWithInit

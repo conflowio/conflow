@@ -9,7 +9,7 @@ package zerolog
 import (
 	"github.com/rs/zerolog"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 type ObjectMarshalerWrapper struct {

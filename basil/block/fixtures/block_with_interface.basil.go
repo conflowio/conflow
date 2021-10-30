@@ -4,8 +4,9 @@ package fixtures
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // BlockWithInterfaceInterpreter is the basil interpreter for the BlockWithInterface block
@@ -19,11 +20,11 @@ func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 			Name: "BlockWithInterface",
 			Properties: map[string]schema.Schema{
 				"block": &schema.Reference{
-					Ref: "http://basil.schema/github.com/opsidian/basil/basil.Block",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/basil.Block",
 				},
 				"blocks": &schema.Array{
 					Items: &schema.Reference{
-						Ref: "http://basil.schema/github.com/opsidian/basil/basil.Block",
+						Ref: "http://basil.schema/github.com/opsidian/conflow/basil.Block",
 					},
 				},
 				"id_field": &schema.String{

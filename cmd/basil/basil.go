@@ -13,7 +13,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/opsidian/basil/basil/generator"
+	"github.com/opsidian/conflow/basil/generator"
 )
 
 var usage = `

@@ -9,8 +9,8 @@ package common
 import (
 	"context"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/block"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/block"
 )
 
 // @block

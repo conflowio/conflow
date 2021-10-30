@@ -4,9 +4,10 @@ package blocks
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
 	"io"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // GunzipInterpreter is the basil interpreter for the Gunzip block
@@ -32,7 +33,7 @@ func (i GunzipInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/blocks.Stream",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/blocks.Stream",
 				},
 			},
 			Required: []string{"in", "out"},

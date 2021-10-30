@@ -4,8 +4,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // BenchmarkRunInterpreter is the basil interpreter for the BenchmarkRun block

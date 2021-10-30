@@ -6,7 +6,7 @@
 
 package directives
 
-import "github.com/opsidian/basil/basil"
+import "github.com/opsidian/conflow/basil"
 
 // @block {
 //  eval_stage = "ignore"

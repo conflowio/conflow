@@ -6,7 +6,7 @@
 
 package generator
 
-import "github.com/opsidian/basil/basil/schema"
+import "github.com/opsidian/conflow/basil/schema"
 
 type InterpreterTemplateParams struct {
 	Package          string

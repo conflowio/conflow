@@ -9,7 +9,7 @@ package blocks
 import (
 	"io"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 func NewStream(id basil.ID, stream io.ReadCloser) *Stream {

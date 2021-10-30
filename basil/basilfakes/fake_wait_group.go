@@ -4,7 +4,7 @@ package basilfakes
 import (
 	"sync"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 type FakeWaitGroup struct {

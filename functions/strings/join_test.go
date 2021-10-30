@@ -11,10 +11,10 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/basil/basil/function"
-	"github.com/opsidian/basil/functions/strings"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/test"
+	"github.com/opsidian/conflow/basil/function"
+	"github.com/opsidian/conflow/functions/strings"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/test"
 )
 
 var _ = Describe("Join", func() {

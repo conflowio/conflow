@@ -4,8 +4,9 @@ package fixtures
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // BlockGeneratorInterpreter is the basil interpreter for the BlockGenerator block
@@ -33,7 +34,7 @@ func (i BlockGeneratorInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/test/fixtures.BlockGeneratorResult",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/test/fixtures.BlockGeneratorResult",
 				},
 			},
 			Required: []string{"items", "result"},

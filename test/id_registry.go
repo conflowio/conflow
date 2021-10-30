@@ -9,7 +9,7 @@ package test
 import (
 	"strconv"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 type idRegistry struct {

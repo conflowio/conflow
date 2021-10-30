@@ -4,9 +4,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
 	"time"
+
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // BenchmarkInterpreter is the basil interpreter for the Benchmark block
@@ -39,7 +40,7 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://basil.schema/github.com/opsidian/basil/examples/benchmark.BenchmarkRun",
+					Ref: "http://basil.schema/github.com/opsidian/conflow/examples/benchmark.BenchmarkRun",
 				},
 			},
 			Required: []string{"duration", "run"},

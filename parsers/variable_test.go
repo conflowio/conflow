@@ -9,15 +9,15 @@ package parsers_test
 import (
 	"context"
 
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/basilfakes"
-	"github.com/opsidian/basil/loggers/zerolog"
-	"github.com/opsidian/basil/parsers"
-	"github.com/opsidian/basil/test"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/basilfakes"
+	"github.com/opsidian/conflow/loggers/zerolog"
+	"github.com/opsidian/conflow/parsers"
+	"github.com/opsidian/conflow/test"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 )

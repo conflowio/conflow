@@ -9,7 +9,7 @@ package json
 import (
 	"encoding/json"
 
-	"github.com/opsidian/basil/basil/function"
+	"github.com/opsidian/conflow/basil/function"
 )
 
 // Encode converts the given value to a json string

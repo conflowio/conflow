@@ -17,10 +17,10 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	uzerolog "github.com/rs/zerolog"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/basil/directives"
-	"github.com/opsidian/basil/loggers/zerolog"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/job"
+	"github.com/opsidian/conflow/directives"
+	"github.com/opsidian/conflow/loggers/zerolog"
 )
 
 func NewParseContext() *basil.ParseContext {

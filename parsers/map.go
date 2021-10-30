@@ -16,7 +16,7 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/basil/basil/schema"
+	"github.com/opsidian/conflow/basil/schema"
 )
 
 // Map will match an map expression defined by the following rule, where P is the input parser:

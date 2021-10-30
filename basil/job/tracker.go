@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 type jobState struct {

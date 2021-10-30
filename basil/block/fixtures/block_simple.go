@@ -6,7 +6,7 @@
 
 package fixtures
 
-import "github.com/opsidian/basil/basil"
+import "github.com/opsidian/conflow/basil"
 
 // @block
 type BlockSimple struct {

@@ -7,8 +7,8 @@
 package directives
 
 import (
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/util"
 )
 
 // @block {

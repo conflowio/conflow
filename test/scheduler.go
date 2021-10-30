@@ -9,7 +9,7 @@ package test
 import (
 	"sync/atomic"
 
-	"github.com/opsidian/basil/basil"
+	"github.com/opsidian/conflow/basil"
 )
 
 // Scheduler is a test scheduler, it will simply run the given job in a goroutine in the background

@@ -17,11 +17,11 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/job"
-	"github.com/opsidian/basil/basil/schema"
-	"github.com/opsidian/basil/basil/schema/directives"
-	"github.com/opsidian/basil/parsers"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/job"
+	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/basil/schema/directives"
+	"github.com/opsidian/conflow/parsers"
 )
 
 type Metadata struct {

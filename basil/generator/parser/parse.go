@@ -18,10 +18,10 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/opsidian/basil/basil"
-	"github.com/opsidian/basil/basil/schema"
-	schemadirectives "github.com/opsidian/basil/basil/schema/directives"
-	"github.com/opsidian/basil/util"
+	"github.com/opsidian/conflow/basil"
+	"github.com/opsidian/conflow/basil/schema"
+	schemadirectives "github.com/opsidian/conflow/basil/schema/directives"
+	"github.com/opsidian/conflow/util"
 )
 
 type Field struct {
@@ -265,7 +265,7 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 
 			var s schema.Schema
 			switch path + "." + tn.Sel.Name {
-			case "github.com/opsidian/basil/basil.ID":
+			case "github.com/opsidian/conflow/basil.ID":
 				s = &schema.String{
 					Format: schema.FormatBasilID,
 					Metadata: schema.Metadata{
