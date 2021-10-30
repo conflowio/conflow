@@ -28,4 +28,4 @@ require (
 	sourcegraph.com/sqs/pbtypes v0.0.0-20180604144634-d3ebe8f20ae4 // indirect
 )
 
-go 1.16
+go 1.17
