@@ -7,7 +7,7 @@
 package directives
 
 import (
-	"github.com/opsidian/conflow/conflow/block"
+	"github.com/conflowio/conflow/conflow/block"
 )
 
 func Registry() block.InterpreterRegistry {

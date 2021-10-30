@@ -9,11 +9,11 @@ package parsers_test
 import (
 	"errors"
 
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/parsers"
+	"github.com/conflowio/conflow/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/parsers"
-	"github.com/opsidian/conflow/test"
 )
 
 var _ = Describe("Name", func() {

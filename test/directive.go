@@ -11,8 +11,8 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/block"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/block"
 )
 
 var _ conflow.BlockDirective = &Directive{}

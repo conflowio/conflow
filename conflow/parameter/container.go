@@ -7,9 +7,9 @@
 package parameter
 
 import (
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 var _ conflow.ParameterContainer = &Container{}

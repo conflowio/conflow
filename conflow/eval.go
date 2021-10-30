@@ -10,9 +10,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // Evaluate will evaluate the given node which was previously parsed with the passed parse context

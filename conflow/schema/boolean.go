@@ -25,7 +25,7 @@ type Boolean struct {
 
 func (b *Boolean) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if b.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/opsidian/conflow/conflow/schema")
+		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf("%s = %s.BooleanPtr(%s.(bool))", resultName, schemaPackageName, valueName)
 	}
 

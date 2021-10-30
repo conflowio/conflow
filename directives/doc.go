@@ -6,7 +6,7 @@
 
 package directives
 
-import "github.com/opsidian/conflow/conflow"
+import "github.com/conflowio/conflow/conflow"
 
 // @block {
 //  eval_stage = "ignore"

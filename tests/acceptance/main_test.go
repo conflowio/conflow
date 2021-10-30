@@ -19,13 +19,13 @@ import (
 	. "github.com/onsi/gomega"
 	uzerolog "github.com/rs/zerolog"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/job"
-	"github.com/opsidian/conflow/examples/common"
-	"github.com/opsidian/conflow/loggers/zerolog"
-	"github.com/opsidian/conflow/parsers"
-	"github.com/opsidian/conflow/tests/acceptance"
-	"github.com/opsidian/conflow/util"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/job"
+	"github.com/conflowio/conflow/examples/common"
+	"github.com/conflowio/conflow/loggers/zerolog"
+	"github.com/conflowio/conflow/parsers"
+	"github.com/conflowio/conflow/tests/acceptance"
+	"github.com/conflowio/conflow/util"
 )
 
 type testCase struct {

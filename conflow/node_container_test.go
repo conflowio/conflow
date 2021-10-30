@@ -11,17 +11,17 @@ import (
 	"errors"
 	"time"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/util"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/util"
 
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 
-	"github.com/opsidian/conflow/loggers/zerolog"
+	"github.com/conflowio/conflow/loggers/zerolog"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/conflow/conflow/conflowfakes"
+	"github.com/conflowio/conflow/conflow/conflowfakes"
 )
 
 var _ = Describe("NodeContainer", func() {

@@ -7,8 +7,8 @@
 package directives
 
 import (
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/util"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/util"
 )
 
 // @block {

@@ -9,9 +9,9 @@ package conflow
 import (
 	"context"
 
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // Block is an interface for a block object

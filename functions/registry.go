@@ -7,10 +7,10 @@
 package functions
 
 import (
-	"github.com/opsidian/conflow/conflow/function"
-	"github.com/opsidian/conflow/functions/json"
-	"github.com/opsidian/conflow/functions/math"
-	"github.com/opsidian/conflow/functions/strings"
+	"github.com/conflowio/conflow/conflow/function"
+	"github.com/conflowio/conflow/functions/json"
+	"github.com/conflowio/conflow/functions/math"
+	"github.com/conflowio/conflow/functions/strings"
 )
 
 func DefaultRegistry() function.InterpreterRegistry {

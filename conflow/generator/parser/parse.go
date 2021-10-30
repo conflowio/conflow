@@ -18,10 +18,10 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
-	schemadirectives "github.com/opsidian/conflow/conflow/schema/directives"
-	"github.com/opsidian/conflow/util"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
+	schemadirectives "github.com/conflowio/conflow/conflow/schema/directives"
+	"github.com/conflowio/conflow/util"
 )
 
 type Field struct {
@@ -265,7 +265,7 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 
 			var s schema.Schema
 			switch path + "." + tn.Sel.Name {
-			case "github.com/opsidian/conflow/conflow.ID":
+			case "github.com/conflowio/conflow/conflow.ID":
 				s = &schema.String{
 					Format: schema.FormatConflowID,
 					Metadata: schema.Metadata{

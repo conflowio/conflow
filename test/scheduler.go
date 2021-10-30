@@ -9,7 +9,7 @@ package test
 import (
 	"sync/atomic"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // Scheduler is a test scheduler, it will simply run the given job in a goroutine in the background

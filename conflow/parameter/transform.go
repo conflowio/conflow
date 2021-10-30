@@ -9,10 +9,10 @@ package parameter
 import (
 	"errors"
 
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/directive"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/directive"
 )
 
 func TransformNode(

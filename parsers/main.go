@@ -12,14 +12,14 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/opsidian/parsley/ast"
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/data"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
+	"github.com/conflowio/parsley/ast"
+	"github.com/conflowio/parsley/combinator"
+	"github.com/conflowio/parsley/data"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/block"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/block"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)

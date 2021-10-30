@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/opsidian/conflow/util"
+	"github.com/conflowio/conflow/util"
 )
 
 // IDRegistry generates and stores identifiers

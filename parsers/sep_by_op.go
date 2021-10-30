@@ -7,9 +7,9 @@
 package parsers
 
 import (
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
+	"github.com/conflowio/parsley/combinator"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text"
 )
 
 // SepByOp applies the given value parser one or more times separated by the op parser

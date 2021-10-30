@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/conflow/blocks"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/block"
-	"github.com/opsidian/conflow/examples/common"
-	"github.com/opsidian/conflow/functions"
-	"github.com/opsidian/conflow/parsers"
-	"github.com/opsidian/conflow/util"
+	"github.com/conflowio/conflow/blocks"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/block"
+	"github.com/conflowio/conflow/examples/common"
+	"github.com/conflowio/conflow/functions"
+	"github.com/conflowio/conflow/parsers"
+	"github.com/conflowio/conflow/util"
 )
 
 // @block

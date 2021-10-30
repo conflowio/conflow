@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 type jobState struct {

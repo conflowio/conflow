@@ -4,8 +4,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // GlobInterpreter is the conflow interpreter for the Glob block
@@ -26,7 +26,7 @@ func (i GlobInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/examples/licensify.File",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/examples/licensify.File",
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{

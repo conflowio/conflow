@@ -9,7 +9,7 @@ package util
 import (
 	"sync"
 
-	"github.com/opsidian/conflow/util/multierror"
+	"github.com/conflowio/conflow/util/multierror"
 )
 
 // WaitGroup is a slightly different version of sync.WaitGroup with error handling

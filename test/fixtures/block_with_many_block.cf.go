@@ -4,8 +4,8 @@ package fixtures
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // BlockWithManyBlockInterpreter is the conflow interpreter for the BlockWithManyBlock block
@@ -23,7 +23,7 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 						Metadata: schema.Metadata{
 							Pointer: true,
 						},
-						Ref: "http://conflow.schema/github.com/opsidian/conflow/test/fixtures.Block",
+						Ref: "http://conflow.schema/github.com/conflowio/conflow/test/fixtures.Block",
 					},
 				},
 				"id_field": &schema.String{

@@ -37,7 +37,7 @@ for path in $(go list -f '{{ $dir := .Dir }}{{ range .GoFiles }}{{ printf "%s/%s
 
   remove_lines_file "${path}"
 
-  "${PROJECT_DIR}"/bin/goimports -local github.com/opsidian/conflow -w "${path}"
+  "${PROJECT_DIR}"/bin/goimports -local github.com/conflowio/conflow -w "${path}"
 done
 
 

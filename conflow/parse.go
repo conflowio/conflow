@@ -9,10 +9,10 @@ package conflow
 import (
 	"fmt"
 
-	"github.com/opsidian/parsley/ast"
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
+	"github.com/conflowio/parsley/ast"
+	"github.com/conflowio/parsley/combinator"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text"
 )
 
 // ParseText parses the text input with the given parser

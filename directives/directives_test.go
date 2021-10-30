@@ -11,19 +11,19 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/block"
-	"github.com/opsidian/conflow/functions"
-	"github.com/opsidian/conflow/parsers"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/block"
+	"github.com/conflowio/conflow/functions"
+	"github.com/conflowio/conflow/parsers"
 
-	"github.com/opsidian/conflow/blocks"
+	"github.com/conflowio/conflow/blocks"
 
-	"github.com/opsidian/conflow/conflow/job"
-	"github.com/opsidian/conflow/directives"
-	"github.com/opsidian/conflow/loggers/zerolog"
+	"github.com/conflowio/conflow/conflow/job"
+	"github.com/conflowio/conflow/directives"
+	"github.com/conflowio/conflow/loggers/zerolog"
 )
 
 func eval(input string) {

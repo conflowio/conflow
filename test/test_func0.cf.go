@@ -3,9 +3,9 @@
 package test
 
 import (
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // TestFunc0Interpreter is the conflow interpreter for the testFunc0 function

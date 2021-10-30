@@ -11,16 +11,16 @@ import (
 	"errors"
 	"time"
 
+	"github.com/conflowio/parsley/parsley"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/block"
-	"github.com/opsidian/conflow/conflow/conflowfakes"
-	"github.com/opsidian/conflow/conflow/job"
-	"github.com/opsidian/conflow/loggers/zerolog"
-	"github.com/opsidian/conflow/test/testfakes"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/block"
+	"github.com/conflowio/conflow/conflow/conflowfakes"
+	"github.com/conflowio/conflow/conflow/job"
+	"github.com/conflowio/conflow/loggers/zerolog"
+	"github.com/conflowio/conflow/test/testfakes"
 )
 
 var _ = Describe("Container", func() {

@@ -4,7 +4,7 @@ package conflowfakes
 import (
 	"sync"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 type FakeJobScheduler struct {

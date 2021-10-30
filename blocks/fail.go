@@ -10,7 +10,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // @block

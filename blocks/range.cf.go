@@ -4,8 +4,8 @@ package blocks
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // RangeInterpreter is the conflow interpreter for the Range block
@@ -23,7 +23,7 @@ func (i RangeInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/blocks.RangeEntry",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.RangeEntry",
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{

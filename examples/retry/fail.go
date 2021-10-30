@@ -9,7 +9,7 @@ package main
 import (
 	"context"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // Fail will error for the given tries

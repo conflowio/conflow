@@ -4,8 +4,8 @@ package directives
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // ArrayInterpreter is the conflow interpreter for the Array block
@@ -41,7 +41,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 					Items: &schema.Untyped{},
 				},
 				"items": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/conflow/schema.Schema",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/conflow/schema.Schema",
 				},
 				"max_items": &schema.Integer{
 					Metadata: schema.Metadata{

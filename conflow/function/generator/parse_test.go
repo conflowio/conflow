@@ -11,9 +11,9 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
-	"github.com/opsidian/conflow/conflow/function/generator"
-	"github.com/opsidian/conflow/conflow/generator/parser"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/function/generator"
+	"github.com/conflowio/conflow/conflow/generator/parser"
+	"github.com/conflowio/conflow/conflow/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

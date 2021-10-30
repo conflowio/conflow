@@ -4,8 +4,8 @@ package conflowfakes
 import (
 	"sync"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/parsley/parsley"
 )
 
 type FakeVariableNode struct {

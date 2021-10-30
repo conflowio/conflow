@@ -10,16 +10,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/opsidian/parsley/ast"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/ast"
+	"github.com/conflowio/parsley/parsley"
 
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/dependency"
-	"github.com/opsidian/conflow/conflow/directive"
-	"github.com/opsidian/conflow/conflow/job"
-	"github.com/opsidian/conflow/conflow/parameter"
-	"github.com/opsidian/conflow/conflow/schema"
-	"github.com/opsidian/conflow/util"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/dependency"
+	"github.com/conflowio/conflow/conflow/directive"
+	"github.com/conflowio/conflow/conflow/job"
+	"github.com/conflowio/conflow/conflow/parameter"
+	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/util"
 )
 
 func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.BlockInterpreter) (parsley.Node, parsley.Error) {

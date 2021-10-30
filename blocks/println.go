@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/opsidian/conflow/conflow"
+	"github.com/conflowio/conflow/conflow"
 )
 
 // Println will write a string followed by a new line to the standard output

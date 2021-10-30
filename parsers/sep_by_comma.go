@@ -7,10 +7,10 @@
 package parsers
 
 import (
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
-	"github.com/opsidian/parsley/text/terminal"
+	"github.com/conflowio/parsley/combinator"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text"
+	"github.com/conflowio/parsley/text/terminal"
 )
 
 // SepByComma applies the given value parser zero or more times separated by comma

@@ -7,8 +7,8 @@
 package generator
 
 import (
-	"github.com/opsidian/conflow/conflow/generator/parser"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/generator/parser"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 type InterpreterTemplateParams struct {

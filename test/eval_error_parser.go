@@ -7,13 +7,13 @@
 package test
 
 import (
-	"github.com/opsidian/parsley/ast"
-	"github.com/opsidian/parsley/data"
-	"github.com/opsidian/parsley/parser"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text/terminal"
+	"github.com/conflowio/parsley/ast"
+	"github.com/conflowio/parsley/data"
+	"github.com/conflowio/parsley/parser"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text/terminal"
 
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // EvalErrorParser returns with a parser which will read the "ERR" string but the result node evaluation will throw an error

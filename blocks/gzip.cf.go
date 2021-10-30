@@ -4,8 +4,8 @@ package blocks
 
 import (
 	"fmt"
-	"github.com/opsidian/conflow/conflow"
-	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 	"io"
 )
 
@@ -32,7 +32,7 @@ func (i GzipInterpreter) Schema() schema.Schema {
 						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
 						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/opsidian/conflow/blocks.Stream",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.Stream",
 				},
 			},
 			Required: []string{"in", "out"},
