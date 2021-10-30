@@ -5,7 +5,7 @@ package test
 import (
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // TestFunc2Interpreter is the conflow interpreter for the testFunc2 function

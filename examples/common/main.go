@@ -14,7 +14,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 	uzerolog "github.com/rs/zerolog"
 
 	"github.com/conflowio/conflow/conflow"

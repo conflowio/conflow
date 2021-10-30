@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/conflowio/conflow/conflow"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 )
 
 type FakeJobContainer struct {

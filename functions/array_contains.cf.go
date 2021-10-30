@@ -6,7 +6,7 @@ import (
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/function"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // ArrayContainsInterpreter is the conflow interpreter for the ArrayContains function

@@ -7,10 +7,10 @@
 package parsers
 
 import (
-	"github.com/opsidian/parsley/ast/interpreter"
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/text"
-	"github.com/opsidian/parsley/text/terminal"
+	"github.com/conflowio/parsley/ast/interpreter"
+	"github.com/conflowio/parsley/combinator"
+	"github.com/conflowio/parsley/text"
+	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/conflow/schema"
 )

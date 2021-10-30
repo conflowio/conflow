@@ -7,7 +7,7 @@
 package conflow
 
 import (
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // Node is an identifiable node which has dependencies and has an evaluation stage

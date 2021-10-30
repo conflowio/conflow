@@ -5,7 +5,7 @@ package strings
 import (
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // HasSuffixInterpreter is the conflow interpreter for the HasSuffix function

@@ -9,7 +9,7 @@ package conflow
 import (
 	"fmt"
 
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // ParseContext is the parsing context

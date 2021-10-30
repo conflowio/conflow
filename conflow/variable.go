@@ -6,7 +6,7 @@
 
 package conflow
 
-import "github.com/opsidian/parsley/parsley"
+import "github.com/conflowio/parsley/parsley"
 
 // VariableNode stores a variable reference. It always refers to a named block's parameter.
 //counterfeiter:generate . VariableNode

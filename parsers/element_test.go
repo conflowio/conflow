@@ -11,14 +11,15 @@ import (
 
 	"github.com/conflowio/conflow/conflow/schema"
 
-	"github.com/conflowio/conflow/parsers"
-	"github.com/conflowio/conflow/test"
+	"github.com/conflowio/parsley/combinator"
+	pparser "github.com/conflowio/parsley/parser"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text/terminal"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/parsley/combinator"
-	pparser "github.com/opsidian/parsley/parser"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text/terminal"
+
+	"github.com/conflowio/conflow/parsers"
+	"github.com/conflowio/conflow/test"
 )
 
 var _ = Describe("Element", func() {

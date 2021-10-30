@@ -12,14 +12,15 @@ import (
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
 
+	"github.com/conflowio/parsley/combinator"
+	"github.com/conflowio/parsley/parsley"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+
 	"github.com/conflowio/conflow/conflow/conflowfakes"
 	"github.com/conflowio/conflow/loggers/zerolog"
 	"github.com/conflowio/conflow/parsers"
 	"github.com/conflowio/conflow/test"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parsley"
 )
 
 var _ = Describe("Variable", func() {

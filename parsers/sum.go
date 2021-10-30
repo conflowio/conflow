@@ -9,9 +9,9 @@ package parsers
 import (
 	"fmt"
 
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text/terminal"
+	"github.com/conflowio/parsley/combinator"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/conflow/schema"
 )

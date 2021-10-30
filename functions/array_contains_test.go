@@ -11,14 +11,15 @@ import (
 
 	"github.com/conflowio/conflow/conflow/schema"
 
+	"github.com/conflowio/parsley/parsley"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/gomega"
+
 	conflowfunction "github.com/conflowio/conflow/conflow/function"
 	"github.com/conflowio/conflow/functions"
 	"github.com/conflowio/conflow/parsers"
 	"github.com/conflowio/conflow/test"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
-	. "github.com/onsi/gomega"
-	"github.com/opsidian/parsley/parsley"
 )
 
 var _ = Describe("ArrayContains", func() {

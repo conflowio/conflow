@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text"
 
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/block"

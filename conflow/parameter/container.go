@@ -7,7 +7,7 @@
 package parameter
 
 import (
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/conflow"
 )

@@ -10,11 +10,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/conflowio/parsley/combinator"
+	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
-	"github.com/opsidian/parsley/combinator"
-	"github.com/opsidian/parsley/parsley"
-	"github.com/opsidian/parsley/text"
 
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/block"

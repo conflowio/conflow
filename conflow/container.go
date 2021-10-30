@@ -7,7 +7,7 @@
 package conflow
 
 import (
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // Container is a conflow object container

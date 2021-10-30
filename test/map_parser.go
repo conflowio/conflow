@@ -7,8 +7,8 @@
 package test
 
 import (
-	"github.com/opsidian/parsley/parser"
-	"github.com/opsidian/parsley/text/terminal"
+	"github.com/conflowio/parsley/parser"
+	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/conflow/schema"
 )

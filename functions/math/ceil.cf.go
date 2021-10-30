@@ -5,7 +5,7 @@ package math
 import (
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // CeilInterpreter is the conflow interpreter for the Ceil function

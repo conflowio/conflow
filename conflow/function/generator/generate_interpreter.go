@@ -86,7 +86,7 @@ func generateTemplateParams(
 		".":       pkg,
 		"conflow": "github.com/conflowio/conflow/conflow",
 		"schema":  "github.com/conflowio/conflow/conflow/schema",
-		"parsley": "github.com/opsidian/parsley/parsley",
+		"parsley": "github.com/conflowio/parsley/parsley",
 	}
 
 	if f.ReturnsError {

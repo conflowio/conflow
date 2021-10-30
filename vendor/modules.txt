@@ -44,6 +44,16 @@ github.com/charithe/durationcheck
 # github.com/chavacava/garif v0.0.0-20210405164556-e8a0a408d6af
 ## explicit; go 1.16
 github.com/chavacava/garif
+# github.com/conflowio/parsley v0.17.0
+## explicit; go 1.17
+github.com/conflowio/parsley/ast
+github.com/conflowio/parsley/ast/interpreter
+github.com/conflowio/parsley/combinator
+github.com/conflowio/parsley/data
+github.com/conflowio/parsley/parser
+github.com/conflowio/parsley/parsley
+github.com/conflowio/parsley/text
+github.com/conflowio/parsley/text/terminal
 # github.com/daixiang0/gci v0.2.9
 ## explicit; go 1.14
 github.com/daixiang0/gci/pkg/gci
@@ -375,16 +385,6 @@ github.com/onsi/gomega/matchers/support/goraph/edge
 github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
-# github.com/opsidian/parsley v0.16.1-0.20210501065106-86e58e646d55
-## explicit; go 1.16
-github.com/opsidian/parsley/ast
-github.com/opsidian/parsley/ast/interpreter
-github.com/opsidian/parsley/combinator
-github.com/opsidian/parsley/data
-github.com/opsidian/parsley/parser
-github.com/opsidian/parsley/parsley
-github.com/opsidian/parsley/text
-github.com/opsidian/parsley/text/terminal
 # github.com/pelletier/go-toml v1.9.3
 ## explicit; go 1.12
 github.com/pelletier/go-toml
@@ -545,7 +545,7 @@ golang.org/x/mod/semver
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
-# golang.org/x/sys v0.0.0-20211029165221-6e7872819dc8
+# golang.org/x/sys v0.0.0-20211030160813-b3129d9d1021
 ## explicit; go 1.17
 golang.org/x/sys/execabs
 golang.org/x/sys/internal/unsafeheader

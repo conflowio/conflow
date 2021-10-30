@@ -9,7 +9,7 @@ package block
 import (
 	"runtime/debug"
 
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/job"

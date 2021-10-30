@@ -6,7 +6,7 @@
 
 package conflow
 
-import "github.com/opsidian/parsley/parsley"
+import "github.com/conflowio/parsley/parsley"
 
 // DirectiveTransformerRegistryAware is an interface to get a block node transformer registry
 type DirectiveTransformerRegistryAware interface {

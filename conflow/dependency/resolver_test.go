@@ -10,12 +10,13 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/conflowio/parsley/parsley"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/conflowfakes"
 	"github.com/conflowio/conflow/conflow/dependency"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	"github.com/opsidian/parsley/parsley"
 )
 
 var _ = Describe("Resolver", func() {

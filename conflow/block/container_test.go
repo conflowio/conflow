@@ -11,9 +11,9 @@ import (
 	"errors"
 	"time"
 
+	"github.com/conflowio/parsley/parsley"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/parsley/parsley"
 
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/block"

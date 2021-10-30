@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/opsidian/parsley/parsley"
+	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/util"
 )
