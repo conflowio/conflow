@@ -7,13 +7,13 @@
 package basil
 
 // JobScheduler is the job scheduler
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . JobScheduler
+//counterfeiter:generate . JobScheduler
 type JobScheduler interface {
 	ScheduleJob(job Job) error
 }
 
 // Job is a unit of work the scheduler can schedule and run
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Job
+//counterfeiter:generate . Job
 type Job interface {
 	JobName() ID
 	JobID() int
@@ -22,7 +22,7 @@ type Job interface {
 	Lightweight() bool
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . JobContainer
+//counterfeiter:generate . JobContainer
 type JobContainer interface {
 	Job
 	Container

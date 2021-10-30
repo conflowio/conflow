@@ -13,7 +13,7 @@ import (
 )
 
 // ParameterNode is the AST node for a parameter
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ParameterNode
+//counterfeiter:generate . ParameterNode
 type ParameterNode interface {
 	Node
 	parsley.StaticCheckable
@@ -24,7 +24,7 @@ type ParameterNode interface {
 }
 
 // ParameterContainer is a parameter container
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ParameterContainer
+//counterfeiter:generate . ParameterContainer
 type ParameterContainer interface {
 	Container
 	BlockContainer() BlockContainer

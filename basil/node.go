@@ -11,7 +11,7 @@ import (
 )
 
 // Node is an identifiable node which has dependencies and has an evaluation stage
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . Node
+//counterfeiter:generate . Node
 type Node interface {
 	parsley.Node
 	Identifiable

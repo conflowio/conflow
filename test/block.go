@@ -18,19 +18,19 @@ import (
 	"github.com/opsidian/basil/basil/schema"
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithInit
+//counterfeiter:generate . BlockWithInit
 type BlockWithInit interface {
 	basil.Block
 	basil.BlockInitialiser
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithRun
+//counterfeiter:generate . BlockWithRun
 type BlockWithRun interface {
 	basil.Block
 	basil.BlockRunner
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . BlockWithClose
+//counterfeiter:generate . BlockWithClose
 type BlockWithClose interface {
 	basil.Block
 	basil.BlockCloser

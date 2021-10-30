@@ -16,7 +16,7 @@ import (
 const FunctionNameRegExpPattern = IDRegExpPattern + "(?:\\." + IDRegExpPattern + ")?"
 
 // FunctionNode is the AST node for a function
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . FunctionNode
+//counterfeiter:generate . FunctionNode
 type FunctionNode interface {
 	parsley.Node
 	parsley.StaticCheckable
@@ -30,7 +30,7 @@ type FunctionTransformerRegistryAware interface {
 }
 
 // FunctionInterpreter defines an interpreter for functions
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . FunctionInterpreter
+//counterfeiter:generate . FunctionInterpreter
 type FunctionInterpreter interface {
 	Schema() schema.Schema
 	Eval(ctx interface{}, node FunctionNode) (interface{}, parsley.Error)

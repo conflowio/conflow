@@ -4,12 +4,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package basil
+package test
 
-//counterfeiter:generate . WaitGroup
-type WaitGroup interface {
-	Add(delta int)
-	Wait() <-chan struct{}
-	Done(err error)
-	Err() error
-}
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate

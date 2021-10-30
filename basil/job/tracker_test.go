@@ -22,13 +22,13 @@ import (
 	"github.com/opsidian/basil/loggers/zerolog"
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . pendingJob
+//counterfeiter:generate . pendingJob
 type pendingJob interface {
 	basil.Job
 	job.Pending
 }
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . cancellableJob
+//counterfeiter:generate . cancellableJob
 type cancellableJob interface {
 	basil.Job
 	job.Cancellable
