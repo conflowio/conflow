@@ -9,9 +9,9 @@ package strings_test
 import (
 	"errors"
 
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 
-	"github.com/opsidian/conflow/basil/function"
+	"github.com/opsidian/conflow/conflow/function"
 	"github.com/opsidian/conflow/parsers"
 
 	. "github.com/onsi/ginkgo"

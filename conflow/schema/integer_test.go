@@ -13,8 +13,8 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/conflow/basil/schema"
-	"github.com/opsidian/conflow/basil/schema/internal/testhelper"
+	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/opsidian/conflow/conflow/schema/internal/testhelper"
 )
 
 var _ schema.Schema = &schema.Integer{}

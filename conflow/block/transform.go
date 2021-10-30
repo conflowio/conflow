@@ -13,12 +13,12 @@ import (
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/basil/dependency"
-	"github.com/opsidian/conflow/basil/directive"
-	"github.com/opsidian/conflow/basil/job"
-	"github.com/opsidian/conflow/basil/parameter"
-	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/dependency"
+	"github.com/opsidian/conflow/conflow/directive"
+	"github.com/opsidian/conflow/conflow/job"
+	"github.com/opsidian/conflow/conflow/parameter"
+	"github.com/opsidian/conflow/conflow/schema"
 	"github.com/opsidian/conflow/util"
 )
 
@@ -189,7 +189,7 @@ func TransformChildren(
 		return nil, nil, nil
 	}
 
-	basilNodes := make([]conflow.Node, 0, len(nodes))
+	conflowNodes := make([]conflow.Node, 0, len(nodes))
 	paramNames := make(map[conflow.ID]struct{}, len(nodes))
 
 	for _, node := range nodes {
@@ -206,7 +206,7 @@ func TransformChildren(
 				blockNode.SetSchema(blockSchema)
 			}
 
-			basilNodes = append(basilNodes, res.(conflow.BlockNode))
+			conflowNodes = append(conflowNodes, res.(conflow.BlockNode))
 
 			if blockNode.EvalStage() == conflow.EvalStageParse {
 				if err := evaluateBlock(parseCtx, blockNode); err != nil {
@@ -223,13 +223,13 @@ func TransformChildren(
 				paramNode.SetSchema(paramSchema)
 			}
 
-			basilNodes = append(basilNodes, paramNode)
+			conflowNodes = append(conflowNodes, paramNode)
 		} else {
 			panic(fmt.Errorf("invalid block child node: %T", node))
 		}
 	}
 
-	return dependency.NewResolver(blockID, basilNodes...).Resolve()
+	return dependency.NewResolver(blockID, conflowNodes...).Resolve()
 }
 
 func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpreter) (schema.Schema, parsley.Error) {

@@ -10,7 +10,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"

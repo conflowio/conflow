@@ -9,8 +9,8 @@ package directives
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // @block
@@ -26,11 +26,11 @@ func (i *ID) ID() conflow.ID {
 func (i *ID) ApplyToSchema(s schema.Schema) error {
 	ss, ok := s.(*schema.String)
 	if !ok {
-		return fmt.Errorf("id annotation can only be set on a basil.ID field")
+		return fmt.Errorf("id annotation can only be set on a conflow.ID field")
 	}
 
-	if ss.Format != schema.FormatBasilID {
-		return fmt.Errorf("id annotation can only be set on a basil.ID field")
+	if ss.Format != schema.FormatConflowID {
+		return fmt.Errorf("id annotation can only be set on a conflow.ID field")
 	}
 
 	return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {

@@ -9,8 +9,8 @@ package directives
 import (
 	"errors"
 
-	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // @block

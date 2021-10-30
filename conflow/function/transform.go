@@ -7,8 +7,9 @@
 package function
 
 import (
-	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/parsley/parsley"
+
+	"github.com/opsidian/conflow/conflow"
 )
 
 func transformNode(

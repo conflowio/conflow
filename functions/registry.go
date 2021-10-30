@@ -7,7 +7,7 @@
 package functions
 
 import (
-	"github.com/opsidian/conflow/basil/function"
+	"github.com/opsidian/conflow/conflow/function"
 	"github.com/opsidian/conflow/functions/json"
 	"github.com/opsidian/conflow/functions/math"
 	"github.com/opsidian/conflow/functions/strings"

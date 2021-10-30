@@ -13,7 +13,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
-	"github.com/opsidian/conflow/basil/block"
+	"github.com/opsidian/conflow/conflow/block"
 	"github.com/opsidian/conflow/parsers"
 	"github.com/opsidian/conflow/test"
 )

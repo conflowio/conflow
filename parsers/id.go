@@ -7,11 +7,12 @@
 package parsers
 
 import (
-	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/parsley/data"
 	"github.com/opsidian/parsley/parser"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
+
+	"github.com/opsidian/conflow/conflow"
 )
 
 // ID parses an identifier:

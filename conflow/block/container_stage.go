@@ -11,8 +11,8 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/basil/job"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/job"
 )
 
 type containerStage struct {

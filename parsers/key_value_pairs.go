@@ -15,8 +15,8 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 func KeyValuePairs() *combinator.Sequence {

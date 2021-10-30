@@ -18,8 +18,8 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/conflow/basil/block"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)
@@ -97,7 +97,7 @@ func (m *Main) ParseDir(ctx *conflow.ParseContext, dir string) error {
 		return fmt.Errorf("path %q is not a directory", dir)
 	}
 
-	paths, err := filepath.Glob(path.Join(dir, "*.basil"))
+	paths, err := filepath.Glob(path.Join(dir, "*.cf"))
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (m *Main) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interfac
 	panic("Eval should not be called on a raw block node")
 }
 
-// TransformNode will transform the parsley node into a basil block node
+// TransformNode will transform the parsley node into a conflow block node
 func (m *Main) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
 	return block.TransformMainNode(userCtx, node, m.id, m.interpreter)
 }

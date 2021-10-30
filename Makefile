@@ -10,23 +10,23 @@ test: ## Runs all tests
 
 .PHONY: generate
 generate: build ## Regenerates all files
-	@PATH="$(PWD)/bin:$(PATH)" basil generate
+	@PATH="$(PWD)/bin:$(PATH)" conflow generate
 
 .PHONY: build
-build: bin/basil ## Build the basil binary
+build: bin/conflow ## Build the conflow binary
 
-bin/basil:
-	@echo "Building bin/basil"
+bin/conflow:
+	@echo "Building bin/conflow"
 	@go version
-	@GOBIN="$(PWD)/bin" go install -ldflags="-s -w" ./cmd/basil/
+	@GOBIN="$(PWD)/bin" go install -ldflags="-s -w" ./cmd/conflow/
 
 .PHONY: clean
 clean: ## Clean all built files
 	@rm -rf bin
 
 .PHONY: clean-generated
-clean-generated: ## Delete all generated files created by basil
-	@find . -name "*.basil.go" -type f -delete
+clean-generated: ## Delete all generated files created by conflow
+	@find . -name "*.cf.go" -type f -delete
 
 .PHONY: goimports
 goimports: ## Run goimports on all files

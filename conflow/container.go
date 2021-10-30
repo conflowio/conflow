@@ -10,7 +10,7 @@ import (
 	"github.com/opsidian/parsley/parsley"
 )
 
-// Container is a basil object container
+// Container is a conflow object container
 //counterfeiter:generate . Container
 type Container interface {
 	Node() Node

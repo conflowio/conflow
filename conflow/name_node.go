@@ -11,7 +11,7 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // NameNode contains a name node

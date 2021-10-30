@@ -9,11 +9,11 @@ package directives
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
-// Function is the directive for marking functions as basil functions
+// Function is the directive for marking functions as conflow functions
 //
 // @block
 type Function struct {

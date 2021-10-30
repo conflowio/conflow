@@ -13,7 +13,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 
 	"github.com/opsidian/conflow/parsers"
 	"github.com/opsidian/conflow/test"

@@ -16,10 +16,10 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/conflow/basil/basilfakes"
-	"github.com/opsidian/conflow/basil/block"
-	"github.com/opsidian/conflow/basil/function"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/conflow/conflowfakes"
+	"github.com/opsidian/conflow/conflow/function"
 	"github.com/opsidian/conflow/directives"
 	"github.com/opsidian/conflow/loggers/zerolog"
 )
@@ -86,7 +86,7 @@ func EvalUserCtx() *conflow.EvalContext {
 			FieldInt: int64(1),
 		}
 
-	testBlockContainer := &basilfakes.FakeBlockContainer{}
+	testBlockContainer := &conflowfakes.FakeBlockContainer{}
 	testBlockContainer.ParamCalls(func(name conflow.ID) interface{} {
 		return BlockInterpreter{}.Param(testBlock, name)
 	})

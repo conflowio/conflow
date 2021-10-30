@@ -14,14 +14,14 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/conflow/basil/block"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 	"github.com/opsidian/conflow/functions"
 	"github.com/opsidian/conflow/parsers"
 
 	"github.com/opsidian/conflow/blocks"
 
-	"github.com/opsidian/conflow/basil/job"
+	"github.com/opsidian/conflow/conflow/job"
 	"github.com/opsidian/conflow/directives"
 	"github.com/opsidian/conflow/loggers/zerolog"
 )

@@ -12,8 +12,8 @@ import (
 	"github.com/opsidian/parsley/ast"
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 var _ conflow.VariableNode = &Node{}

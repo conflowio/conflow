@@ -11,8 +11,8 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/basil/directive"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/directive"
 )
 
 func TransformNode(

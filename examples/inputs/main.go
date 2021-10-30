@@ -15,9 +15,9 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/conflow/basil/block"
 	"github.com/opsidian/conflow/blocks"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 	"github.com/opsidian/conflow/examples/common"
 	"github.com/opsidian/conflow/functions"
 	"github.com/opsidian/conflow/parsers"
@@ -46,7 +46,7 @@ func main() {
 
 	if err := p.ParseFile(
 		parseCtx,
-		"main.basil",
+		"main.cf",
 	); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)

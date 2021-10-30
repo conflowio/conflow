@@ -17,12 +17,12 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/opsidian/conflow/basil/generator/parser"
+	"github.com/opsidian/conflow/conflow/generator/parser"
 )
 
 func writeFile(dir, name string, content []byte) error {
-	basilFile := parser.ToSnakeCase(name) + ".basil.go"
-	filepath := path.Join(dir, basilFile)
+	conflowFile := parser.ToSnakeCase(name) + ".cf.go"
+	filepath := path.Join(dir, conflowFile)
 
 	info, direrr := os.Stat(dir)
 	if os.IsExist(direrr) && !info.IsDir() {

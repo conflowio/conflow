@@ -17,8 +17,8 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	uzerolog "github.com/rs/zerolog"
 
-	"github.com/opsidian/conflow/basil/job"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/job"
 	"github.com/opsidian/conflow/directives"
 	"github.com/opsidian/conflow/loggers/zerolog"
 )
@@ -30,7 +30,7 @@ func NewParseContext() *conflow.ParseContext {
 
 func Main(ctx context.Context, parseCtx *conflow.ParseContext, inputParams map[conflow.ID]interface{}) {
 	level := uzerolog.InfoLevel
-	if envLevel := os.Getenv("BASIL_LOG"); envLevel != "" {
+	if envLevel := os.Getenv("CONFLOW_LOG"); envLevel != "" {
 		var err error
 		level, err = uzerolog.ParseLevel(envLevel)
 		if err != nil {

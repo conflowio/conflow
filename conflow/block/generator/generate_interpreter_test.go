@@ -9,9 +9,9 @@ package generator_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/conflow/basil/block"
-	"github.com/opsidian/conflow/basil/block/fixtures"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/conflow/block/fixtures"
 	"github.com/opsidian/conflow/parsers"
 	"github.com/opsidian/conflow/test"
 )

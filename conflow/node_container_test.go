@@ -21,33 +21,33 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/conflow/basil/basilfakes"
+	"github.com/opsidian/conflow/conflow/conflowfakes"
 )
 
 var _ = Describe("NodeContainer", func() {
 	var n *conflow.NodeContainer
 	var nerr parsley.Error
 	var evalCtx *conflow.EvalContext
-	var node, parentNode *basilfakes.FakeNode
-	var parentContainer *basilfakes.FakeBlockContainer
+	var node, parentNode *conflowfakes.FakeNode
+	var parentContainer *conflowfakes.FakeBlockContainer
 	var ctx context.Context
 	var cancel context.CancelFunc
-	var scheduler *basilfakes.FakeJobScheduler
+	var scheduler *conflowfakes.FakeJobScheduler
 
 	BeforeEach(func() {
 		ctx, cancel = context.WithCancel(context.Background())
 
-		parentNode = &basilfakes.FakeNode{}
+		parentNode = &conflowfakes.FakeNode{}
 		parentNode.IDReturns("parent_node_id")
 
-		node = &basilfakes.FakeNode{}
+		node = &conflowfakes.FakeNode{}
 		node.IDReturns("node_id")
 
-		parentContainer = &basilfakes.FakeBlockContainer{}
+		parentContainer = &conflowfakes.FakeBlockContainer{}
 		parentContainer.NodeReturns(parentNode)
 
 		logger := zerolog.NewDisabledLogger()
-		scheduler = &basilfakes.FakeJobScheduler{}
+		scheduler = &conflowfakes.FakeJobScheduler{}
 		evalCtx = conflow.NewEvalContext(ctx, nil, logger, scheduler, nil)
 	})
 
@@ -68,7 +68,7 @@ var _ = Describe("NodeContainer", func() {
 
 		BeforeEach(func() {
 			err = parsley.NewError(0, errors.New("directive error"))
-			directiveBlock := &basilfakes.FakeBlockNode{}
+			directiveBlock := &conflowfakes.FakeBlockNode{}
 			directiveBlock.ValueReturns(nil, err)
 			directiveBlock.EvalStageReturns(conflow.EvalStageResolve)
 			node.DirectivesReturns([]conflow.BlockNode{directiveBlock})
@@ -89,7 +89,7 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node is ready to run", func() {
 			BeforeEach(func() {
-				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
+				node.CreateContainerReturns(&conflowfakes.FakeJobContainer{})
 			})
 
 			It("will create a container", func() {
@@ -132,7 +132,7 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node dependency is already met in the parent", func() {
 			BeforeEach(func() {
-				dep1 := &basilfakes.FakeVariableNode{}
+				dep1 := &conflowfakes.FakeVariableNode{}
 				dep1.IDReturns("other_node.dep1")
 				dep1.ParentIDReturns("other_node")
 				node.DependenciesReturns(conflow.Dependencies{
@@ -142,7 +142,7 @@ var _ = Describe("NodeContainer", func() {
 					"other_node.dep1": dep1,
 				})
 
-				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
+				node.CreateContainerReturns(&conflowfakes.FakeJobContainer{})
 				scheduler.ScheduleJobReturns(nil)
 			})
 
@@ -156,7 +156,7 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node has unmet dependencies", func() {
 			BeforeEach(func() {
-				dep1 := &basilfakes.FakeVariableNode{}
+				dep1 := &conflowfakes.FakeVariableNode{}
 				dep1.IDReturns("other_node.dep1")
 				dep1.ParentIDReturns("other_node")
 				node.DependenciesReturns(conflow.Dependencies{
@@ -173,9 +173,9 @@ var _ = Describe("NodeContainer", func() {
 
 			When("the missing dependency is met", func() {
 				JustBeforeEach(func() {
-					depNode := &basilfakes.FakeNode{}
+					depNode := &conflowfakes.FakeNode{}
 					depNode.IDReturns("other_node")
-					dep := &basilfakes.FakeBlockContainer{}
+					dep := &conflowfakes.FakeBlockContainer{}
 					dep.NodeReturns(depNode)
 					dep.ValueReturns("foo", nil)
 					evalCtx.Publish(dep)
@@ -191,11 +191,11 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node is skipped", func() {
 			BeforeEach(func() {
-				directive := &basilfakes.FakeBlockDirective{}
+				directive := &conflowfakes.FakeBlockDirective{}
 				directive.ApplyToRuntimeConfigStub = func(config *conflow.RuntimeConfig) {
 					config.Skip = util.BoolPtr(true)
 				}
-				directiveBlock := &basilfakes.FakeBlockNode{}
+				directiveBlock := &conflowfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(directive, nil)
 				directiveBlock.EvalStageReturns(conflow.EvalStageInit)
 				node.DirectivesReturns([]conflow.BlockNode{directiveBlock})
@@ -214,11 +214,11 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node has timeout", func() {
 			BeforeEach(func() {
-				directive := &basilfakes.FakeBlockDirective{}
+				directive := &conflowfakes.FakeBlockDirective{}
 				directive.ApplyToRuntimeConfigStub = func(config *conflow.RuntimeConfig) {
 					config.Timeout = util.TimeDurationPtr(1 * time.Second)
 				}
-				directiveBlock := &basilfakes.FakeBlockNode{}
+				directiveBlock := &conflowfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(directive, nil)
 				directiveBlock.EvalStageReturns(conflow.EvalStageInit)
 				node.DirectivesReturns([]conflow.BlockNode{directiveBlock})
@@ -238,7 +238,7 @@ var _ = Describe("NodeContainer", func() {
 
 			BeforeEach(func() {
 				err = parsley.NewError(0, errors.New("directive error"))
-				directiveBlock := &basilfakes.FakeBlockNode{}
+				directiveBlock := &conflowfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(nil, err)
 				directiveBlock.EvalStageReturns(conflow.EvalStageInit)
 				node.DirectivesReturns([]conflow.BlockNode{directiveBlock})
@@ -256,7 +256,7 @@ var _ = Describe("NodeContainer", func() {
 
 	Context("SetDependency", func() {
 		var dependency conflow.Container
-		var wg *basilfakes.FakeWaitGroup
+		var wg *conflowfakes.FakeWaitGroup
 
 		JustBeforeEach(func() {
 			// This way we'll test whether we properly subscribe to dependencies
@@ -265,19 +265,19 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node still has unmet dependencies", func() {
 			BeforeEach(func() {
-				depNode := &basilfakes.FakeNode{}
+				depNode := &conflowfakes.FakeNode{}
 				depNode.IDReturns("dep1")
-				dep := &basilfakes.FakeBlockContainer{}
+				dep := &conflowfakes.FakeBlockContainer{}
 				dep.NodeReturns(depNode)
-				wg = &basilfakes.FakeWaitGroup{}
+				wg = &conflowfakes.FakeWaitGroup{}
 				dep.WaitGroupsReturns([]conflow.WaitGroup{wg})
 				dep.ValueReturns("foo", nil)
 				dependency = dep
 
-				dep1 := &basilfakes.FakeVariableNode{}
+				dep1 := &conflowfakes.FakeVariableNode{}
 				dep1.IDReturns("dep1.param1")
 				dep1.ParentIDReturns("dep1")
-				dep2 := &basilfakes.FakeVariableNode{}
+				dep2 := &conflowfakes.FakeVariableNode{}
 				dep2.IDReturns("dep2.param2")
 				dep2.ParentIDReturns("dep2")
 				node.DependenciesReturns(conflow.Dependencies{
@@ -299,23 +299,23 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the node has all dependencies", func() {
 			BeforeEach(func() {
-				depNode := &basilfakes.FakeNode{}
+				depNode := &conflowfakes.FakeNode{}
 				depNode.IDReturns("dep1")
-				dep := &basilfakes.FakeBlockContainer{}
+				dep := &conflowfakes.FakeBlockContainer{}
 				dep.NodeReturns(depNode)
-				wg = &basilfakes.FakeWaitGroup{}
+				wg = &conflowfakes.FakeWaitGroup{}
 				dep.WaitGroupsReturns([]conflow.WaitGroup{wg})
 				dep.ValueReturns("foo", nil)
 				dependency = dep
 
-				dep1 := &basilfakes.FakeVariableNode{}
+				dep1 := &conflowfakes.FakeVariableNode{}
 				dep1.IDReturns("dep1.param1")
 				dep1.ParentIDReturns("dep1")
 				node.DependenciesReturns(conflow.Dependencies{
 					"dep1.param1": dep1,
 				})
 
-				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
+				node.CreateContainerReturns(&conflowfakes.FakeJobContainer{})
 			})
 
 			It("should run", func() {
@@ -347,32 +347,32 @@ var _ = Describe("NodeContainer", func() {
 			var triggers []conflow.ID
 
 			BeforeEach(func() {
-				directive := &basilfakes.FakeBlockDirective{}
+				directive := &conflowfakes.FakeBlockDirective{}
 				directive.ApplyToRuntimeConfigStub = func(config *conflow.RuntimeConfig) {
 					config.Triggers = triggers
 				}
-				directiveBlock := &basilfakes.FakeBlockNode{}
+				directiveBlock := &conflowfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(directive, nil)
 				directiveBlock.EvalStageReturns(conflow.EvalStageResolve)
 				node.DirectivesReturns([]conflow.BlockNode{directiveBlock})
 
-				depNode := &basilfakes.FakeNode{}
+				depNode := &conflowfakes.FakeNode{}
 				depNode.IDReturns("dep1")
-				dep := &basilfakes.FakeBlockContainer{}
+				dep := &conflowfakes.FakeBlockContainer{}
 				dep.NodeReturns(depNode)
-				wg = &basilfakes.FakeWaitGroup{}
+				wg = &conflowfakes.FakeWaitGroup{}
 				dep.WaitGroupsReturns([]conflow.WaitGroup{wg})
 				dep.ValueReturns("foo", nil)
 				dependency = dep
 
-				dep1 := &basilfakes.FakeVariableNode{}
+				dep1 := &conflowfakes.FakeVariableNode{}
 				dep1.IDReturns("dep1.param1")
 				dep1.ParentIDReturns("dep1")
 				node.DependenciesReturns(conflow.Dependencies{
 					"dep1.param1": dep1,
 				})
 
-				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
+				node.CreateContainerReturns(&conflowfakes.FakeJobContainer{})
 			})
 
 			When("the dependency is not a trigger", func() {
@@ -421,22 +421,22 @@ var _ = Describe("NodeContainer", func() {
 
 		When("the dependency is a sibling parameter", func() {
 			BeforeEach(func() {
-				depNode := &basilfakes.FakeNode{}
+				depNode := &conflowfakes.FakeNode{}
 				depNode.IDReturns("parent_node_id.sibling")
-				dep := &basilfakes.FakeParameterContainer{}
+				dep := &conflowfakes.FakeParameterContainer{}
 				dep.NodeReturns(depNode)
 				dep.BlockContainerReturns(parentContainer)
 				dep.ValueReturns("foo", nil)
 				dependency = dep
 
-				dep1 := &basilfakes.FakeVariableNode{}
+				dep1 := &conflowfakes.FakeVariableNode{}
 				dep1.IDReturns("parent_node_id.sibling")
 				dep1.ParentIDReturns("parent_node_id")
 				node.DependenciesReturns(conflow.Dependencies{
 					"parent_node_id.sibling": dep1,
 				})
 
-				node.CreateContainerReturns(&basilfakes.FakeJobContainer{})
+				node.CreateContainerReturns(&conflowfakes.FakeJobContainer{})
 			})
 
 			It("should run", func() {

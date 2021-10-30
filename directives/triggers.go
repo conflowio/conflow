@@ -25,7 +25,7 @@ func (t *Triggers) ID() conflow.ID {
 }
 
 func (t *Triggers) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
-	// TODO: introduce the []basil.ID type for blockIDs
+	// TODO: introduce the []conflow.ID type for blockIDs
 	triggers := make([]conflow.ID, len(t.blockIDs))
 	for i, id := range t.blockIDs {
 		triggers[i] = conflow.ID(id.(string))

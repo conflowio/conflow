@@ -13,7 +13,7 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // EvalErrorParser returns with a parser which will read the "ERR" string but the result node evaluation will throw an error

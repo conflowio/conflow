@@ -12,9 +12,9 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/conflow/basil/basilfakes"
-	"github.com/opsidian/conflow/basil/dependency"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/conflowfakes"
+	"github.com/opsidian/conflow/conflow/dependency"
 	"github.com/opsidian/parsley/parsley"
 )
 
@@ -48,10 +48,10 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when there is only one node", func() {
-		var param1 *basilfakes.FakeNode
+		var param1 *conflowfakes.FakeNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
 			resolver.AddNodes(param1)
 		})
@@ -70,12 +70,12 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when the nodes don't have dependencies", func() {
-		var param1, param2 *basilfakes.FakeNode
+		var param1, param2 *conflowfakes.FakeNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
-			param2 = &basilfakes.FakeNode{}
+			param2 = &conflowfakes.FakeNode{}
 			param2.IDReturns("b.param2")
 			resolver.AddNodes(param1, param2)
 		})
@@ -94,16 +94,16 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when the nodes have dependencies", func() {
-		var param1, param2, param3, param4 *basilfakes.FakeNode
+		var param1, param2, param3, param4 *conflowfakes.FakeNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
-			param2 = &basilfakes.FakeNode{}
+			param2 = &conflowfakes.FakeNode{}
 			param2.IDReturns("b.param2")
-			param3 = &basilfakes.FakeNode{}
+			param3 = &conflowfakes.FakeNode{}
 			param3.IDReturns("b.param3")
-			param4 = &basilfakes.FakeNode{}
+			param4 = &conflowfakes.FakeNode{}
 			param4.IDReturns("b.param4")
 
 			param1.DependenciesReturns(conflow.Dependencies{"b.param2": dep("b.param2")})
@@ -130,12 +130,12 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when a child node is the dependency", func() {
-		var param1, node2 *basilfakes.FakeNode
+		var param1, node2 *conflowfakes.FakeNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
-			node2 = &basilfakes.FakeNode{}
+			node2 = &conflowfakes.FakeNode{}
 			node2.IDReturns("node2")
 
 			param1.DependenciesReturns(conflow.Dependencies{"node2.x": dep("node2.x")})
@@ -157,12 +157,12 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when the nodes have transitive dependencies", func() {
-		var param1, node2 *basilfakes.FakeNode
+		var param1, node2 *conflowfakes.FakeNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
-			node2 = &basilfakes.FakeNode{}
+			node2 = &conflowfakes.FakeNode{}
 			node2.IDReturns("node2")
 
 			node2.ProvidesReturns([]conflow.ID{"node3"})
@@ -185,16 +185,16 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when the nodes have circular dependencies", func() {
-		var param1, param2, param3 *basilfakes.FakeNode
+		var param1, param2, param3 *conflowfakes.FakeNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
 			param1.PosReturns(parsley.Pos(1))
-			param2 = &basilfakes.FakeNode{}
+			param2 = &conflowfakes.FakeNode{}
 			param2.IDReturns("b.param2")
 			param2.PosReturns(parsley.Pos(2))
-			param3 = &basilfakes.FakeNode{}
+			param3 = &conflowfakes.FakeNode{}
 			param3.IDReturns("b.param3")
 			param3.PosReturns(parsley.Pos(3))
 
@@ -212,13 +212,13 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when a node is referencing itself", func() {
-		var param1, param2 *basilfakes.FakeNode
+		var param1, param2 *conflowfakes.FakeNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
 			param1.PosReturns(parsley.Pos(1))
-			param2 = &basilfakes.FakeNode{}
+			param2 = &conflowfakes.FakeNode{}
 			param2.IDReturns("b.param2")
 			param2.PosReturns(parsley.Pos(2))
 
@@ -235,11 +235,11 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when a node is referencing an unknown parameter", func() {
-		var param1 *basilfakes.FakeNode
-		var dep1 *basilfakes.FakeVariableNode
+		var param1 *conflowfakes.FakeNode
+		var dep1 *conflowfakes.FakeVariableNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
 			param1.PosReturns(parsley.Pos(1))
 
@@ -259,11 +259,11 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when a node is referencing an external parameter", func() {
-		var param1 *basilfakes.FakeNode
-		var dep1 *basilfakes.FakeVariableNode
+		var param1 *conflowfakes.FakeNode
+		var dep1 *conflowfakes.FakeVariableNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
 			param1.PosReturns(parsley.Pos(1))
 
@@ -288,11 +288,11 @@ var _ = Describe("Resolver", func() {
 	})
 
 	Context("when a node is referencing an unknown node", func() {
-		var param1 *basilfakes.FakeNode
-		var dep1 *basilfakes.FakeVariableNode
+		var param1 *conflowfakes.FakeNode
+		var dep1 *conflowfakes.FakeVariableNode
 
 		BeforeEach(func() {
-			param1 = &basilfakes.FakeNode{}
+			param1 = &conflowfakes.FakeNode{}
 			param1.IDReturns("b.param1")
 			param1.PosReturns(parsley.Pos(1))
 
@@ -317,8 +317,8 @@ var _ = Describe("Resolver", func() {
 	})
 })
 
-func dep(id string) *basilfakes.FakeVariableNode {
-	f := &basilfakes.FakeVariableNode{}
+func dep(id string) *conflowfakes.FakeVariableNode {
+	f := &conflowfakes.FakeVariableNode{}
 	f.IDReturns(conflow.ID(id))
 	f.ParentIDReturns(conflow.ID(id[0:strings.IndexByte(id, '.')]))
 	return f

@@ -9,11 +9,12 @@ package parsers
 import (
 	"fmt"
 
-	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/parsley/combinator"
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
+
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Function will match a function call defined by the following rule, where P is the input parser:

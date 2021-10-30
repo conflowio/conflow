@@ -16,7 +16,7 @@ import (
 	"github.com/opsidian/parsley/text"
 	"github.com/opsidian/parsley/text/terminal"
 
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // MultilineText parses a multiline text in the following format:

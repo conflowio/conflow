@@ -7,8 +7,9 @@
 package zerolog
 
 import (
-	"github.com/opsidian/conflow/conflow"
 	"github.com/rs/zerolog"
+
+	"github.com/opsidian/conflow/conflow"
 )
 
 type ObjectMarshalerWrapper struct {

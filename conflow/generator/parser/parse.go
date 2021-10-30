@@ -18,9 +18,9 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/opsidian/conflow/basil/schema"
-	schemadirectives "github.com/opsidian/conflow/basil/schema/directives"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
+	schemadirectives "github.com/opsidian/conflow/conflow/schema/directives"
 	"github.com/opsidian/conflow/util"
 )
 
@@ -118,7 +118,7 @@ func ParseField(
 			var actualType string
 			switch s := fieldSchema.(type) {
 			case *schema.Reference:
-				actualType = strings.TrimPrefix(s.Ref, "http://basil.schema/")
+				actualType = strings.TrimPrefix(s.Ref, "http://conflow.schema/")
 			case *schema.Untyped:
 				actualType = "interface{}"
 			default:
@@ -214,7 +214,7 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 			}
 
 			s = &schema.Reference{
-				Ref: fmt.Sprintf("http://basil.schema/%s.%s", pkg, tn.String()),
+				Ref: fmt.Sprintf("http://conflow.schema/%s.%s", pkg, tn.String()),
 			}
 
 			return s, true, nil
@@ -265,9 +265,9 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 
 			var s schema.Schema
 			switch path + "." + tn.Sel.Name {
-			case "github.com/opsidian/conflow/basil.ID":
+			case "github.com/opsidian/conflow/conflow.ID":
 				s = &schema.String{
-					Format: schema.FormatBasilID,
+					Format: schema.FormatConflowID,
 					Metadata: schema.Metadata{
 						ReadOnly: true,
 					},
@@ -288,7 +288,7 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 				}
 
 				s = &schema.Reference{
-					Ref: fmt.Sprintf("http://basil.schema/%s.%s", path, tn.Sel.Name),
+					Ref: fmt.Sprintf("http://conflow.schema/%s.%s", path, tn.Sel.Name),
 				}
 				return s, true, nil
 			}

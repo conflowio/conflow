@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"go/ast"
 
-	"github.com/opsidian/conflow/basil/generator/parser"
-	"github.com/opsidian/conflow/basil/schema"
-	schemadirectives "github.com/opsidian/conflow/basil/schema/directives"
+	"github.com/opsidian/conflow/conflow/generator/parser"
+	"github.com/opsidian/conflow/conflow/schema"
+	schemadirectives "github.com/opsidian/conflow/conflow/schema/directives"
 )
 
 type Function struct {

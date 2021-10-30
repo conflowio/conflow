@@ -9,12 +9,12 @@ package functions_test
 import (
 	"errors"
 
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	basilfunction "github.com/opsidian/conflow/basil/function"
+	conflowfunction "github.com/opsidian/conflow/conflow/function"
 	"github.com/opsidian/conflow/functions"
 	"github.com/opsidian/conflow/parsers"
 	"github.com/opsidian/conflow/test"
@@ -23,7 +23,7 @@ import (
 
 var _ = Describe("String", func() {
 
-	registry := basilfunction.InterpreterRegistry{
+	registry := conflowfunction.InterpreterRegistry{
 		"test": functions.StringInterpreter{},
 	}
 

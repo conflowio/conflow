@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/conflow/basil/block"
 	"github.com/opsidian/conflow/blocks"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 	"github.com/opsidian/conflow/examples/common"
 	"github.com/opsidian/conflow/parsers"
 	"github.com/opsidian/conflow/util"
@@ -49,7 +49,7 @@ func main() {
 
 	if err := p.ParseFile(
 		parseCtx,
-		"main.basil",
+		"main.cf",
 	); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)

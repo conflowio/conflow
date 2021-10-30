@@ -9,12 +9,12 @@ package json_test
 import (
 	"errors"
 
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/conflow/basil/function"
+	"github.com/opsidian/conflow/conflow/function"
 	"github.com/opsidian/conflow/functions/json"
 	"github.com/opsidian/conflow/parsers"
 	"github.com/opsidian/conflow/test"

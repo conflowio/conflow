@@ -17,10 +17,10 @@ import (
 	"github.com/opsidian/parsley/parsley"
 	"github.com/opsidian/parsley/text"
 
-	"github.com/opsidian/conflow/basil/job"
-	"github.com/opsidian/conflow/basil/schema"
-	"github.com/opsidian/conflow/basil/schema/directives"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/job"
+	"github.com/opsidian/conflow/conflow/schema"
+	"github.com/opsidian/conflow/conflow/schema/directives"
 	"github.com/opsidian/conflow/parsers"
 )
 

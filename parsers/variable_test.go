@@ -9,12 +9,12 @@ package parsers_test
 import (
 	"context"
 
-	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opsidian/conflow/basil/basilfakes"
+	"github.com/opsidian/conflow/conflow/conflowfakes"
 	"github.com/opsidian/conflow/loggers/zerolog"
 	"github.com/opsidian/conflow/parsers"
 	"github.com/opsidian/conflow/test"
@@ -31,7 +31,7 @@ var _ = Describe("Variable", func() {
 	var parseErr, evalErr error
 	var value interface{}
 	var input string
-	var blockNode *basilfakes.FakeBlockNode
+	var blockNode *conflowfakes.FakeBlockNode
 
 	BeforeEach(func() {
 		logger := zerolog.NewDisabledLogger()
@@ -74,7 +74,7 @@ var _ = Describe("Variable", func() {
 
 	Context("when referencing a block module parameter", func() {
 		BeforeEach(func() {
-			blockNode = &basilfakes.FakeBlockNode{}
+			blockNode = &conflowfakes.FakeBlockNode{}
 			blockNode.IDReturns(conflow.ID("foo"))
 			blockNode.GetPropertySchemaStub = func(id conflow.ID) (schema.Schema, bool) {
 				if string(id) == "param1" {
@@ -83,7 +83,7 @@ var _ = Describe("Variable", func() {
 				return nil, false
 			}
 
-			cont := &basilfakes.FakeBlockContainer{}
+			cont := &conflowfakes.FakeBlockContainer{}
 			cont.ParamReturnsOnCall(0, "bar")
 			cont.NodeReturns(blockNode)
 

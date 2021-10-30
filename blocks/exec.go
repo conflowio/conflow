@@ -14,8 +14,8 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/opsidian/conflow/basil/block"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 	"github.com/opsidian/conflow/util"
 	"github.com/opsidian/conflow/util/multierror"
 )

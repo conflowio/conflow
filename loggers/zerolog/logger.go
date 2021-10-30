@@ -10,8 +10,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opsidian/conflow/conflow"
 	"github.com/rs/zerolog"
+
+	"github.com/opsidian/conflow/conflow"
 )
 
 func init() {

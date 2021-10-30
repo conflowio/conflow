@@ -11,8 +11,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/opsidian/conflow/basil/block"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
 )
 
 // @block

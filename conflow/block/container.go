@@ -14,10 +14,10 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/basil/job"
-	"github.com/opsidian/conflow/basil/parameter"
-	"github.com/opsidian/conflow/basil/schema"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/job"
+	"github.com/opsidian/conflow/conflow/parameter"
+	"github.com/opsidian/conflow/conflow/schema"
 	"github.com/opsidian/conflow/util"
 )
 
@@ -544,7 +544,7 @@ func (c *Container) setChild(result conflow.Container) parsley.Error {
 func (c *Container) PublishBlock(block conflow.Block, f func() error) (bool, error) {
 	b, ok := block.(conflow.Identifiable)
 	if !ok {
-		return false, fmt.Errorf("%T block must implement the basil.Identifiable interface", block)
+		return false, fmt.Errorf("%T block must implement the conflow.IDentifiable interface", block)
 	}
 	blockID := b.ID()
 

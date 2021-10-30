@@ -7,7 +7,7 @@
 package functions
 
 import (
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // ArrayContains returns true if the array contains the given element

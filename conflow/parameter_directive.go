@@ -6,7 +6,7 @@
 
 package conflow
 
-import "github.com/opsidian/conflow/basil/schema"
+import "github.com/opsidian/conflow/conflow/schema"
 
 // ParameterDirective provides a way to add metadata for parameters
 //counterfeiter:generate . ParameterDirective

@@ -15,10 +15,10 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/basil/basilfakes"
-	"github.com/opsidian/conflow/basil/block"
-	"github.com/opsidian/conflow/basil/job"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/block"
+	"github.com/opsidian/conflow/conflow/conflowfakes"
+	"github.com/opsidian/conflow/conflow/job"
 	"github.com/opsidian/conflow/loggers/zerolog"
 	"github.com/opsidian/conflow/test/testfakes"
 )
@@ -26,20 +26,20 @@ import (
 var _ = Describe("Container", func() {
 	var container *block.Container
 	var evalCtx *conflow.EvalContext
-	var blockNode *basilfakes.FakeBlockNode
+	var blockNode *conflowfakes.FakeBlockNode
 	var b conflow.Block
 	var ctx context.Context
 	var cancel context.CancelFunc
 	var scheduler *job.Scheduler
-	var interpreter *basilfakes.FakeBlockInterpreter
+	var interpreter *conflowfakes.FakeBlockInterpreter
 	var value interface{}
 	var err parsley.Error
 
 	BeforeEach(func() {
 		ctx, cancel = context.WithCancel(context.Background())
 
-		interpreter = &basilfakes.FakeBlockInterpreter{}
-		blockNode = &basilfakes.FakeBlockNode{}
+		interpreter = &conflowfakes.FakeBlockInterpreter{}
+		blockNode = &conflowfakes.FakeBlockNode{}
 		blockNode.IDReturns("test_id")
 		blockNode.BlockTypeReturns("test_type")
 		blockNode.InterpreterReturns(interpreter)
@@ -64,10 +64,10 @@ var _ = Describe("Container", func() {
 	})
 
 	Context("when a node has no children", func() {
-		var fakeBlock *basilfakes.FakeIdentifiable
+		var fakeBlock *conflowfakes.FakeIdentifiable
 
 		BeforeEach(func() {
-			fakeBlock = &basilfakes.FakeIdentifiable{}
+			fakeBlock = &conflowfakes.FakeIdentifiable{}
 			fakeBlock.IDReturns("test_id")
 			b = fakeBlock
 		})

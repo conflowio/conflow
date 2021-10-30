@@ -12,7 +12,7 @@ import (
 
 	"github.com/opsidian/parsley/parsley"
 
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/schema"
 )
 
 // Evaluate will evaluate the given node which was previously parsed with the passed parse context

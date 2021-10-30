@@ -10,8 +10,9 @@ import (
 	"net"
 	"time"
 
-	"github.com/opsidian/conflow/conflow"
 	"github.com/rs/zerolog"
+
+	"github.com/opsidian/conflow/conflow"
 )
 
 type Event struct {

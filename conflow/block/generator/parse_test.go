@@ -12,10 +12,10 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
-	"github.com/opsidian/conflow/basil/generator/parser"
+	"github.com/opsidian/conflow/conflow/generator/parser"
 
-	"github.com/opsidian/conflow/basil/block/generator"
-	"github.com/opsidian/conflow/basil/schema"
+	"github.com/opsidian/conflow/conflow/block/generator"
+	"github.com/opsidian/conflow/conflow/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -33,12 +33,12 @@ var _ = Describe("ParseStruct", func() {
 			package foo
 			import (
 				"time"
-				"github.com/opsidian/conflow/basil"
+				"github.com/opsidian/conflow/conflow"
 			)
 			// Foo is a test struct
 			type Foo struct {
 				// @id
-				id basil.ID
+				id conflow.ID
 				%s
 			}
 		`, fields)
@@ -59,7 +59,7 @@ var _ = Describe("ParseStruct", func() {
 							Annotations: expectedIDAnnotations,
 							ReadOnly:    true,
 						},
-						Format: "basil.ID",
+						Format: "conflow.ID",
 					},
 				},
 			}
@@ -298,16 +298,16 @@ var _ = Describe("ParseStruct", func() {
 			resultStruct, parseErr = generator.ParseStruct(parseCtx, str, "test", "Foo", &parser.Metadata{})
 		})
 
-		Context("when the basil package has an alias", func() {
+		Context("when the conflow package has an alias", func() {
 			BeforeEach(func() {
 				source = `
 				package foo
 				import (
-					basilalias "github.com/opsidian/conflow/basil"
+					conflowalias "github.com/opsidian/conflow/conflow"
 				)
 				type Foo struct {
 					// @id
-					id basilalias.ID
+					id conflowalias.ID
 				}`
 			})
 
@@ -321,14 +321,14 @@ var _ = Describe("ParseStruct", func() {
 								Annotations: expectedIDAnnotations,
 								ReadOnly:    true,
 							},
-							Format: "basil.ID",
+							Format: "conflow.ID",
 						},
 					},
 				}))
 			})
 		})
 
-		Context("when a non basil.ID field is marked as id", func() {
+		Context("when a non conflow.ID field is marked as id", func() {
 			BeforeEach(func() {
 				source = `
 				package foo
@@ -339,7 +339,7 @@ var _ = Describe("ParseStruct", func() {
 			})
 
 			It("should return with error", func() {
-				Expect(parseErr).To(MatchError("failed to parse field \"foo\": id annotation can only be set on a basil.ID field"))
+				Expect(parseErr).To(MatchError("failed to parse field \"foo\": id annotation can only be set on a conflow.ID field"))
 			})
 		})
 
@@ -348,13 +348,13 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					"github.com/opsidian/conflow/basil"
+					"github.com/opsidian/conflow/conflow"
 				)
 				type Foo struct {
 					// @id
-					id1 basil.ID
+					id1 conflow.ID
 					// @id
-					id2 basil.ID
+					id2 conflow.ID
 				}`
 			})
 
@@ -368,11 +368,11 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					"github.com/opsidian/conflow/basil"
+					"github.com/opsidian/conflow/conflow"
 				)
 				type Foo struct {
 					// @id
-					id basil.ID
+					id conflow.ID
 					// @value
 					value1 string
 					// @value
@@ -390,11 +390,11 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					"github.com/opsidian/conflow/basil"
+					"github.com/opsidian/conflow/conflow"
 				)
 				type Foo struct {
 					// @id
-					id basil.ID
+					id conflow.ID
 					// @value
 					value string
 					// @required
@@ -412,12 +412,12 @@ var _ = Describe("ParseStruct", func() {
 				source = `
 				package foo
 				import (
-					"github.com/opsidian/conflow/basil"
+					"github.com/opsidian/conflow/conflow"
 				)
 				type Foo struct {
 					// @id
 					// @nonexisting
-					id basil.ID
+					id conflow.ID
 				}`
 			})
 

@@ -10,15 +10,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/opsidian/conflow/basil/job/jobfakes"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/job/jobfakes"
 
-	"github.com/opsidian/conflow/basil/job"
+	"github.com/opsidian/conflow/conflow/job"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/opsidian/conflow/basil/basilfakes"
+	"github.com/opsidian/conflow/conflow/conflowfakes"
 	"github.com/opsidian/conflow/loggers/zerolog"
 )
 
@@ -36,10 +36,10 @@ type cancellableJob interface {
 
 var _ = Describe("Scheduler", func() {
 	var tracker *job.Tracker
-	var scheduler *basilfakes.FakeJobScheduler
+	var scheduler *conflowfakes.FakeJobScheduler
 
 	BeforeEach(func() {
-		scheduler = &basilfakes.FakeJobScheduler{}
+		scheduler = &conflowfakes.FakeJobScheduler{}
 		logger := zerolog.NewDisabledLogger()
 		backoff := job.ExponentialRetryBackoff(1.5, 1*time.Millisecond, 1*time.Second)
 		tracker = job.NewTracker("test_tracker", scheduler, logger, backoff)
@@ -50,10 +50,10 @@ var _ = Describe("Scheduler", func() {
 	})
 
 	When("a job is scheduled", func() {
-		var job *basilfakes.FakeJob
+		var job *conflowfakes.FakeJob
 
 		BeforeEach(func() {
-			job = &basilfakes.FakeJob{}
+			job = &conflowfakes.FakeJob{}
 			job.JobIDReturns(1)
 			tracker.ScheduleJob(job)
 		})
@@ -74,7 +74,7 @@ var _ = Describe("Scheduler", func() {
 
 		When("a second job is scheduled", func() {
 			It("should further increase the running count", func() {
-				job2 := &basilfakes.FakeJob{}
+				job2 := &conflowfakes.FakeJob{}
 				job2.JobIDReturns(1)
 				tracker.ScheduleJob(job2)
 				Expect(tracker.RunningJobCount()).To(Equal(2))
@@ -193,7 +193,7 @@ var _ = Describe("Scheduler", func() {
 
 		When("schedule is called", func() {
 			JustBeforeEach(func() {
-				tracker.ScheduleJob(&basilfakes.FakeJob{})
+				tracker.ScheduleJob(&conflowfakes.FakeJob{})
 			})
 
 			It("should not schedule the job", func() {

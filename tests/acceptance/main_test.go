@@ -19,8 +19,8 @@ import (
 	. "github.com/onsi/gomega"
 	uzerolog "github.com/rs/zerolog"
 
-	"github.com/opsidian/conflow/basil/job"
 	"github.com/opsidian/conflow/conflow"
+	"github.com/opsidian/conflow/conflow/job"
 	"github.com/opsidian/conflow/examples/common"
 	"github.com/opsidian/conflow/loggers/zerolog"
 	"github.com/opsidian/conflow/parsers"
@@ -60,8 +60,8 @@ func readTestCases(dir string, name string, testCases testCases) error {
 		}
 		if !f.IsDir() {
 			switch {
-			case strings.HasSuffix(f.Name(), ".basil"):
-				tcName := path.Join(name, strings.TrimSuffix(f.Name(), ".basil"))
+			case strings.HasSuffix(f.Name(), ".cf"):
+				tcName := path.Join(name, strings.TrimSuffix(f.Name(), ".cf"))
 				tc := testCases.get(tcName)
 				tc.fixture, err = ioutil.ReadFile(path.Join(dir, f.Name()))
 				if err != nil {
@@ -118,7 +118,7 @@ var _ = Describe("Acceptance tests", func() {
 
 	BeforeSuite(func() {
 		level := uzerolog.InfoLevel
-		if envLevel := os.Getenv("BASIL_LOG"); envLevel != "" {
+		if envLevel := os.Getenv("CONFLOW_LOG"); envLevel != "" {
 			var err error
 			level, err = uzerolog.ParseLevel(envLevel)
 			if err != nil {

@@ -10,8 +10,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/opsidian/conflow/conflow"
 	"github.com/opsidian/parsley/parsley"
+
+	"github.com/opsidian/conflow/conflow"
 )
 
 // Resolver will resolve all process dependencies in a workflow
