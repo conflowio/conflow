@@ -66,15 +66,16 @@ func (fake *FakeCancellableJob) Cancel() bool {
 	ret, specificReturn := fake.cancelReturnsOnCall[len(fake.cancelArgsForCall)]
 	fake.cancelArgsForCall = append(fake.cancelArgsForCall, struct {
 	}{})
+	stub := fake.CancelStub
+	fakeReturns := fake.cancelReturns
 	fake.recordInvocation("Cancel", []interface{}{})
 	fake.cancelMutex.Unlock()
-	if fake.CancelStub != nil {
-		return fake.CancelStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.cancelReturns
 	return fakeReturns.result1
 }
 
@@ -118,15 +119,16 @@ func (fake *FakeCancellableJob) JobID() int {
 	ret, specificReturn := fake.jobIDReturnsOnCall[len(fake.jobIDArgsForCall)]
 	fake.jobIDArgsForCall = append(fake.jobIDArgsForCall, struct {
 	}{})
+	stub := fake.JobIDStub
+	fakeReturns := fake.jobIDReturns
 	fake.recordInvocation("JobID", []interface{}{})
 	fake.jobIDMutex.Unlock()
-	if fake.JobIDStub != nil {
-		return fake.JobIDStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.jobIDReturns
 	return fakeReturns.result1
 }
 
@@ -170,15 +172,16 @@ func (fake *FakeCancellableJob) JobName() basil.ID {
 	ret, specificReturn := fake.jobNameReturnsOnCall[len(fake.jobNameArgsForCall)]
 	fake.jobNameArgsForCall = append(fake.jobNameArgsForCall, struct {
 	}{})
+	stub := fake.JobNameStub
+	fakeReturns := fake.jobNameReturns
 	fake.recordInvocation("JobName", []interface{}{})
 	fake.jobNameMutex.Unlock()
-	if fake.JobNameStub != nil {
-		return fake.JobNameStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.jobNameReturns
 	return fakeReturns.result1
 }
 
@@ -222,15 +225,16 @@ func (fake *FakeCancellableJob) Lightweight() bool {
 	ret, specificReturn := fake.lightweightReturnsOnCall[len(fake.lightweightArgsForCall)]
 	fake.lightweightArgsForCall = append(fake.lightweightArgsForCall, struct {
 	}{})
+	stub := fake.LightweightStub
+	fakeReturns := fake.lightweightReturns
 	fake.recordInvocation("Lightweight", []interface{}{})
 	fake.lightweightMutex.Unlock()
-	if fake.LightweightStub != nil {
-		return fake.LightweightStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.lightweightReturns
 	return fakeReturns.result1
 }
 
@@ -273,9 +277,10 @@ func (fake *FakeCancellableJob) Run() {
 	fake.runMutex.Lock()
 	fake.runArgsForCall = append(fake.runArgsForCall, struct {
 	}{})
+	stub := fake.RunStub
 	fake.recordInvocation("Run", []interface{}{})
 	fake.runMutex.Unlock()
-	if fake.RunStub != nil {
+	if stub != nil {
 		fake.RunStub()
 	}
 }
@@ -297,9 +302,10 @@ func (fake *FakeCancellableJob) SetJobID(arg1 int) {
 	fake.setJobIDArgsForCall = append(fake.setJobIDArgsForCall, struct {
 		arg1 int
 	}{arg1})
+	stub := fake.SetJobIDStub
 	fake.recordInvocation("SetJobID", []interface{}{arg1})
 	fake.setJobIDMutex.Unlock()
-	if fake.SetJobIDStub != nil {
+	if stub != nil {
 		fake.SetJobIDStub(arg1)
 	}
 }

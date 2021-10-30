@@ -84,9 +84,10 @@ func (fake *FakeBlockContainer) Close() {
 	fake.closeMutex.Lock()
 	fake.closeArgsForCall = append(fake.closeArgsForCall, struct {
 	}{})
+	stub := fake.CloseStub
 	fake.recordInvocation("Close", []interface{}{})
 	fake.closeMutex.Unlock()
-	if fake.CloseStub != nil {
+	if stub != nil {
 		fake.CloseStub()
 	}
 }
@@ -108,15 +109,16 @@ func (fake *FakeBlockContainer) EvalStage() basil.EvalStage {
 	ret, specificReturn := fake.evalStageReturnsOnCall[len(fake.evalStageArgsForCall)]
 	fake.evalStageArgsForCall = append(fake.evalStageArgsForCall, struct {
 	}{})
+	stub := fake.EvalStageStub
+	fakeReturns := fake.evalStageReturns
 	fake.recordInvocation("EvalStage", []interface{}{})
 	fake.evalStageMutex.Unlock()
-	if fake.EvalStageStub != nil {
-		return fake.EvalStageStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.evalStageReturns
 	return fakeReturns.result1
 }
 
@@ -160,15 +162,16 @@ func (fake *FakeBlockContainer) Node() basil.Node {
 	ret, specificReturn := fake.nodeReturnsOnCall[len(fake.nodeArgsForCall)]
 	fake.nodeArgsForCall = append(fake.nodeArgsForCall, struct {
 	}{})
+	stub := fake.NodeStub
+	fakeReturns := fake.nodeReturns
 	fake.recordInvocation("Node", []interface{}{})
 	fake.nodeMutex.Unlock()
-	if fake.NodeStub != nil {
-		return fake.NodeStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.nodeReturns
 	return fakeReturns.result1
 }
 
@@ -213,15 +216,16 @@ func (fake *FakeBlockContainer) Param(arg1 basil.ID) interface{} {
 	fake.paramArgsForCall = append(fake.paramArgsForCall, struct {
 		arg1 basil.ID
 	}{arg1})
+	stub := fake.ParamStub
+	fakeReturns := fake.paramReturns
 	fake.recordInvocation("Param", []interface{}{arg1})
 	fake.paramMutex.Unlock()
-	if fake.ParamStub != nil {
-		return fake.ParamStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.paramReturns
 	return fakeReturns.result1
 }
 
@@ -272,9 +276,10 @@ func (fake *FakeBlockContainer) SetChild(arg1 basil.Container) {
 	fake.setChildArgsForCall = append(fake.setChildArgsForCall, struct {
 		arg1 basil.Container
 	}{arg1})
+	stub := fake.SetChildStub
 	fake.recordInvocation("SetChild", []interface{}{arg1})
 	fake.setChildMutex.Unlock()
-	if fake.SetChildStub != nil {
+	if stub != nil {
 		fake.SetChildStub(arg1)
 	}
 }
@@ -303,9 +308,10 @@ func (fake *FakeBlockContainer) SetError(arg1 parsley.Error) {
 	fake.setErrorArgsForCall = append(fake.setErrorArgsForCall, struct {
 		arg1 parsley.Error
 	}{arg1})
+	stub := fake.SetErrorStub
 	fake.recordInvocation("SetError", []interface{}{arg1})
 	fake.setErrorMutex.Unlock()
-	if fake.SetErrorStub != nil {
+	if stub != nil {
 		fake.SetErrorStub(arg1)
 	}
 }
@@ -334,15 +340,16 @@ func (fake *FakeBlockContainer) Value() (interface{}, parsley.Error) {
 	ret, specificReturn := fake.valueReturnsOnCall[len(fake.valueArgsForCall)]
 	fake.valueArgsForCall = append(fake.valueArgsForCall, struct {
 	}{})
+	stub := fake.ValueStub
+	fakeReturns := fake.valueReturns
 	fake.recordInvocation("Value", []interface{}{})
 	fake.valueMutex.Unlock()
-	if fake.ValueStub != nil {
-		return fake.ValueStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.valueReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -389,15 +396,16 @@ func (fake *FakeBlockContainer) WaitGroups() []basil.WaitGroup {
 	ret, specificReturn := fake.waitGroupsReturnsOnCall[len(fake.waitGroupsArgsForCall)]
 	fake.waitGroupsArgsForCall = append(fake.waitGroupsArgsForCall, struct {
 	}{})
+	stub := fake.WaitGroupsStub
+	fakeReturns := fake.waitGroupsReturns
 	fake.recordInvocation("WaitGroups", []interface{}{})
 	fake.waitGroupsMutex.Unlock()
-	if fake.WaitGroupsStub != nil {
-		return fake.WaitGroupsStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.waitGroupsReturns
 	return fakeReturns.result1
 }
 

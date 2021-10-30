@@ -45,15 +45,16 @@ func (fake *FakeFunctionInterpreter) Eval(arg1 interface{}, arg2 basil.FunctionN
 		arg1 interface{}
 		arg2 basil.FunctionNode
 	}{arg1, arg2})
+	stub := fake.EvalStub
+	fakeReturns := fake.evalReturns
 	fake.recordInvocation("Eval", []interface{}{arg1, arg2})
 	fake.evalMutex.Unlock()
-	if fake.EvalStub != nil {
-		return fake.EvalStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.evalReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -107,15 +108,16 @@ func (fake *FakeFunctionInterpreter) Schema() schema.Schema {
 	ret, specificReturn := fake.schemaReturnsOnCall[len(fake.schemaArgsForCall)]
 	fake.schemaArgsForCall = append(fake.schemaArgsForCall, struct {
 	}{})
+	stub := fake.SchemaStub
+	fakeReturns := fake.schemaReturns
 	fake.recordInvocation("Schema", []interface{}{})
 	fake.schemaMutex.Unlock()
-	if fake.SchemaStub != nil {
-		return fake.SchemaStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.schemaReturns
 	return fakeReturns.result1
 }
 

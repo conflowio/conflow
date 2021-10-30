@@ -29,15 +29,16 @@ func (fake *FakeJobScheduler) ScheduleJob(arg1 basil.Job) error {
 	fake.scheduleJobArgsForCall = append(fake.scheduleJobArgsForCall, struct {
 		arg1 basil.Job
 	}{arg1})
+	stub := fake.ScheduleJobStub
+	fakeReturns := fake.scheduleJobReturns
 	fake.recordInvocation("ScheduleJob", []interface{}{arg1})
 	fake.scheduleJobMutex.Unlock()
-	if fake.ScheduleJobStub != nil {
-		return fake.ScheduleJobStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.scheduleJobReturns
 	return fakeReturns.result1
 }
 

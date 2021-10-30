@@ -64,15 +64,16 @@ func (fake *FakeParameterContainer) BlockContainer() basil.BlockContainer {
 	ret, specificReturn := fake.blockContainerReturnsOnCall[len(fake.blockContainerArgsForCall)]
 	fake.blockContainerArgsForCall = append(fake.blockContainerArgsForCall, struct {
 	}{})
+	stub := fake.BlockContainerStub
+	fakeReturns := fake.blockContainerReturns
 	fake.recordInvocation("BlockContainer", []interface{}{})
 	fake.blockContainerMutex.Unlock()
-	if fake.BlockContainerStub != nil {
-		return fake.BlockContainerStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.blockContainerReturns
 	return fakeReturns.result1
 }
 
@@ -115,9 +116,10 @@ func (fake *FakeParameterContainer) Close() {
 	fake.closeMutex.Lock()
 	fake.closeArgsForCall = append(fake.closeArgsForCall, struct {
 	}{})
+	stub := fake.CloseStub
 	fake.recordInvocation("Close", []interface{}{})
 	fake.closeMutex.Unlock()
-	if fake.CloseStub != nil {
+	if stub != nil {
 		fake.CloseStub()
 	}
 }
@@ -139,15 +141,16 @@ func (fake *FakeParameterContainer) Node() basil.Node {
 	ret, specificReturn := fake.nodeReturnsOnCall[len(fake.nodeArgsForCall)]
 	fake.nodeArgsForCall = append(fake.nodeArgsForCall, struct {
 	}{})
+	stub := fake.NodeStub
+	fakeReturns := fake.nodeReturns
 	fake.recordInvocation("Node", []interface{}{})
 	fake.nodeMutex.Unlock()
-	if fake.NodeStub != nil {
-		return fake.NodeStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.nodeReturns
 	return fakeReturns.result1
 }
 
@@ -191,15 +194,16 @@ func (fake *FakeParameterContainer) Value() (interface{}, parsley.Error) {
 	ret, specificReturn := fake.valueReturnsOnCall[len(fake.valueArgsForCall)]
 	fake.valueArgsForCall = append(fake.valueArgsForCall, struct {
 	}{})
+	stub := fake.ValueStub
+	fakeReturns := fake.valueReturns
 	fake.recordInvocation("Value", []interface{}{})
 	fake.valueMutex.Unlock()
-	if fake.ValueStub != nil {
-		return fake.ValueStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.valueReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
@@ -246,15 +250,16 @@ func (fake *FakeParameterContainer) WaitGroups() []basil.WaitGroup {
 	ret, specificReturn := fake.waitGroupsReturnsOnCall[len(fake.waitGroupsArgsForCall)]
 	fake.waitGroupsArgsForCall = append(fake.waitGroupsArgsForCall, struct {
 	}{})
+	stub := fake.WaitGroupsStub
+	fakeReturns := fake.waitGroupsReturns
 	fake.recordInvocation("WaitGroups", []interface{}{})
 	fake.waitGroupsMutex.Unlock()
-	if fake.WaitGroupsStub != nil {
-		return fake.WaitGroupsStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.waitGroupsReturns
 	return fakeReturns.result1
 }
 

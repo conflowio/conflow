@@ -30,15 +30,16 @@ func (fake *FakeBlockWithClose) Close(arg1 context.Context) error {
 	fake.closeArgsForCall = append(fake.closeArgsForCall, struct {
 		arg1 context.Context
 	}{arg1})
+	stub := fake.CloseStub
+	fakeReturns := fake.closeReturns
 	fake.recordInvocation("Close", []interface{}{arg1})
 	fake.closeMutex.Unlock()
-	if fake.CloseStub != nil {
-		return fake.CloseStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.closeReturns
 	return fakeReturns.result1
 }
 

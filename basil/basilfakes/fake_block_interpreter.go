@@ -101,15 +101,16 @@ func (fake *FakeBlockInterpreter) CreateBlock(arg1 basil.ID, arg2 *basil.BlockCo
 		arg1 basil.ID
 		arg2 *basil.BlockContext
 	}{arg1, arg2})
+	stub := fake.CreateBlockStub
+	fakeReturns := fake.createBlockReturns
 	fake.recordInvocation("CreateBlock", []interface{}{arg1, arg2})
 	fake.createBlockMutex.Unlock()
-	if fake.CreateBlockStub != nil {
-		return fake.CreateBlockStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.createBlockReturns
 	return fakeReturns.result1
 }
 
@@ -162,15 +163,16 @@ func (fake *FakeBlockInterpreter) Param(arg1 basil.Block, arg2 basil.ID) interfa
 		arg1 basil.Block
 		arg2 basil.ID
 	}{arg1, arg2})
+	stub := fake.ParamStub
+	fakeReturns := fake.paramReturns
 	fake.recordInvocation("Param", []interface{}{arg1, arg2})
 	fake.paramMutex.Unlock()
-	if fake.ParamStub != nil {
-		return fake.ParamStub(arg1, arg2)
+	if stub != nil {
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.paramReturns
 	return fakeReturns.result1
 }
 
@@ -222,15 +224,16 @@ func (fake *FakeBlockInterpreter) ParseContext(arg1 *basil.ParseContext) *basil.
 	fake.parseContextArgsForCall = append(fake.parseContextArgsForCall, struct {
 		arg1 *basil.ParseContext
 	}{arg1})
+	stub := fake.ParseContextStub
+	fakeReturns := fake.parseContextReturns
 	fake.recordInvocation("ParseContext", []interface{}{arg1})
 	fake.parseContextMutex.Unlock()
-	if fake.ParseContextStub != nil {
-		return fake.ParseContextStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.parseContextReturns
 	return fakeReturns.result1
 }
 
@@ -281,15 +284,16 @@ func (fake *FakeBlockInterpreter) Schema() schema.Schema {
 	ret, specificReturn := fake.schemaReturnsOnCall[len(fake.schemaArgsForCall)]
 	fake.schemaArgsForCall = append(fake.schemaArgsForCall, struct {
 	}{})
+	stub := fake.SchemaStub
+	fakeReturns := fake.schemaReturns
 	fake.recordInvocation("Schema", []interface{}{})
 	fake.schemaMutex.Unlock()
-	if fake.SchemaStub != nil {
-		return fake.SchemaStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.schemaReturns
 	return fakeReturns.result1
 }
 
@@ -336,15 +340,16 @@ func (fake *FakeBlockInterpreter) SetBlock(arg1 basil.Block, arg2 basil.ID, arg3
 		arg2 basil.ID
 		arg3 interface{}
 	}{arg1, arg2, arg3})
+	stub := fake.SetBlockStub
+	fakeReturns := fake.setBlockReturns
 	fake.recordInvocation("SetBlock", []interface{}{arg1, arg2, arg3})
 	fake.setBlockMutex.Unlock()
-	if fake.SetBlockStub != nil {
-		return fake.SetBlockStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.setBlockReturns
 	return fakeReturns.result1
 }
 
@@ -398,15 +403,16 @@ func (fake *FakeBlockInterpreter) SetParam(arg1 basil.Block, arg2 basil.ID, arg3
 		arg2 basil.ID
 		arg3 interface{}
 	}{arg1, arg2, arg3})
+	stub := fake.SetParamStub
+	fakeReturns := fake.setParamReturns
 	fake.recordInvocation("SetParam", []interface{}{arg1, arg2, arg3})
 	fake.setParamMutex.Unlock()
-	if fake.SetParamStub != nil {
-		return fake.SetParamStub(arg1, arg2, arg3)
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.setParamReturns
 	return fakeReturns.result1
 }
 
@@ -457,15 +463,16 @@ func (fake *FakeBlockInterpreter) ValueParamName() basil.ID {
 	ret, specificReturn := fake.valueParamNameReturnsOnCall[len(fake.valueParamNameArgsForCall)]
 	fake.valueParamNameArgsForCall = append(fake.valueParamNameArgsForCall, struct {
 	}{})
+	stub := fake.ValueParamNameStub
+	fakeReturns := fake.valueParamNameReturns
 	fake.recordInvocation("ValueParamName", []interface{}{})
 	fake.valueParamNameMutex.Unlock()
-	if fake.ValueParamNameStub != nil {
-		return fake.ValueParamNameStub()
+	if stub != nil {
+		return stub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	fakeReturns := fake.valueParamNameReturns
 	return fakeReturns.result1
 }
 

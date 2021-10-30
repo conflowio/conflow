@@ -22,9 +22,10 @@ func (fake *FakeParameterDirective) ApplyToParameterConfig(arg1 *basil.Parameter
 	fake.applyToParameterConfigArgsForCall = append(fake.applyToParameterConfigArgsForCall, struct {
 		arg1 *basil.ParameterConfig
 	}{arg1})
+	stub := fake.ApplyToParameterConfigStub
 	fake.recordInvocation("ApplyToParameterConfig", []interface{}{arg1})
 	fake.applyToParameterConfigMutex.Unlock()
-	if fake.ApplyToParameterConfigStub != nil {
+	if stub != nil {
 		fake.ApplyToParameterConfigStub(arg1)
 	}
 }

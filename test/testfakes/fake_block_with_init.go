@@ -32,15 +32,16 @@ func (fake *FakeBlockWithInit) Init(arg1 context.Context) (bool, error) {
 	fake.initArgsForCall = append(fake.initArgsForCall, struct {
 		arg1 context.Context
 	}{arg1})
+	stub := fake.InitStub
+	fakeReturns := fake.initReturns
 	fake.recordInvocation("Init", []interface{}{arg1})
 	fake.initMutex.Unlock()
-	if fake.InitStub != nil {
-		return fake.InitStub(arg1)
+	if stub != nil {
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.initReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
