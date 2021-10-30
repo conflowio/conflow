@@ -16,6 +16,8 @@ generate: build ## Regenerates all files
 build: bin/basil ## Build the basil binary
 
 bin/basil:
+	@echo "Building bin/basil"
+	@go version
 	@GOBIN="$(PWD)/bin" go install -ldflags="-s -w" ./cmd/basil/
 
 .PHONY: clean
@@ -33,10 +35,31 @@ goimports: ## Run goimports on all files
 
 .PHONY: lint
 lint: ## Runs linting checks
+	@echo "Running lint checks"
 	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
 
 .PHONY: update-dependencies
 update-dependencies: ## Updates all dependencies
+	@echo "Updating Go dependencies"
 	@cat go.mod | grep -E "^\t" | grep -v "// indirect" | cut -f 2 | cut -d ' ' -f 1 | xargs -n 1 -t go get -d -u
-	go mod vendor
-	go mod tidy
+	@go mod vendor
+	@go mod tidy
+
+.PHONY: check
+check: lint check-generate check-go-generate check-goimports ## Runs various code checks
+
+.PHONY: check-generate
+check-generate: generate
+	@echo "Checking 'make generate'"
+	@ scripts/check_git_changes.sh "make generate"
+
+.PHONY: check-go-generate
+check-go-generate:
+	@echo "Checking 'go generate ./...'"
+	@go generate ./...
+	@ scripts/check_git_changes.sh "make go-generate"
+
+.PHONY: check-goimports
+check-goimports: goimports
+	@echo "Checking 'make goimports"
+	@ scripts/check_git_changes.sh "make goimports"
