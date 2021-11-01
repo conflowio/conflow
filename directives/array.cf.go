@@ -48,17 +48,14 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 						Pointer: true,
 					},
 				},
-				"min_items": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
-				},
-				"pointer":    &schema.Boolean{},
-				"read_only":  &schema.Boolean{},
-				"title":      &schema.String{},
-				"write_only": &schema.Boolean{},
+				"min_items":    &schema.Integer{},
+				"pointer":      &schema.Boolean{},
+				"read_only":    &schema.Boolean{},
+				"title":        &schema.String{},
+				"unique_items": &schema.Boolean{},
+				"write_only":   &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "max_items": "MaxItems", "min_items": "MinItems", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
+			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "max_items": "MaxItems", "min_items": "MinItems", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "unique_items": "UniqueItems", "write_only": "WriteOnly"},
 			Required:      []string{"items"},
 		}
 	}
@@ -111,6 +108,8 @@ func (i ArrayInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Array).ReadOnly
 	case "title":
 		return b.(*Array).Title
+	case "unique_items":
+		return b.(*Array).UniqueItems
 	case "write_only":
 		return b.(*Array).WriteOnly
 	default:
@@ -144,13 +143,15 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	case "max_items":
 		b.MaxItems = schema.IntegerPtr(value.(int64))
 	case "min_items":
-		b.MinItems = schema.IntegerPtr(value.(int64))
+		b.MinItems = value.(int64)
 	case "pointer":
 		b.Pointer = value.(bool)
 	case "read_only":
 		b.ReadOnly = value.(bool)
 	case "title":
 		b.Title = value.(string)
+	case "unique_items":
+		b.UniqueItems = value.(bool)
 	case "write_only":
 		b.WriteOnly = value.(bool)
 	}

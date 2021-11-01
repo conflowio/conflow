@@ -7,8 +7,9 @@
 package schema_test
 
 import (
-	"encoding/json"
 	"errors"
+
+	"github.com/conflowio/conflow/conflow/schema/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -139,15 +140,14 @@ var _ = Describe("Array", func() {
 			"enum value - min length",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MinItems: schema.IntegerPtr(1),
+				MinItems: 1,
 			},
 			[]interface{}{int64(1)},
 		),
 		Entry(
 			"enum value - min length zero",
 			&schema.Array{
-				Items:    schema.IntegerValue(),
-				MinItems: schema.IntegerPtr(0),
+				Items: schema.IntegerValue(),
 			},
 			[]interface{}{int64(1)},
 		),
@@ -171,10 +171,45 @@ var _ = Describe("Array", func() {
 			"enum value - min and max length",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MinItems: schema.IntegerPtr(1),
+				MinItems: 1,
 				MaxItems: schema.IntegerPtr(2),
 			},
 			[]interface{}{int64(1)},
+		),
+		Entry(
+			"unique items - zero item",
+			&schema.Array{
+				Items:       schema.IntegerValue(),
+				UniqueItems: true,
+			},
+			[]interface{}{},
+		),
+		Entry(
+			"unique items - one item",
+			&schema.Array{
+				Items:       schema.IntegerValue(),
+				UniqueItems: true,
+			},
+			[]interface{}{int64(1)},
+		),
+		Entry(
+			"unique items - two items",
+			&schema.Array{
+				Items:       schema.IntegerValue(),
+				UniqueItems: true,
+			},
+			[]interface{}{int64(1), int64(2)},
+		),
+		Entry(
+			"unique items - complex items",
+			&schema.Array{
+				Items:       &schema.Array{Items: schema.IntegerValue()},
+				UniqueItems: true,
+			},
+			[]interface{}{
+				[]interface{}{int64(1), int64(2)},
+				[]interface{}{int64(1), int64(3)},
+			},
 		),
 	)
 
@@ -259,7 +294,7 @@ var _ = Describe("Array", func() {
 			"enum value - min length 1, zero items",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MinItems: schema.IntegerPtr(1),
+				MinItems: 1,
 			},
 			[]interface{}{},
 			errors.New("must have at least one element"),
@@ -268,7 +303,7 @@ var _ = Describe("Array", func() {
 			"min length 2, 1 item",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MinItems: schema.IntegerPtr(2),
+				MinItems: 2,
 			},
 			[]interface{}{int64(1)},
 			errors.New("must have at least 2 elements"),
@@ -304,11 +339,32 @@ var _ = Describe("Array", func() {
 			"same min and max length",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MinItems: schema.IntegerPtr(2),
+				MinItems: 2,
 				MaxItems: schema.IntegerPtr(2),
 			},
 			[]interface{}{int64(1), int64(2), int64(3)},
 			errors.New("must have exactly 2 elements"),
+		),
+		Entry(
+			"unique items - same values",
+			&schema.Array{
+				Items:       schema.IntegerValue(),
+				UniqueItems: true,
+			},
+			[]interface{}{int64(1), int64(2), int64(1)},
+			errors.New("array must contain unique items"),
+		),
+		Entry(
+			"unique items - same values, complex items",
+			&schema.Array{
+				Items:       &schema.Array{Items: schema.IntegerValue()},
+				UniqueItems: true,
+			},
+			[]interface{}{
+				[]interface{}{int64(1), int64(2)},
+				[]interface{}{int64(1), int64(2)},
+			},
+			errors.New("array must contain unique items"),
 		),
 	)
 
@@ -362,12 +418,12 @@ var _ = Describe("Array", func() {
 }`,
 		),
 		Entry(
-			"MaxItems",
+			"MinItems",
 			&schema.Array{
-				MinItems: schema.IntegerPtr(1),
+				MinItems: 1,
 			},
 			`&schema.Array{
-	MinItems: schema.IntegerPtr(1),
+	MinItems: 1,
 }`,
 		),
 		Entry(
@@ -379,28 +435,32 @@ var _ = Describe("Array", func() {
 	MaxItems: schema.IntegerPtr(1),
 }`,
 		),
+		Entry(
+			"UniqueItems",
+			&schema.Array{
+				UniqueItems: true,
+			},
+			`&schema.Array{
+	UniqueItems: true,
+}`,
+		),
 	)
 
-	It("should marshal/unmarshal", func() {
-		s := &schema.Array{
-			Metadata: schema.Metadata{
-				Description: "foo",
-			},
-			Const:   []interface{}{"constval"},
-			Default: []interface{}{"defaultval"},
-			Enum:    [][]interface{}{{"enumval"}},
-			Items: &schema.String{
-				Metadata: schema.Metadata{
-					Description: "bar",
+	It("should unmarshal/marshal a json", func() {
+		testhelper.ExpectConsistentJSONMarshalling(
+			`{
+				"const": [1],
+				"default": [2],
+				"enum": [[3, 4], [5, 6]],
+				"items": {
+					"type": "string"
 				},
-			},
-		}
-		j, err := json.Marshal(s)
-		Expect(err).ToNot(HaveOccurred())
-
-		s2 := &schema.Array{}
-		err = json.Unmarshal(j, s2)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(s2).To(Equal(s))
+				"minItems": 7,
+				"maxItems": 8,
+				"type": "array",
+				"uniqueItems": true
+			}`,
+			&schema.Array{},
+		)
 	})
 })

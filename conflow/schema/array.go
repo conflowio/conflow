@@ -23,9 +23,10 @@ type Array struct {
 	Default []interface{}   `json:"default,omitempty"`
 	Enum    [][]interface{} `json:"enum,omitempty"`
 	// @required
-	Items    Schema `json:"items,omitempty"`
-	MinItems *int64 `json:"minItems,omitempty"`
-	MaxItems *int64 `json:"maxItems,omitempty"`
+	Items       Schema `json:"items,omitempty"`
+	MinItems    int64  `json:"minItems,omitempty"`
+	MaxItems    *int64 `json:"maxItems,omitempty"`
+	UniqueItems bool   `json:"uniqueItems,omitempty"`
 }
 
 func (a *Array) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -135,11 +136,14 @@ func (a *Array) GoString() string {
 	if a.Items != nil {
 		_, _ = fmt.Fprintf(buf, "\tItems: %s,\n", indent(a.Items.GoString()))
 	}
-	if a.MinItems != nil {
-		_, _ = fmt.Fprintf(buf, "\tMinItems: schema.IntegerPtr(%d),\n", *a.MinItems)
+	if a.MinItems != 0 {
+		_, _ = fmt.Fprintf(buf, "\tMinItems: %d,\n", a.MinItems)
 	}
 	if a.MaxItems != nil {
 		_, _ = fmt.Fprintf(buf, "\tMaxItems: schema.IntegerPtr(%d),\n", *a.MaxItems)
+	}
+	if a.UniqueItems {
+		_, _ = fmt.Fprint(buf, "\tUniqueItems: true,\n")
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -257,23 +261,23 @@ func (a *Array) ValidateValue(value interface{}) error {
 		}
 	}
 
-	if a.MinItems != nil && a.MaxItems != nil && *a.MinItems == *a.MaxItems && len(v) != int(*a.MinItems) {
-		switch *a.MinItems {
+	if a.MaxItems != nil && a.MinItems == *a.MaxItems && len(v) != int(a.MinItems) {
+		switch a.MinItems {
 		case 0:
 			return errors.New("must be empty")
 		case 1:
 			return errors.New("must have exactly one element")
 		default:
-			return fmt.Errorf("must have exactly %d elements", *a.MinItems)
+			return fmt.Errorf("must have exactly %d elements", a.MinItems)
 		}
 	}
 
-	if a.MinItems != nil && len(v) < int(*a.MinItems) {
-		switch *a.MinItems {
+	if len(v) < int(a.MinItems) {
+		switch a.MinItems {
 		case 1:
 			return errors.New("must have at least one element")
 		default:
-			return fmt.Errorf("must have at least %d elements", *a.MinItems)
+			return fmt.Errorf("must have at least %d elements", a.MinItems)
 		}
 	}
 
@@ -285,6 +289,17 @@ func (a *Array) ValidateValue(value interface{}) error {
 			return errors.New("must not contain more than one element")
 		default:
 			return fmt.Errorf("must not contain more than %d elements", *a.MaxItems)
+		}
+	}
+
+	if a.UniqueItems {
+		l := len(v)
+		for i := 0; i < l; i++ {
+			for j := i + 1; j < l; j++ {
+				if a.Items.CompareValues(v[i], v[j]) == 0 {
+					return fmt.Errorf("array must contain unique items")
+				}
+			}
 		}
 	}
 

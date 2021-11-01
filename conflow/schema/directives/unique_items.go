@@ -14,24 +14,22 @@ import (
 )
 
 // @block
-type MinItems struct {
+type UniqueItems struct {
 	// @id
 	id conflow.ID
-	// @value
-	// @required
-	value int64
 }
 
-func (m *MinItems) ID() conflow.ID {
-	return m.id
+func (u *UniqueItems) ID() conflow.ID {
+	return u.id
 }
 
-func (m *MinItems) ApplyToSchema(s schema.Schema) error {
+func (u *UniqueItems) ApplyToSchema(s schema.Schema) error {
 	switch st := s.(type) {
 	case *schema.Array:
-		st.MinItems = m.value
-		return nil
+		st.UniqueItems = true
 	default:
-		return fmt.Errorf("min_items directive can not be applied to %T", s)
+		return fmt.Errorf("unique_items directive can not be applied to %T", s)
 	}
+
+	return nil
 }

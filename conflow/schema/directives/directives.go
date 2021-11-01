@@ -37,6 +37,7 @@ func Registry() block.InterpreterRegistry {
 		"result_type":       ResultTypeInterpreter{},
 		"title":             TitleInterpreter{},
 		"types":             TypesInterpreter{},
+		"unique_items":      UniqueItemsInterpreter{},
 		"value":             ValueInterpreter{},
 		"write_only":        WriteOnlyInterpreter{},
 	}
