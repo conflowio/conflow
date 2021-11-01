@@ -14,6 +14,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 const (
@@ -23,10 +24,12 @@ const (
 type String struct {
 	Metadata
 
-	Const   *string  `json:"const,omitempty"`
-	Default *string  `json:"default,omitempty"`
-	Enum    []string `json:"enum,omitempty"`
-	Format  string   `json:"format,omitempty"`
+	Const     *string  `json:"const,omitempty"`
+	Default   *string  `json:"default,omitempty"`
+	Enum      []string `json:"enum,omitempty"`
+	Format    string   `json:"format,omitempty"`
+	MinLength int64    `json:"minLength,omitempty"`
+	MaxLength *int64   `json:"maxLength,omitempty"`
 }
 
 func (s *String) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -98,6 +101,12 @@ func (s *String) GoString() string {
 	if len(s.Format) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tFormat: %#v,\n", s.Format)
 	}
+	if s.MinLength > 0 {
+		_, _ = fmt.Fprintf(buf, "\tMinLength: %d,\n", s.MinLength)
+	}
+	if s.MaxLength != nil {
+		_, _ = fmt.Fprintf(buf, "\tMaxLength: schema.IntegerPtr(%d),\n", *s.MaxLength)
+	}
 	buf.WriteRune('}')
 	return buf.String()
 }
@@ -136,6 +145,17 @@ func (s *String) TypeString() string {
 	return string(TypeString)
 }
 
+func (s *String) UnmarshalJSON(input []byte) error {
+	type Alias String
+	return json.Unmarshal(input, &struct {
+		Type string `json:"type"`
+		*Alias
+	}{
+		Type:  string(s.Type()),
+		Alias: (*Alias)(s),
+	})
+}
+
 func (s *String) ValidateSchema(s2 Schema, _ bool) error {
 	if s2.Type() != TypeString {
 		return typeError("must be string")
@@ -169,6 +189,37 @@ func (s *String) ValidateValue(value interface{}) error {
 		}
 		if !allowed() {
 			return fmt.Errorf("must be one of %s", s.join(s.Enum, ", "))
+		}
+	}
+
+	if s.MaxLength != nil && s.MinLength == *s.MaxLength && len(v) != int(s.MinLength) {
+		switch s.MinLength {
+		case 0:
+			return errors.New("must be empty string")
+		case 1:
+			return errors.New("must be a single character")
+		default:
+			return fmt.Errorf("must be exactly %d characters long", s.MinLength)
+		}
+	}
+
+	if s.MinLength > 0 && int64(utf8.RuneCount([]byte(v))) < s.MinLength {
+		switch s.MinLength {
+		case 1:
+			return errors.New("can not be empty string")
+		default:
+			return fmt.Errorf("must be at least %d characters long", s.MinLength)
+		}
+	}
+
+	if s.MaxLength != nil && int64(utf8.RuneCount([]byte(v))) > *s.MaxLength {
+		switch *s.MaxLength {
+		case 0:
+			return errors.New("must be empty string")
+		case 1:
+			return errors.New("must be empty string or a single character")
+		default:
+			return fmt.Errorf("must be no more than %d characters long", *s.MaxLength)
 		}
 	}
 

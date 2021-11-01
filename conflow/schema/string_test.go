@@ -7,13 +7,15 @@
 package schema_test
 
 import (
-	"encoding/json"
 	"errors"
 
-	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/schema/internal/testhelper"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 var _ schema.Schema = &schema.String{}
@@ -29,6 +31,13 @@ var _ = Describe("String", func() {
 		Entry("const value", &schema.String{Const: schema.StringPtr("foo")}, "foo"),
 		Entry("enum value - single", &schema.String{Enum: []string{"foo"}}, "foo"),
 		Entry("enum value - multiple", &schema.String{Enum: []string{"foo", "bar"}}, "foo"),
+		Entry("min length - equal", &schema.String{MinLength: 1}, "a"),
+		Entry("min length - longer", &schema.String{MinLength: 1}, "ab"),
+		Entry("min length - unicode", &schema.String{MinLength: 1}, "🍕"),
+		Entry("max length - empty", &schema.String{MaxLength: schema.IntegerPtr(0)}, ""),
+		Entry("max length - equal", &schema.String{MaxLength: schema.IntegerPtr(1)}, "a"),
+		Entry("max length - shorter", &schema.String{MaxLength: schema.IntegerPtr(2)}, "a"),
+		Entry("max length - unicode", &schema.String{MaxLength: schema.IntegerPtr(1)}, "🍕"),
 	)
 
 	DescribeTable("Validate errors",
@@ -59,6 +68,54 @@ var _ = Describe("String", func() {
 			&schema.String{Enum: []string{"foo", "bar"}},
 			"baz",
 			errors.New(`must be one of "foo", "bar"`),
+		),
+		Entry(
+			"min length - empty",
+			&schema.String{MinLength: 1},
+			"",
+			errors.New(`can not be empty string`),
+		),
+		Entry(
+			"min length - shorter",
+			&schema.String{MinLength: 2},
+			"a",
+			errors.New(`must be at least 2 characters long`),
+		),
+		Entry(
+			"min length - unicode",
+			&schema.String{MinLength: 2},
+			"🍕",
+			errors.New(`must be at least 2 characters long`),
+		),
+		Entry(
+			"max length - empty",
+			&schema.String{MaxLength: schema.IntegerPtr(0)},
+			"a",
+			errors.New(`must be empty string`),
+		),
+		Entry(
+			"max length - 1",
+			&schema.String{MaxLength: schema.IntegerPtr(1)},
+			"ab",
+			errors.New(`must be empty string or a single character`),
+		),
+		Entry(
+			"max length - 2",
+			&schema.String{MaxLength: schema.IntegerPtr(2)},
+			"abc",
+			errors.New(`must be no more than 2 characters long`),
+		),
+		Entry(
+			"min length = max length - 1",
+			&schema.String{MinLength: 1, MaxLength: schema.IntegerPtr(1)},
+			"ab",
+			errors.New(`must be a single character`),
+		),
+		Entry(
+			"min length = max length - 2",
+			&schema.String{MinLength: 2, MaxLength: schema.IntegerPtr(2)},
+			"abc",
+			errors.New(`must be exactly 2 characters long`),
 		),
 	)
 
@@ -101,21 +158,34 @@ var _ = Describe("String", func() {
 	Format: "foo",
 }`,
 		),
+		Entry(
+			"min length",
+			&schema.String{MinLength: 1},
+			`&schema.String{
+	MinLength: 1,
+}`,
+		),
+		Entry(
+			"max length",
+			&schema.String{MaxLength: schema.IntegerPtr(1)},
+			`&schema.String{
+	MaxLength: schema.IntegerPtr(1),
+}`,
+		),
 	)
 
-	It("should marshal/unmarshal", func() {
-		s := &schema.String{
-			Const:   schema.StringPtr("constval"),
-			Default: schema.StringPtr("defaultval"),
-			Enum:    []string{"enum1", "enum2"},
-			Format:  "formatval",
-		}
-		j, err := json.Marshal(s)
-		Expect(err).ToNot(HaveOccurred())
-
-		s2 := &schema.String{}
-		err = json.Unmarshal(j, &s2)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(s2).To(Equal(s))
+	It("should unmarshal/marshal a json", func() {
+		testhelper.ExpectConsistentJSONMarshalling(
+			`{
+				"const": "constval",
+				"default": "defaultval",
+				"enum": ["enum1", "enum2"],
+				"format": "formatval",
+				"minLength": 1,
+				"maxLength": 2,
+				"type": "string"
+			}`,
+			&schema.String{},
+		)
 	})
 })
