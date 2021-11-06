@@ -29,7 +29,7 @@ func (m *MinItems) ID() conflow.ID {
 func (m *MinItems) ApplyToSchema(s schema.Schema) error {
 	switch st := s.(type) {
 	case *schema.Array:
-		st.MinItems = schema.IntegerPtr(m.value)
+		st.MinItems = m.value
 		return nil
 	default:
 		return fmt.Errorf("min_items directive can not be applied to %T", s)

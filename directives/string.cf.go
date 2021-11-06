@@ -42,13 +42,22 @@ func (i StringInterpreter) Schema() schema.Schema {
 				"examples": &schema.Array{
 					Items: &schema.Untyped{},
 				},
-				"format":     &schema.String{},
+				"format": &schema.String{},
+				"max_length": &schema.Integer{
+					Metadata: schema.Metadata{
+						Pointer: true,
+					},
+				},
+				"min_length": &schema.Integer{},
+				"pattern": &schema.String{
+					Format: "regex",
+				},
 				"pointer":    &schema.Boolean{},
 				"read_only":  &schema.Boolean{},
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
+			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "max_length": "MaxLength", "min_length": "MinLength", "pattern": "Pattern", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
 		}
 	}
 	return i.s
@@ -92,6 +101,12 @@ func (i StringInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*String).Examples
 	case "format":
 		return b.(*String).Format
+	case "max_length":
+		return b.(*String).MaxLength
+	case "min_length":
+		return b.(*String).MinLength
+	case "pattern":
+		return b.(*String).Pattern
 	case "pointer":
 		return b.(*String).Pointer
 	case "read_only":
@@ -130,6 +145,12 @@ func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 		b.Examples = value.([]interface{})
 	case "format":
 		b.Format = value.(string)
+	case "max_length":
+		b.MaxLength = schema.IntegerPtr(value.(int64))
+	case "min_length":
+		b.MinLength = value.(int64)
+	case "pattern":
+		b.Pattern = value.(string)
 	case "pointer":
 		b.Pointer = value.(bool)
 	case "read_only":

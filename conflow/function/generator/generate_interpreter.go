@@ -14,6 +14,7 @@ import (
 
 	"github.com/conflowio/conflow/conflow/generator/parser"
 	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 // GenerateInterpreter generates an interpreter for the given function
@@ -95,7 +96,7 @@ func generateTemplateParams(
 
 	var nameSelector string
 	if f.InterpreterPath != "" {
-		nameSelector = schema.EnsureUniqueGoPackageName(imports, pkg) + "."
+		nameSelector = utils.EnsureUniqueGoPackageName(imports, pkg) + "."
 	}
 
 	pkgName := parseCtx.File.Name.Name

@@ -7,7 +7,6 @@
 package schema
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 )
@@ -23,23 +22,4 @@ func getSortedMapKeys(v map[string]interface{}) []string {
 
 func indent(s string) string {
 	return strings.ReplaceAll(s, "\n", "\n\t")
-}
-
-func EnsureUniqueGoPackageName(imports map[string]string, path string) string {
-	packageParts := strings.Split(path, "/")
-	packageName := packageParts[len(packageParts)-1]
-
-	n := 1
-	for {
-		if p, ok := imports[packageName]; !ok || p == path {
-			break
-		}
-
-		n++
-		packageName = fmt.Sprintf("%s%d", packageParts[len(packageParts)-1], n)
-	}
-
-	imports[packageName] = path
-
-	return packageName
 }

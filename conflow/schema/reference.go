@@ -12,6 +12,8 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 var _ Schema = &Reference{}
@@ -81,7 +83,7 @@ func (r *Reference) GoType(imports map[string]string) string {
 		return typeName
 	}
 
-	packageName := EnsureUniqueGoPackageName(imports, path)
+	packageName := utils.EnsureUniqueGoPackageName(imports, path)
 
 	if r.Pointer {
 		return fmt.Sprintf("*%s.%s", packageName, typeName)

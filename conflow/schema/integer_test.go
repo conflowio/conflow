@@ -9,12 +9,13 @@ package schema_test
 import (
 	"errors"
 
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/conflow/schema/internal/testhelper"
 )
 
 var _ schema.Schema = &schema.Integer{}

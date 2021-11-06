@@ -15,6 +15,7 @@ import (
 	"github.com/conflowio/conflow/conflow/block"
 	"github.com/conflowio/conflow/conflow/generator/parser"
 	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 // GenerateInterpreter generates an interpreter for the given block
@@ -141,7 +142,7 @@ func generateTemplateParams(
 
 	var nameSelector string
 	if s.InterpreterPath != "" {
-		nameSelector = schema.EnsureUniqueGoPackageName(imports, pkg) + "."
+		nameSelector = utils.EnsureUniqueGoPackageName(imports, pkg) + "."
 	}
 
 	var idPropertyName, valuePropertyName string

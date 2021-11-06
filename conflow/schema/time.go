@@ -14,6 +14,8 @@ import (
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 type Time struct {
@@ -25,9 +27,9 @@ type Time struct {
 }
 
 func (s *Time) AssignValue(imports map[string]string, valueName, resultName string) string {
-	timePackageName := EnsureUniqueGoPackageName(imports, "time")
+	timePackageName := utils.EnsureUniqueGoPackageName(imports, "time")
 	if s.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
+		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf(
 			"%s = %s.TimePtr(%s.(%s.Time))",
 			resultName,
@@ -102,7 +104,7 @@ func (s *Time) GoString() string {
 }
 
 func (s *Time) GoType(imports map[string]string) string {
-	packageName := EnsureUniqueGoPackageName(imports, "time")
+	packageName := utils.EnsureUniqueGoPackageName(imports, "time")
 
 	if s.Pointer {
 		return fmt.Sprintf("*%s.Time", packageName)

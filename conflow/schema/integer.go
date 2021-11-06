@@ -14,6 +14,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 type Integer struct {
@@ -31,7 +33,7 @@ type Integer struct {
 
 func (i *Integer) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if i.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
+		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf("%s = %s.IntegerPtr(%s.(int64))", resultName, schemaPackageName, valueName)
 	}
 
