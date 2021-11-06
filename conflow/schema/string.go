@@ -234,6 +234,14 @@ func (s *String) ValidateValue(value interface{}) error {
 		}
 	}
 
+	if s.Format != "" {
+		if formatChecker, ok := formatCheckers[s.Format]; ok {
+			if _, err := formatChecker.Parse(v); err != nil {
+				return err
+			}
+		}
+	}
+
 	if s.Pattern != "" {
 		if s.patternRegexp == nil {
 			var err error

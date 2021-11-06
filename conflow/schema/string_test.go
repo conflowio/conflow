@@ -40,6 +40,8 @@ var _ = Describe("String", func() {
 		Entry("max length - unicode", &schema.String{MaxLength: schema.IntegerPtr(1)}, "🍕"),
 		Entry("pattern - partial match", &schema.String{Pattern: "[a-z]+"}, "12ab34"),
 		Entry("pattern - full match", &schema.String{Pattern: "^[a-z]+$"}, "ab"),
+		Entry("format - email", &schema.String{Format: "email"}, "my.name@example.com"),
+		Entry("format - unknown", &schema.String{Format: "unknown"}, "foo"),
 	)
 
 	DescribeTable("Validate errors",
@@ -130,6 +132,12 @@ var _ = Describe("String", func() {
 			&schema.String{Pattern: "^[a-z]+$"},
 			"ab012",
 			errors.New(`must match regular expression: ^[a-z]+$`),
+		),
+		Entry(
+			"format - not an email",
+			&schema.String{Format: "email"},
+			"not an email",
+			errors.New("must be a valid email address"),
 		),
 	)
 
