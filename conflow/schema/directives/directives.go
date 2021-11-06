@@ -22,6 +22,7 @@ func Registry() block.InterpreterRegistry {
 		"examples":          ExamplesInterpreter{},
 		"exclusive_maximum": ExclusiveMaximumInterpreter{},
 		"exclusive_minimum": ExclusiveMinimumInterpreter{},
+		"format":            FormatInterpreter{},
 		"function":          FunctionInterpreter{},
 		"generated":         GeneratedInterpreter{},
 		"id":                IDInterpreter{},
