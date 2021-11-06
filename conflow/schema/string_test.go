@@ -38,6 +38,8 @@ var _ = Describe("String", func() {
 		Entry("max length - equal", &schema.String{MaxLength: schema.IntegerPtr(1)}, "a"),
 		Entry("max length - shorter", &schema.String{MaxLength: schema.IntegerPtr(2)}, "a"),
 		Entry("max length - unicode", &schema.String{MaxLength: schema.IntegerPtr(1)}, "🍕"),
+		Entry("pattern - partial match", &schema.String{Pattern: "[a-z]+"}, "12ab34"),
+		Entry("pattern - full match", &schema.String{Pattern: "^[a-z]+$"}, "ab"),
 	)
 
 	DescribeTable("Validate errors",
@@ -117,6 +119,18 @@ var _ = Describe("String", func() {
 			"abc",
 			errors.New(`must be exactly 2 characters long`),
 		),
+		Entry(
+			"pattern - no match",
+			&schema.String{Pattern: "[a-z]+"},
+			"012",
+			errors.New(`must match regular expression: [a-z]+`),
+		),
+		Entry(
+			"pattern - no full match",
+			&schema.String{Pattern: "^[a-z]+$"},
+			"ab012",
+			errors.New(`must match regular expression: ^[a-z]+$`),
+		),
 	)
 
 	DescribeTable("GoString prints a valid Go struct",
@@ -172,6 +186,13 @@ var _ = Describe("String", func() {
 	MaxLength: schema.IntegerPtr(1),
 }`,
 		),
+		Entry(
+			"pattern",
+			&schema.String{Pattern: "^foo$"},
+			`&schema.String{
+	Pattern: "^foo$",
+}`,
+		),
 	)
 
 	It("should unmarshal/marshal a json", func() {
@@ -183,6 +204,7 @@ var _ = Describe("String", func() {
 				"format": "formatval",
 				"minLength": 1,
 				"maxLength": 2,
+				"pattern": "^foo$",
 				"type": "string"
 			}`,
 			&schema.String{},

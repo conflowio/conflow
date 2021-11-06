@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -32,6 +33,11 @@ type String struct {
 	Format    string   `json:"format,omitempty"`
 	MinLength int64    `json:"minLength,omitempty"`
 	MaxLength *int64   `json:"maxLength,omitempty"`
+	// @format "regex"
+	Pattern string `json:"pattern,omitempty"`
+
+	// @ignore
+	patternRegexp *regexp.Regexp
 }
 
 func (s *String) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -108,6 +114,9 @@ func (s *String) GoString() string {
 	}
 	if s.MaxLength != nil {
 		_, _ = fmt.Fprintf(buf, "\tMaxLength: schema.IntegerPtr(%d),\n", *s.MaxLength)
+	}
+	if s.Pattern != "" {
+		_, _ = fmt.Fprintf(buf, "\tPattern: %q,\n", s.Pattern)
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -222,6 +231,19 @@ func (s *String) ValidateValue(value interface{}) error {
 			return errors.New("must be empty string or a single character")
 		default:
 			return fmt.Errorf("must be no more than %d characters long", *s.MaxLength)
+		}
+	}
+
+	if s.Pattern != "" {
+		if s.patternRegexp == nil {
+			var err error
+			if s.patternRegexp, err = regexp.Compile(s.Pattern); err != nil {
+				return fmt.Errorf("schema error, pattern regexp is invalid: %w", err)
+			}
+		}
+
+		if !s.patternRegexp.MatchString(v) {
+			return fmt.Errorf("must match regular expression: %s", s.Pattern)
 		}
 	}
 

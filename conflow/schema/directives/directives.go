@@ -35,6 +35,7 @@ func Registry() block.InterpreterRegistry {
 		"minimum":           MinimumInterpreter{},
 		"multiple_of":       MultipleOfInterpreter{},
 		"name":              NameInterpreter{},
+		"pattern":           PatternInterpreter{},
 		"read_only":         ReadOnlyInterpreter{},
 		"required":          RequiredInterpreter{},
 		"result_type":       ResultTypeInterpreter{},
