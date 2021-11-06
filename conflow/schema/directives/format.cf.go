@@ -29,6 +29,7 @@ func (i FormatInterpreter) Schema() schema.Schema {
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"value": "true"},
 					},
+					Enum: []string{"date", "date-time", "duration", "email", "hostname", "idn-email", "idn-hostname", "ip", "ip-cidr", "ipv4", "ipv4-cidr", "ipv6", "ipv6-cidr", "iri", "iri-reference", "regex", "time", "uri", "uri-reference", "uri-template", "uuid"},
 				},
 			},
 			Required: []string{"value"},
