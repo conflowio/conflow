@@ -15,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 const (
@@ -34,7 +36,7 @@ type String struct {
 
 func (s *String) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if s.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
+		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf("%s = %s.StringPtr(%s.(string))", resultName, schemaPackageName, valueName)
 	}
 

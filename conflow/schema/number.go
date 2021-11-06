@@ -15,6 +15,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 // Epsilon is used as a float64 comparison tolerance
@@ -35,7 +37,7 @@ type Number struct {
 
 func (n *Number) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if n.Pointer {
-		schemaPackageName := EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
+		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf("%s = %s.NumberPtr(%s.(float64))", resultName, schemaPackageName, valueName)
 	}
 

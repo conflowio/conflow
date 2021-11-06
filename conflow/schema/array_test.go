@@ -9,7 +9,7 @@ package schema_test
 import (
 	"errors"
 
-	"github.com/conflowio/conflow/conflow/schema/internal/testhelper"
+	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"

@@ -13,6 +13,8 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 type ByteStream struct {
@@ -24,7 +26,7 @@ func (b *ByteStream) AssignValue(imports map[string]string, valueName, resultNam
 		panic("a byte stream can not have a pointer")
 	}
 
-	ioPackageName := EnsureUniqueGoPackageName(imports, "io")
+	ioPackageName := utils.EnsureUniqueGoPackageName(imports, "io")
 
 	return fmt.Sprintf("%s = %s.(%s.ReadCloser)", resultName, valueName, ioPackageName)
 }
@@ -66,7 +68,7 @@ func (b *ByteStream) GoType(imports map[string]string) string {
 		panic("a byte stream can not have a pointer")
 	}
 
-	packageName := EnsureUniqueGoPackageName(imports, "io")
+	packageName := utils.EnsureUniqueGoPackageName(imports, "io")
 
 	return fmt.Sprintf("%s.ReadCloser", packageName)
 }
