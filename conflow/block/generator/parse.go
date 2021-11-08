@@ -191,14 +191,14 @@ func addField(s *schema.Object, idField, valueField *string, field parser.Field)
 		return fmt.Errorf("multiple fields has the same property name: %s", field.PropertyName)
 	}
 
-	if schema.HasAnnotationValue(field.Schema, conflow.AnnotationID, "true") {
+	if field.Schema.GetAnnotation(conflow.AnnotationID) == "true" {
 		if *idField != "" {
 			return fmt.Errorf("multiple id fields were found: %s, %s", *idField, field.Name)
 		}
 		*idField = field.Name
 	}
 
-	if schema.HasAnnotationValue(field.Schema, conflow.AnnotationValue, "true") {
+	if field.Schema.GetAnnotation(conflow.AnnotationValue) == "true" {
 		if *valueField != "" {
 			return fmt.Errorf("multiple value fields were found: %s, %s", *valueField, field.Name)
 		}

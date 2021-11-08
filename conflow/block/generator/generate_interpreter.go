@@ -59,7 +59,7 @@ func GenerateInterpreter(
 		},
 		"filterNonID": func(props map[string]schema.Schema) map[string]schema.Schema {
 			return filterSchemaProperties(props, func(s schema.Schema) bool {
-				return !schema.HasAnnotationValue(s, conflow.AnnotationID, "true")
+				return s.GetAnnotation(conflow.AnnotationID) != "true"
 			})
 		},
 		"filterDefaults": func(props map[string]schema.Schema) map[string]schema.Schema {
@@ -149,9 +149,9 @@ func generateTemplateParams(
 	var idPropertyName, valuePropertyName string
 	for name, property := range s.Schema.(schema.ObjectKind).GetProperties() {
 		switch {
-		case schema.HasAnnotationValue(property, conflow.AnnotationID, "true"):
+		case property.GetAnnotation(conflow.AnnotationID) == "true":
 			idPropertyName = name
-		case schema.HasAnnotationValue(property, conflow.AnnotationValue, "true"):
+		case property.GetAnnotation(conflow.AnnotationValue) == "true":
 			valuePropertyName = name
 		}
 	}

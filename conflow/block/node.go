@@ -192,13 +192,13 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			property, exists := n.schema.Properties[string(c.Name())]
 
 			switch {
-			case exists && c.IsDeclaration() && !schema.HasAnnotationValue(property, conflow.AnnotationUserDefined, "true"):
+			case exists && c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true":
 				return parsley.NewErrorf(c.Pos(), "%q parameter already exists. Use \"=\" to set the parameter value or use a different name", c.Name())
-			case exists && !c.IsDeclaration() && schema.HasAnnotationValue(property, conflow.AnnotationUserDefined, "true"):
+			case exists && !c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) == "true":
 				return parsley.NewErrorf(c.Pos(), "%q must be defined as a new variable using \":=\"", c.Name())
 			case !exists && !c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
-			case !c.IsDeclaration() && !schema.HasAnnotationValue(property, conflow.AnnotationUserDefined, "true") && property.GetReadOnly():
+			case !c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true" && property.GetReadOnly():
 				return parsley.NewErrorf(c.Pos(), "%q is a read-only parameter and can not be set", c.Name())
 			}
 		default:
