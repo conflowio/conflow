@@ -20,14 +20,14 @@ func (i RangeInterpreter) Schema() schema.Schema {
 			Properties: map[string]schema.Schema{
 				"entry": &schema.Reference{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
 						Pointer:     true,
 					},
 					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.RangeEntry",
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",

@@ -160,17 +160,17 @@ func ParseField(
 		}
 	}
 
-	if schema.HasAnnotationValue(fieldSchema, "id", "true") &&
-		schema.HasAnnotationValue(fieldSchema, "value", "true") {
+	if schema.HasAnnotationValue(fieldSchema, conflow.AnnotationID, "true") &&
+		schema.HasAnnotationValue(fieldSchema, conflow.AnnotationValue, "true") {
 		return nil, errors.New("the id field can not be marked as the value field")
 	}
 
-	if fieldSchema.GetReadOnly() && !schema.HasAnnotationValue(fieldSchema, "id", "true") {
-		meta.SetAnnotation("eval_stage", "close")
+	if fieldSchema.GetReadOnly() && !schema.HasAnnotationValue(fieldSchema, conflow.AnnotationID, "true") {
+		meta.SetAnnotation(conflow.AnnotationEvalStage, "close")
 	}
 
-	if schema.HasAnnotationValue(fieldSchema, "generated", "true") {
-		meta.SetAnnotation("eval_stage", "init")
+	if schema.HasAnnotationValue(fieldSchema, conflow.AnnotationGenerated, "true") {
+		meta.SetAnnotation(conflow.AnnotationEvalStage, "init")
 		required = true
 	}
 

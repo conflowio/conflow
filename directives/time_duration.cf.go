@@ -18,7 +18,7 @@ func (i TimeDurationInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"eval_stage": "parse"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
 			Name: "TimeDuration",
 			Properties: map[string]schema.Schema{

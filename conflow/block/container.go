@@ -528,7 +528,7 @@ func (c *Container) setChild(result conflow.Container) parsley.Error {
 		}
 
 		// Do not publish the empty generated node
-		if p != nil && p.GetAnnotation("generated") == "true" && c.evalStage == conflow.EvalStageInit {
+		if p != nil && p.GetAnnotation(conflow.AnnotationGenerated) == "true" && c.evalStage == conflow.EvalStageInit {
 			return nil
 		}
 
@@ -550,7 +550,7 @@ func (c *Container) PublishBlock(block conflow.Block, f func() error) (bool, err
 
 	nodeContainer, ok := c.children[blockID]
 	propertyName := string(nodeContainer.Node().(conflow.BlockNode).ParameterName())
-	if !ok || c.Node().Schema().(*schema.Object).Properties[propertyName].GetAnnotation("generated") != "true" {
+	if !ok || c.Node().Schema().(*schema.Object).Properties[propertyName].GetAnnotation(conflow.AnnotationGenerated) != "true" {
 		return false, fmt.Errorf("%q block does not exist or is not marked as generated", blockID)
 	}
 

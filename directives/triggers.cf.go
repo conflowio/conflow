@@ -17,19 +17,19 @@ func (i TriggersInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"eval_stage": "resolve"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "resolve"},
 			},
 			Name: "Triggers",
 			Properties: map[string]schema.Schema{
 				"block_ids": &schema.Array{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"value": "true"},
+						Annotations: map[string]string{"block.conflow.io/value": "true"},
 					},
 					Items: &schema.Untyped{},
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",

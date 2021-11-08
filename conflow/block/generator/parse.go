@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"go/ast"
 
+	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/generator/parser"
 	"github.com/conflowio/conflow/conflow/schema"
 	schemadirectives "github.com/conflowio/conflow/conflow/schema/directives"
@@ -92,12 +93,12 @@ func ParseStruct(
 			fieldStrSchema := fieldStr.Schema.(*schema.Object)
 
 			for propertyName, property := range fieldStrSchema.Properties {
-				if property.GetAnnotation("id") == "true" {
+				if property.GetAnnotation(conflow.AnnotationID) == "true" {
 					continue
 				}
 
-				if property.GetAnnotation("value") == "true" {
-					property.(schema.MetadataAccessor).SetAnnotation("value", "")
+				if property.GetAnnotation(conflow.AnnotationValue) == "true" {
+					property.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationValue, "")
 				}
 
 				fieldName := propertyName
@@ -190,14 +191,14 @@ func addField(s *schema.Object, idField, valueField *string, field parser.Field)
 		return fmt.Errorf("multiple fields has the same property name: %s", field.PropertyName)
 	}
 
-	if schema.HasAnnotationValue(field.Schema, "id", "true") {
+	if schema.HasAnnotationValue(field.Schema, conflow.AnnotationID, "true") {
 		if *idField != "" {
 			return fmt.Errorf("multiple id fields were found: %s, %s", *idField, field.Name)
 		}
 		*idField = field.Name
 	}
 
-	if schema.HasAnnotationValue(field.Schema, "value", "true") {
+	if schema.HasAnnotationValue(field.Schema, conflow.AnnotationValue, "true") {
 		if *valueField != "" {
 			return fmt.Errorf("multiple value fields were found: %s, %s", *valueField, field.Name)
 		}

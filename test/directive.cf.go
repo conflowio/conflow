@@ -33,7 +33,7 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 				"field_time_duration": &schema.TimeDuration{},
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",
@@ -48,7 +48,7 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 				},
 				"value": &schema.Untyped{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"value": "true"},
+						Annotations: map[string]string{"block.conflow.io/value": "true"},
 					},
 				},
 			},

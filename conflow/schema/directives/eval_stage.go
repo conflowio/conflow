@@ -27,7 +27,7 @@ func (s *EvalStage) ID() conflow.ID {
 
 func (s *EvalStage) ApplyToSchema(sch schema.Schema) error {
 	return schema.UpdateMetadata(sch, func(meta schema.MetadataAccessor) error {
-		meta.SetAnnotation("eval_stage", s.value)
+		meta.SetAnnotation(conflow.AnnotationEvalStage, s.value)
 		return nil
 	})
 }

@@ -26,7 +26,7 @@ func (i BlockWithOneBlockInterpreter) Schema() schema.Schema {
 				},
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",

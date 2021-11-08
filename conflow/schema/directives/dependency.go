@@ -24,8 +24,5 @@ func (d *Dependency) ID() conflow.ID {
 }
 
 func (d *Dependency) ApplyToSchema(s schema.Schema) error {
-	return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {
-		meta.SetAnnotation("dependency", d.Name)
-		return nil
-	})
+	return nil
 }

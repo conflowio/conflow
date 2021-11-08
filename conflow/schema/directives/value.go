@@ -23,7 +23,7 @@ func (v *Value) ID() conflow.ID {
 
 func (v *Value) ApplyToSchema(s schema.Schema) error {
 	return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {
-		meta.SetAnnotation("value", "true")
+		meta.SetAnnotation(conflow.AnnotationValue, "true")
 		return nil
 	})
 }
