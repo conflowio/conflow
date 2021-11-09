@@ -16,8 +16,9 @@ type ExecInterpreter struct {
 func (i ExecInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "Exec",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"exit_code": "exitCode"},
+			Name:              "Exec",
+			Parameters: map[string]schema.Schema{
 				"cmd": &schema.String{},
 				"dir": &schema.String{},
 				"env": &schema.Array{
@@ -54,8 +55,7 @@ func (i ExecInterpreter) Schema() schema.Schema {
 					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.Stream",
 				},
 			},
-			PropertyNames: map[string]string{"exit_code": "exitCode"},
-			Required:      []string{"cmd", "stdout", "stderr"},
+			Required: []string{"cmd", "stdout", "stderr"},
 		}
 	}
 	return i.s

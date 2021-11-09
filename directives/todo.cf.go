@@ -20,7 +20,7 @@ func (i TodoInterpreter) Schema() schema.Schema {
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "ignore"},
 			},
 			Name: "Todo",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"description": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/value": "true"},

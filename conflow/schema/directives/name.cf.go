@@ -16,8 +16,9 @@ type NameInterpreter struct {
 func (i NameInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "Name",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"value": "Value"},
+			Name:              "Name",
+			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -31,8 +32,7 @@ func (i NameInterpreter) Schema() schema.Schema {
 					},
 				},
 			},
-			PropertyNames: map[string]string{"value": "Value"},
-			Required:      []string{"value"},
+			Required: []string{"value"},
 		}
 	}
 	return i.s

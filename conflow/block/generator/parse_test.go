@@ -54,7 +54,7 @@ var _ = Describe("ParseStruct", func() {
 					Description: "It is a test struct",
 				},
 				Name: "Foo",
-				Properties: map[string]schema.Schema{
+				Parameters: map[string]schema.Schema{
 					"id": &schema.String{
 						Metadata: schema.Metadata{
 							Annotations: expectedIDAnnotations,
@@ -87,57 +87,57 @@ var _ = Describe("ParseStruct", func() {
 		Entry("valid id field", "", func(schema.Schema) {}),
 
 		Entry("string field", "field string", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.String{}
+			s.(*schema.Object).Parameters["field"] = &schema.String{}
 		}),
 
 		Entry("bool field", "field bool", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Boolean{}
+			s.(*schema.Object).Parameters["field"] = &schema.Boolean{}
 		}),
 
 		Entry("integer field", "field int64", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Integer{}
+			s.(*schema.Object).Parameters["field"] = &schema.Integer{}
 		}),
 
 		Entry("number field", "field float64", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Number{}
+			s.(*schema.Object).Parameters["field"] = &schema.Number{}
 		}),
 
 		Entry("time duration field", "field time.Duration", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.TimeDuration{}
+			s.(*schema.Object).Parameters["field"] = &schema.TimeDuration{}
 		}),
 
 		Entry("string array", "field []string", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Array{
+			s.(*schema.Object).Parameters["field"] = &schema.Array{
 				Items: &schema.String{},
 			}
 		}),
 
 		Entry("bool array", "field []bool", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Array{
+			s.(*schema.Object).Parameters["field"] = &schema.Array{
 				Items: &schema.Boolean{},
 			}
 		}),
 
 		Entry("integer array", "field []int64", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Array{
+			s.(*schema.Object).Parameters["field"] = &schema.Array{
 				Items: &schema.Integer{},
 			}
 		}),
 
 		Entry("number array", "field []float64", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Array{
+			s.(*schema.Object).Parameters["field"] = &schema.Array{
 				Items: &schema.Number{},
 			}
 		}),
 
 		Entry("time duration array", "field []time.Duration", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Array{
+			s.(*schema.Object).Parameters["field"] = &schema.Array{
 				Items: &schema.TimeDuration{},
 			}
 		}),
 
 		Entry("arrays of arrays", "field [][]string", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Array{
+			s.(*schema.Object).Parameters["field"] = &schema.Array{
 				Items: &schema.Array{
 					Items: &schema.String{},
 				},
@@ -145,37 +145,37 @@ var _ = Describe("ParseStruct", func() {
 		}),
 
 		Entry("string map", "field map[string]string", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Map{
+			s.(*schema.Object).Parameters["field"] = &schema.Map{
 				AdditionalProperties: &schema.String{},
 			}
 		}),
 
 		Entry("integer map", "field map[string]int64", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Map{
+			s.(*schema.Object).Parameters["field"] = &schema.Map{
 				AdditionalProperties: &schema.Integer{},
 			}
 		}),
 
 		Entry("number map", "field map[string]float64", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Map{
+			s.(*schema.Object).Parameters["field"] = &schema.Map{
 				AdditionalProperties: &schema.Number{},
 			}
 		}),
 
 		Entry("boolean map", "field map[string]bool", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Map{
+			s.(*schema.Object).Parameters["field"] = &schema.Map{
 				AdditionalProperties: &schema.Boolean{},
 			}
 		}),
 
 		Entry("time duration map", "field map[string]time.Duration", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Map{
+			s.(*schema.Object).Parameters["field"] = &schema.Map{
 				AdditionalProperties: &schema.TimeDuration{},
 			}
 		}),
 
 		Entry("maps of maps", "field map[string]map[string]string", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Map{
+			s.(*schema.Object).Parameters["field"] = &schema.Map{
 				AdditionalProperties: &schema.Map{
 					AdditionalProperties: &schema.String{},
 				},
@@ -186,10 +186,9 @@ var _ = Describe("ParseStruct", func() {
 			"valid json field name should be used as property name",
 			"field string `json:\"custom_field_name\"`",
 			func(s schema.Schema) {
-				s.(*schema.Object).Properties["custom_field_name"] = &schema.String{}
-				s.(*schema.Object).PropertyNames = map[string]string{
-					"custom_field_name": "field",
-				}
+				s.(*schema.Object).Parameters["field"] = &schema.String{}
+				s.(*schema.Object).JSONPropertyNames = map[string]string{"field": "custom_field_name"}
+				s.(*schema.Object).FieldNames = map[string]string{"custom_field_name": "field"}
 			},
 		),
 
@@ -197,18 +196,8 @@ var _ = Describe("ParseStruct", func() {
 			"valid @name directive should be used as property name",
 			"// @name \"custom_field_name\"\nfield string",
 			func(s schema.Schema) {
-				s.(*schema.Object).Properties["custom_field_name"] = &schema.String{}
-				s.(*schema.Object).PropertyNames = map[string]string{
-					"custom_field_name": "field",
-				}
-			},
-		),
-
-		Entry(
-			"invalid json field name should not be used as property name",
-			"field string `json:\"customFieldName\"`",
-			func(s schema.Schema) {
-				s.(*schema.Object).Properties["field"] = &schema.String{}
+				s.(*schema.Object).Parameters["custom_field_name"] = &schema.String{}
+				s.(*schema.Object).JSONPropertyNames = map[string]string{"custom_field_name": "field"}
 			},
 		),
 
@@ -216,37 +205,14 @@ var _ = Describe("ParseStruct", func() {
 			"valid property name should be generated",
 			"fieldName string",
 			func(s schema.Schema) {
-				s.(*schema.Object).Properties["field_name"] = &schema.String{}
-				s.(*schema.Object).PropertyNames = map[string]string{
-					"field_name": "fieldName",
-				}
+				s.(*schema.Object).Parameters["field_name"] = &schema.String{}
+				s.(*schema.Object).JSONPropertyNames = map[string]string{"field_name": "fieldName"}
 			},
 		),
 
 		Entry(
 			"field should be ignored if a JSON annotation ignores it",
 			"fieldName string `json:\"-\"`",
-			func(s schema.Schema) {
-			},
-		),
-
-		Entry(
-			"JSON ignore should work on an unsupported field type",
-			"fieldName int8 `json:\"-\"`",
-			func(s schema.Schema) {
-			},
-		),
-
-		Entry(
-			"JSON ignore should work on an unsupported array field type",
-			"fieldName []int8 `json:\"-\"`",
-			func(s schema.Schema) {
-			},
-		),
-
-		Entry(
-			"JSON ignore should work on an unsupported map field type",
-			"fieldName map[int8]int8 `json:\"-\"`",
 			func(s schema.Schema) {
 			},
 		),
@@ -316,7 +282,7 @@ var _ = Describe("ParseStruct", func() {
 				Expect(parseErr).ToNot(HaveOccurred())
 				Expect(resultStruct.Schema).To(Equal(&schema.Object{
 					Name: "Foo",
-					Properties: map[string]schema.Schema{
+					Parameters: map[string]schema.Schema{
 						"id": &schema.String{
 							Metadata: schema.Metadata{
 								Annotations: expectedIDAnnotations,

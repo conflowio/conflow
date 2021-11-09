@@ -20,7 +20,7 @@ func (i PrintInterpreter) Schema() schema.Schema {
 				Description: "It will write a string to the standard output",
 			},
 			Name: "Print",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},

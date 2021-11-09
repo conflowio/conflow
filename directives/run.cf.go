@@ -20,7 +20,7 @@ func (i RunInterpreter) Schema() schema.Schema {
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "init"},
 			},
 			Name: "Run",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},

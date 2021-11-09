@@ -67,11 +67,8 @@ func GenerateInterpreter(
 				return s.DefaultValue() != nil
 			})
 		},
-		"getPropertyName": func(name string) string {
-			if p, ok := params.Schema.(schema.ObjectKind).GetPropertyNames()[name]; ok {
-				return p
-			}
-			return name
+		"getFieldName": func(name string) string {
+			return params.Schema.(schema.ObjectKind).GetFieldName(name)
 		},
 		"getType": func(s schema.Schema) string {
 			return s.GoType(params.Imports)
@@ -147,7 +144,7 @@ func generateTemplateParams(
 	}
 
 	var idPropertyName, valuePropertyName string
-	for name, property := range s.Schema.(schema.ObjectKind).GetProperties() {
+	for name, property := range s.Schema.(schema.ObjectKind).GetParameters() {
 		switch {
 		case property.GetAnnotation(conflow.AnnotationID) == "true":
 			idPropertyName = name

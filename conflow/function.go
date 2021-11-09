@@ -13,7 +13,7 @@ import (
 )
 
 // FunctionNameRegExpPattern defines a valid function name
-const FunctionNameRegExpPattern = IDRegExpPattern + "(?:\\." + IDRegExpPattern + ")?"
+const FunctionNameRegExpPattern = schema.NameRegExpPattern + "(?:\\." + schema.NameRegExpPattern + ")?"
 
 // FunctionNode is the AST node for a function
 //counterfeiter:generate . FunctionNode

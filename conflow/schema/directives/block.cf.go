@@ -19,8 +19,9 @@ func (i BlockInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Description: "It is the directive for marking structs as conflow blocks",
 			},
-			Name: "Block",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path"},
+			Name:              "Block",
+			Parameters: map[string]schema.Schema{
 				"eval_stage": &schema.String{
 					Enum: []string{"ignore", "init", "parse", "resolve"},
 				},
@@ -33,7 +34,6 @@ func (i BlockInterpreter) Schema() schema.Schema {
 				},
 				"path": &schema.String{},
 			},
-			PropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path"},
 		}
 	}
 	return i.s

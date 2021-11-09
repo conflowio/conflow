@@ -17,7 +17,7 @@ func (i ResultTypeInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Name: "ResultType",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},

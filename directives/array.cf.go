@@ -19,8 +19,10 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			Name: "Array",
-			Properties: map[string]schema.Schema{
+			FieldNames:        map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly"},
+			JSONPropertyNames: map[string]string{"max_items": "maxItems", "min_items": "minItems", "read_only": "readOnly", "unique_items": "uniqueItems", "write_only": "writeOnly"},
+			Name:              "Array",
+			Parameters: map[string]schema.Schema{
 				"annotations": &schema.Map{
 					AdditionalProperties: &schema.String{},
 				},
@@ -55,8 +57,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 				"unique_items": &schema.Boolean{},
 				"write_only":   &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "max_items": "MaxItems", "min_items": "MinItems", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "unique_items": "UniqueItems", "write_only": "WriteOnly"},
-			Required:      []string{"items"},
+			Required: []string{"items"},
 		}
 	}
 	return i.s

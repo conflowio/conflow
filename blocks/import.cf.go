@@ -20,7 +20,7 @@ func (i ImportInterpreter) Schema() schema.Schema {
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
 			Name: "Import",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},

@@ -19,8 +19,10 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			Name: "Integer",
-			Properties: map[string]schema.Schema{
+			FieldNames:        map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
+			Name:              "Integer",
+			Parameters: map[string]schema.Schema{
 				"annotations": &schema.Map{
 					AdditionalProperties: &schema.String{},
 				},
@@ -72,7 +74,6 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusive_maximum": "ExclusiveMaximum", "exclusive_minimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multiple_of": "MultipleOf", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
 		}
 	}
 	return i.s

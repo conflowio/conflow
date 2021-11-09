@@ -21,7 +21,7 @@ func (i TimeoutInterpreter) Schema() schema.Schema {
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "init"},
 			},
 			Name: "Timeout",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"duration": &schema.TimeDuration{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/value": "true"},

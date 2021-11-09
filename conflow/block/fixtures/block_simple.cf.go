@@ -16,8 +16,9 @@ type BlockSimpleInterpreter struct {
 func (i BlockSimpleInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "BlockSimple",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
+			Name:              "BlockSimple",
+			Parameters: map[string]schema.Schema{
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -31,7 +32,6 @@ func (i BlockSimpleInterpreter) Schema() schema.Schema {
 					},
 				},
 			},
-			PropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
 		}
 	}
 	return i.s

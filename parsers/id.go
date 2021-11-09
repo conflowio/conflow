@@ -13,6 +13,7 @@ import (
 	"github.com/conflowio/parsley/text"
 
 	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // ID parses an identifier:
@@ -42,7 +43,7 @@ func id(classifier rune) parser.Func {
 			}
 		}
 
-		if readerPos, match := tr.ReadRegexp(pos, conflow.IDRegExpPattern); match != nil {
+		if readerPos, match := tr.ReadRegexp(pos, schema.NameRegExpPattern); match != nil {
 			id := string(match)
 			if ctx.IsKeyword(id) {
 				return nil, data.EmptyIntSet, parsley.NewErrorf(pos, "%s is a reserved keyword", id)

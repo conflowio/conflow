@@ -16,8 +16,9 @@ type BlockNoFieldsInterpreter struct {
 func (i BlockNoFieldsInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "BlockNoFields",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"id_field": "IDField"},
+			Name:              "BlockNoFields",
+			Parameters: map[string]schema.Schema{
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -26,7 +27,6 @@ func (i BlockNoFieldsInterpreter) Schema() schema.Schema {
 					Format: "conflow.ID",
 				},
 			},
-			PropertyNames: map[string]string{"id_field": "IDField"},
 		}
 	}
 	return i.s

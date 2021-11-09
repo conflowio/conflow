@@ -19,8 +19,10 @@ func (i MapInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			Name: "Map",
-			Properties: map[string]schema.Schema{
+			FieldNames:        map[string]string{"additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "read_only": "readOnly", "write_only": "writeOnly"},
+			Name:              "Map",
+			Parameters: map[string]schema.Schema{
 				"additional_properties": &schema.Reference{
 					Ref: "http://conflow.schema/github.com/conflowio/conflow/conflow/schema.Schema",
 				},
@@ -48,8 +50,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"additional_properties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
-			Required:      []string{"additional_properties"},
+			Required: []string{"additional_properties"},
 		}
 	}
 	return i.s

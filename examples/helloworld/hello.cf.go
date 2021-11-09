@@ -20,7 +20,7 @@ func (i HelloInterpreter) Schema() schema.Schema {
 				Description: "It is capable to print some greetings",
 			},
 			Name: "Hello",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"greeting": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
