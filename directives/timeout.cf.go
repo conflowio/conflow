@@ -18,18 +18,18 @@ func (i TimeoutInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"eval_stage": "init"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "init"},
 			},
 			Name: "Timeout",
 			Properties: map[string]schema.Schema{
 				"duration": &schema.TimeDuration{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"value": "true"},
+						Annotations: map[string]string{"block.conflow.io/value": "true"},
 					},
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",

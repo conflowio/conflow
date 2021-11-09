@@ -23,7 +23,7 @@ func (g *Generated) ID() conflow.ID {
 
 func (g *Generated) ApplyToSchema(s schema.Schema) error {
 	return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {
-		meta.SetAnnotation("generated", "true")
+		meta.SetAnnotation(conflow.AnnotationGenerated, "true")
 		return nil
 	})
 }

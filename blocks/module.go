@@ -59,7 +59,7 @@ func NewModuleInterpreter(
 ) conflow.BlockInterpreter {
 	s := interpreter.Schema().Copy().(*schema.Object)
 	for _, p := range s.Properties {
-		p.(schema.MetadataAccessor).SetAnnotation("user_defined", "")
+		p.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "")
 	}
 
 	return &moduleInterpreter{

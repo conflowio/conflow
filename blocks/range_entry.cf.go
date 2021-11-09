@@ -20,20 +20,20 @@ func (i RangeEntryInterpreter) Schema() schema.Schema {
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",
 				},
 				"key": &schema.Untyped{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "close"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
 						ReadOnly:    true,
 					},
 				},
 				"value": &schema.Untyped{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "close"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
 						ReadOnly:    true,
 					},
 				},

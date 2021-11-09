@@ -20,13 +20,13 @@ func (i BenchmarkRunInterpreter) Schema() schema.Schema {
 			Properties: map[string]schema.Schema{
 				"cnt": &schema.Integer{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "close"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
 						ReadOnly:    true,
 					},
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",

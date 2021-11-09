@@ -208,10 +208,6 @@ func (e emptyMetadata) GetWriteOnly() bool {
 	return false
 }
 
-func HasAnnotationValue(s Schema, name, value string) bool {
-	return s.GetAnnotation(name) == value
-}
-
 func UpdateMetadata(s Schema, f func(meta MetadataAccessor) error) error {
 	if meta, ok := s.(MetadataAccessor); ok {
 		return f(meta)

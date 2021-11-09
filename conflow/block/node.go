@@ -55,7 +55,7 @@ func NewNode(
 	var generates []conflow.ID
 	for _, c := range children {
 		if b, ok := c.(conflow.BlockNode); ok {
-			if b.Schema().(schema.Schema).GetAnnotation("generated") == "true" {
+			if b.Schema().(schema.Schema).GetAnnotation(conflow.AnnotationGenerated) == "true" {
 				generates = append(generates, b.ID())
 				generates = append(generates, b.Provides()...)
 			} else {
@@ -141,7 +141,7 @@ func (n *Node) GetPropertySchema(name conflow.ID) (schema.Schema, bool) {
 
 // EvalStage returns with the evaluation stage
 func (n *Node) EvalStage() conflow.EvalStage {
-	evalStageStr := n.schema.GetAnnotation("eval_stage")
+	evalStageStr := n.schema.GetAnnotation(conflow.AnnotationEvalStage)
 	if evalStageStr != "" {
 		return conflow.EvalStages[evalStageStr]
 	}
@@ -192,13 +192,13 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			property, exists := n.schema.Properties[string(c.Name())]
 
 			switch {
-			case exists && c.IsDeclaration() && !schema.HasAnnotationValue(property, "user_defined", "true"):
+			case exists && c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true":
 				return parsley.NewErrorf(c.Pos(), "%q parameter already exists. Use \"=\" to set the parameter value or use a different name", c.Name())
-			case exists && !c.IsDeclaration() && schema.HasAnnotationValue(property, "user_defined", "true"):
+			case exists && !c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) == "true":
 				return parsley.NewErrorf(c.Pos(), "%q must be defined as a new variable using \":=\"", c.Name())
 			case !exists && !c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
-			case !c.IsDeclaration() && !schema.HasAnnotationValue(property, "user_defined", "true") && property.GetReadOnly():
+			case !c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true" && property.GetReadOnly():
 				return parsley.NewErrorf(c.Pos(), "%q is a read-only parameter and can not be set", c.Name())
 			}
 		default:

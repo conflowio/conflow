@@ -17,20 +17,20 @@ func (i RetryInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"eval_stage": "init"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "init"},
 			},
 			Name: "Retry",
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",
 				},
 				"limit": &schema.Integer{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"value": "true"},
+						Annotations: map[string]string{"block.conflow.io/value": "true"},
 					},
 					Default: schema.IntegerPtr(-1),
 					Minimum: schema.IntegerPtr(-1),

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/block"
 	"github.com/conflowio/conflow/conflow/generator/parser"
 	"github.com/conflowio/conflow/conflow/schema"
@@ -58,7 +59,7 @@ func GenerateInterpreter(
 		},
 		"filterNonID": func(props map[string]schema.Schema) map[string]schema.Schema {
 			return filterSchemaProperties(props, func(s schema.Schema) bool {
-				return !schema.HasAnnotationValue(s, "id", "true")
+				return s.GetAnnotation(conflow.AnnotationID) != "true"
 			})
 		},
 		"filterDefaults": func(props map[string]schema.Schema) map[string]schema.Schema {
@@ -148,9 +149,9 @@ func generateTemplateParams(
 	var idPropertyName, valuePropertyName string
 	for name, property := range s.Schema.(schema.ObjectKind).GetProperties() {
 		switch {
-		case schema.HasAnnotationValue(property, "id", "true"):
+		case property.GetAnnotation(conflow.AnnotationID) == "true":
 			idPropertyName = name
-		case schema.HasAnnotationValue(property, "value", "true"):
+		case property.GetAnnotation(conflow.AnnotationValue) == "true":
 			valuePropertyName = name
 		}
 	}

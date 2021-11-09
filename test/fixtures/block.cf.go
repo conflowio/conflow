@@ -26,7 +26,7 @@ func (i BlockInterpreter) Schema() schema.Schema {
 				"field_float": &schema.Number{},
 				"field_identifier": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "close"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",
@@ -47,7 +47,7 @@ func (i BlockInterpreter) Schema() schema.Schema {
 				"field_time_duration": &schema.TimeDuration{},
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",

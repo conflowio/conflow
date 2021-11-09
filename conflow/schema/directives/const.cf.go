@@ -20,14 +20,14 @@ func (i ConstInterpreter) Schema() schema.Schema {
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",
 				},
 				"value": &schema.Untyped{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"value": "true"},
+						Annotations: map[string]string{"block.conflow.io/value": "true"},
 					},
 				},
 			},

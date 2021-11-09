@@ -34,7 +34,7 @@ func (i *ID) ApplyToSchema(s schema.Schema) error {
 	}
 
 	return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {
-		meta.SetAnnotation("id", "true")
+		meta.SetAnnotation(conflow.AnnotationID, "true")
 		return nil
 	})
 }

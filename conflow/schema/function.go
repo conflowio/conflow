@@ -23,7 +23,7 @@ type Function struct {
 	AdditionalParameters *NamedSchema `json:"additionalParameters,omitempty"`
 	Parameters           Parameters   `json:"parameters,omitempty"`
 	Result               Schema       `json:"result,omitempty"`
-	ResultTypeFrom       string       `json:"result_type_from,omitempty"`
+	ResultTypeFrom       string       `json:"resultTypeFrom,omitempty"`
 }
 
 func (f *Function) AssignValue(_ map[string]string, _, _ string) string {

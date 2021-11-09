@@ -23,14 +23,14 @@ func (i FailInterpreter) Schema() schema.Schema {
 			Properties: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",
 				},
 				"tries": &schema.Integer{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "close"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
 						ReadOnly:    true,
 					},
 				},

@@ -34,7 +34,7 @@ func (b *Block) ApplyToSchema(s schema.Schema) error {
 	}
 
 	if b.EvalStage != "" {
-		s.(*schema.Object).SetAnnotation("eval_stage", b.EvalStage)
+		s.(*schema.Object).SetAnnotation(conflow.AnnotationEvalStage, b.EvalStage)
 	}
 
 	return nil

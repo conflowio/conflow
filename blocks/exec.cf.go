@@ -25,13 +25,13 @@ func (i ExecInterpreter) Schema() schema.Schema {
 				},
 				"exit_code": &schema.Integer{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "close"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
 						ReadOnly:    true,
 					},
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"id": "true"},
+						Annotations: map[string]string{"block.conflow.io/id": "true"},
 						ReadOnly:    true,
 					},
 					Format: "conflow.ID",
@@ -41,14 +41,14 @@ func (i ExecInterpreter) Schema() schema.Schema {
 				},
 				"stderr": &schema.Reference{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
 						Pointer:     true,
 					},
 					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.Stream",
 				},
 				"stdout": &schema.Reference{
 					Metadata: schema.Metadata{
-						Annotations: map[string]string{"eval_stage": "init", "generated": "true"},
+						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
 						Pointer:     true,
 					},
 					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.Stream",
