@@ -19,8 +19,9 @@ func (i FailInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Description: "It will error for the given tries",
 			},
-			Name: "Fail",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"tries_required": "triesRequired"},
+			Name:              "Fail",
+			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -36,8 +37,7 @@ func (i FailInterpreter) Schema() schema.Schema {
 				},
 				"tries_required": &schema.Integer{},
 			},
-			PropertyNames: map[string]string{"tries_required": "triesRequired"},
-			Required:      []string{"tries_required"},
+			Required: []string{"tries_required"},
 		}
 	}
 	return i.s

@@ -31,8 +31,8 @@ func Evaluate(
 	}
 
 	o := node.Interpreter().Schema().(schema.ObjectKind)
-	for paramName, param := range o.GetProperties() {
-		if param.GetAnnotation(AnnotationUserDefined) == "true" && o.IsPropertyRequired(paramName) {
+	for paramName, param := range o.GetParameters() {
+		if param.GetAnnotation(AnnotationUserDefined) == "true" && o.IsParameterRequired(paramName) {
 			if _, isDefined := inputParams[ID(paramName)]; !isDefined {
 				return nil, fmt.Errorf("%q input parameter must be defined", paramName)
 			}
@@ -40,7 +40,7 @@ func Evaluate(
 	}
 
 	for k, v := range inputParams {
-		property := o.GetProperties()[string(k)]
+		property := o.GetParameters()[string(k)]
 		if property != nil &&
 			property.GetAnnotation(AnnotationUserDefined) == "true" &&
 			!property.GetReadOnly() {

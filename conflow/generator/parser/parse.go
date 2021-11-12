@@ -12,7 +12,6 @@ import (
 	"go/ast"
 	"path"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -21,16 +20,18 @@ import (
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
 	schemadirectives "github.com/conflowio/conflow/conflow/schema/directives"
+	"github.com/conflowio/conflow/internal/utils"
 	"github.com/conflowio/conflow/util"
 )
 
 type Field struct {
-	Dependency     string
-	Name           string
-	PropertyName   string
-	Required       bool
-	ResultTypeFrom bool
-	Schema         schema.Schema
+	Dependency       string
+	JSONPropertyName string
+	Name             string
+	ParameterName    string
+	Required         bool
+	ResultTypeFrom   bool
+	Schema           schema.Schema
 }
 
 func ParseField(
@@ -54,12 +55,12 @@ func ParseField(
 	required := false
 	resultType := false
 
-	propertyName := fieldName
-	if propertyName != "" && !conflow.IDRegExp.MatchString(propertyName) {
-		propertyName = ToSnakeCase(propertyName)
+	parameterName := fieldName
+	if parameterName != "" && !schema.NameRegExp.MatchString(parameterName) {
+		parameterName = utils.ToSnakeCase(parameterName)
 	}
 
-	var jsonPropertyName string
+	jsonPropertyName := fieldName
 	if astField.Tag != nil {
 		tag, err := strconv.Unquote(astField.Tag.Value)
 		if err != nil {
@@ -73,8 +74,7 @@ func ParseField(
 			return nil, nil
 		}
 
-		if jsonName != "" && conflow.IDRegExp.MatchString(jsonName) {
-			propertyName = jsonName
+		if jsonName != "" {
 			jsonPropertyName = jsonName
 		}
 	}
@@ -140,10 +140,7 @@ func ParseField(
 			}
 			resultType = true
 		case *schemadirectives.Name:
-			if jsonPropertyName != "" && d.Value != jsonPropertyName {
-				return nil, errors.New("name directive's value must match the name in the json struct tag")
-			}
-			propertyName = d.Value
+			parameterName = d.Value
 		}
 	}
 
@@ -175,12 +172,13 @@ func ParseField(
 	}
 
 	return &Field{
-		Dependency:     dependencyName,
-		Name:           fieldName,
-		PropertyName:   propertyName,
-		Required:       required,
-		ResultTypeFrom: resultType,
-		Schema:         fieldSchema,
+		Dependency:       dependencyName,
+		JSONPropertyName: jsonPropertyName,
+		Name:             fieldName,
+		ParameterName:    parameterName,
+		Required:         required,
+		ResultTypeFrom:   resultType,
+		Schema:           fieldSchema,
 	}, nil
 }
 
@@ -301,15 +299,6 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 	default:
 		return nil, false, fmt.Errorf("unexpected ast node: %T: %v", typeNode, typeNode)
 	}
-}
-
-var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
-var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
-
-func ToSnakeCase(name string) string {
-	name = matchFirstCap.ReplaceAllString(name, "${1}_${2}")
-	name = matchAllCap.ReplaceAllString(name, "${1}_${2}")
-	return strings.ToLower(name)
 }
 
 func GetImportPath(file *ast.File, name string) string {

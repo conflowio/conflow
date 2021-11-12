@@ -17,8 +17,9 @@ type StreamInterpreter struct {
 func (i StreamInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "Stream",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"stream": "Stream"},
+			Name:              "Stream",
+			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -28,7 +29,6 @@ func (i StreamInterpreter) Schema() schema.Schema {
 				},
 				"stream": &schema.ByteStream{},
 			},
-			PropertyNames: map[string]string{"stream": "Stream"},
 		}
 	}
 	return i.s

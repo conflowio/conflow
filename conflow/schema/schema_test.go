@@ -12,10 +12,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/conflowio/conflow/conflow/schema"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 var _ = Describe("Metadata", func() {
@@ -193,7 +194,7 @@ var _ = Describe("Schema", func() {
 			"object",
 			&schema.Object{
 				Metadata: schema.Metadata{Description: "foo"},
-				Properties: map[string]schema.Schema{
+				Parameters: map[string]schema.Schema{
 					"foo": &schema.Integer{},
 				},
 			},

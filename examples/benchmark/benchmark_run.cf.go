@@ -17,7 +17,7 @@ func (i BenchmarkRunInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Name: "BenchmarkRun",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"cnt": &schema.Integer{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},

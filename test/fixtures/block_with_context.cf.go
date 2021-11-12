@@ -17,8 +17,9 @@ type BlockWithContextInterpreter struct {
 func (i BlockWithContextInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "BlockWithContext",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"id_field": "IDField"},
+			Name:              "BlockWithContext",
+			Parameters: map[string]schema.Schema{
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -32,8 +33,7 @@ func (i BlockWithContextInterpreter) Schema() schema.Schema {
 					},
 				},
 			},
-			PropertyNames: map[string]string{"id_field": "IDField"},
-			Required:      []string{"timeout"},
+			Required: []string{"timeout"},
 		}
 	}
 	return i.s

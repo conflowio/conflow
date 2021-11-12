@@ -19,8 +19,9 @@ func (i FunctionInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Description: "It is the directive for marking functions as conflow functions",
 			},
-			Name: "Function",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"path": "Path"},
+			Name:              "Function",
+			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -30,7 +31,6 @@ func (i FunctionInterpreter) Schema() schema.Schema {
 				},
 				"path": &schema.String{},
 			},
-			PropertyNames: map[string]string{"path": "Path"},
 		}
 	}
 	return i.s

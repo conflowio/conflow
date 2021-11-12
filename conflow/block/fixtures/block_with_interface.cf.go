@@ -16,8 +16,9 @@ type BlockWithInterfaceInterpreter struct {
 func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "BlockWithInterface",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"block": "Block", "blocks": "Blocks", "id_field": "IDField"},
+			Name:              "BlockWithInterface",
+			Parameters: map[string]schema.Schema{
 				"block": &schema.Reference{
 					Ref: "http://conflow.schema/github.com/conflowio/conflow/conflow.Block",
 				},
@@ -34,7 +35,6 @@ func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 					Format: "conflow.ID",
 				},
 			},
-			PropertyNames: map[string]string{"block": "Block", "blocks": "Blocks", "id_field": "IDField"},
 		}
 	}
 	return i.s

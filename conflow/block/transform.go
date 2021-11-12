@@ -100,7 +100,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 				false,
 				nil,
 			)
-			paramNode.SetSchema(interpreter.Schema().(*schema.Object).Properties[string(valueParamName)])
+			paramNode.SetSchema(interpreter.Schema().(*schema.Object).Parameters[string(valueParamName)])
 
 			var deps conflow.Dependencies
 			children, deps, err = dependency.NewResolver(idNode.ID(), paramNode).Resolve()
@@ -200,9 +200,9 @@ func TransformChildren(
 			}
 			blockNode := res.(conflow.BlockNode)
 
-			if blockSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(blockNode.ID())]; ok {
+			if blockSchema, ok := interpreter.Schema().(*schema.Object).Parameters[string(blockNode.ID())]; ok {
 				blockNode.SetSchema(blockSchema)
-			} else if blockSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(blockNode.ParameterName())]; ok {
+			} else if blockSchema, ok := interpreter.Schema().(*schema.Object).Parameters[string(blockNode.ParameterName())]; ok {
 				blockNode.SetSchema(blockSchema)
 			}
 
@@ -219,7 +219,7 @@ func TransformChildren(
 				return nil, nil, err
 			}
 
-			if paramSchema, ok := interpreter.Schema().(*schema.Object).Properties[string(paramNode.Name())]; ok {
+			if paramSchema, ok := interpreter.Schema().(*schema.Object).Parameters[string(paramNode.Name())]; ok {
 				paramNode.SetSchema(paramSchema)
 			}
 
@@ -243,7 +243,7 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 			}
 
 			if util.BoolValue(config.Input) || util.BoolValue(config.Output) {
-				if _, exists := interpreter.Schema().(schema.ObjectKind).GetProperties()[string(paramNode.Name())]; exists {
+				if _, exists := interpreter.Schema().(schema.ObjectKind).GetParameters()[string(paramNode.Name())]; exists {
 					return nil, parsley.NewErrorf(c.Pos(), "%q parameter already exists.", paramNode.Name())
 				}
 			} else {
@@ -254,8 +254,8 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 				s = interpreter.Schema().Copy()
 			}
 			o := s.(*schema.Object)
-			if o.Properties == nil {
-				o.Properties = map[string]schema.Schema{}
+			if o.Parameters == nil {
+				o.Parameters = map[string]schema.Schema{}
 			}
 
 			switch {
@@ -271,7 +271,7 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, conflow.EvalStageInit.String())
 				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "true")
 
-				o.Properties[string(paramNode.Name())] = config.Schema
+				o.Parameters[string(paramNode.Name())] = config.Schema
 				paramNode.SetSchema(config.Schema)
 			case util.BoolValue(config.Output):
 				if config.Schema == nil {
@@ -282,7 +282,7 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "true")
 				config.Schema.(schema.MetadataAccessor).SetReadOnly(true)
 
-				o.Properties[string(paramNode.Name())] = config.Schema
+				o.Parameters[string(paramNode.Name())] = config.Schema
 				paramNode.SetSchema(config.Schema)
 			}
 		}

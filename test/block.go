@@ -90,7 +90,7 @@ func (b *Block) Compare(b2 *Block, input string) {
 func compareBlocks(b1, b2 conflow.Identifiable, interpreter conflow.BlockInterpreter, input string) {
 	Expect(b1.ID()).To(Equal(b2.ID()), "id does not match, input: %s", input)
 
-	for propertyName, p := range interpreter.Schema().(schema.ObjectKind).GetProperties() {
+	for propertyName, p := range interpreter.Schema().(schema.ObjectKind).GetParameters() {
 		if block.IsBlockSchema(p) {
 			continue
 		}

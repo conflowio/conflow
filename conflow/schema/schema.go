@@ -11,10 +11,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
 	"time"
 
 	"github.com/tidwall/gjson"
 )
+
+// NameRegExpPattern is the regular expression for a valid identifier
+const NameRegExpPattern = "[a-z][a-z0-9]*(?:_[a-z0-9]+)*"
+
+// NameRegExp is a compiled regular expression object for a valid identifier
+var NameRegExp = regexp.MustCompile("^" + NameRegExpPattern + "$")
+
+var fieldNameRegexp = regexp.MustCompile("^[_a-zA-Z][_a-zA-Z0-9]*$")
 
 type Schema interface {
 	AssignValue(imports map[string]string, valueName, resultName string) string
@@ -48,11 +57,12 @@ func IsArray(s Schema) bool {
 }
 
 type ObjectKind interface {
-	GetProperties() map[string]Schema
-	IsPropertyRequired(name string) bool
+	GetFieldName(string) string
+	GetJSONPropertyName(string) string
+	GetParameters() map[string]Schema
+	IsParameterRequired(name string) bool
 	GetName() string
 	GetRequired() []string
-	GetPropertyNames() map[string]string
 }
 
 func IsObject(s Schema) bool {

@@ -7,13 +7,15 @@
 package schema_test
 
 import (
-	"encoding/json"
 	"errors"
 
-	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 var _ schema.Schema = &schema.Object{}
@@ -22,11 +24,11 @@ var _ schema.ObjectKind = &schema.Object{}
 var _ = Describe("Object", func() {
 	defaultSchema := func() *schema.Object {
 		return &schema.Object{
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"foo": &schema.Integer{},
 				"bar": &schema.String{},
 				"baz": &schema.Object{
-					Properties: map[string]schema.Schema{
+					Parameters: map[string]schema.Schema{
 						"qux": &schema.Boolean{},
 					},
 				},
@@ -269,15 +271,15 @@ var _ = Describe("Object", func() {
 }`,
 		),
 		Entry(
-			"properties",
+			"parameters",
 			&schema.Object{
-				Properties: map[string]schema.Schema{
+				Parameters: map[string]schema.Schema{
 					"bar": &schema.String{Format: "f1"},
 					"foo": &schema.String{Format: "f2"},
 				},
 			},
 			`&schema.Object{
-	Properties: map[string]schema.Schema{
+	Parameters: map[string]schema.Schema{
 		"bar": &schema.String{
 			Format: "f1",
 		},
@@ -297,41 +299,111 @@ var _ = Describe("Object", func() {
 }`,
 		),
 		Entry(
-			"propertyNames",
+			"fieldNames",
 			&schema.Object{
-				PropertyNames: map[string]string{"foo": "Foo"},
+				FieldNames: map[string]string{"myField": "MyField"},
 			},
 			`&schema.Object{
-	PropertyNames: map[string]string{"foo":"Foo"},
+	FieldNames: map[string]string{"myField":"MyField"},
+}`,
+		),
+		Entry(
+			"JSON property names",
+			&schema.Object{
+				JSONPropertyNames: map[string]string{"my_field": "myField"},
+			},
+			`&schema.Object{
+	JSONPropertyNames: map[string]string{"my_field":"myField"},
 }`,
 		),
 	)
 
-	It("should marshal/unmarshal", func() {
-		s := &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{
-					"foo": "bar",
+	It("should unmarshal/marshal a json", func() {
+		testhelper.ExpectConsistentJSONMarshalling(
+			`{
+				"const": {
+					"myField": "val1"
 				},
-				Description: "foo",
-			},
-			Properties: map[string]schema.Schema{
-				"baz": &schema.String{
-					Metadata: schema.Metadata{
-						Description: "qux",
+				"default": {
+					"myField": "val2"
+				},
+				"enum": [
+					{
+						"myField": "val3"
 					},
+					{
+						"myField": "val4"
+					}
+				],
+				"type": "object",
+				"properties": {
+					"myField": {
+						"type": "string"
+					}
 				},
-			},
-			PropertyNames: map[string]string{
-				"baz": "Baz",
-			},
-		}
-		j, err := json.Marshal(s)
-		Expect(err).ToNot(HaveOccurred())
-
-		s2 := &schema.Object{}
-		err = json.Unmarshal(j, s2)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(s2).To(Equal(s))
+				"fieldNames": {
+					"myField": "MyField"
+				},
+				"parameterNames": {
+					"myField": "my_field"
+				},
+				"required": ["myField"]
+			}`,
+			&schema.Object{},
+		)
 	})
+
+	It("should ignore an invalid parameter name", func() {
+		input := `{
+			"type": "object",
+			"properties": {
+				"myField": {
+					"type": "string"
+				}
+			},
+			"parameterNames": {
+				"myField": "MyField"
+			}
+		}`
+		s, err := schema.UnmarshalJSON([]byte(input))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(s).To(Equal(&schema.Object{
+			JSONPropertyNames: map[string]string{
+				"my_field": "myField",
+			},
+			Parameters: map[string]schema.Schema{
+				"my_field": &schema.String{},
+			},
+		}))
+	})
+
+	It("should ignore an invalid field name", func() {
+		input := `{
+			"type": "object",
+			"properties": {
+				"my_field": {
+					"type": "string"
+				},
+				"my_field_2": {
+					"type": "string"
+				}
+			},
+			"fieldNames": {
+				"my_field": "field name",
+				"my_field_2": "myField2"
+			}
+		}`
+		s, err := schema.UnmarshalJSON([]byte(input))
+		Expect(err).ToNot(HaveOccurred())
+		Expect(s).To(Equal(&schema.Object{
+			Parameters: map[string]schema.Schema{
+				"my_field":   &schema.String{},
+				"my_field_2": &schema.String{},
+			},
+			FieldNames: map[string]string{
+				"my_field_2": "myField2",
+			},
+		}))
+	})
+
 })

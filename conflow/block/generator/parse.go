@@ -45,7 +45,7 @@ func ParseStruct(
 			Description: metadata.Description,
 		},
 		Name:       name,
-		Properties: map[string]schema.Schema{},
+		Parameters: map[string]schema.Schema{},
 	}
 
 	for _, directive := range metadata.Directives {
@@ -92,25 +92,21 @@ func ParseStruct(
 
 			fieldStrSchema := fieldStr.Schema.(*schema.Object)
 
-			for propertyName, property := range fieldStrSchema.Properties {
-				if property.GetAnnotation(conflow.AnnotationID) == "true" {
+			for parameterName, parameter := range fieldStrSchema.Parameters {
+				if parameter.GetAnnotation(conflow.AnnotationID) == "true" {
 					continue
 				}
 
-				if property.GetAnnotation(conflow.AnnotationValue) == "true" {
-					property.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationValue, "")
-				}
-
-				fieldName := propertyName
-				if v, ok := fieldStrSchema.PropertyNames[propertyName]; ok {
-					fieldName = v
+				if parameter.GetAnnotation(conflow.AnnotationValue) == "true" {
+					parameter.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationValue, "")
 				}
 
 				f := parser.Field{
-					Name:         fieldName,
-					PropertyName: propertyName,
-					Required:     fieldStrSchema.IsPropertyRequired(propertyName),
-					Schema:       property,
+					Name:             fieldStrSchema.GetFieldName(parameterName),
+					ParameterName:    parameterName,
+					Required:         fieldStrSchema.IsParameterRequired(parameterName),
+					Schema:           parameter,
+					JSONPropertyName: fieldStrSchema.GetJSONPropertyName(parameterName),
 				}
 
 				if err := addField(s, &idField, &valueField, f); err != nil {
@@ -187,8 +183,8 @@ func ParseEmbeddedField(
 }
 
 func addField(s *schema.Object, idField, valueField *string, field parser.Field) error {
-	if _, exists := s.Properties[field.PropertyName]; exists {
-		return fmt.Errorf("multiple fields has the same property name: %s", field.PropertyName)
+	if _, exists := s.Parameters[field.ParameterName]; exists {
+		return fmt.Errorf("multiple fields has the same property name: %s", field.ParameterName)
 	}
 
 	if field.Schema.GetAnnotation(conflow.AnnotationID) == "true" {
@@ -209,15 +205,23 @@ func addField(s *schema.Object, idField, valueField *string, field parser.Field)
 		if *valueField != "" && *valueField != field.Name {
 			return errors.New("when setting a value field then no other fields can be required")
 		}
-		s.Required = append(s.Required, field.PropertyName)
+		s.Required = append(s.Required, field.ParameterName)
 	}
 
-	s.Properties[field.PropertyName] = field.Schema
-	if field.PropertyName != field.Name {
-		if s.PropertyNames == nil {
-			s.PropertyNames = map[string]string{}
+	s.Parameters[field.ParameterName] = field.Schema
+
+	if field.ParameterName != field.JSONPropertyName {
+		if s.JSONPropertyNames == nil {
+			s.JSONPropertyNames = map[string]string{}
 		}
-		s.PropertyNames[field.PropertyName] = field.Name
+		s.JSONPropertyNames[field.ParameterName] = field.JSONPropertyName
+	}
+
+	if field.Name != field.JSONPropertyName {
+		if s.FieldNames == nil {
+			s.FieldNames = map[string]string{}
+		}
+		s.FieldNames[field.JSONPropertyName] = field.Name
 	}
 
 	return nil

@@ -57,10 +57,10 @@ func (i {{ .Name }}Interpreter) Schema() schema.Schema {
 func (i {{ .Name }}Interpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	return &{{ .NameSelector }}{{ .Name }}{
 		{{ if .IDPropertyName -}}
-		{{ getPropertyName .IDPropertyName }}: id,
+		{{ getFieldName .IDPropertyName }}: id,
 		{{ end -}}
-		{{ range $name, $schema := filterDefaults (filterParams .Schema.GetProperties) -}}
-		{{ getPropertyName $name }}: {{ printf "%#v" .DefaultValue }},
+		{{ range $name, $schema := filterDefaults (filterParams .Schema.GetParameters) -}}
+		{{ getFieldName $name }}: {{ printf "%#v" .DefaultValue }},
 		{{ end -}}
 		{{ range .Dependencies -}}
 		{{ .FieldName }}: blockCtx.{{ title .Name }}(),
@@ -85,9 +85,9 @@ func (i {{.Name}}Interpreter) ParseContext(ctx *conflow.ParseContext) *conflow.P
 
 func (i {{ .Name }}Interpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	{{ range $name, $property := filterParams .Schema.GetProperties -}}
+	{{ range $name, $property := filterParams .Schema.GetParameters -}}
 	case "{{ $name }}":
-		return b.(*{{ $root.NameSelector }}{{ $root.Name }}).{{ getPropertyName $name }}
+		return b.(*{{ $root.NameSelector }}{{ $root.Name }}).{{ getFieldName $name }}
 	{{ end -}}
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in {{ .Name }}", name))
@@ -95,12 +95,12 @@ func (i {{ .Name }}Interpreter) Param(b conflow.Block, name conflow.ID) interfac
 }
 
 func (i {{ .Name }}Interpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
-	{{ if filterInputs (filterParams .Schema.GetProperties) -}}
+	{{ if filterInputs (filterParams .Schema.GetParameters) -}}
 	b := block.(*{{ .NameSelector }}{{ .Name }})
 	switch name {
-	{{ range $name, $property := filterInputs (filterParams .Schema.GetProperties) -}}
+	{{ range $name, $property := filterInputs (filterParams .Schema.GetParameters) -}}
 	case "{{ $name }}":
-		{{ assignValue $property "value" (printf "b.%s" (getPropertyName $name)) }}
+		{{ assignValue $property "value" (printf "b.%s" (getFieldName $name)) }}
 	{{ end -}}
 	}
 	return nil
@@ -110,15 +110,15 @@ func (i {{ .Name }}Interpreter) SetParam(block conflow.Block, name conflow.ID, v
 }
 
 func (i {{ .Name }}Interpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
-	{{ if filterInputs (filterBlocks .Schema.GetProperties) -}}
+	{{ if filterInputs (filterBlocks .Schema.GetParameters) -}}
 	b := block.(*{{ $root.NameSelector }}{{ $root.Name }})
 	switch name {
-	{{ range $name, $property := filterInputs (filterBlocks .Schema.GetProperties) -}}
+	{{ range $name, $property := filterInputs (filterBlocks .Schema.GetParameters) -}}
 	case "{{ $name }}":
 		{{ if isArray $property -}}
-		b.{{ getPropertyName $name }} = append(b.{{ getPropertyName $name }}, value.({{ getType $property.GetItems }}))
+		b.{{ getFieldName $name }} = append(b.{{ getFieldName $name }}, value.({{ getType $property.GetItems }}))
 		{{ else -}}
-		b.{{ getPropertyName $name }} = value.({{ getType $property }})
+		b.{{ getFieldName $name }} = value.({{ getType $property }})
 		{{ end -}}
 	{{ end -}}
 	}

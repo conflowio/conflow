@@ -20,8 +20,10 @@ func (i TimeInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			Name: "Time",
-			Properties: map[string]schema.Schema{
+			FieldNames:        map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			JSONPropertyNames: map[string]string{"read_only": "readOnly", "write_only": "writeOnly"},
+			Name:              "Time",
+			Parameters: map[string]schema.Schema{
 				"annotations": &schema.Map{
 					AdditionalProperties: &schema.String{},
 				},
@@ -48,7 +50,6 @@ func (i TimeInterpreter) Schema() schema.Schema {
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
 			},
-			PropertyNames: map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "read_only": "ReadOnly", "title": "Title", "write_only": "WriteOnly"},
 		}
 	}
 	return i.s

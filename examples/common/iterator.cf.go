@@ -17,7 +17,7 @@ func (i IteratorInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Name: "Iterator",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"count": &schema.Integer{},
 				"id": &schema.String{
 					Metadata: schema.Metadata{

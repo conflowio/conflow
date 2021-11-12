@@ -17,11 +17,11 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/conflowio/conflow/conflow/generator/parser"
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 func writeFile(dir, name string, content []byte) error {
-	conflowFile := parser.ToSnakeCase(name) + ".cf.go"
+	conflowFile := utils.ToSnakeCase(name) + ".cf.go"
 	filepath := path.Join(dir, conflowFile)
 
 	info, direrr := os.Stat(dir)

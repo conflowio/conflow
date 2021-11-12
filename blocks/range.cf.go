@@ -17,7 +17,7 @@ func (i RangeInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Name: "Range",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"entry": &schema.Reference{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},

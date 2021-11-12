@@ -14,18 +14,25 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+
+	"github.com/conflowio/conflow/internal/utils"
 )
 
 type Object struct {
 	Metadata
 
-	Const         *map[string]interface{}  `json:"const,omitempty"`
-	Default       *map[string]interface{}  `json:"default,omitempty"`
-	Enum          []map[string]interface{} `json:"enum,omitempty"`
-	Properties    map[string]Schema        `json:"properties,omitempty"`
-	Required      []string                 `json:"required,omitempty"`
-	Name          string                   `json:"name,omitempty"`
-	PropertyNames map[string]string        `json:"propertyNames,omitempty"`
+	Const   *map[string]interface{}  `json:"const,omitempty"`
+	Default *map[string]interface{}  `json:"default,omitempty"`
+	Enum    []map[string]interface{} `json:"enum,omitempty"`
+	// FieldNames will contain the json property name -> field name mapping, if they are different
+	FieldNames map[string]string `json:"fieldNames,omitempty"`
+	// JSONPropertyNames will contain the parameter name -> json property name mapping, if they are different
+	JSONPropertyNames map[string]string `json:"-"`
+	Name              string            `json:"name,omitempty"`
+	// Parameters will contain the parameter name -> schema mapping
+	Parameters map[string]Schema `json:"-"`
+	// Required will contain the required parameter names
+	Required []string `json:"-"`
 }
 
 func (o *Object) AssignValue(_ map[string]string, _, _ string) string {
@@ -53,7 +60,7 @@ func (o *Object) CompareValues(v1, v2 interface{}) int {
 			k2 := keys2[i]
 			switch {
 			case k1 == k2:
-				if c := o.Properties[k1].CompareValues(o1[k1], o2[k2]); c != 0 {
+				if c := o.Parameters[k1].CompareValues(o1[k1], o2[k2]); c != 0 {
 					return c
 				}
 			case k1 < k2:
@@ -92,8 +99,27 @@ func (o *Object) DefaultValue() interface{} {
 	return *o.Default
 }
 
-func (o *Object) GetProperties() map[string]Schema {
-	return o.Properties
+// GetFieldName returns the field name for the given parameter name
+func (o *Object) GetFieldName(parameterName string) string {
+	jsonPropertyName := o.GetJSONPropertyName(parameterName)
+	fieldName := jsonPropertyName
+	if name, ok := o.FieldNames[jsonPropertyName]; ok {
+		fieldName = name
+	}
+	return fieldName
+}
+
+// GetJSONPropertyName returns the JSON property name for the given parameter name
+func (o *Object) GetJSONPropertyName(parameterName string) string {
+	jsonPropertyName := parameterName
+	if name, ok := o.JSONPropertyNames[parameterName]; ok {
+		jsonPropertyName = name
+	}
+	return jsonPropertyName
+}
+
+func (o *Object) GetParameters() map[string]Schema {
+	return o.Parameters
 }
 
 func (o *Object) GetName() string {
@@ -104,32 +130,17 @@ func (o *Object) GetRequired() []string {
 	return o.Required
 }
 
-func (o *Object) GetPropertyNames() map[string]string {
-	return o.PropertyNames
-}
-
 func (o *Object) GoType(imports map[string]string) string {
 	panic("GoType should not be called on object types")
 }
 
-func (o *Object) IsPropertyRequired(name string) bool {
+func (o *Object) IsParameterRequired(name string) bool {
 	for _, p := range o.Required {
 		if p == name {
 			return true
 		}
 	}
 	return false
-}
-
-func (o *Object) MarshalJSON() ([]byte, error) {
-	type Alias Object
-	return json.Marshal(struct {
-		Type string `json:"type"`
-		*Alias
-	}{
-		Type:  string(o.Type()),
-		Alias: (*Alias)(o),
-	})
 }
 
 func (o *Object) GoString() string {
@@ -147,20 +158,54 @@ func (o *Object) GoString() string {
 	if len(o.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", o.Enum)
 	}
+	if len(o.FieldNames) > 0 {
+		_, _ = fmt.Fprintf(buf, "\tFieldNames: %#v,\n", o.FieldNames)
+	}
+	if len(o.JSONPropertyNames) > 0 {
+		_, _ = fmt.Fprintf(buf, "\tJSONPropertyNames: %#v,\n", o.JSONPropertyNames)
+	}
 	if o.Name != "" {
 		_, _ = fmt.Fprintf(buf, "\tName: %q,\n", o.Name)
 	}
-	if len(o.Properties) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tProperties: %s,\n", indent(o.propertiesString()))
-	}
-	if len(o.PropertyNames) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tPropertyNames: %#v,\n", o.PropertyNames)
+	if len(o.Parameters) > 0 {
+		_, _ = fmt.Fprintf(buf, "\tParameters: %s,\n", indent(o.parametersString()))
 	}
 	if len(o.Required) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tRequired: %#v,\n", o.Required)
 	}
 	buf.WriteRune('}')
 	return buf.String()
+}
+
+func (o *Object) MarshalJSON() ([]byte, error) {
+	parameterNames := map[string]string{}
+	properties := map[string]Schema{}
+	required := make([]string, 0, len(o.Required))
+	for parameterName, schema := range o.Parameters {
+		jsonPropertyName := o.GetJSONPropertyName(parameterName)
+		if jsonPropertyName != parameterName {
+			parameterNames[jsonPropertyName] = parameterName
+		}
+		properties[jsonPropertyName] = schema
+		if o.IsParameterRequired(parameterName) {
+			required = append(required, jsonPropertyName)
+		}
+	}
+
+	type Alias Object
+	return json.Marshal(struct {
+		Type string `json:"type"`
+		*Alias
+		ParameterNames map[string]string `json:"parameterNames,omitempty"`
+		Properties     map[string]Schema `json:"properties,omitempty"`
+		Required       []string          `json:"required,omitempty"`
+	}{
+		Type:           string(o.Type()),
+		Alias:          (*Alias)(o),
+		ParameterNames: parameterNames,
+		Properties:     properties,
+		Required:       required,
+	})
 }
 
 func (o *Object) StringValue(value interface{}) string {
@@ -179,12 +224,12 @@ func (o *Object) StringValue(value interface{}) string {
 	b.WriteRune('{')
 	b.WriteString(keys[0])
 	b.WriteString(": ")
-	b.WriteString(o.Properties[keys[0]].StringValue(v[keys[0]]))
+	b.WriteString(o.Parameters[keys[0]].StringValue(v[keys[0]]))
 	for _, k := range keys[1:] {
 		b.WriteString(", ")
 		b.WriteString(k)
 		b.WriteString(": ")
-		b.WriteString(o.Properties[k].StringValue(v[k]))
+		b.WriteString(o.Parameters[k].StringValue(v[k]))
 	}
 	b.WriteRune('}')
 	return b.String()
@@ -197,11 +242,11 @@ func (o *Object) Type() Type {
 func (o *Object) TypeString() string {
 	sb := &strings.Builder{}
 	sb.WriteString("object(")
-	for i, p := range o.propertyNames() {
+	for i, p := range o.parameterNames() {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
-		_, _ = fmt.Fprintf(sb, "%s: %s", p, o.Properties[p].TypeString())
+		_, _ = fmt.Fprintf(sb, "%s: %s", p, o.Parameters[p].TypeString())
 	}
 	sb.WriteRune(')')
 	return sb.String()
@@ -211,7 +256,9 @@ func (o *Object) UnmarshalJSON(j []byte) error {
 	type Alias Object
 	v := struct {
 		*Alias
-		Properties map[string]*SchemaUnmarshaler `json:"properties,omitempty"`
+		Properties     map[string]*SchemaUnmarshaler `json:"properties,omitempty"`
+		ParameterNames map[string]string             `json:"parameterNames,omitempty"`
+		Required       []string                      `json:"required,omitempty"`
 	}{
 		Alias: (*Alias)(o),
 	}
@@ -219,13 +266,44 @@ func (o *Object) UnmarshalJSON(j []byte) error {
 		return err
 	}
 
+	getParameterName := func(jsonPropertyName string) string {
+		if name, ok := v.ParameterNames[jsonPropertyName]; ok && NameRegExp.MatchString(name) {
+			return name
+		} else {
+			return utils.ToSnakeCase(jsonPropertyName)
+		}
+	}
+
 	if v.Properties != nil {
-		o.Properties = map[string]Schema{}
-		for p, s := range v.Properties {
-			if s != nil {
-				o.Properties[p] = s.Schema
+		o.Parameters = map[string]Schema{}
+		for jsonPropertyName, su := range v.Properties {
+			if su != nil {
+				o.Parameters[getParameterName(jsonPropertyName)] = su.Schema
+			}
+			parameterName := getParameterName(jsonPropertyName)
+			if parameterName != jsonPropertyName {
+				if o.JSONPropertyNames == nil {
+					o.JSONPropertyNames = map[string]string{}
+				}
+				o.JSONPropertyNames[parameterName] = jsonPropertyName
 			}
 		}
+	}
+
+	if len(v.Required) > 0 {
+		o.Required = make([]string, 0, len(v.Required))
+		for _, jsonPropertyName := range v.Required {
+			o.Required = append(o.Required, getParameterName(jsonPropertyName))
+		}
+	}
+
+	for jsonPropertyName, fieldName := range o.FieldNames {
+		if !fieldNameRegexp.MatchString(fieldName) {
+			delete(o.FieldNames, jsonPropertyName)
+		}
+	}
+	if len(o.FieldNames) == 0 {
+		o.FieldNames = nil
 	}
 
 	return nil
@@ -241,8 +319,8 @@ func (o *Object) ValidateSchema(s Schema, compare bool) error {
 		return typeError("must be object")
 	}
 
-	for n2, p2 := range o2.GetProperties() {
-		p, ok := o.Properties[n2]
+	for n2, p2 := range o2.GetParameters() {
+		p, ok := o.Parameters[n2]
 		if !ok {
 			return typeErrorf("was expecting %s", o.TypeString())
 		}
@@ -256,7 +334,7 @@ func (o *Object) ValidateSchema(s Schema, compare bool) error {
 	}
 
 	for _, required := range o.Required {
-		if _, ok := o2.GetProperties()[required]; !ok {
+		if _, ok := o2.GetParameters()[required]; !ok {
 			return typeErrorf("was expecting %s", o.TypeString())
 		}
 	}
@@ -299,7 +377,7 @@ func (o *Object) ValidateValue(value interface{}) error {
 	}
 
 	for _, k := range getSortedMapKeys(v) {
-		if p, ok := o.Properties[k]; ok {
+		if p, ok := o.Parameters[k]; ok {
 			if err := p.ValidateValue(v[k]); err != nil {
 				return NewFieldError(k, err)
 			}
@@ -328,11 +406,11 @@ func (o *Object) join(elems []map[string]interface{}, sep string) string {
 	return b.String()
 }
 
-func (o *Object) propertiesString() string {
+func (o *Object) parametersString() string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("map[string]schema.Schema{\n")
-	for _, k := range o.propertyNames() {
-		if p := o.Properties[k]; p != nil {
+	for _, k := range o.parameterNames() {
+		if p := o.Parameters[k]; p != nil {
 			_, _ = fmt.Fprintf(buf, "\t%#v: %s,\n", k, indent(p.GoString()))
 		}
 	}
@@ -340,13 +418,13 @@ func (o *Object) propertiesString() string {
 	return buf.String()
 }
 
-func (o *Object) propertyNames() []string {
-	if len(o.Properties) == 0 {
+func (o *Object) parameterNames() []string {
+	if len(o.Parameters) == 0 {
 		return nil
 	}
 
-	keys := make([]string, 0, len(o.Properties))
-	for k := range o.Properties {
+	keys := make([]string, 0, len(o.Parameters))
+	for k := range o.Parameters {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)

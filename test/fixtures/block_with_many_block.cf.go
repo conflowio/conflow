@@ -16,8 +16,9 @@ type BlockWithManyBlockInterpreter struct {
 func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "BlockWithManyBlock",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"block": "Block", "id_field": "IDField"},
+			Name:              "BlockWithManyBlock",
+			Parameters: map[string]schema.Schema{
 				"block": &schema.Array{
 					Items: &schema.Reference{
 						Metadata: schema.Metadata{
@@ -34,7 +35,6 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 					Format: "conflow.ID",
 				},
 			},
-			PropertyNames: map[string]string{"block": "Block", "id_field": "IDField"},
 		}
 	}
 	return i.s

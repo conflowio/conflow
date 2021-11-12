@@ -17,8 +17,9 @@ type DirectiveInterpreter struct {
 func (i DirectiveInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "Directive",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "Blocks", "value": "Value"},
+			Name:              "Directive",
+			Parameters: map[string]schema.Schema{
 				"custom_field": &schema.String{},
 				"field_array": &schema.Array{
 					Items: &schema.Untyped{},
@@ -52,7 +53,6 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 					},
 				},
 			},
-			PropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "Blocks", "value": "Value"},
 		}
 	}
 	return i.s

@@ -20,7 +20,7 @@ func (i BugInterpreter) Schema() schema.Schema {
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "ignore"},
 			},
 			Name: "Bug",
-			Properties: map[string]schema.Schema{
+			Parameters: map[string]schema.Schema{
 				"description": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/value": "true"},

@@ -123,7 +123,7 @@ func (n *Node) SetSchema(s schema.Schema) {
 }
 
 func (n *Node) GetPropertySchema(name conflow.ID) (schema.Schema, bool) {
-	s, ok := n.schema.Properties[string(name)]
+	s, ok := n.schema.Parameters[string(name)]
 	if ok {
 		return s, true
 	}
@@ -176,7 +176,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case conflow.BlockNode:
-			property, exists := n.schema.Properties[string(c.ParameterName())]
+			property, exists := n.schema.Parameters[string(c.ParameterName())]
 
 			if !exists && c.ParameterName() != c.BlockType() {
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.ParameterName())
@@ -189,7 +189,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 				}
 			}
 		case conflow.ParameterNode:
-			property, exists := n.schema.Properties[string(c.Name())]
+			property, exists := n.schema.Parameters[string(c.Name())]
 
 			switch {
 			case exists && c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true":
@@ -223,7 +223,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			return false
 		}()
 		if !found {
-			if IsBlockSchema(n.schema.Properties[required]) {
+			if IsBlockSchema(n.schema.Parameters[required]) {
 				return parsley.NewError(n.Pos(), fmt.Errorf("%q block is required", required))
 			} else {
 				return parsley.NewError(n.Pos(), fmt.Errorf("%q parameter is required", required))

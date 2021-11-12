@@ -19,8 +19,9 @@ func (i TriggersInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "resolve"},
 			},
-			Name: "Triggers",
-			Properties: map[string]schema.Schema{
+			JSONPropertyNames: map[string]string{"block_ids": "blockIDs"},
+			Name:              "Triggers",
+			Parameters: map[string]schema.Schema{
 				"block_ids": &schema.Array{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/value": "true"},
@@ -35,8 +36,7 @@ func (i TriggersInterpreter) Schema() schema.Schema {
 					Format: "conflow.ID",
 				},
 			},
-			PropertyNames: map[string]string{"block_ids": "blockIDs"},
-			Required:      []string{"block_ids"},
+			Required: []string{"block_ids"},
 		}
 	}
 	return i.s
