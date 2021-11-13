@@ -30,6 +30,7 @@ type Field struct {
 	Required         bool
 	ResultTypeFrom   bool
 	Schema           schema.Schema
+	Variadic         bool
 }
 
 func ParseField(
@@ -161,6 +162,11 @@ func ParseField(
 		required = true
 	}
 
+	var variadic bool
+	if _, ok := astField.Type.(*ast.Ellipsis); ok {
+		variadic = true
+	}
+
 	return &Field{
 		Dependency:       dependencyName,
 		JSONPropertyName: jsonPropertyName,
@@ -169,6 +175,7 @@ func ParseField(
 		Required:         required,
 		ResultTypeFrom:   resultType,
 		Schema:           fieldSchema,
+		Variadic:         variadic,
 	}, nil
 }
 
@@ -298,6 +305,8 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 		return nil, false, fmt.Errorf("unexpected ast node: %T: %v", typeNode, typeNode)
 	case *ast.InterfaceType:
 		return &schema.Untyped{}, false, nil
+	case *ast.Ellipsis:
+		return getBaseSchemaForType(parseCtx, tn.Elt, pkg)
 	default:
 		return nil, false, fmt.Errorf("unexpected ast node: %T: %v", typeNode, typeNode)
 	}

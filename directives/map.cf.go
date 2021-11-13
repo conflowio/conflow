@@ -19,8 +19,8 @@ func (i MapInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "max_properties": "maxProperties", "min_properties": "minProperties", "read_only": "readOnly", "write_only": "writeOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "read_only": "readOnly", "write_only": "writeOnly"},
 			Name:              "Map",
 			Parameters: map[string]schema.Schema{
 				"additional_properties": &schema.Reference{
@@ -45,6 +45,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 				"examples": &schema.Array{
 					Items: &schema.Untyped{},
 				},
+				"id": &schema.String{},
 				"max_properties": &schema.Integer{
 					Metadata: schema.Metadata{
 						Pointer: true,
@@ -98,6 +99,8 @@ func (i MapInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Map).Enum
 	case "examples":
 		return b.(*Map).Examples
+	case "id":
+		return b.(*Map).ID
 	case "max_properties":
 		return b.(*Map).MaxProperties
 	case "min_properties":
@@ -138,6 +141,8 @@ func (i MapInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
+	case "id":
+		b.ID = value.(string)
 	case "max_properties":
 		b.MaxProperties = schema.IntegerPtr(value.(int64))
 	case "min_properties":

@@ -16,11 +16,14 @@ import (
 func DefaultRegistry() function.InterpreterRegistry {
 	return function.InterpreterRegistry{
 		"array_contains":          ArrayContainsInterpreter{},
+		"format":                  FormatInterpreter{},
 		"len":                     LenInterpreter{},
 		"string":                  StringInterpreter{},
 		"math.abs":                math.AbsInterpreter{},
 		"math.ceil":               math.CeilInterpreter{},
 		"math.floor":              math.FloorInterpreter{},
+		"math.min":                math.MinInterpreter{},
+		"math.max":                math.MaxInterpreter{},
 		"strings.has_prefix":      strings.HasPrefixInterpreter{},
 		"strings.has_suffix":      strings.HasSuffixInterpreter{},
 		"strings.join":            strings.JoinInterpreter{},

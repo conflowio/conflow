@@ -331,21 +331,6 @@ var _ = Describe("Object", func() {
 			},
 			schema.NewFieldError("bar", errors.New("required")),
 		),
-		Entry(
-			"dependentRequired - two missing",
-			func(s *schema.Object) {
-				s.DependentRequired = map[string][]string{
-					"foo": {"bar", "baz"},
-				}
-			},
-			map[string]interface{}{
-				"foo": int64(1),
-			},
-			schema.ValidationError{Errors: []error{
-				schema.NewFieldError("bar", errors.New("required")),
-				schema.NewFieldError("baz", errors.New("required")),
-			}},
-		),
 	)
 
 	DescribeTable("GoString prints a valid Go struct",

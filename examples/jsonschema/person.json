@@ -1,0 +1,39 @@
+{
+  "$id": "https://github.com/conflowio/conflow/examples/jsonschema/person.json",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "default": "You"
+    },
+    "pets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["name"]
+      }
+    },
+    "spouse": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "default": "You"
+        }
+      },
+      "required": ["name"]
+    }
+  },
+  "parameterNames": {
+    "pets": "pet"
+  },
+  "required": ["name", "spouse"]
+}

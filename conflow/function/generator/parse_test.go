@@ -184,6 +184,38 @@ var _ = Describe("ParseArguments", func() {
 		})
 	})
 
+	Context("when it has a variadic argument", func() {
+		BeforeEach(func() {
+			source = `
+				package foo
+				func Foo(a1 int64, a2 int64, rest ...int64) int64 {
+					return a1
+				}
+			`
+		})
+
+		It("should parse the arguments", func() {
+			Expect(parseErr).ToNot(HaveOccurred())
+			Expect(functionResult.Schema).To(Equal(&schema.Function{
+				Parameters: []schema.NamedSchema{
+					{
+						Name:   "a1",
+						Schema: &schema.Integer{},
+					},
+					{
+						Name:   "a2",
+						Schema: &schema.Integer{},
+					},
+				},
+				AdditionalParameters: &schema.NamedSchema{
+					Name:   "rest",
+					Schema: &schema.Integer{},
+				},
+				Result: &schema.Integer{},
+			}))
+		})
+	})
+
 	Context("when the function has no return value", func() {
 		BeforeEach(func() {
 			source = `

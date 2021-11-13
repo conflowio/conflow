@@ -16,6 +16,7 @@ var ErrMetadataReadOnly = errors.New("metadata is read-only")
 
 // Metadata contains common metadata for schemas
 type Metadata struct {
+	ID          string            `json:"$id,omitempty"`
 	Annotations map[string]string `json:"annotations,omitempty"`
 	Deprecated  bool              `json:"deprecated,omitempty"`
 	Description string            `json:"description,omitempty"`
@@ -32,6 +33,7 @@ type MetadataAccessor interface {
 	SetDeprecated(bool)
 	SetDescription(string)
 	SetExamples([]interface{})
+	SetID(string)
 	SetPointer(bool)
 	SetReadOnly(bool)
 	SetTitle(string)
@@ -53,6 +55,9 @@ func (m *Metadata) Merge(m2 Metadata) {
 	}
 	if m2.Examples != nil {
 		m.Examples = m2.Examples
+	}
+	if m2.ID != "" {
+		m.ID = m2.ID
 	}
 	if m2.Pointer {
 		m.Pointer = true
@@ -109,6 +114,14 @@ func (m *Metadata) SetExamples(examples []interface{}) {
 	m.Examples = examples
 }
 
+func (m Metadata) GetID() string {
+	return m.ID
+}
+
+func (m *Metadata) SetID(id string) {
+	m.ID = id
+}
+
 func (m *Metadata) GetReadOnly() bool {
 	return m.ReadOnly
 }
@@ -156,6 +169,9 @@ func (m *Metadata) GoString() string {
 	if len(m.Examples) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tExamples: %#v,\n", m.Examples)
 	}
+	if len(m.ID) > 0 {
+		_, _ = fmt.Fprintf(buf, "\tID: %q,\n", m.ID)
+	}
 	if m.Pointer {
 		_, _ = fmt.Fprintf(buf, "\tPointer: %#v,\n", m.Pointer)
 	}
@@ -190,6 +206,10 @@ func (e emptyMetadata) GetDescription() string {
 
 func (e emptyMetadata) GetExamples() []interface{} {
 	return nil
+}
+
+func (e emptyMetadata) GetID() string {
+	return ""
 }
 
 func (e emptyMetadata) GetPointer() bool {
