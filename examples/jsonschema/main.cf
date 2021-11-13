@@ -1,0 +1,20 @@
+@doc "My schema was defined in the person.json file"
+you person {
+    name = "You"
+
+    you_spouse spouse {
+        name = "Charlie"
+    }
+
+    pet1 pet {
+        name = "Hunter"
+    }
+
+    pet2 pet {
+        name = "Dexter"
+    }
+}
+
+println {
+    value = format("Hello %s and %s! How is %s and %s?", you.name, you_spouse.name, pet1.name, pet2.name)
+}
