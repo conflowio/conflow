@@ -16,6 +16,7 @@ import (
 func DefaultRegistry() function.InterpreterRegistry {
 	return function.InterpreterRegistry{
 		"array_contains":          ArrayContainsInterpreter{},
+		"format":                  FormatInterpreter{},
 		"len":                     LenInterpreter{},
 		"string":                  StringInterpreter{},
 		"math.abs":                math.AbsInterpreter{},
