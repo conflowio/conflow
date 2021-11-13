@@ -25,9 +25,13 @@ func GenerateInterpreter(
 	name string,
 	comments []*ast.Comment,
 ) ([]byte, *Function, error) {
-	metadata, err := parser.ParseMetadataFromComments(name, comments)
+	metadata, err := parser.ParseMetadataFromComments(comments)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	if strings.HasPrefix(metadata.Description, name+" ") {
+		metadata.Description = strings.Replace(metadata.Description, name+" ", "It ", 1)
 	}
 
 	f, err := ParseFunction(parseCtx, fun, pkg, name, metadata)

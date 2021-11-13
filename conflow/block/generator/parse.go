@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"strings"
 
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/generator/parser"
@@ -46,6 +47,10 @@ func ParseStruct(
 		},
 		Name:       name,
 		Parameters: map[string]schema.Schema{},
+	}
+
+	if strings.HasPrefix(s.Metadata.Description, name+" ") {
+		s.Metadata.Description = strings.Replace(s.Metadata.Description, name+" ", "It ", 1)
 	}
 
 	for _, directive := range metadata.Directives {
@@ -139,7 +144,7 @@ func ParseEmbeddedField(
 		comments = astField.Comment.List
 	}
 
-	metadata, err := parser.ParseMetadataFromComments("", comments)
+	metadata, err := parser.ParseMetadataFromComments(comments)
 	if err != nil {
 		return nil, err
 	}
@@ -149,12 +154,12 @@ func ParseEmbeddedField(
 
 	switch t := astField.Type.(type) {
 	case *ast.Ident:
-		astStruct, metadata, err := parser.FindStruct(parseCtx, pkg, t.Name)
+		astStruct, metadata, err := parser.FindType(parseCtx, pkg, t.Name)
 		if err != nil {
 			return nil, err
 		}
 
-		str, err := ParseStruct(parseCtx, astStruct, pkg, t.Name, metadata)
+		str, err := ParseStruct(parseCtx, astStruct.(*ast.StructType), pkg, t.Name, metadata)
 		if err != nil {
 			return nil, err
 		}
@@ -166,12 +171,12 @@ func ParseEmbeddedField(
 			return nil, fmt.Errorf("failed to find package import for %s", t.X.(*ast.Ident).Name)
 		}
 
-		astStruct, metadata, err := parser.FindStruct(parseCtx, pkg, t.Sel.Name)
+		astStruct, metadata, err := parser.FindType(parseCtx, pkg, t.Sel.Name)
 		if err != nil {
 			return nil, err
 		}
 
-		str, err := ParseStruct(parseCtx, astStruct, pkg, t.Sel.Name, metadata)
+		str, err := ParseStruct(parseCtx, astStruct.(*ast.StructType), pkg, t.Sel.Name, metadata)
 		if err != nil {
 			return nil, err
 		}

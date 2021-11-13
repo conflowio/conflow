@@ -123,6 +123,56 @@ var _ = Describe("Object", func() {
 				"foo": int64(1),
 			},
 		),
+		Entry(
+			"minProperties=1, 1 element",
+			func(s *schema.Object) {
+				s.MinProperties = 1
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+		),
+		Entry(
+			"minProperties=1, 2 elements",
+			func(s *schema.Object) {
+				s.MinProperties = 2
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": "2",
+			},
+		),
+		Entry(
+			"maxProperties=2, 2 elements",
+			func(s *schema.Object) {
+				s.MaxProperties = schema.IntegerPtr(2)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": "2",
+			},
+		),
+		Entry(
+			"maxProperties=2, 1 element",
+			func(s *schema.Object) {
+				s.MaxProperties = schema.IntegerPtr(2)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+		),
+		Entry(
+			"dependentRequired",
+			func(s *schema.Object) {
+				s.DependentRequired = map[string][]string{
+					"foo": {"bar"},
+				}
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": "val",
+			},
+		),
 	)
 
 	DescribeTable("Validate errors",
@@ -230,6 +280,72 @@ var _ = Describe("Object", func() {
 			},
 			errors.New("must be one of {foo: 1}, {foo: 2}"),
 		),
+		Entry(
+			"minProperties: 1, empty",
+			func(s *schema.Object) {
+				s.MinProperties = 1
+			},
+			map[string]interface{}{},
+			errors.New("the object can not be empty"),
+		),
+		Entry(
+			"minProperties: 2, 1 element",
+			func(s *schema.Object) {
+				s.MinProperties = 2
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			errors.New("the object must have at least 2 properties defined"),
+		),
+		Entry(
+			"maxProperties: 0, 1 element",
+			func(s *schema.Object) {
+				s.MaxProperties = schema.IntegerPtr(0)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			errors.New("the object must be empty"),
+		),
+		Entry(
+			"maxProperties: 1, 2 elements",
+			func(s *schema.Object) {
+				s.MaxProperties = schema.IntegerPtr(1)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": int64(2),
+			},
+			errors.New("the object can only have a single property defined"),
+		),
+		Entry(
+			"dependentRequired - one missing",
+			func(s *schema.Object) {
+				s.DependentRequired = map[string][]string{
+					"foo": {"bar"},
+				}
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			schema.NewFieldError("bar", errors.New("required")),
+		),
+		Entry(
+			"dependentRequired - two missing",
+			func(s *schema.Object) {
+				s.DependentRequired = map[string][]string{
+					"foo": {"bar", "baz"},
+				}
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			schema.ValidationError{Errors: []error{
+				schema.NewFieldError("bar", errors.New("required")),
+				schema.NewFieldError("baz", errors.New("required")),
+			}},
+		),
 	)
 
 	DescribeTable("GoString prints a valid Go struct",
@@ -316,6 +432,33 @@ var _ = Describe("Object", func() {
 	JSONPropertyNames: map[string]string{"my_field":"myField"},
 }`,
 		),
+		Entry(
+			"minProperties",
+			&schema.Object{
+				MinProperties: 1,
+			},
+			`&schema.Object{
+	MinProperties: 1,
+}`,
+		),
+		Entry(
+			"maxProperties",
+			&schema.Object{
+				MaxProperties: schema.IntegerPtr(1),
+			},
+			`&schema.Object{
+	MaxProperties: schema.IntegerPtr(1),
+}`,
+		),
+		Entry(
+			"dependentRequired",
+			&schema.Object{
+				DependentRequired: map[string][]string{"foo": {"bar"}},
+			},
+			`&schema.Object{
+	DependentRequired: map[string][]string{"foo":[]string{"bar"}},
+}`,
+		),
 	)
 
 	It("should unmarshal/marshal a json", func() {
@@ -326,6 +469,9 @@ var _ = Describe("Object", func() {
 				},
 				"default": {
 					"myField": "val2"
+				},
+				"dependentRequired": {
+					"foo": ["bar"]
 				},
 				"enum": [
 					{
@@ -344,6 +490,8 @@ var _ = Describe("Object", func() {
 				"fieldNames": {
 					"myField": "MyField"
 				},
+				"minProperties": 1,
+				"maxProperties": 2,
 				"parameterNames": {
 					"myField": "my_field"
 				},

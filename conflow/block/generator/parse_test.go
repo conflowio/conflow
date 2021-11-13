@@ -75,7 +75,7 @@ var _ = Describe("ParseStruct", func() {
 				File:    file,
 			}
 
-			metadata, err := parser.ParseMetadataFromComments("Foo", file.Decls[(len(file.Decls))-1].(*goast.GenDecl).Doc.List)
+			metadata, err := parser.ParseMetadataFromComments(file.Decls[(len(file.Decls))-1].(*goast.GenDecl).Doc.List)
 			Expect(err).ToNot(HaveOccurred())
 
 			str := file.Decls[(len(file.Decls))-1].(*goast.GenDecl).Specs[0].(*goast.TypeSpec).Type.(*goast.StructType)

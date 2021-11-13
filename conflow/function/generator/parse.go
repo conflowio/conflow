@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"strings"
 
 	"github.com/conflowio/conflow/conflow/generator/parser"
 	"github.com/conflowio/conflow/conflow/schema"
@@ -43,6 +44,10 @@ func ParseFunction(
 		Metadata: schema.Metadata{
 			Description: metadata.Description,
 		},
+	}
+
+	if strings.HasPrefix(s.Metadata.Description, name+" ") {
+		s.Metadata.Description = strings.Replace(s.Metadata.Description, name+" ", "It ", 1)
 	}
 
 	for _, directive := range metadata.Directives {

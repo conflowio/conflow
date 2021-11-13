@@ -14,8 +14,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
@@ -47,13 +45,10 @@ func ParseField(
 	}
 	comments = append(comments, fileComments...)
 
-	metadata, err := ParseMetadataFromComments(fieldName, comments)
+	metadata, err := ParseMetadataFromComments(comments)
 	if err != nil {
 		return nil, err
 	}
-
-	required := false
-	resultType := false
 
 	parameterName := fieldName
 	if parameterName != "" && !schema.NameRegExp.MatchString(parameterName) {
@@ -79,8 +74,6 @@ func ParseField(
 		}
 	}
 
-	var dependencyName string
-
 	for _, directive := range metadata.Directives {
 		if _, ok := directive.(*schemadirectives.Ignore); ok {
 			if _, ok := parseCtx.Parent.(*ast.StructType); !ok {
@@ -90,10 +83,20 @@ func ParseField(
 		}
 	}
 
-	fieldSchema, _, err := getSchemaForField(parseCtx, astField.Type, pkg)
+	fieldSchema, _, err := GetSchemaForType(parseCtx, astField.Type, pkg, metadata)
 	if err != nil {
 		return nil, err
 	}
+
+	if strings.HasPrefix(fieldSchema.GetDescription(), fieldName+" ") {
+		fieldSchema.(schema.MetadataAccessor).SetDescription(
+			strings.Replace(fieldSchema.GetDescription(), fieldName+" ", "It ", 1),
+		)
+	}
+
+	var dependencyName string
+	var required bool
+	var resultType bool
 
 	for _, directive := range metadata.Directives {
 		switch d := directive.(type) {
@@ -144,30 +147,17 @@ func ParseField(
 		}
 	}
 
-	fieldSchema.(schema.MetadataAccessor).SetDescription(metadata.Description)
-
-	meta, ok := fieldSchema.(schema.MetadataAccessor)
-	if !ok {
-		panic(fmt.Errorf("metadata is not writable on schema %T", fieldSchema))
-	}
-
-	for _, directive := range metadata.Directives {
-		if err := directive.ApplyToSchema(fieldSchema); err != nil {
-			return nil, err
-		}
-	}
-
 	if fieldSchema.GetAnnotation(conflow.AnnotationID) == "true" &&
 		fieldSchema.GetAnnotation(conflow.AnnotationValue) == "true" {
 		return nil, errors.New("the id field can not be marked as the value field")
 	}
 
 	if fieldSchema.GetReadOnly() && fieldSchema.GetAnnotation(conflow.AnnotationID) != "true" {
-		meta.SetAnnotation(conflow.AnnotationEvalStage, "close")
+		fieldSchema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, "close")
 	}
 
 	if fieldSchema.GetAnnotation(conflow.AnnotationGenerated) == "true" {
-		meta.SetAnnotation(conflow.AnnotationEvalStage, "init")
+		fieldSchema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, "init")
 		required = true
 	}
 
@@ -182,45 +172,59 @@ func ParseField(
 	}, nil
 }
 
-func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema.Schema, bool, error) {
+func GetSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string, metadata *Metadata) (schema.Schema, bool, error) {
+	s, isRef, err := getBaseSchemaForType(parseCtx, typeNode, pkg)
+	if err != nil {
+		return nil, false, err
+	}
+
+	if metadata.Description != "" {
+		s.(schema.MetadataAccessor).SetDescription(metadata.Description)
+	}
+
+	for _, directive := range metadata.Directives {
+		if err := directive.ApplyToSchema(s); err != nil {
+			return nil, false, err
+		}
+	}
+
+	return s, isRef, nil
+}
+
+func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (schema.Schema, bool, error) {
 	switch tn := typeNode.(type) {
 	case *ast.Ident:
-		var s schema.Schema
 		switch tn.String() {
+		case "uint8", "uint16", "uint32", "uint64", "int8", "int16", "int32", "float32",
+			"complex64", "complex128", "int", "uint", "uintptr", "byte", "rune":
+			return nil, false, fmt.Errorf("type %s is not allowed", tn.String())
 		case "int64":
-			s = &schema.Integer{}
+			return &schema.Integer{}, false, nil
 		case "float64":
-			s = &schema.Number{}
+			return &schema.Number{}, false, nil
 		case "bool":
-			s = &schema.Boolean{}
+			return &schema.Boolean{}, false, nil
 		case "string":
-			s = &schema.String{}
+			return &schema.String{}, false, nil
 		default:
-			r, _ := utf8.DecodeRuneInString(tn.String())
-			if !unicode.IsUpper(r) {
-				return nil, false, fmt.Errorf("type %s is not allowed", tn.String())
-			}
-
 			filePath := parseCtx.FileSet.File(parseCtx.File.Pos()).Name()
 
-			_, _, err := FindStruct(parseCtx.WithWorkdir(path.Dir(filePath)), pkg, tn.String())
+			expr, metadata, err := FindType(parseCtx.WithWorkdir(path.Dir(filePath)), pkg, tn.String())
 			if err != nil {
-				if _, notFound := err.(errStructNotFound); notFound {
-					return nil, false, fmt.Errorf("type %s is not allowed", tn.String())
-				}
 				return nil, false, fmt.Errorf("failed to parse %s: %w", tn.String(), err)
 			}
 
-			s = &schema.Reference{
-				Ref: fmt.Sprintf("http://conflow.schema/%s.%s", pkg, tn.String()),
+			switch e := expr.(type) {
+			case *ast.StructType:
+				return &schema.Reference{
+					Ref: fmt.Sprintf("http://conflow.schema/%s.%s", pkg, tn.String()),
+				}, true, nil
+			default:
+				return GetSchemaForType(parseCtx, e, pkg, metadata)
 			}
-
-			return s, true, nil
 		}
-
-		return s, false, nil
 	case *ast.ArrayType:
-		itemsSchema, isRef, err := getSchemaForField(parseCtx, tn.Elt, pkg)
+		itemsSchema, isRef, err := getBaseSchemaForType(parseCtx, tn.Elt, pkg)
 		if err != nil {
 			return nil, false, err
 		}
@@ -234,7 +238,7 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 			return nil, false, fmt.Errorf("only string map keys are supported")
 		}
 
-		propertiesSchema, isRef, err := getSchemaForField(parseCtx, tn.Value, pkg)
+		propertiesSchema, isRef, err := getBaseSchemaForType(parseCtx, tn.Value, pkg)
 		if err != nil {
 			return nil, false, err
 		}
@@ -246,7 +250,7 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 			AdditionalProperties: propertiesSchema,
 		}, false, nil
 	case *ast.StarExpr:
-		res, isRef, err := getSchemaForField(parseCtx, tn.X, pkg)
+		res, isRef, err := getBaseSchemaForType(parseCtx, tn.X, pkg)
 		if err != nil {
 			return nil, false, err
 		}
@@ -261,37 +265,35 @@ func getSchemaForField(parseCtx *Context, typeNode ast.Expr, pkg string) (schema
 				return nil, false, fmt.Errorf("could not find import path for %s", xIdent.Name)
 			}
 
-			var s schema.Schema
 			switch path + "." + tn.Sel.Name {
 			case "github.com/conflowio/conflow/conflow.ID":
-				s = &schema.String{
+				return &schema.String{
 					Format: schema.FormatConflowID,
 					Metadata: schema.Metadata{
 						ReadOnly: true,
 					},
-				}
+				}, false, nil
 			case "io.ReadCloser":
-				s = &schema.ByteStream{}
+				return &schema.ByteStream{}, false, nil
 			case "time.Time":
-				s = &schema.Time{}
+				return &schema.Time{}, false, nil
 			case "time.Duration":
-				s = &schema.TimeDuration{}
+				return &schema.TimeDuration{}, false, nil
 			default:
-				_, _, err := FindStruct(parseCtx, path, tn.Sel.Name)
+				expr, metadata, err := FindType(parseCtx, path, tn.Sel.Name)
 				if err != nil {
-					if _, notFound := err.(errStructNotFound); notFound {
-						return nil, false, fmt.Errorf("type is not allowed: %s.%s", xIdent.Name, tn.Sel.Name)
-					}
 					return nil, false, fmt.Errorf("failed to parse %s.%s: %w", xIdent.Name, tn.Sel.Name, err)
 				}
 
-				s = &schema.Reference{
-					Ref: fmt.Sprintf("http://conflow.schema/%s.%s", path, tn.Sel.Name),
+				switch e := expr.(type) {
+				case *ast.StructType:
+					return &schema.Reference{
+						Ref: fmt.Sprintf("http://conflow.schema/%s.%s", path, tn.Sel.Name),
+					}, true, nil
+				default:
+					return GetSchemaForType(parseCtx, e, path, metadata)
 				}
-				return s, true, nil
 			}
-
-			return s, false, nil
 		}
 		return nil, false, fmt.Errorf("unexpected ast node: %T: %v", typeNode, typeNode)
 	case *ast.InterfaceType:

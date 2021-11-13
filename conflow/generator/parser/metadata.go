@@ -31,7 +31,7 @@ type Metadata struct {
 
 var directiveLineRegex = regexp.MustCompile(`^\s*@`)
 
-func ParseMetadataFromComments(name string, comments []*goast.Comment) (*Metadata, error) {
+func ParseMetadataFromComments(comments []*goast.Comment) (*Metadata, error) {
 	metadata := &Metadata{}
 
 	var directivesBuilder *strings.Builder
@@ -61,10 +61,6 @@ func ParseMetadataFromComments(name string, comments []*goast.Comment) (*Metadat
 	}
 
 	metadata.Description = strings.TrimSpace(descriptionBuilder.String())
-
-	if strings.HasPrefix(metadata.Description, name+" ") {
-		metadata.Description = strings.Replace(metadata.Description, name+" ", "It ", 1)
-	}
 
 	if directivesBuilder != nil {
 		idRegistry := conflow.NewIDRegistry(8, 16)

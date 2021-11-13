@@ -7,13 +7,15 @@
 package schema_test
 
 import (
-	"encoding/json"
 	"errors"
 
-	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 var _ schema.Schema = &schema.Map{}
@@ -151,6 +153,44 @@ var _ = Describe("Map", func() {
 				"foo": int64(1),
 			},
 		),
+		Entry(
+			"minProperties=1, 1 element",
+			func(s *schema.Map) {
+				s.MinProperties = 1
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+		),
+		Entry(
+			"minProperties=1, 2 elements",
+			func(s *schema.Map) {
+				s.MinProperties = 2
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": int64(2),
+			},
+		),
+		Entry(
+			"maxProperties=2, 2 elements",
+			func(s *schema.Map) {
+				s.MaxProperties = schema.IntegerPtr(2)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": int64(2),
+			},
+		),
+		Entry(
+			"maxProperties=2, 1 element",
+			func(s *schema.Map) {
+				s.MaxProperties = schema.IntegerPtr(2)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+		),
 	)
 
 	DescribeTable("Validate errors",
@@ -231,6 +271,45 @@ var _ = Describe("Map", func() {
 			},
 			errors.New("must be one of map{foo: 1}, map{foo: 2}"),
 		),
+		Entry(
+			"minProperties: 1, empty",
+			func(s *schema.Map) {
+				s.MinProperties = 1
+			},
+			map[string]interface{}{},
+			errors.New("the map can not be empty"),
+		),
+		Entry(
+			"minProperties: 2, 1 element",
+			func(s *schema.Map) {
+				s.MinProperties = 2
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			errors.New("the map must contain at least 2 elements"),
+		),
+		Entry(
+			"maxProperties: 0, 1 element",
+			func(s *schema.Map) {
+				s.MaxProperties = schema.IntegerPtr(0)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			errors.New("the map must be empty"),
+		),
+		Entry(
+			"maxProperties: 1, 2 elements",
+			func(s *schema.Map) {
+				s.MaxProperties = schema.IntegerPtr(1)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": int64(2),
+			},
+			errors.New("the map can only have a single element"),
+		),
 	)
 
 	DescribeTable("GoString prints a valid Go struct",
@@ -282,25 +361,51 @@ var _ = Describe("Map", func() {
 	Enum: []map[string]interface {}{map[string]interface {}{"foo":"bar"}},
 }`,
 		),
+		Entry(
+			"minProperties",
+			&schema.Map{
+				MinProperties: 1,
+			},
+			`&schema.Map{
+	MinProperties: 1,
+}`,
+		),
+		Entry(
+			"maxProperties",
+			&schema.Map{
+				MaxProperties: schema.IntegerPtr(1),
+			},
+			`&schema.Map{
+	MaxProperties: schema.IntegerPtr(1),
+}`,
+		),
 	)
 
-	It("should marshal/unmarshal", func() {
-		s := &schema.Map{
-			Metadata: schema.Metadata{
-				Description: "foo",
-			},
-			AdditionalProperties: &schema.String{
-				Metadata: schema.Metadata{
-					Description: "bar",
+	It("should unmarshal/marshal a json", func() {
+		testhelper.ExpectConsistentJSONMarshalling(
+			`{
+				"additionalProperties": {
+					"type": "string"
 				},
-			},
-		}
-		j, err := json.Marshal(s)
-		Expect(err).ToNot(HaveOccurred())
-
-		s2 := &schema.Map{}
-		err = json.Unmarshal(j, s2)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(s2).To(Equal(s))
+				"const": {
+					"p1": "v1"
+				},
+				"default": {
+					"p2": "v2"
+				},
+				"enum": [
+					{
+						"p3": "v3"
+					},
+					{
+						"p4": "v4"
+					}
+				],
+				"minProperties": 1,
+				"maxProperties": 2,
+				"type": "object"
+			}`,
+			&schema.Map{},
+		)
 	})
 })

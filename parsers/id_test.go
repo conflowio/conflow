@@ -9,11 +9,12 @@ package parsers_test
 import (
 	"errors"
 
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/parsers"
 	"github.com/conflowio/conflow/test"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
 )
 
 var _ = Describe("ID", func() {
@@ -34,9 +35,10 @@ var _ = Describe("ID", func() {
 			test.ExpectParserToHaveParseError(p)(input, expectedErr)
 		},
 		test.TableEntry(`testkeyword`, errors.New("testkeyword is a reserved keyword at testfile:1:1")),
-		test.TableEntry(`a__b`, errors.New("was expecting the end of input at testfile:1:2")),
-		test.TableEntry(`_b`, errors.New("was expecting identifier at testfile:1:1")),
-		test.TableEntry(`b_`, errors.New("was expecting the end of input at testfile:1:2")),
+		test.TableEntry(`a__b`, errors.New("invalid identifier at testfile:1:1")),
+		test.TableEntry(`_b`, errors.New("invalid identifier at testfile:1:1")),
+		test.TableEntry(`b_`, errors.New("invalid identifier at testfile:1:1")),
+		test.TableEntry(`UPPER`, errors.New("invalid identifier (did you mean \"upper\"?) at testfile:1:1")),
 		test.TableEntry(`0ab`, errors.New("was expecting identifier at testfile:1:1")),
 	)
 

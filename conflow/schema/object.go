@@ -21,13 +21,16 @@ import (
 type Object struct {
 	Metadata
 
-	Const   *map[string]interface{}  `json:"const,omitempty"`
-	Default *map[string]interface{}  `json:"default,omitempty"`
-	Enum    []map[string]interface{} `json:"enum,omitempty"`
+	Const             *map[string]interface{}  `json:"const,omitempty"`
+	Default           *map[string]interface{}  `json:"default,omitempty"`
+	DependentRequired map[string][]string      `json:"dependentRequired,omitempty"`
+	Enum              []map[string]interface{} `json:"enum,omitempty"`
 	// FieldNames will contain the json property name -> field name mapping, if they are different
 	FieldNames map[string]string `json:"fieldNames,omitempty"`
 	// JSONPropertyNames will contain the parameter name -> json property name mapping, if they are different
 	JSONPropertyNames map[string]string `json:"-"`
+	MinProperties     int64             `json:"minProperties,omitempty"`
+	MaxProperties     *int64            `json:"maxProperties,omitempty"`
 	Name              string            `json:"name,omitempty"`
 	// Parameters will contain the parameter name -> schema mapping
 	Parameters map[string]Schema `json:"-"`
@@ -155,6 +158,9 @@ func (o *Object) GoString() string {
 	if o.Default != nil {
 		_, _ = fmt.Fprintf(buf, "\tDefault: %#v,\n", o.Default)
 	}
+	if o.DependentRequired != nil {
+		_, _ = fmt.Fprintf(buf, "\tDependentRequired: %#v,\n", o.DependentRequired)
+	}
 	if len(o.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", o.Enum)
 	}
@@ -163,6 +169,12 @@ func (o *Object) GoString() string {
 	}
 	if len(o.JSONPropertyNames) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tJSONPropertyNames: %#v,\n", o.JSONPropertyNames)
+	}
+	if o.MinProperties > 0 {
+		_, _ = fmt.Fprintf(buf, "\tMinProperties: %d,\n", o.MinProperties)
+	}
+	if o.MaxProperties != nil {
+		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.IntegerPtr(%d),\n", *o.MaxProperties)
 	}
 	if o.Name != "" {
 		_, _ = fmt.Fprintf(buf, "\tName: %q,\n", o.Name)
@@ -370,23 +382,64 @@ func (o *Object) ValidateValue(value interface{}) error {
 		}
 	}
 
-	for _, f := range o.Required {
-		if _, ok := v[f]; !ok {
-			return NewFieldError(f, errors.New("required"))
+	if int64(len(v)) < o.MinProperties {
+		switch o.MinProperties {
+		case 1:
+			return errors.New("the object can not be empty")
+		default:
+			return fmt.Errorf("the object must have at least %d properties defined", o.MinProperties)
+		}
+	}
+
+	if o.MaxProperties != nil && int64(len(v)) > *o.MaxProperties {
+		switch *o.MaxProperties {
+		case 0:
+			return errors.New("the object must be empty")
+		case 1:
+			return errors.New("the object can only have a single property defined")
+		default:
+			return fmt.Errorf("the object can not have more than %d properties defined", *o.MaxProperties)
+		}
+	}
+
+	ve := ValidationError{}
+
+	if len(o.Required) > 0 || len(o.DependentRequired) > 0 {
+		missingFields := map[string]bool{}
+
+		for _, f := range o.Required {
+			if _, ok := v[f]; !ok {
+				missingFields[f] = true
+			}
+		}
+
+		for p, required := range o.DependentRequired {
+			if _, ok := v[p]; !ok {
+				continue
+			}
+			for _, f := range required {
+				if _, ok := v[f]; !ok {
+					missingFields[f] = true
+				}
+			}
+		}
+
+		for f := range missingFields {
+			ve.AddError(f, errors.New("required"))
 		}
 	}
 
 	for _, k := range getSortedMapKeys(v) {
 		if p, ok := o.Parameters[k]; ok {
 			if err := p.ValidateValue(v[k]); err != nil {
-				return NewFieldError(k, err)
+				ve.AddError(k, err)
 			}
 		} else {
-			return NewFieldError(k, errors.New("property does not exist"))
+			ve.AddError(k, errors.New("property does not exist"))
 		}
 	}
 
-	return nil
+	return ve.ErrOrNil()
 }
 
 func (o *Object) join(elems []map[string]interface{}, sep string) string {

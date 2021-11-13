@@ -41,7 +41,7 @@ var _ = Describe("ParseArguments", func() {
 			comments = file.Decls[0].(*goast.FuncDecl).Doc.List
 		}
 
-		metadata, err := parser.ParseMetadataFromComments("Foo", comments)
+		metadata, err := parser.ParseMetadataFromComments(comments)
 		Expect(err).ToNot(HaveOccurred())
 
 		fun := file.Decls[0].(*goast.FuncDecl).Type
