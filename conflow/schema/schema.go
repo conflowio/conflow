@@ -34,6 +34,7 @@ type Schema interface {
 	GetDeprecated() bool
 	GetDescription() string
 	GetExamples() []interface{}
+	GetID() string
 	GetPointer() bool
 	GetReadOnly() bool
 	GetTitle() string

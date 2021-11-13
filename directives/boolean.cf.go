@@ -19,8 +19,8 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"read_only": "readOnly", "write_only": "writeOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "write_only": "writeOnly"},
 			Name:              "Boolean",
 			Parameters: map[string]schema.Schema{
 				"annotations": &schema.Map{
@@ -44,6 +44,7 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 				"examples": &schema.Array{
 					Items: &schema.Untyped{},
 				},
+				"id":         &schema.String{},
 				"pointer":    &schema.Boolean{},
 				"read_only":  &schema.Boolean{},
 				"title":      &schema.String{},
@@ -90,6 +91,8 @@ func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 		return b.(*Boolean).Enum
 	case "examples":
 		return b.(*Boolean).Examples
+	case "id":
+		return b.(*Boolean).ID
 	case "pointer":
 		return b.(*Boolean).Pointer
 	case "read_only":
@@ -126,6 +129,8 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
+	case "id":
+		b.ID = value.(string)
 	case "pointer":
 		b.Pointer = value.(bool)
 	case "read_only":

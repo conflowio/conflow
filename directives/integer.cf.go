@@ -19,8 +19,8 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
 			Name:              "Integer",
 			Parameters: map[string]schema.Schema{
 				"annotations": &schema.Map{
@@ -54,6 +54,7 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 						Pointer: true,
 					},
 				},
+				"id": &schema.String{},
 				"maximum": &schema.Integer{
 					Metadata: schema.Metadata{
 						Pointer: true,
@@ -119,6 +120,8 @@ func (i IntegerInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 		return b.(*Integer).ExclusiveMaximum
 	case "exclusive_minimum":
 		return b.(*Integer).ExclusiveMinimum
+	case "id":
+		return b.(*Integer).ID
 	case "maximum":
 		return b.(*Integer).Maximum
 	case "minimum":
@@ -165,6 +168,8 @@ func (i IntegerInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 		b.ExclusiveMaximum = schema.IntegerPtr(value.(int64))
 	case "exclusive_minimum":
 		b.ExclusiveMinimum = schema.IntegerPtr(value.(int64))
+	case "id":
+		b.ID = value.(string)
 	case "maximum":
 		b.Maximum = schema.IntegerPtr(value.(int64))
 	case "minimum":

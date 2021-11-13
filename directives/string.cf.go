@@ -19,8 +19,8 @@ func (i StringInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "pattern": "Pattern", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"max_length": "maxLength", "min_length": "minLength", "read_only": "readOnly", "write_only": "writeOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "pattern": "Pattern", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			JSONPropertyNames: map[string]string{"id": "$id", "max_length": "maxLength", "min_length": "minLength", "read_only": "readOnly", "write_only": "writeOnly"},
 			Name:              "String",
 			Parameters: map[string]schema.Schema{
 				"annotations": &schema.Map{
@@ -45,6 +45,7 @@ func (i StringInterpreter) Schema() schema.Schema {
 					Items: &schema.Untyped{},
 				},
 				"format": &schema.String{},
+				"id":     &schema.String{},
 				"max_length": &schema.Integer{
 					Metadata: schema.Metadata{
 						Pointer: true,
@@ -102,6 +103,8 @@ func (i StringInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*String).Examples
 	case "format":
 		return b.(*String).Format
+	case "id":
+		return b.(*String).ID
 	case "max_length":
 		return b.(*String).MaxLength
 	case "min_length":
@@ -146,6 +149,8 @@ func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 		b.Examples = value.([]interface{})
 	case "format":
 		b.Format = value.(string)
+	case "id":
+		b.ID = value.(string)
 	case "max_length":
 		b.MaxLength = schema.IntegerPtr(value.(int64))
 	case "min_length":
