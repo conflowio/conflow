@@ -46,6 +46,9 @@ func GenerateInterpreter(
 		"assignValue": func(s schema.Schema, valueName, resultName string) string {
 			return s.AssignValue(params.Imports, valueName, resultName)
 		},
+		"getType": func(s schema.Schema) string {
+			return s.GoType(params.Imports)
+		},
 	})
 	if _, parseErr := bodyTmpl.Parse(interpreterTemplate); parseErr != nil {
 		return nil, nil, parseErr

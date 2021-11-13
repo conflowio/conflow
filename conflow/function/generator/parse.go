@@ -79,10 +79,17 @@ func ParseFunction(
 				return nil, fmt.Errorf("parameter %s is invalid: %w", name.String(), err)
 			}
 
-			s.Parameters = append(s.Parameters, schema.NamedSchema{
-				Name:   name.String(),
-				Schema: field.Schema,
-			})
+			if field.Variadic {
+				s.AdditionalParameters = &schema.NamedSchema{
+					Name:   name.String(),
+					Schema: field.Schema,
+				}
+			} else {
+				s.Parameters = append(s.Parameters, schema.NamedSchema{
+					Name:   name.String(),
+					Schema: field.Schema,
+				})
+			}
 
 			if field.ResultTypeFrom {
 				if resultTypeField != "" {
