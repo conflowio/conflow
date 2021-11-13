@@ -28,6 +28,8 @@ type Object struct {
 	FieldNames map[string]string `json:"fieldNames,omitempty"`
 	// JSONPropertyNames will contain the parameter name -> json property name mapping, if they are different
 	JSONPropertyNames map[string]string `json:"-"`
+	MinProperties     int64             `json:"minProperties,omitempty"`
+	MaxProperties     *int64            `json:"maxProperties,omitempty"`
 	Name              string            `json:"name,omitempty"`
 	// Parameters will contain the parameter name -> schema mapping
 	Parameters map[string]Schema `json:"-"`
@@ -163,6 +165,12 @@ func (o *Object) GoString() string {
 	}
 	if len(o.JSONPropertyNames) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tJSONPropertyNames: %#v,\n", o.JSONPropertyNames)
+	}
+	if o.MinProperties > 0 {
+		_, _ = fmt.Fprintf(buf, "\tMinProperties: %d,\n", o.MinProperties)
+	}
+	if o.MaxProperties != nil {
+		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.IntegerPtr(%d),\n", *o.MaxProperties)
 	}
 	if o.Name != "" {
 		_, _ = fmt.Fprintf(buf, "\tName: %q,\n", o.Name)
@@ -373,6 +381,26 @@ func (o *Object) ValidateValue(value interface{}) error {
 	for _, f := range o.Required {
 		if _, ok := v[f]; !ok {
 			return NewFieldError(f, errors.New("required"))
+		}
+	}
+
+	if int64(len(v)) < o.MinProperties {
+		switch o.MinProperties {
+		case 1:
+			return errors.New("the object can not be empty")
+		default:
+			return fmt.Errorf("the object must have at least %d properties defined", o.MinProperties)
+		}
+	}
+
+	if o.MaxProperties != nil && int64(len(v)) > *o.MaxProperties {
+		switch *o.MaxProperties {
+		case 0:
+			return errors.New("the object must be empty")
+		case 1:
+			return errors.New("the object can only have a single property defined")
+		default:
+			return fmt.Errorf("the object can not have more than %d properties defined", *o.MaxProperties)
 		}
 	}
 

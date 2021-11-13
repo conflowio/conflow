@@ -23,6 +23,8 @@ type Map struct {
 	Const                map[string]interface{}   `json:"const,omitempty"`
 	Default              map[string]interface{}   `json:"default,omitempty"`
 	Enum                 []map[string]interface{} `json:"enum,omitempty"`
+	MinProperties        int64                    `json:"minProperties,omitempty"`
+	MaxProperties        *int64                   `json:"maxProperties,omitempty"`
 }
 
 func (m *Map) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -162,6 +164,12 @@ func (m *Map) GoString() string {
 	if len(m.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", m.Enum)
 	}
+	if m.MinProperties > 0 {
+		_, _ = fmt.Fprintf(buf, "\tMinProperties: %d,\n", m.MinProperties)
+	}
+	if m.MaxProperties != nil {
+		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.IntegerPtr(%d),\n", *m.MaxProperties)
+	}
 	buf.WriteRune('}')
 	return buf.String()
 }
@@ -278,6 +286,26 @@ func (m *Map) ValidateValue(value interface{}) error {
 		}
 		if !allowed() {
 			return fmt.Errorf("must be one of %s", m.join(m.Enum, ", "))
+		}
+	}
+
+	if int64(len(v)) < m.MinProperties {
+		switch m.MinProperties {
+		case 1:
+			return errors.New("the map can not be empty")
+		default:
+			return fmt.Errorf("the map must contain at least %d elements", m.MinProperties)
+		}
+	}
+
+	if m.MaxProperties != nil && int64(len(v)) > *m.MaxProperties {
+		switch *m.MaxProperties {
+		case 0:
+			return errors.New("the map must be empty")
+		case 1:
+			return errors.New("the map can only have a single element")
+		default:
+			return fmt.Errorf("the map can not have more than %d elements", *m.MaxProperties)
 		}
 	}
 

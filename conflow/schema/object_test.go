@@ -123,6 +123,44 @@ var _ = Describe("Object", func() {
 				"foo": int64(1),
 			},
 		),
+		Entry(
+			"minProperties=1, 1 element",
+			func(s *schema.Object) {
+				s.MinProperties = 1
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+		),
+		Entry(
+			"minProperties=1, 2 elements",
+			func(s *schema.Object) {
+				s.MinProperties = 2
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": "2",
+			},
+		),
+		Entry(
+			"maxProperties=2, 2 elements",
+			func(s *schema.Object) {
+				s.MaxProperties = schema.IntegerPtr(2)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": "2",
+			},
+		),
+		Entry(
+			"maxProperties=2, 1 element",
+			func(s *schema.Object) {
+				s.MaxProperties = schema.IntegerPtr(2)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+		),
 	)
 
 	DescribeTable("Validate errors",
@@ -230,6 +268,45 @@ var _ = Describe("Object", func() {
 			},
 			errors.New("must be one of {foo: 1}, {foo: 2}"),
 		),
+		Entry(
+			"minProperties: 1, empty",
+			func(s *schema.Object) {
+				s.MinProperties = 1
+			},
+			map[string]interface{}{},
+			errors.New("the object can not be empty"),
+		),
+		Entry(
+			"minProperties: 2, 1 element",
+			func(s *schema.Object) {
+				s.MinProperties = 2
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			errors.New("the object must have at least 2 properties defined"),
+		),
+		Entry(
+			"maxProperties: 0, 1 element",
+			func(s *schema.Object) {
+				s.MaxProperties = schema.IntegerPtr(0)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			errors.New("the object must be empty"),
+		),
+		Entry(
+			"maxProperties: 1, 2 elements",
+			func(s *schema.Object) {
+				s.MaxProperties = schema.IntegerPtr(1)
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": int64(2),
+			},
+			errors.New("the object can only have a single property defined"),
+		),
 	)
 
 	DescribeTable("GoString prints a valid Go struct",
@@ -316,6 +393,24 @@ var _ = Describe("Object", func() {
 	JSONPropertyNames: map[string]string{"my_field":"myField"},
 }`,
 		),
+		Entry(
+			"minProperties",
+			&schema.Object{
+				MinProperties: 1,
+			},
+			`&schema.Object{
+	MinProperties: 1,
+}`,
+		),
+		Entry(
+			"maxProperties",
+			&schema.Object{
+				MaxProperties: schema.IntegerPtr(1),
+			},
+			`&schema.Object{
+	MaxProperties: schema.IntegerPtr(1),
+}`,
+		),
 	)
 
 	It("should unmarshal/marshal a json", func() {
@@ -344,6 +439,8 @@ var _ = Describe("Object", func() {
 				"fieldNames": {
 					"myField": "MyField"
 				},
+				"minProperties": 1,
+				"maxProperties": 2,
 				"parameterNames": {
 					"myField": "my_field"
 				},
