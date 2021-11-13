@@ -130,10 +130,10 @@ var _ = Describe("Expression", func() {
 		// Function
 		test.TableEntry(`floor(`, errors.New("was expecting \")\" at testfile:1:7")),
 		test.TableEntry(`floor(1,`, errors.New("was expecting \")\" at testfile:1:9")),
-		test.TableEntry("FLOOR()", errors.New("was expecting value at testfile:1:1")),
+		test.TableEntry("FLOOR()", errors.New("invalid identifier (did you mean \"floor\"?) at testfile:1:1")),
 
 		// Variables
-		test.TableEntry("VAR", errors.New("was expecting value at testfile:1:1")),
+		test.TableEntry("VAR", errors.New("invalid identifier (did you mean \"var\"?) at testfile:1:1")),
 
 		// Boolean not
 		test.TableEntry("!", errors.New("was expecting value at testfile:1:2")),
