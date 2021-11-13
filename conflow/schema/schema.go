@@ -48,6 +48,8 @@ type Schema interface {
 }
 
 type ArrayKind interface {
+	Schema
+
 	GetItems() Schema
 }
 
@@ -57,6 +59,8 @@ func IsArray(s Schema) bool {
 }
 
 type ObjectKind interface {
+	Schema
+
 	GetFieldName(string) string
 	GetJSONPropertyName(string) string
 	GetParameters() map[string]Schema
@@ -71,6 +75,8 @@ func IsObject(s Schema) bool {
 }
 
 type MapKind interface {
+	Schema
+
 	GetAdditionalProperties() Schema
 }
 
@@ -80,6 +86,8 @@ func IsMap(s Schema) bool {
 }
 
 type FunctionKind interface {
+	Schema
+
 	GetAdditionalParameters() *NamedSchema
 	GetParameters() Parameters
 	GetResult() Schema
