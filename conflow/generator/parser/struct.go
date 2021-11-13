@@ -9,7 +9,6 @@ package parser
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/build"
@@ -19,11 +18,18 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strings"
 )
 
-type errStructNotFound error
+type errTypeNotFound struct {
+	msg string
+}
 
-func FindStruct(parseCtx *Context, pkgName, name string) (*ast.StructType, *Metadata, error) {
+func (e errTypeNotFound) Error() string {
+	return e.msg
+}
+
+func FindType(parseCtx *Context, pkgName, name string) (e ast.Expr, m *Metadata, err error) {
 	buildContext := build.Default
 	pkg, err := buildContext.Import(pkgName, parseCtx.WorkDir, 0)
 	if err != nil {
@@ -40,11 +46,11 @@ func FindStruct(parseCtx *Context, pkgName, name string) (*ast.StructType, *Meta
 		}
 
 		if hasType {
-			return parseStruct(parseCtx, pkgName, filePath, name)
+			return parseType(parseCtx, pkgName, filePath, name)
 		}
 	}
 
-	return nil, nil, errStructNotFound(fmt.Errorf("type %s not found in package %s", name, pkgName))
+	return nil, nil, errTypeNotFound{msg: fmt.Sprintf("type %q not found in package %q", name, pkgName)}
 }
 
 func fileHasLine(filePath string, re *regexp.Regexp) (bool, error) {
@@ -88,7 +94,7 @@ func fileHasLine(filePath string, re *regexp.Regexp) (bool, error) {
 	return false, nil
 }
 
-func parseStruct(parseCtx *Context, pkgName, filePath, name string) (*ast.StructType, *Metadata, error) {
+func parseType(parseCtx *Context, pkgName, filePath, name string) (ast.Expr, *Metadata, error) {
 	astFile, err := parser.ParseFile(&token.FileSet{}, filePath, nil, parser.AllErrors+parser.ParseComments)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse file %s: %w", filePath, err)
@@ -115,9 +121,13 @@ func parseStruct(parseCtx *Context, pkgName, filePath, name string) (*ast.Struct
 				comments = append(comments, genDecl.Doc.List...)
 			}
 
-			metadata, err := ParseMetadataFromComments(name, comments)
+			metadata, err := ParseMetadataFromComments(comments)
 			if err != nil {
 				return nil, nil, err
+			}
+
+			if strings.HasPrefix(metadata.Description, name+" ") {
+				metadata.Description = strings.Replace(metadata.Description, name+" ", "It ", 1)
 			}
 
 			switch t := typeSpec.Type.(type) {
@@ -129,12 +139,17 @@ func parseStruct(parseCtx *Context, pkgName, filePath, name string) (*ast.Struct
 					Fields: &ast.FieldList{},
 				}, metadata, nil
 			case *ast.Ident:
-				str, _, err := FindStruct(parseCtx, pkgName, t.Name)
+				switch t.Name {
+				case "bool", "uint8", "uint16", "uint32", "uint64", "int8", "int16", "int32", "int64", "float32",
+					"float64", "complex64", "complex128", "string", "int", "uint", "uintptr", "byte", "rune":
+					return t, metadata, nil
+				}
+				str, _, err := FindType(parseCtx, pkgName, t.Name)
 				if err != nil {
-					if _, notFound := err.(errStructNotFound); notFound {
+					if _, notFound := err.(errTypeNotFound); notFound {
 						for _, imp := range astFile.Imports {
 							if imp.Name != nil && imp.Name.Name == "." {
-								str, _, err := FindStruct(parseCtx, imp.Path.Value[1:len(imp.Path.Value)-1], t.Name)
+								str, _, err := FindType(parseCtx, imp.Path.Value[1:len(imp.Path.Value)-1], t.Name)
 								if err == nil {
 									return str, metadata, nil
 								}
@@ -150,17 +165,17 @@ func parseStruct(parseCtx *Context, pkgName, filePath, name string) (*ast.Struct
 					return nil, nil, fmt.Errorf("package alias %s could not be resolved", t.X.(*ast.Ident).Name)
 				}
 
-				str, _, err := FindStruct(parseCtx, pkgName, t.Sel.Name)
+				str, _, err := FindType(parseCtx, pkgName, t.Sel.Name)
 				if err != nil {
 					return nil, nil, err
 				}
 
 				return str, metadata, nil
 			default:
-				return nil, nil, fmt.Errorf("unexpected type: %T", t)
+				return t, metadata, nil
 			}
 		}
 	}
 
-	return nil, nil, errStructNotFound(errors.New("struct not found"))
+	return nil, nil, errTypeNotFound{msg: fmt.Sprintf("type %q not found in package %q", name, pkgName)}
 }

@@ -27,7 +27,7 @@ func GenerateInterpreter(
 	name string,
 	comments []*ast.Comment,
 ) ([]byte, *Struct, error) {
-	metadata, err := parser.ParseMetadataFromComments(name, comments)
+	metadata, err := parser.ParseMetadataFromComments(comments)
 	if err != nil {
 		return nil, nil, err
 	}
