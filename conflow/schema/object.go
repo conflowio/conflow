@@ -21,9 +21,10 @@ import (
 type Object struct {
 	Metadata
 
-	Const   *map[string]interface{}  `json:"const,omitempty"`
-	Default *map[string]interface{}  `json:"default,omitempty"`
-	Enum    []map[string]interface{} `json:"enum,omitempty"`
+	Const             *map[string]interface{}  `json:"const,omitempty"`
+	Default           *map[string]interface{}  `json:"default,omitempty"`
+	DependentRequired map[string][]string      `json:"dependentRequired,omitempty"`
+	Enum              []map[string]interface{} `json:"enum,omitempty"`
 	// FieldNames will contain the json property name -> field name mapping, if they are different
 	FieldNames map[string]string `json:"fieldNames,omitempty"`
 	// JSONPropertyNames will contain the parameter name -> json property name mapping, if they are different
@@ -156,6 +157,9 @@ func (o *Object) GoString() string {
 	}
 	if o.Default != nil {
 		_, _ = fmt.Fprintf(buf, "\tDefault: %#v,\n", o.Default)
+	}
+	if o.DependentRequired != nil {
+		_, _ = fmt.Fprintf(buf, "\tDependentRequired: %#v,\n", o.DependentRequired)
 	}
 	if len(o.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", o.Enum)
@@ -378,12 +382,6 @@ func (o *Object) ValidateValue(value interface{}) error {
 		}
 	}
 
-	for _, f := range o.Required {
-		if _, ok := v[f]; !ok {
-			return NewFieldError(f, errors.New("required"))
-		}
-	}
-
 	if int64(len(v)) < o.MinProperties {
 		switch o.MinProperties {
 		case 1:
@@ -404,17 +402,44 @@ func (o *Object) ValidateValue(value interface{}) error {
 		}
 	}
 
-	for _, k := range getSortedMapKeys(v) {
-		if p, ok := o.Parameters[k]; ok {
-			if err := p.ValidateValue(v[k]); err != nil {
-				return NewFieldError(k, err)
+	ve := ValidationError{}
+
+	if len(o.Required) > 0 || len(o.DependentRequired) > 0 {
+		missingFields := map[string]bool{}
+
+		for _, f := range o.Required {
+			if _, ok := v[f]; !ok {
+				missingFields[f] = true
 			}
-		} else {
-			return NewFieldError(k, errors.New("property does not exist"))
+		}
+
+		for p, required := range o.DependentRequired {
+			if _, ok := v[p]; !ok {
+				continue
+			}
+			for _, f := range required {
+				if _, ok := v[f]; !ok {
+					missingFields[f] = true
+				}
+			}
+		}
+
+		for f := range missingFields {
+			ve.AddError(f, errors.New("required"))
 		}
 	}
 
-	return nil
+	for _, k := range getSortedMapKeys(v) {
+		if p, ok := o.Parameters[k]; ok {
+			if err := p.ValidateValue(v[k]); err != nil {
+				ve.AddError(k, err)
+			}
+		} else {
+			ve.AddError(k, errors.New("property does not exist"))
+		}
+	}
+
+	return ve.ErrOrNil()
 }
 
 func (o *Object) join(elems []map[string]interface{}, sep string) string {

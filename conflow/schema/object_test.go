@@ -161,6 +161,18 @@ var _ = Describe("Object", func() {
 				"foo": int64(1),
 			},
 		),
+		Entry(
+			"dependentRequired",
+			func(s *schema.Object) {
+				s.DependentRequired = map[string][]string{
+					"foo": {"bar"},
+				}
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+				"bar": "val",
+			},
+		),
 	)
 
 	DescribeTable("Validate errors",
@@ -307,6 +319,33 @@ var _ = Describe("Object", func() {
 			},
 			errors.New("the object can only have a single property defined"),
 		),
+		Entry(
+			"dependentRequired - one missing",
+			func(s *schema.Object) {
+				s.DependentRequired = map[string][]string{
+					"foo": {"bar"},
+				}
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			schema.NewFieldError("bar", errors.New("required")),
+		),
+		Entry(
+			"dependentRequired - two missing",
+			func(s *schema.Object) {
+				s.DependentRequired = map[string][]string{
+					"foo": {"bar", "baz"},
+				}
+			},
+			map[string]interface{}{
+				"foo": int64(1),
+			},
+			schema.ValidationError{Errors: []error{
+				schema.NewFieldError("bar", errors.New("required")),
+				schema.NewFieldError("baz", errors.New("required")),
+			}},
+		),
 	)
 
 	DescribeTable("GoString prints a valid Go struct",
@@ -411,6 +450,15 @@ var _ = Describe("Object", func() {
 	MaxProperties: schema.IntegerPtr(1),
 }`,
 		),
+		Entry(
+			"dependentRequired",
+			&schema.Object{
+				DependentRequired: map[string][]string{"foo": {"bar"}},
+			},
+			`&schema.Object{
+	DependentRequired: map[string][]string{"foo":[]string{"bar"}},
+}`,
+		),
 	)
 
 	It("should unmarshal/marshal a json", func() {
@@ -421,6 +469,9 @@ var _ = Describe("Object", func() {
 				},
 				"default": {
 					"myField": "val2"
+				},
+				"dependentRequired": {
+					"foo": ["bar"]
 				},
 				"enum": [
 					{
