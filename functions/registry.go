@@ -22,6 +22,8 @@ func DefaultRegistry() function.InterpreterRegistry {
 		"math.abs":                math.AbsInterpreter{},
 		"math.ceil":               math.CeilInterpreter{},
 		"math.floor":              math.FloorInterpreter{},
+		"math.min":                math.MinInterpreter{},
+		"math.max":                math.MaxInterpreter{},
 		"strings.has_prefix":      strings.HasPrefixInterpreter{},
 		"strings.has_suffix":      strings.HasSuffixInterpreter{},
 		"strings.join":            strings.JoinInterpreter{},
