@@ -8,31 +8,48 @@ package formats
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
+	"reflect"
 	"strings"
 )
 
-type URI struct{}
+type URI struct {
+	Default       bool
+	RequireScheme bool
+}
 
-func (u URI) Parse(input string) (interface{}, error) {
+func (u URI) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
 
 	res, err := url.Parse(input)
-	if err != nil || res.Scheme == "" {
+	if err != nil || (u.RequireScheme && res.Scheme == "") {
 		return nil, errors.New("must be a valid URI")
 	}
 
-	return res, nil
+	return *res, nil
 }
 
-func (u URI) Format(input interface{}) string {
+func (u URI) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
+	case url.URL:
+		return v.String(), true
 	case *url.URL:
-		return v.String()
+		return v.String(), true
 	default:
-		panic(fmt.Errorf("invalid input type: %T", v))
+		return "", false
 	}
+}
+
+func (u URI) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(url.URL{}), u.Default
+}
+
+func (u URI) PtrFunc() string {
+	return "github.com/conflowio/conflow/conflow/schema/formats.URIPtr"
+}
+
+func URIPtr(v url.URL) *url.URL {
+	return &v
 }

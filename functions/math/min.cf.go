@@ -3,9 +3,7 @@
 package math
 
 import (
-	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/parsley/parsley"
 )
 
 // MinInterpreter is the conflow interpreter for the Min function
@@ -40,29 +38,11 @@ func (i MinInterpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i MinInterpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
-	parameters := i.Schema().(*schema.Function).GetParameters()
-	arguments := node.ArgumentNodes()
-
-	arg0, evalErr := parsley.EvaluateNode(ctx, arguments[0])
-	if evalErr != nil {
-		return nil, evalErr
-	}
-	if err := parameters[0].Schema.ValidateValue(arg0); err != nil {
-		return nil, parsley.NewError(arguments[0].Pos(), err)
-	}
-	var val0 = arg0
-
+func (i MinInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
+	var val0 = args[0]
 	var variadicArgs []interface{}
-	for p := len(parameters); p < len(arguments); p++ {
-		arg, evalErr := parsley.EvaluateNode(ctx, arguments[p])
-		if evalErr != nil {
-			return nil, evalErr
-		}
-		if err := i.Schema().(*schema.Function).GetAdditionalParameters().Schema.ValidateValue(arg); err != nil {
-			return nil, parsley.NewError(arguments[p].Pos(), err)
-		}
-		var val = arg
+	for p := 1; p < len(args); p++ {
+		var val = args[p]
 		variadicArgs = append(variadicArgs, val)
 	}
 	return Min(val0, variadicArgs...), nil

@@ -11,8 +11,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"reflect"
 	"regexp"
-	"time"
 
 	"github.com/tidwall/gjson"
 )
@@ -35,16 +35,15 @@ type Schema interface {
 	GetDescription() string
 	GetExamples() []interface{}
 	GetID() string
-	GetPointer() bool
 	GetReadOnly() bool
 	GetTitle() string
 	GetWriteOnly() bool
-	GoString() string
+	GoString(imports map[string]string) string
 	GoType(imports map[string]string) string
 	StringValue(interface{}) string
 	Type() Type
 	TypeString() string
-	ValidateValue(interface{}) error
+	ValidateValue(interface{}) (interface{}, error)
 	ValidateSchema(s Schema, compare bool) error
 }
 
@@ -52,11 +51,6 @@ type ArrayKind interface {
 	Schema
 
 	GetItems() Schema
-}
-
-func IsArray(s Schema) bool {
-	_, ok := s.(ArrayKind)
-	return ok
 }
 
 type ObjectKind interface {
@@ -70,20 +64,10 @@ type ObjectKind interface {
 	GetRequired() []string
 }
 
-func IsObject(s Schema) bool {
-	_, ok := s.(ObjectKind)
-	return ok
-}
-
 type MapKind interface {
 	Schema
 
 	GetAdditionalProperties() Schema
-}
-
-func IsMap(s Schema) bool {
-	_, ok := s.(MapKind)
-	return ok
 }
 
 type FunctionKind interface {
@@ -95,13 +79,13 @@ type FunctionKind interface {
 	GetResultTypeFrom() string
 }
 
-func IsFunction(s Schema) bool {
-	_, ok := s.(FunctionKind)
-	return ok
-}
-
 type Directive interface {
 	ApplyToSchema(Schema) error
+}
+
+type Nullable interface {
+	GetNullable() bool
+	SetNullable(bool)
 }
 
 func UnmarshalJSON(b []byte) (Schema, error) {
@@ -127,10 +111,10 @@ func UnmarshalJSON(b []byte) (Schema, error) {
 	switch Type(gjson.GetBytes(b, "type").String()) {
 	case TypeArray:
 		s = &Array{}
-	case TypeByteStream:
-		s = &ByteStream{}
 	case TypeBoolean:
 		s = &Boolean{}
+	case TypeByteStream:
+		s = &ByteStream{}
 	case TypeFunction:
 		s = &Function{}
 	case TypeInteger:
@@ -150,10 +134,6 @@ func UnmarshalJSON(b []byte) (Schema, error) {
 		}
 	case TypeString:
 		s = &String{}
-	case TypeTime:
-		s = &Time{}
-	case TypeTimeDuration:
-		s = &TimeDuration{}
 	default:
 		return nil, fmt.Errorf("unsupported type %s", gjson.GetBytes(b, "type").String())
 	}
@@ -176,15 +156,15 @@ func (s *SchemaUnmarshaler) UnmarshalJSON(j []byte) error {
 }
 
 type NamedSchema struct {
-	Name   string
-	Schema Schema
+	Name string
+	Schema
 }
 
-func (n NamedSchema) GoString() string {
+func (n NamedSchema) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("schema.NamedSchema{\n")
 	_, _ = fmt.Fprintf(buf, "\tName: %q,\n", n.Name)
-	_, _ = fmt.Fprintf(buf, "\tSchema: %s,\n", indent(n.Schema.GoString()))
+	_, _ = fmt.Fprintf(buf, "\tSchema: %s,\n", indent(n.Schema.GoString(imports)))
 	buf.WriteRune('}')
 	return buf.String()
 }
@@ -222,11 +202,14 @@ func GetSchemaForValue(value interface{}) (Schema, error) {
 		return &Map{AdditionalProperties: additionalProperties}, nil
 	case io.Reader:
 		return ByteStreamValue(), nil
-	case time.Time:
-		return TimeValue(), nil
-	case time.Duration:
-		return TimeDurationValue(), nil
 	default:
+		formatName, _, ok := GetFormatForType(getFullyQualifiedTypeName(reflect.TypeOf(value)))
+		if ok {
+			return &String{
+				Format: formatName,
+			}, nil
+		}
+
 		return nil, fmt.Errorf("value type %T is not allowed", v)
 	}
 }

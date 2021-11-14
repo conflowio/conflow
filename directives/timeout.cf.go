@@ -22,10 +22,11 @@ func (i TimeoutInterpreter) Schema() schema.Schema {
 			},
 			Name: "Timeout",
 			Parameters: map[string]schema.Schema{
-				"duration": &schema.TimeDuration{
+				"duration": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/value": "true"},
 					},
+					Format: "duration-go",
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{

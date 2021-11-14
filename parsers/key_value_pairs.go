@@ -23,7 +23,7 @@ func KeyValuePairs() *combinator.Sequence {
 	var value parser.Func
 
 	value = combinator.Choice(
-		terminal.TimeDuration(schema.TimeDurationValue()),
+		terminal.TimeDuration(&schema.String{Format: schema.FormatDurationGo}),
 		terminal.Float(schema.NumberValue()),
 		terminal.Integer(schema.IntegerValue()),
 		terminal.String(schema.StringValue(), true),

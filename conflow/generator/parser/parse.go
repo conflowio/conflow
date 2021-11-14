@@ -216,7 +216,7 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 		default:
 			filePath := parseCtx.FileSet.File(parseCtx.File.Pos()).Name()
 
-			expr, metadata, err := FindType(parseCtx.WithWorkdir(path.Dir(filePath)), pkg, tn.String())
+			astFile, expr, metadata, err := FindType(parseCtx.WithWorkdir(path.Dir(filePath)), pkg, tn.String())
 			if err != nil {
 				return nil, false, fmt.Errorf("failed to parse %s: %w", tn.String(), err)
 			}
@@ -227,7 +227,7 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 					Ref: fmt.Sprintf("http://conflow.schema/%s.%s", pkg, tn.String()),
 				}, true, nil
 			default:
-				return GetSchemaForType(parseCtx, e, pkg, metadata)
+				return GetSchemaForType(parseCtx.WithFile(astFile), e, pkg, metadata)
 			}
 		}
 	case *ast.ArrayType:
@@ -262,7 +262,11 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 			return nil, false, err
 		}
 
-		res.(schema.MetadataAccessor).SetPointer(true)
+		nullable, ok := res.(schema.Nullable)
+		if !ok {
+			return nil, false, fmt.Errorf("%s schema type doesn't allow pointer types", res.Type())
+		}
+		nullable.SetNullable(true)
 
 		return res, isRef, nil
 	case *ast.SelectorExpr:
@@ -282,24 +286,24 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 				}, false, nil
 			case "io.ReadCloser":
 				return &schema.ByteStream{}, false, nil
-			case "time.Time":
-				return &schema.Time{}, false, nil
-			case "time.Duration":
-				return &schema.TimeDuration{}, false, nil
-			default:
-				expr, metadata, err := FindType(parseCtx, path, tn.Sel.Name)
-				if err != nil {
-					return nil, false, fmt.Errorf("failed to parse %s.%s: %w", xIdent.Name, tn.Sel.Name, err)
-				}
+			}
 
-				switch e := expr.(type) {
-				case *ast.StructType:
-					return &schema.Reference{
-						Ref: fmt.Sprintf("http://conflow.schema/%s.%s", path, tn.Sel.Name),
-					}, true, nil
-				default:
-					return GetSchemaForType(parseCtx, e, path, metadata)
-				}
+			if formatName, _, ok := schema.GetFormatForType(path + "." + tn.Sel.Name); ok {
+				return &schema.String{Format: formatName}, false, nil
+			}
+
+			astFile, expr, metadata, err := FindType(parseCtx, path, tn.Sel.Name)
+			if err != nil {
+				return nil, false, fmt.Errorf("failed to parse %s.%s: %w", xIdent.Name, tn.Sel.Name, err)
+			}
+
+			switch e := expr.(type) {
+			case *ast.StructType:
+				return &schema.Reference{
+					Ref: fmt.Sprintf("http://conflow.schema/%s.%s", path, tn.Sel.Name),
+				}, true, nil
+			default:
+				return GetSchemaForType(parseCtx.WithFile(astFile), e, path, metadata)
 			}
 		}
 		return nil, false, fmt.Errorf("unexpected ast node: %T: %v", typeNode, typeNode)

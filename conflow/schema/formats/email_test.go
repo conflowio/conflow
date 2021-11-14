@@ -9,6 +9,9 @@ package formats_test
 import (
 	"net/mail"
 
+	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -25,42 +28,83 @@ var _ = Describe("Email", func() {
 		Entry(
 			"short",
 			"a@b.c",
-			&mail.Address{Address: "a@b.c"},
+			mail.Address{Address: "a@b.c"},
 			"a@b.c",
 		),
 		Entry(
 			"simple hostname",
 			"a@localhost",
-			&mail.Address{Address: "a@localhost"},
+			mail.Address{Address: "a@localhost"},
 			"a@localhost",
 		),
 		Entry(
 			"complete",
 			"my.name@email.company.com",
-			&mail.Address{Address: "my.name@email.company.com"},
+			mail.Address{Address: "my.name@email.company.com"},
 			"my.name@email.company.com",
 		),
 		Entry(
 			"+ in first part",
 			"my.name+foo@email.company.com",
-			&mail.Address{Address: "my.name+foo@email.company.com"},
+			mail.Address{Address: "my.name+foo@email.company.com"},
 			"my.name+foo@email.company.com",
 		),
 		Entry(
 			"with name",
 			"My Name <my.name@email.company.com>",
-			&mail.Address{Name: "My Name", Address: "my.name@email.company.com"},
+			mail.Address{Name: "My Name", Address: "my.name@email.company.com"},
 			`"My Name" <my.name@email.company.com>`,
 		),
 	)
 
 	DescribeTable("Invalid values",
 		func(input string) {
-			_, err := format.Parse(input)
+			_, err := format.ValidateValue(input)
 			Expect(err).To(HaveOccurred())
 		},
 		Entry("empty", ""),
 		Entry("random string", "foo"),
 	)
+
+	When("a field type is mail.Address", func() {
+		It("should be parsed as string schema with email format", func() {
+			source := `
+				import "net/mail"
+				// @block
+				type Foo struct {
+					v mail.Address
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format: schema.FormatEmail,
+					},
+				},
+			})
+		})
+	})
+
+	When("a field type is *mail.Address", func() {
+		It("should be parsed as string schema with email format", func() {
+			source := `
+				import "net/mail"
+				// @block
+				type Foo struct {
+					v *mail.Address
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format:   schema.FormatEmail,
+						Nullable: true,
+					},
+				},
+			})
+		})
+	})
 
 })

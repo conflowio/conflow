@@ -29,7 +29,7 @@ var _ = Describe("Number", func() {
 
 	DescribeTable("Validate accepts value",
 		func(schema *schema.Number, value interface{}) {
-			err := schema.ValidateValue(value)
+			_, err := schema.ValidateValue(value)
 			Expect(err).ToNot(HaveOccurred())
 		},
 		Entry("zero", &schema.Number{}, float64(0)),
@@ -59,7 +59,7 @@ var _ = Describe("Number", func() {
 
 	DescribeTable("Validate errors",
 		func(schema *schema.Number, value interface{}, expectedErr error) {
-			err := schema.ValidateValue(value)
+			_, err := schema.ValidateValue(value)
 			Expect(err).To(MatchError(expectedErr))
 		},
 		Entry(
@@ -150,7 +150,7 @@ var _ = Describe("Number", func() {
 
 	DescribeTable("GoString prints a valid Go struct",
 		func(schema *schema.Number, expected string) {
-			str := schema.GoString()
+			str := schema.GoString(map[string]string{})
 			Expect(str).To(Equal(expected))
 		},
 		Entry(
@@ -215,6 +215,13 @@ var _ = Describe("Number", func() {
 	MultipleOf: schema.NumberPtr(1),
 }`,
 		),
+		Entry(
+			"nullable",
+			&schema.Number{Nullable: true},
+			`&schema.Number{
+	Nullable: true,
+}`,
+		),
 	)
 
 	It("should marshal/unmarshal", func() {
@@ -243,6 +250,7 @@ var _ = Describe("Number", func() {
 				"maximum": 7.1,
 				"minimum": 8.1,
 				"multipleOf": 9.1,
+				"nullable": true,
 				"type": "number"
 			}`,
 			&schema.Number{},

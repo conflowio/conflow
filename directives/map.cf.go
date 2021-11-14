@@ -19,7 +19,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 			JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "read_only": "readOnly", "write_only": "writeOnly"},
 			Name:              "Map",
 			Parameters: map[string]schema.Schema{
@@ -47,12 +47,9 @@ func (i MapInterpreter) Schema() schema.Schema {
 				},
 				"id": &schema.String{},
 				"max_properties": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"min_properties": &schema.Integer{},
-				"pointer":        &schema.Boolean{},
 				"read_only":      &schema.Boolean{},
 				"title":          &schema.String{},
 				"write_only":     &schema.Boolean{},
@@ -105,8 +102,6 @@ func (i MapInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Map).MaxProperties
 	case "min_properties":
 		return b.(*Map).MinProperties
-	case "pointer":
-		return b.(*Map).Pointer
 	case "read_only":
 		return b.(*Map).ReadOnly
 	case "title":
@@ -147,8 +142,6 @@ func (i MapInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 		b.MaxProperties = schema.IntegerPtr(value.(int64))
 	case "min_properties":
 		b.MinProperties = value.(int64)
-	case "pointer":
-		b.Pointer = value.(bool)
 	case "read_only":
 		b.ReadOnly = value.(bool)
 	case "title":

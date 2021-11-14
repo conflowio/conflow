@@ -139,7 +139,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 		}
 	case parsley.LiteralNode:
 		if n.schema != nil && vn.Value() != nil {
-			if err := n.schema.ValidateValue(vn.Value()); err != nil {
+			if _, err := n.schema.ValidateValue(vn.Value()); err != nil {
 				return parsley.NewError(n.valueNode.Pos(), err)
 			}
 		}
@@ -162,9 +162,11 @@ func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
 	}
 
 	if value != nil && n.schema != nil {
-		if err := n.schema.ValidateValue(value); err != nil {
+		nv, err := n.schema.ValidateValue(value)
+		if err != nil {
 			return nil, parsley.NewError(n.valueNode.Pos(), err)
 		}
+		return nv, nil
 	}
 
 	return value, nil

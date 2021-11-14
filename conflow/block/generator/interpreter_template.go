@@ -16,6 +16,7 @@ type InterpreterTemplateParams struct {
 	NameSelector      string
 	Name              string
 	Schema            schema.Schema
+	SchemaString      string
 	IDPropertyName    string
 	ValuePropertyName string
 	Imports           map[string]string
@@ -48,7 +49,7 @@ type {{ .Name }}Interpreter struct {
 
 func (i {{ .Name }}Interpreter) Schema() schema.Schema {
 	if i.s == nil {
-		i.s = {{ .Schema.GoString }}
+		i.s = {{ .SchemaString }}
 	}
 	return i.s
 }

@@ -91,14 +91,8 @@ func generateTemplateParams(
 	pkg string,
 ) *InterpreterTemplateParams {
 	imports := map[string]string{
-		".":       pkg,
-		"conflow": "github.com/conflowio/conflow/conflow",
-		"schema":  "github.com/conflowio/conflow/conflow/schema",
-		"parsley": "github.com/conflowio/parsley/parsley",
-	}
-
-	if f.ReturnsError {
-		imports["function"] = "github.com/conflowio/conflow/conflow/function"
+		".":      pkg,
+		"schema": "github.com/conflowio/conflow/conflow/schema",
 	}
 
 	var nameSelector string
@@ -112,12 +106,15 @@ func generateTemplateParams(
 		pkgName = parts[len(parts)-1]
 	}
 
+	schemaString := f.Schema.GoString(imports)
+
 	return &InterpreterTemplateParams{
 		Package:          pkgName,
 		Name:             strings.ToUpper(string(f.Name[0])) + f.Name[1:],
 		FuncNameSelector: nameSelector,
 		FuncName:         f.Name,
 		Schema:           f.Schema,
+		SchemaString:     schemaString,
 		Imports:          imports,
 		ReturnsError:     f.ReturnsError,
 	}

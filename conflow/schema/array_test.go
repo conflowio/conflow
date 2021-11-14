@@ -81,7 +81,7 @@ var _ = Describe("Array", func() {
 
 	DescribeTable("Validate accepts value",
 		func(schema *schema.Array, value interface{}) {
-			err := schema.ValidateValue(value)
+			_, err := schema.ValidateValue(value)
 			Expect(err).ToNot(HaveOccurred())
 		},
 		Entry(
@@ -215,7 +215,7 @@ var _ = Describe("Array", func() {
 
 	DescribeTable("Validate errors",
 		func(schema *schema.Array, value interface{}, expectedErr error) {
-			err := schema.ValidateValue(value)
+			_, err := schema.ValidateValue(value)
 			Expect(err).To(MatchError(expectedErr))
 		},
 		Entry(
@@ -370,7 +370,7 @@ var _ = Describe("Array", func() {
 
 	DescribeTable("GoString prints a valid Go struct",
 		func(schema *schema.Array, expected string) {
-			str := schema.GoString()
+			str := schema.GoString(map[string]string{})
 			Expect(str).To(Equal(expected))
 		},
 		Entry(

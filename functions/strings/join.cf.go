@@ -3,9 +3,7 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/parsley/parsley"
 )
 
 // JoinInterpreter is the conflow interpreter for the Join function
@@ -38,30 +36,11 @@ func (i JoinInterpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i JoinInterpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
-	parameters := i.Schema().(*schema.Function).GetParameters()
-	arguments := node.ArgumentNodes()
-
-	arg0, evalErr := parsley.EvaluateNode(ctx, arguments[0])
-	if evalErr != nil {
-		return nil, evalErr
+func (i JoinInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
+	var val0 = make([]string, len(args[0].([]interface{})))
+	for args0k, args0v := range args[0].([]interface{}) {
+		val0[args0k] = args0v.(string)
 	}
-	if err := parameters[0].Schema.ValidateValue(arg0); err != nil {
-		return nil, parsley.NewError(arguments[0].Pos(), err)
-	}
-	var val0 = make([]string, len(arg0.([]interface{})))
-	for arg0k, arg0v := range arg0.([]interface{}) {
-		val0[arg0k] = arg0v.(string)
-	}
-
-	arg1, evalErr := parsley.EvaluateNode(ctx, arguments[1])
-	if evalErr != nil {
-		return nil, evalErr
-	}
-	if err := parameters[1].Schema.ValidateValue(arg1); err != nil {
-		return nil, parsley.NewError(arguments[1].Pos(), err)
-	}
-	var val1 = arg1.(string)
-
+	var val1 = args[1].(string)
 	return Join(val0, val1), nil
 }

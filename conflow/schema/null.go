@@ -18,10 +18,6 @@ type Null struct {
 }
 
 func (n *Null) AssignValue(_ map[string]string, _, resultName string) string {
-	if n.Pointer {
-		panic("a nil value can not have a pointer")
-	}
-
 	return fmt.Sprintf("%s = nil", resultName)
 }
 
@@ -62,7 +58,7 @@ func (n *Null) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (n *Null) GoString() string {
+func (n *Null) GoString(map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Null{\n")
 	if !reflect.ValueOf(n.Metadata).IsZero() {
@@ -96,21 +92,21 @@ func (n *Null) ValidateSchema(n2 Schema, _ bool) error {
 	return nil
 }
 
-func (n *Null) ValidateValue(v interface{}) error {
+func (n *Null) ValidateValue(v interface{}) (interface{}, error) {
 	switch vt := v.(type) {
 	case nil:
-		return nil
+		return nil, nil
 	case []interface{}:
 		if len(vt) == 0 {
-			return nil
+			return []interface{}{}, nil
 		}
 	case map[string]interface{}:
 		if len(vt) == 0 {
-			return nil
+			return map[string]interface{}{}, nil
 		}
 	}
 
-	return fmt.Errorf("must be null, empty array or empty map")
+	return nil, fmt.Errorf("must be null, empty array or empty map")
 }
 
 func NullValue() Schema {

@@ -44,9 +44,11 @@ func Evaluate(
 		if property != nil &&
 			property.GetAnnotation(AnnotationUserDefined) == "true" &&
 			!property.GetReadOnly() {
-			if err := property.ValidateValue(v); err != nil {
+			nv, err := property.ValidateValue(v)
+			if err != nil {
 				return nil, fmt.Errorf("invalid input parameter %q: %w", k, err)
 			}
+			inputParams[k] = nv
 		} else {
 			return nil, fmt.Errorf("unknown input parameter: %q", k)
 		}

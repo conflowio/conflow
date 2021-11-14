@@ -7,8 +7,10 @@
 package formats_test
 
 import (
+	"github.com/conflowio/conflow/conflow/schema"
 	"github.com/conflowio/conflow/conflow/schema/formats"
 	"github.com/conflowio/conflow/conflow/types"
+	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 
@@ -17,9 +19,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Date", func() {
+var _ = Describe("Duration", func() {
 
-	format := formats.Duration{}
+	format := formats.DurationRFC3339{}
 
 	DescribeTable("Valid values",
 		expectFormatToParse(format),
@@ -27,68 +29,68 @@ var _ = Describe("Date", func() {
 		Entry(
 			"day",
 			"P13D",
-			&types.RFC3339Duration{Day: 13},
+			types.RFC3339Duration{Day: 13},
 			"P13D",
 		),
 		Entry(
 			"month + day",
 			"P12M13D",
-			&types.RFC3339Duration{Month: 12, Day: 13},
+			types.RFC3339Duration{Month: 12, Day: 13},
 			"P12M13D",
 		),
 		Entry(
 			"year + month + day",
 			"P11Y12M13D",
-			&types.RFC3339Duration{Year: 11, Month: 12, Day: 13},
+			types.RFC3339Duration{Year: 11, Month: 12, Day: 13},
 			"P11Y12M13D",
 		),
 		Entry(
 			"year + month + day + second",
 			"P11Y12M13DT16S",
-			&types.RFC3339Duration{Year: 11, Month: 12, Day: 13, Second: 16},
+			types.RFC3339Duration{Year: 11, Month: 12, Day: 13, Second: 16},
 			"P11Y12M13DT16S",
 		),
 		Entry(
 			"year + month + day + minute + second",
 			"P11Y12M13DT15M16S",
-			&types.RFC3339Duration{Year: 11, Month: 12, Day: 13, Minute: 15, Second: 16},
+			types.RFC3339Duration{Year: 11, Month: 12, Day: 13, Minute: 15, Second: 16},
 			"P11Y12M13DT15M16S",
 		),
 		Entry(
 			"year + month + day + hour + minute + second",
 			"P11Y12M13DT14H15M16S",
-			&types.RFC3339Duration{Year: 11, Month: 12, Day: 13, Hour: 14, Minute: 15, Second: 16},
+			types.RFC3339Duration{Year: 11, Month: 12, Day: 13, Hour: 14, Minute: 15, Second: 16},
 			"P11Y12M13DT14H15M16S",
 		),
 		Entry(
 			"second",
 			"PT16S",
-			&types.RFC3339Duration{Second: 16},
+			types.RFC3339Duration{Second: 16},
 			"PT16S",
 		),
 		Entry(
 			"minute + second",
 			"PT15M16S",
-			&types.RFC3339Duration{Minute: 15, Second: 16},
+			types.RFC3339Duration{Minute: 15, Second: 16},
 			"PT15M16S",
 		),
 		Entry(
 			"hour + minute + second",
 			"PT14H15M16S",
-			&types.RFC3339Duration{Hour: 14, Minute: 15, Second: 16},
+			types.RFC3339Duration{Hour: 14, Minute: 15, Second: 16},
 			"PT14H15M16S",
 		),
 		Entry(
 			"week",
 			"P17W",
-			&types.RFC3339Duration{Week: 17},
+			types.RFC3339Duration{Week: 17},
 			"P17W",
 		),
 	)
 
 	DescribeTable("Invalid values",
 		func(input string) {
-			_, err := format.Parse(input)
+			_, err := format.ValidateValue(input)
 			Expect(err).To(HaveOccurred())
 		},
 		Entry("empty", ""),
@@ -98,5 +100,44 @@ var _ = Describe("Date", func() {
 		Entry("valid prefix", "P1Sx"),
 		Entry("valid suffix", "xP1S"),
 	)
+
+	When("a field type is time.Duration", func() {
+		It("should be parsed as string schema with duration-go format", func() {
+			source := `
+				// @block
+				type Foo struct {
+					v time.Duration
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format: schema.FormatDurationGo,
+					},
+				},
+			})
+		})
+	})
+
+	When("a field type is *time.Duration", func() {
+		It("should be parsed as string schema with duration-go format", func() {
+			source := `
+				// @block
+				type Foo struct {
+					v *time.Duration
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format:   schema.FormatDurationGo,
+						Nullable: true,
+					},
+				},
+			})
+		})
+	})
 
 })

@@ -40,7 +40,7 @@ func (f falseImpl) MarshalJSON() ([]byte, error) {
 	return []byte("false"), nil
 }
 
-func (f falseImpl) GoString() string {
+func (f falseImpl) GoString(map[string]string) string {
 	return "schema.False()"
 }
 
@@ -64,6 +64,6 @@ func (f falseImpl) ValidateSchema(Schema, bool) error {
 	return errors.New("no value is allowed")
 }
 
-func (f falseImpl) ValidateValue(interface{}) error {
-	return errors.New("no value is allowed")
+func (f falseImpl) ValidateValue(interface{}) (interface{}, error) {
+	return nil, errors.New("no value is allowed")
 }

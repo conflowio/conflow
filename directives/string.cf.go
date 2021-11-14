@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/conflow/schema/formats"
+	"regexp"
 )
 
 // StringInterpreter is the conflow interpreter for the String block
@@ -19,7 +21,7 @@ func (i StringInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "pattern": "Pattern", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "nullable": "Nullable", "pattern": "Pattern", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 			JSONPropertyNames: map[string]string{"id": "$id", "max_length": "maxLength", "min_length": "minLength", "read_only": "readOnly", "write_only": "writeOnly"},
 			Name:              "String",
 			Parameters: map[string]schema.Schema{
@@ -27,14 +29,10 @@ func (i StringInterpreter) Schema() schema.Schema {
 					AdditionalProperties: &schema.String{},
 				},
 				"const": &schema.String{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"default": &schema.String{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"deprecated":  &schema.Boolean{},
 				"description": &schema.String{},
@@ -47,15 +45,14 @@ func (i StringInterpreter) Schema() schema.Schema {
 				"format": &schema.String{},
 				"id":     &schema.String{},
 				"max_length": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"min_length": &schema.Integer{},
+				"nullable":   &schema.Boolean{},
 				"pattern": &schema.String{
-					Format: "regex",
+					Format:   "regex",
+					Nullable: true,
 				},
-				"pointer":    &schema.Boolean{},
 				"read_only":  &schema.Boolean{},
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
@@ -109,10 +106,10 @@ func (i StringInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*String).MaxLength
 	case "min_length":
 		return b.(*String).MinLength
+	case "nullable":
+		return b.(*String).Nullable
 	case "pattern":
 		return b.(*String).Pattern
-	case "pointer":
-		return b.(*String).Pointer
 	case "read_only":
 		return b.(*String).ReadOnly
 	case "title":
@@ -155,10 +152,10 @@ func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 		b.MaxLength = schema.IntegerPtr(value.(int64))
 	case "min_length":
 		b.MinLength = value.(int64)
+	case "nullable":
+		b.Nullable = value.(bool)
 	case "pattern":
-		b.Pattern = value.(string)
-	case "pointer":
-		b.Pointer = value.(bool)
+		b.Pattern = formats.RegexPtr(value.(regexp.Regexp))
 	case "read_only":
 		b.ReadOnly = value.(bool)
 	case "title":

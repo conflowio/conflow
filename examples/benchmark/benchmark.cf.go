@@ -25,8 +25,12 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 						ReadOnly:    true,
 					},
 				},
-				"duration": &schema.TimeDuration{},
-				"elapsed":  &schema.TimeDuration{},
+				"duration": &schema.String{
+					Format: "duration-go",
+				},
+				"elapsed": &schema.String{
+					Format: "duration-go",
+				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -37,9 +41,9 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 				"run": &schema.Reference{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
+					Nullable: true,
+					Ref:      "http://conflow.schema/github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
 				},
 			},
 			Required: []string{"duration", "run"},

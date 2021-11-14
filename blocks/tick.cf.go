@@ -25,11 +25,12 @@ func (i TickInterpreter) Schema() schema.Schema {
 					},
 					Format: "conflow.ID",
 				},
-				"time": &schema.Time{
+				"time": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
 						ReadOnly:    true,
 					},
+					Format: "date-time",
 				},
 			},
 		}

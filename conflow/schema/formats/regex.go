@@ -9,13 +9,14 @@ package formats
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 )
 
 type Regex struct{}
 
-func (r Regex) Parse(input string) (interface{}, error) {
+func (r Regex) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
@@ -29,14 +30,28 @@ func (r Regex) Parse(input string) (interface{}, error) {
 		return nil, fmt.Errorf("must be valid regular expression: %w", err)
 	}
 
-	return res, nil
+	return *res, nil
 }
 
-func (r Regex) Format(input interface{}) string {
+func (r Regex) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
+	case regexp.Regexp:
+		return v.String(), true
 	case *regexp.Regexp:
-		return v.String()
+		return v.String(), true
 	default:
-		panic(fmt.Errorf("invalid input type: %T", v))
+		return "", false
 	}
+}
+
+func (r Regex) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(regexp.Regexp{}), true
+}
+
+func (r Regex) PtrFunc() string {
+	return "github.com/conflowio/conflow/conflow/schema/formats.RegexPtr"
+}
+
+func RegexPtr(v regexp.Regexp) *regexp.Regexp {
+	return &v
 }

@@ -27,26 +27,43 @@ const (
 type String struct {
 	Metadata
 
-	Const     *string  `json:"const,omitempty"`
-	Default   *string  `json:"default,omitempty"`
-	Enum      []string `json:"enum,omitempty"`
-	Format    string   `json:"format,omitempty"`
-	MinLength int64    `json:"minLength,omitempty"`
-	MaxLength *int64   `json:"maxLength,omitempty"`
-	// @format "regex"
-	Pattern string `json:"pattern,omitempty"`
-
-	// @ignore
-	patternRegexp *regexp.Regexp
+	Const     *string        `json:"const,omitempty"`
+	Default   *string        `json:"default,omitempty"`
+	Enum      []string       `json:"enum,omitempty"`
+	Format    string         `json:"format,omitempty"`
+	MinLength int64          `json:"minLength,omitempty"`
+	MaxLength *int64         `json:"maxLength,omitempty"`
+	Nullable  bool           `json:"nullable,omitempty"`
+	Pattern   *regexp.Regexp `json:"pattern,omitempty"`
 }
 
 func (s *String) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if s.Pointer {
-		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
-		return fmt.Sprintf("%s = %s.StringPtr(%s.(string))", resultName, schemaPackageName, valueName)
+	formatType, _ := s.format().Type()
+	goType := utils.GoType(imports, formatType, false)
+
+	if s.Nullable {
+		ptr := s.format().PtrFunc()
+		lastDot := strings.LastIndex(ptr, ".")
+		if lastDot == -1 || strings.Contains(ptr[lastDot+1:], "/") {
+			panic(fmt.Errorf("PtrFunc() in %T must use the following format: PACKAGE_NAME.FUNCTION_NAME", s.format()))
+		}
+		ptrPkg := utils.EnsureUniqueGoPackageName(imports, ptr[0:lastDot])
+		ptrFunc := fmt.Sprintf("%s.%s", ptrPkg, ptr[lastDot+1:])
+		return fmt.Sprintf(
+			"%s = %s(%s.(%s))",
+			resultName,
+			ptrFunc,
+			valueName,
+			goType,
+		)
 	}
 
-	return fmt.Sprintf("%s = %s.(string)", resultName, valueName)
+	return fmt.Sprintf(
+		"%s = %s.(%s)",
+		resultName,
+		valueName,
+		goType,
+	)
 }
 
 func (s *String) CompareValues(v1, v2 interface{}) int {
@@ -91,7 +108,11 @@ func (s *String) DefaultValue() interface{} {
 	return *s.Default
 }
 
-func (s *String) GoString() string {
+func (s *String) GetNullable() bool {
+	return s.Nullable
+}
+
+func (s *String) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.String{\n")
 	if !reflect.ValueOf(s.Metadata).IsZero() {
@@ -115,37 +136,49 @@ func (s *String) GoString() string {
 	if s.MaxLength != nil {
 		_, _ = fmt.Fprintf(buf, "\tMaxLength: schema.IntegerPtr(%d),\n", *s.MaxLength)
 	}
-	if s.Pattern != "" {
-		_, _ = fmt.Fprintf(buf, "\tPattern: %q,\n", s.Pattern)
+	if s.Nullable {
+		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", s.Nullable)
+	}
+	if s.Pattern != nil {
+		pkgName := utils.EnsureUniqueGoPackageName(imports, "regexp")
+		_, _ = fmt.Fprintf(buf, "\tPattern: %s.MustCompile(%q),\n", pkgName, s.Pattern.String())
 	}
 	buf.WriteRune('}')
 	return buf.String()
 }
 
-func (s *String) GoType(_ map[string]string) string {
-	if s.Pointer {
-		return "*string"
-	}
-
-	return "string"
+func (s *String) GoType(imports map[string]string) string {
+	formatType, _ := s.format().Type()
+	return utils.GoType(imports, formatType, s.Nullable)
 }
 
 func (s *String) MarshalJSON() ([]byte, error) {
 	type Alias String
+	var pattern string
+	if s.Pattern != nil {
+		pattern = s.Pattern.String()
+	}
 	return json.Marshal(struct {
-		Type string `json:"type"`
+		Type    string `json:"type"`
+		Pattern string `json:"pattern,omitempty"`
 		*Alias
 	}{
-		Type:  string(s.Type()),
-		Alias: (*Alias)(s),
+		Type:    string(s.Type()),
+		Pattern: pattern,
+		Alias:   (*Alias)(s),
 	})
 }
 
+func (s *String) SetNullable(nullable bool) {
+	s.Nullable = nullable
+}
+
 func (s *String) StringValue(value interface{}) string {
-	if v, ok := value.(string); ok {
-		return v
+	res, ok := s.format().StringValue(value)
+	if !ok {
+		panic(fmt.Errorf("invalid value %T in StringValue", value))
 	}
-	return ""
+	return res
 }
 
 func (s *String) Type() Type {
@@ -158,13 +191,26 @@ func (s *String) TypeString() string {
 
 func (s *String) UnmarshalJSON(input []byte) error {
 	type Alias String
-	return json.Unmarshal(input, &struct {
-		Type string `json:"type"`
+	v := &struct {
+		Type    string  `json:"type"`
+		Pattern *string `json:"pattern,omitempty"`
 		*Alias
 	}{
-		Type:  string(s.Type()),
 		Alias: (*Alias)(s),
-	})
+	}
+	if err := json.Unmarshal(input, v); err != nil {
+		return err
+	}
+
+	if v.Pattern != nil {
+		pattern, err := regexp.Compile(*v.Pattern)
+		if err != nil {
+			return fmt.Errorf("pattern is not a valid regular expression: %w", err)
+		}
+		s.Pattern = pattern
+	}
+
+	return nil
 }
 
 func (s *String) ValidateSchema(s2 Schema, _ bool) error {
@@ -175,18 +221,21 @@ func (s *String) ValidateSchema(s2 Schema, _ bool) error {
 	return nil
 }
 
-func (s *String) ValidateValue(value interface{}) error {
+func (s *String) ValidateValue(value interface{}) (interface{}, error) {
 	v, ok := value.(string)
 	if !ok {
-		return errors.New("must be string")
+		v, ok = s.format().StringValue(value)
+		if !ok {
+			return nil, errors.New("must be string")
+		}
 	}
 
 	if s.Const != nil && *s.Const != v {
-		return fmt.Errorf("must be %q", s.StringValue(*s.Const))
+		return nil, fmt.Errorf("must be %q", s.StringValue(*s.Const))
 	}
 
 	if len(s.Enum) == 1 && s.Enum[0] != v {
-		return fmt.Errorf("must be %q", s.StringValue(s.Enum[0]))
+		return nil, fmt.Errorf("must be %q", s.StringValue(s.Enum[0]))
 	}
 
 	if len(s.Enum) > 0 {
@@ -199,63 +248,55 @@ func (s *String) ValidateValue(value interface{}) error {
 			return false
 		}
 		if !allowed() {
-			return fmt.Errorf("must be one of %s", s.join(s.Enum, ", "))
+			return nil, fmt.Errorf("must be one of %s", s.join(s.Enum, ", "))
 		}
 	}
 
 	if s.MaxLength != nil && s.MinLength == *s.MaxLength && len(v) != int(s.MinLength) {
 		switch s.MinLength {
 		case 0:
-			return errors.New("must be empty string")
+			return nil, errors.New("must be empty string")
 		case 1:
-			return errors.New("must be a single character")
+			return nil, errors.New("must be a single character")
 		default:
-			return fmt.Errorf("must be exactly %d characters long", s.MinLength)
+			return nil, fmt.Errorf("must be exactly %d characters long", s.MinLength)
 		}
 	}
 
 	if s.MinLength > 0 && int64(utf8.RuneCount([]byte(v))) < s.MinLength {
 		switch s.MinLength {
 		case 1:
-			return errors.New("can not be empty string")
+			return nil, errors.New("can not be empty string")
 		default:
-			return fmt.Errorf("must be at least %d characters long", s.MinLength)
+			return nil, fmt.Errorf("must be at least %d characters long", s.MinLength)
 		}
 	}
 
 	if s.MaxLength != nil && int64(utf8.RuneCount([]byte(v))) > *s.MaxLength {
 		switch *s.MaxLength {
 		case 0:
-			return errors.New("must be empty string")
+			return nil, errors.New("must be empty string")
 		case 1:
-			return errors.New("must be empty string or a single character")
+			return nil, errors.New("must be empty string or a single character")
 		default:
-			return fmt.Errorf("must be no more than %d characters long", *s.MaxLength)
+			return nil, fmt.Errorf("must be no more than %d characters long", *s.MaxLength)
 		}
 	}
 
-	if s.Format != "" {
-		if formatChecker, ok := formatCheckers[s.Format]; ok {
-			if _, err := formatChecker.Parse(v); err != nil {
-				return err
-			}
+	if s.Pattern != nil {
+		if !s.Pattern.MatchString(v) {
+			return nil, fmt.Errorf("must match regular expression: %s", s.Pattern.String())
 		}
 	}
 
-	if s.Pattern != "" {
-		if s.patternRegexp == nil {
-			var err error
-			if s.patternRegexp, err = regexp.Compile(s.Pattern); err != nil {
-				return fmt.Errorf("schema error, pattern regexp is invalid: %w", err)
-			}
-		}
+	return s.format().ValidateValue(v)
+}
 
-		if !s.patternRegexp.MatchString(v) {
-			return fmt.Errorf("must match regular expression: %s", s.Pattern)
-		}
+func (s *String) format() Format {
+	if f, ok := registeredFormats[s.Format]; ok {
+		return f
 	}
-
-	return nil
+	return registeredFormats[FormatDefault]
 }
 
 func (s *String) join(elems []string, sep string) string {
@@ -291,7 +332,7 @@ func (s *stringValue) Copy() Schema {
 	return stringValueInst
 }
 
-func (s *stringValue) GoString() string {
+func (s *stringValue) GoString(map[string]string) string {
 	return "schema.StringValue()"
 }
 

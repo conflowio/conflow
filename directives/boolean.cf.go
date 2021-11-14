@@ -19,7 +19,7 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 			JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "write_only": "writeOnly"},
 			Name:              "Boolean",
 			Parameters: map[string]schema.Schema{
@@ -27,14 +27,10 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 					AdditionalProperties: &schema.String{},
 				},
 				"const": &schema.Boolean{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"default": &schema.Boolean{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"deprecated":  &schema.Boolean{},
 				"description": &schema.String{},
@@ -45,7 +41,7 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 					Items: &schema.Untyped{},
 				},
 				"id":         &schema.String{},
-				"pointer":    &schema.Boolean{},
+				"nullable":   &schema.Boolean{},
 				"read_only":  &schema.Boolean{},
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
@@ -93,8 +89,8 @@ func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 		return b.(*Boolean).Examples
 	case "id":
 		return b.(*Boolean).ID
-	case "pointer":
-		return b.(*Boolean).Pointer
+	case "nullable":
+		return b.(*Boolean).Nullable
 	case "read_only":
 		return b.(*Boolean).ReadOnly
 	case "title":
@@ -131,8 +127,8 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 		b.Examples = value.([]interface{})
 	case "id":
 		b.ID = value.(string)
-	case "pointer":
-		b.Pointer = value.(bool)
+	case "nullable":
+		b.Nullable = value.(bool)
 	case "read_only":
 		b.ReadOnly = value.(bool)
 	case "title":

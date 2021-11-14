@@ -27,15 +27,16 @@ func (e *ExclusiveMaximum) ID() conflow.ID {
 }
 
 func (e *ExclusiveMaximum) ApplyToSchema(s schema.Schema) error {
-	if err := s.ValidateValue(e.value); err != nil {
+	value, err := s.ValidateValue(e.value)
+	if err != nil {
 		return fmt.Errorf("exclusive_maximum value is invalid: %w", err)
 	}
 
 	switch st := s.(type) {
 	case *schema.Integer:
-		st.ExclusiveMaximum = schema.IntegerPtr(e.value.(int64))
+		st.ExclusiveMaximum = schema.IntegerPtr(value.(int64))
 	case *schema.Number:
-		st.ExclusiveMaximum = schema.NumberPtr(e.value.(float64))
+		st.ExclusiveMaximum = schema.NumberPtr(value.(float64))
 	default:
 		return fmt.Errorf("exclusive_maximum directive can not be applied to %T", s)
 	}

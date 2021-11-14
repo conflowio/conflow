@@ -21,10 +21,8 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 			Parameters: map[string]schema.Schema{
 				"block": &schema.Array{
 					Items: &schema.Reference{
-						Metadata: schema.Metadata{
-							Pointer: true,
-						},
-						Ref: "http://conflow.schema/github.com/conflowio/conflow/test/fixtures.Block",
+						Nullable: true,
+						Ref:      "http://conflow.schema/github.com/conflowio/conflow/test/fixtures.Block",
 					},
 				},
 				"id_field": &schema.String{

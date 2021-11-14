@@ -6,23 +6,22 @@ import (
 
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/parsley/parsley"
 )
 
 type FakeFunctionInterpreter struct {
-	EvalStub        func(interface{}, conflow.FunctionNode) (interface{}, parsley.Error)
+	EvalStub        func(interface{}, []interface{}) (interface{}, error)
 	evalMutex       sync.RWMutex
 	evalArgsForCall []struct {
 		arg1 interface{}
-		arg2 conflow.FunctionNode
+		arg2 []interface{}
 	}
 	evalReturns struct {
 		result1 interface{}
-		result2 parsley.Error
+		result2 error
 	}
 	evalReturnsOnCall map[int]struct {
 		result1 interface{}
-		result2 parsley.Error
+		result2 error
 	}
 	SchemaStub        func() schema.Schema
 	schemaMutex       sync.RWMutex
@@ -38,16 +37,21 @@ type FakeFunctionInterpreter struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeFunctionInterpreter) Eval(arg1 interface{}, arg2 conflow.FunctionNode) (interface{}, parsley.Error) {
+func (fake *FakeFunctionInterpreter) Eval(arg1 interface{}, arg2 []interface{}) (interface{}, error) {
+	var arg2Copy []interface{}
+	if arg2 != nil {
+		arg2Copy = make([]interface{}, len(arg2))
+		copy(arg2Copy, arg2)
+	}
 	fake.evalMutex.Lock()
 	ret, specificReturn := fake.evalReturnsOnCall[len(fake.evalArgsForCall)]
 	fake.evalArgsForCall = append(fake.evalArgsForCall, struct {
 		arg1 interface{}
-		arg2 conflow.FunctionNode
-	}{arg1, arg2})
+		arg2 []interface{}
+	}{arg1, arg2Copy})
 	stub := fake.EvalStub
 	fakeReturns := fake.evalReturns
-	fake.recordInvocation("Eval", []interface{}{arg1, arg2})
+	fake.recordInvocation("Eval", []interface{}{arg1, arg2Copy})
 	fake.evalMutex.Unlock()
 	if stub != nil {
 		return stub(arg1, arg2)
@@ -64,42 +68,42 @@ func (fake *FakeFunctionInterpreter) EvalCallCount() int {
 	return len(fake.evalArgsForCall)
 }
 
-func (fake *FakeFunctionInterpreter) EvalCalls(stub func(interface{}, conflow.FunctionNode) (interface{}, parsley.Error)) {
+func (fake *FakeFunctionInterpreter) EvalCalls(stub func(interface{}, []interface{}) (interface{}, error)) {
 	fake.evalMutex.Lock()
 	defer fake.evalMutex.Unlock()
 	fake.EvalStub = stub
 }
 
-func (fake *FakeFunctionInterpreter) EvalArgsForCall(i int) (interface{}, conflow.FunctionNode) {
+func (fake *FakeFunctionInterpreter) EvalArgsForCall(i int) (interface{}, []interface{}) {
 	fake.evalMutex.RLock()
 	defer fake.evalMutex.RUnlock()
 	argsForCall := fake.evalArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeFunctionInterpreter) EvalReturns(result1 interface{}, result2 parsley.Error) {
+func (fake *FakeFunctionInterpreter) EvalReturns(result1 interface{}, result2 error) {
 	fake.evalMutex.Lock()
 	defer fake.evalMutex.Unlock()
 	fake.EvalStub = nil
 	fake.evalReturns = struct {
 		result1 interface{}
-		result2 parsley.Error
+		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeFunctionInterpreter) EvalReturnsOnCall(i int, result1 interface{}, result2 parsley.Error) {
+func (fake *FakeFunctionInterpreter) EvalReturnsOnCall(i int, result1 interface{}, result2 error) {
 	fake.evalMutex.Lock()
 	defer fake.evalMutex.Unlock()
 	fake.EvalStub = nil
 	if fake.evalReturnsOnCall == nil {
 		fake.evalReturnsOnCall = make(map[int]struct {
 			result1 interface{}
-			result2 parsley.Error
+			result2 error
 		})
 	}
 	fake.evalReturnsOnCall[i] = struct {
 		result1 interface{}
-		result2 parsley.Error
+		result2 error
 	}{result1, result2}
 }
 

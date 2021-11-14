@@ -12,6 +12,8 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/generator/parser"
 
@@ -31,7 +33,6 @@ var _ = Describe("ParseStruct", func() {
 
 	basicTemplate := func(fields string) string {
 		return fmt.Sprintf(`
-			package foo
 			import (
 				"time"
 				"github.com/conflowio/conflow/conflow"
@@ -64,25 +65,8 @@ var _ = Describe("ParseStruct", func() {
 					},
 				},
 			}
-			f(expectedSchema)
 
-			fset := gotoken.NewFileSet()
-			file, err := goparser.ParseFile(fset, "testfile", source, goparser.AllErrors+goparser.ParseComments)
-			Expect(err).ToNot(HaveOccurred())
-
-			parseCtx := &parser.Context{
-				FileSet: fset,
-				File:    file,
-			}
-
-			metadata, err := parser.ParseMetadataFromComments(file.Decls[(len(file.Decls))-1].(*goast.GenDecl).Doc.List)
-			Expect(err).ToNot(HaveOccurred())
-
-			str := file.Decls[(len(file.Decls))-1].(*goast.GenDecl).Specs[0].(*goast.TypeSpec).Type.(*goast.StructType)
-			resultStruct, parseErr := generator.ParseStruct(parseCtx, str, "test", "Foo", metadata)
-
-			Expect(parseErr).ToNot(HaveOccurred())
-			Expect(resultStruct.Schema).To(Equal(expectedSchema))
+			testhelper.ExpectGoStructToHaveSchema(source, expectedSchema, f)
 		},
 		Entry("valid id field", "", func(schema.Schema) {}),
 
@@ -103,7 +87,7 @@ var _ = Describe("ParseStruct", func() {
 		}),
 
 		Entry("time duration field", "field time.Duration", func(s schema.Schema) {
-			s.(*schema.Object).Parameters["field"] = &schema.TimeDuration{}
+			s.(*schema.Object).Parameters["field"] = &schema.String{Format: schema.FormatDurationGo}
 		}),
 
 		Entry("string array", "field []string", func(s schema.Schema) {
@@ -132,7 +116,7 @@ var _ = Describe("ParseStruct", func() {
 
 		Entry("time duration array", "field []time.Duration", func(s schema.Schema) {
 			s.(*schema.Object).Parameters["field"] = &schema.Array{
-				Items: &schema.TimeDuration{},
+				Items: &schema.String{Format: schema.FormatDurationGo},
 			}
 		}),
 
@@ -170,7 +154,7 @@ var _ = Describe("ParseStruct", func() {
 
 		Entry("time duration map", "field map[string]time.Duration", func(s schema.Schema) {
 			s.(*schema.Object).Parameters["field"] = &schema.Map{
-				AdditionalProperties: &schema.TimeDuration{},
+				AdditionalProperties: &schema.String{Format: schema.FormatDurationGo},
 			}
 		}),
 

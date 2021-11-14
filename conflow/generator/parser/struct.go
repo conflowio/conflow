@@ -29,11 +29,11 @@ func (e errTypeNotFound) Error() string {
 	return e.msg
 }
 
-func FindType(parseCtx *Context, pkgName, name string) (e ast.Expr, m *Metadata, err error) {
+func FindType(parseCtx *Context, pkgName, name string) (*ast.File, ast.Expr, *Metadata, error) {
 	buildContext := build.Default
 	pkg, err := buildContext.Import(pkgName, parseCtx.WorkDir, 0)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to find package %s: %w", pkgName, err)
+		return nil, nil, nil, fmt.Errorf("failed to find package %s: %w", pkgName, err)
 	}
 
 	typeRegex := regexp.MustCompile(`^\s*type\s+` + name + `\s+`)
@@ -42,15 +42,20 @@ func FindType(parseCtx *Context, pkgName, name string) (e ast.Expr, m *Metadata,
 		filePath := path.Join(pkg.Dir, goFile)
 		hasType, err := fileHasLine(filePath, typeRegex)
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to read file %s: %w", filePath, err)
+			return nil, nil, nil, fmt.Errorf("failed to read file %s: %w", filePath, err)
 		}
 
 		if hasType {
-			return parseType(parseCtx, pkgName, filePath, name)
+			astFile, err := parser.ParseFile(&token.FileSet{}, filePath, nil, parser.AllErrors+parser.ParseComments)
+			if err != nil {
+				return nil, nil, nil, fmt.Errorf("failed to parse file %s: %w", filePath, err)
+			}
+
+			return parseType(parseCtx.WithFile(astFile), pkgName, name)
 		}
 	}
 
-	return nil, nil, errTypeNotFound{msg: fmt.Sprintf("type %q not found in package %q", name, pkgName)}
+	return nil, nil, nil, errTypeNotFound{msg: fmt.Sprintf("type %q not found in package %q", name, pkgName)}
 }
 
 func fileHasLine(filePath string, re *regexp.Regexp) (bool, error) {
@@ -94,13 +99,8 @@ func fileHasLine(filePath string, re *regexp.Regexp) (bool, error) {
 	return false, nil
 }
 
-func parseType(parseCtx *Context, pkgName, filePath, name string) (ast.Expr, *Metadata, error) {
-	astFile, err := parser.ParseFile(&token.FileSet{}, filePath, nil, parser.AllErrors+parser.ParseComments)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to parse file %s: %w", filePath, err)
-	}
-
-	for _, d := range astFile.Decls {
+func parseType(parseCtx *Context, pkgName, name string) (*ast.File, ast.Expr, *Metadata, error) {
+	for _, d := range parseCtx.File.Decls {
 		genDecl, ok := d.(*ast.GenDecl)
 		if !ok {
 			continue
@@ -123,7 +123,7 @@ func parseType(parseCtx *Context, pkgName, filePath, name string) (ast.Expr, *Me
 
 			metadata, err := ParseMetadataFromComments(comments)
 			if err != nil {
-				return nil, nil, err
+				return nil, nil, nil, err
 			}
 
 			if strings.HasPrefix(metadata.Description, name+" ") {
@@ -132,9 +132,9 @@ func parseType(parseCtx *Context, pkgName, filePath, name string) (ast.Expr, *Me
 
 			switch t := typeSpec.Type.(type) {
 			case *ast.StructType:
-				return t, metadata, nil
+				return parseCtx.File, t, metadata, nil
 			case *ast.InterfaceType:
-				return &ast.StructType{
+				return parseCtx.File, &ast.StructType{
 					Struct: t.Pos(),
 					Fields: &ast.FieldList{},
 				}, metadata, nil
@@ -142,40 +142,40 @@ func parseType(parseCtx *Context, pkgName, filePath, name string) (ast.Expr, *Me
 				switch t.Name {
 				case "bool", "uint8", "uint16", "uint32", "uint64", "int8", "int16", "int32", "int64", "float32",
 					"float64", "complex64", "complex128", "string", "int", "uint", "uintptr", "byte", "rune":
-					return t, metadata, nil
+					return nil, t, metadata, nil
 				}
-				str, _, err := FindType(parseCtx, pkgName, t.Name)
+				astFile, str, _, err := FindType(parseCtx, pkgName, t.Name)
 				if err != nil {
 					if _, notFound := err.(errTypeNotFound); notFound {
-						for _, imp := range astFile.Imports {
+						for _, imp := range parseCtx.File.Imports {
 							if imp.Name != nil && imp.Name.Name == "." {
-								str, _, err := FindType(parseCtx, imp.Path.Value[1:len(imp.Path.Value)-1], t.Name)
+								astFile, str, _, err := FindType(parseCtx, imp.Path.Value[1:len(imp.Path.Value)-1], t.Name)
 								if err == nil {
-									return str, metadata, nil
+									return astFile, str, metadata, nil
 								}
 							}
 						}
 					}
-					return nil, nil, err
+					return nil, nil, nil, err
 				}
-				return str, metadata, nil
+				return astFile, str, metadata, nil
 			case *ast.SelectorExpr:
-				pkgName := GetImportPath(astFile, t.X.(*ast.Ident).Name)
+				pkgName := GetImportPath(parseCtx.File, t.X.(*ast.Ident).Name)
 				if pkgName == "" {
-					return nil, nil, fmt.Errorf("package alias %s could not be resolved", t.X.(*ast.Ident).Name)
+					return nil, nil, nil, fmt.Errorf("package alias %s could not be resolved", t.X.(*ast.Ident).Name)
 				}
 
-				str, _, err := FindType(parseCtx, pkgName, t.Sel.Name)
+				astFile, str, _, err := FindType(parseCtx, pkgName, t.Sel.Name)
 				if err != nil {
-					return nil, nil, err
+					return nil, nil, nil, err
 				}
 
-				return str, metadata, nil
+				return astFile, str, metadata, nil
 			default:
-				return t, metadata, nil
+				return parseCtx.File, t, metadata, nil
 			}
 		}
 	}
 
-	return nil, nil, errTypeNotFound{msg: fmt.Sprintf("type %q not found in package %q", name, pkgName)}
+	return nil, nil, nil, errTypeNotFound{msg: fmt.Sprintf("type %q not found in package %q", name, pkgName)}
 }

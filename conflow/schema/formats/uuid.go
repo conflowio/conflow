@@ -8,6 +8,7 @@ package formats
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/google/uuid"
@@ -15,7 +16,7 @@ import (
 
 type UUID struct{}
 
-func (u UUID) Parse(input string) (interface{}, error) {
+func (u UUID) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
@@ -24,14 +25,28 @@ func (u UUID) Parse(input string) (interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("must be a valid UUID: %w", err)
 	}
-	return &res, nil
+	return res, nil
 }
 
-func (u UUID) Format(input interface{}) string {
+func (u UUID) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
+	case uuid.UUID:
+		return v.String(), true
 	case *uuid.UUID:
-		return v.String()
+		return v.String(), true
 	default:
-		panic(fmt.Errorf("invalid input type: %T", v))
+		return "", false
 	}
+}
+
+func (u UUID) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(uuid.UUID{}), true
+}
+
+func (u UUID) PtrFunc() string {
+	return "github.com/conflowio/conflow/conflow/schema/formats.UUIDPtr"
+}
+
+func UUIDPtr(v uuid.UUID) *uuid.UUID {
+	return &v
 }

@@ -19,10 +19,11 @@ func (i SleepInterpreter) Schema() schema.Schema {
 		i.s = &schema.Object{
 			Name: "Sleep",
 			Parameters: map[string]schema.Schema{
-				"duration": &schema.TimeDuration{
+				"duration": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/value": "true"},
 					},
+					Format: "duration-go",
 				},
 				"id": &schema.String{
 					Metadata: schema.Metadata{

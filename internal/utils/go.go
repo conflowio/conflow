@@ -8,6 +8,7 @@ package utils
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -28,4 +29,21 @@ func EnsureUniqueGoPackageName(imports map[string]string, path string) string {
 	imports[packageName] = path
 
 	return packageName
+}
+
+func GoType(imports map[string]string, t reflect.Type, nullable bool) string {
+	pkgPath := t.PkgPath()
+	if pkgPath == "" {
+		if nullable {
+			return fmt.Sprintf("*%s", t.Name())
+		}
+		return t.Name()
+	}
+
+	packageName := EnsureUniqueGoPackageName(imports, pkgPath)
+	if nullable {
+		return fmt.Sprintf("*%s.%s", packageName, t.Name())
+	}
+
+	return fmt.Sprintf("%s.%s", packageName, t.Name())
 }

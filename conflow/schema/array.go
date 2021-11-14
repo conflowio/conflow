@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -30,13 +31,11 @@ type Array struct {
 }
 
 func (a *Array) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if a.Pointer {
-		panic("an array value can not have a pointer")
-	}
-
 	if a.Items.Type() == TypeUntyped {
 		return fmt.Sprintf("%s = %s.([]interface{})", resultName, valueName)
 	}
+
+	valueNameVar := regexp.MustCompile(`[\[\]]`).ReplaceAllString(valueName, "")
 
 	return fmt.Sprintf(`%s = make(%s, len(%s.([]interface{})))
 for %sk, %sv := range %s.([]interface{}) {
@@ -45,10 +44,10 @@ for %sk, %sv := range %s.([]interface{}) {
 		resultName,
 		a.GoType(imports),
 		valueName,
+		valueNameVar,
+		valueNameVar,
 		valueName,
-		valueName,
-		valueName,
-		indent(a.Items.AssignValue(imports, valueName+"v", fmt.Sprintf("%s[%sk]", resultName, valueName))),
+		indent(a.Items.AssignValue(imports, valueNameVar+"v", fmt.Sprintf("%s[%sk]", resultName, valueNameVar))),
 	)
 }
 
@@ -111,14 +110,10 @@ func (a *Array) GetItems() Schema {
 }
 
 func (a *Array) GoType(imports map[string]string) string {
-	if a.Pointer {
-		panic("an array value can not have a pointer")
-	}
-
 	return fmt.Sprintf("[]%s", a.Items.GoType(imports))
 }
 
-func (a *Array) GoString() string {
+func (a *Array) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Array{\n")
 	if !reflect.ValueOf(a.Metadata).IsZero() {
@@ -134,7 +129,7 @@ func (a *Array) GoString() string {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", a.Enum)
 	}
 	if a.Items != nil {
-		_, _ = fmt.Fprintf(buf, "\tItems: %s,\n", indent(a.Items.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tItems: %s,\n", indent(a.Items.GoString(imports)))
 	}
 	if a.MinItems != 0 {
 		_, _ = fmt.Fprintf(buf, "\tMinItems: %d,\n", a.MinItems)
@@ -230,21 +225,21 @@ func (a *Array) ValidateSchema(s Schema, compare bool) error {
 	return nil
 }
 
-func (a *Array) ValidateValue(value interface{}) error {
+func (a *Array) ValidateValue(value interface{}) (interface{}, error) {
 	var v []interface{}
 	if value != nil {
 		var ok bool
 		if v, ok = value.([]interface{}); !ok {
-			return errors.New("must be array")
+			return nil, errors.New("must be array")
 		}
 	}
 
 	if a.Const != nil && a.CompareValues(a.Const, v) != 0 {
-		return fmt.Errorf("must be %s", a.StringValue(a.Const))
+		return nil, fmt.Errorf("must be %s", a.StringValue(a.Const))
 	}
 
 	if len(a.Enum) == 1 && a.CompareValues(a.Enum[0], v) != 0 {
-		return fmt.Errorf("must be %s", a.StringValue(a.Enum[0]))
+		return nil, fmt.Errorf("must be %s", a.StringValue(a.Enum[0]))
 	}
 
 	if len(a.Enum) > 0 {
@@ -257,38 +252,38 @@ func (a *Array) ValidateValue(value interface{}) error {
 			return false
 		}
 		if !allowed() {
-			return fmt.Errorf("must be one of %s", a.join(a.Enum, ", "))
+			return nil, fmt.Errorf("must be one of %s", a.join(a.Enum, ", "))
 		}
 	}
 
 	if a.MaxItems != nil && a.MinItems == *a.MaxItems && len(v) != int(a.MinItems) {
 		switch a.MinItems {
 		case 0:
-			return errors.New("must be empty")
+			return nil, errors.New("must be empty")
 		case 1:
-			return errors.New("must have exactly one element")
+			return nil, errors.New("must have exactly one element")
 		default:
-			return fmt.Errorf("must have exactly %d elements", a.MinItems)
+			return nil, fmt.Errorf("must have exactly %d elements", a.MinItems)
 		}
 	}
 
 	if len(v) < int(a.MinItems) {
 		switch a.MinItems {
 		case 1:
-			return errors.New("must have at least one element")
+			return nil, errors.New("must have at least one element")
 		default:
-			return fmt.Errorf("must have at least %d elements", a.MinItems)
+			return nil, fmt.Errorf("must have at least %d elements", a.MinItems)
 		}
 	}
 
 	if a.MaxItems != nil && len(v) > int(*a.MaxItems) {
 		switch *a.MaxItems {
 		case 0:
-			return errors.New("must be empty")
+			return nil, errors.New("must be empty")
 		case 1:
-			return errors.New("must not contain more than one element")
+			return nil, errors.New("must not contain more than one element")
 		default:
-			return fmt.Errorf("must not contain more than %d elements", *a.MaxItems)
+			return nil, fmt.Errorf("must not contain more than %d elements", *a.MaxItems)
 		}
 	}
 
@@ -297,7 +292,7 @@ func (a *Array) ValidateValue(value interface{}) error {
 		for i := 0; i < l; i++ {
 			for j := i + 1; j < l; j++ {
 				if a.Items.CompareValues(v[i], v[j]) == 0 {
-					return fmt.Errorf("array must contain unique items")
+					return nil, fmt.Errorf("array must contain unique items")
 				}
 			}
 		}
@@ -305,12 +300,20 @@ func (a *Array) ValidateValue(value interface{}) error {
 
 	ve := ValidationError{}
 	for i, e := range v {
-		if err := a.Items.ValidateValue(e); err != nil {
+		nv, err := a.Items.ValidateValue(e)
+		if err != nil {
 			ve.AddError(strconv.Itoa(i), err)
+		} else {
+			v[i] = nv
 		}
+
 	}
 
-	return ve.ErrOrNil()
+	if err := ve.ErrOrNil(); err != nil {
+		return nil, err
+	}
+
+	return v, nil
 }
 
 func (a *Array) join(elems [][]interface{}, sep string) string {

@@ -3,9 +3,7 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/parsley/parsley"
 )
 
 // TrimSpaceInterpreter is the conflow interpreter for the TrimSpace function
@@ -32,18 +30,7 @@ func (i TrimSpaceInterpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i TrimSpaceInterpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
-	parameters := i.Schema().(*schema.Function).GetParameters()
-	arguments := node.ArgumentNodes()
-
-	arg0, evalErr := parsley.EvaluateNode(ctx, arguments[0])
-	if evalErr != nil {
-		return nil, evalErr
-	}
-	if err := parameters[0].Schema.ValidateValue(arg0); err != nil {
-		return nil, parsley.NewError(arguments[0].Pos(), err)
-	}
-	var val0 = arg0.(string)
-
+func (i TrimSpaceInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
+	var val0 = args[0].(string)
 	return TrimSpace(val0), nil
 }

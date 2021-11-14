@@ -154,12 +154,12 @@ func ParseEmbeddedField(
 
 	switch t := astField.Type.(type) {
 	case *ast.Ident:
-		astStruct, metadata, err := parser.FindType(parseCtx, pkg, t.Name)
+		astFile, astStruct, metadata, err := parser.FindType(parseCtx, pkg, t.Name)
 		if err != nil {
 			return nil, err
 		}
 
-		str, err := ParseStruct(parseCtx, astStruct.(*ast.StructType), pkg, t.Name, metadata)
+		str, err := ParseStruct(parseCtx.WithFile(astFile), astStruct.(*ast.StructType), pkg, t.Name, metadata)
 		if err != nil {
 			return nil, err
 		}
@@ -171,12 +171,12 @@ func ParseEmbeddedField(
 			return nil, fmt.Errorf("failed to find package import for %s", t.X.(*ast.Ident).Name)
 		}
 
-		astStruct, metadata, err := parser.FindType(parseCtx, pkg, t.Sel.Name)
+		astFile, astStruct, metadata, err := parser.FindType(parseCtx, pkg, t.Sel.Name)
 		if err != nil {
 			return nil, err
 		}
 
-		str, err := ParseStruct(parseCtx, astStruct.(*ast.StructType), pkg, t.Sel.Name, metadata)
+		str, err := ParseStruct(parseCtx.WithFile(astFile), astStruct.(*ast.StructType), pkg, t.Sel.Name, metadata)
 		if err != nil {
 			return nil, err
 		}

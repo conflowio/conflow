@@ -40,7 +40,7 @@ var _ = Describe("Object", func() {
 		func(f func(s *schema.Object), value interface{}) {
 			s := defaultSchema()
 			f(s)
-			err := s.ValidateValue(value)
+			_, err := s.ValidateValue(value)
 			Expect(err).ToNot(HaveOccurred())
 		},
 		Entry(
@@ -179,7 +179,7 @@ var _ = Describe("Object", func() {
 		func(f func(s *schema.Object), value interface{}, expectedErr error) {
 			s := defaultSchema()
 			f(s)
-			err := s.ValidateValue(value)
+			_, err := s.ValidateValue(value)
 			Expect(err).To(MatchError(expectedErr))
 		},
 		Entry(
@@ -335,7 +335,7 @@ var _ = Describe("Object", func() {
 
 	DescribeTable("GoString prints a valid Go struct",
 		func(schema *schema.Object, expected string) {
-			str := schema.GoString()
+			str := schema.GoString(map[string]string{})
 			Expect(str).To(Equal(expected))
 		},
 		Entry(
