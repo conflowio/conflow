@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -28,13 +29,11 @@ type Map struct {
 }
 
 func (m *Map) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if m.Pointer {
-		panic("a map value can not have a pointer")
-	}
-
 	if m.AdditionalProperties.Type() == TypeUntyped {
 		return fmt.Sprintf("%s = %s.(map[string]interface{})", resultName, valueName)
 	}
+
+	valueNameVar := regexp.MustCompile(`[\[\]]`).ReplaceAllString(valueName, "")
 
 	return fmt.Sprintf(`%s = make(map[string]%s, len(%s.(map[string]interface{})))
 for %sk, %sv := range %s.(map[string]interface{}) {
@@ -43,10 +42,10 @@ for %sk, %sv := range %s.(map[string]interface{}) {
 		resultName,
 		m.AdditionalProperties.GoType(imports),
 		valueName,
+		valueNameVar,
+		valueNameVar,
 		valueName,
-		valueName,
-		valueName,
-		indent(m.AdditionalProperties.AssignValue(imports, valueName+"v", fmt.Sprintf("%s[%sk]", resultName, valueName))),
+		indent(m.AdditionalProperties.AssignValue(imports, valueNameVar+"v", fmt.Sprintf("%s[%sk]", resultName, valueNameVar))),
 	)
 }
 
@@ -128,10 +127,6 @@ func (m *Map) GetAdditionalProperties() Schema {
 }
 
 func (m *Map) GoType(imports map[string]string) string {
-	if m.Pointer {
-		panic("a map value can not have a pointer")
-	}
-
 	return fmt.Sprintf("map[string]%s", m.GetAdditionalProperties().GoType(imports))
 }
 
@@ -146,14 +141,14 @@ func (m *Map) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (m *Map) GoString() string {
+func (m *Map) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Map{\n")
 	if !reflect.ValueOf(m.Metadata).IsZero() {
 		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(m.Metadata.GoString()))
 	}
 	if m.AdditionalProperties != nil {
-		_, _ = fmt.Fprintf(buf, "\tAdditionalProperties: %s,\n", indent(m.AdditionalProperties.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tAdditionalProperties: %s,\n", indent(m.AdditionalProperties.GoString(imports)))
 	}
 	if m.Const != nil {
 		_, _ = fmt.Fprintf(buf, "\tConst: %#v,\n", m.Const)
@@ -258,21 +253,21 @@ func (m *Map) ValidateSchema(s Schema, compare bool) error {
 	return nil
 }
 
-func (m *Map) ValidateValue(value interface{}) error {
+func (m *Map) ValidateValue(value interface{}) (interface{}, error) {
 	var v map[string]interface{}
 	if value != nil {
 		var ok bool
 		if v, ok = value.(map[string]interface{}); !ok {
-			return errors.New("must be map")
+			return nil, errors.New("must be map")
 		}
 	}
 
 	if m.Const != nil && m.CompareValues(m.Const, v) != 0 {
-		return fmt.Errorf("must be %s", m.StringValue(m.Const))
+		return nil, fmt.Errorf("must be %s", m.StringValue(m.Const))
 	}
 
 	if len(m.Enum) == 1 && m.CompareValues(m.Enum[0], v) != 0 {
-		return fmt.Errorf("must be %s", m.StringValue(m.Enum[0]))
+		return nil, fmt.Errorf("must be %s", m.StringValue(m.Enum[0]))
 	}
 
 	if len(m.Enum) > 0 {
@@ -285,27 +280,27 @@ func (m *Map) ValidateValue(value interface{}) error {
 			return false
 		}
 		if !allowed() {
-			return fmt.Errorf("must be one of %s", m.join(m.Enum, ", "))
+			return nil, fmt.Errorf("must be one of %s", m.join(m.Enum, ", "))
 		}
 	}
 
 	if int64(len(v)) < m.MinProperties {
 		switch m.MinProperties {
 		case 1:
-			return errors.New("the map can not be empty")
+			return nil, errors.New("the map can not be empty")
 		default:
-			return fmt.Errorf("the map must contain at least %d elements", m.MinProperties)
+			return nil, fmt.Errorf("the map must contain at least %d elements", m.MinProperties)
 		}
 	}
 
 	if m.MaxProperties != nil && int64(len(v)) > *m.MaxProperties {
 		switch *m.MaxProperties {
 		case 0:
-			return errors.New("the map must be empty")
+			return nil, errors.New("the map must be empty")
 		case 1:
-			return errors.New("the map can only have a single element")
+			return nil, errors.New("the map can only have a single element")
 		default:
-			return fmt.Errorf("the map can not have more than %d elements", *m.MaxProperties)
+			return nil, fmt.Errorf("the map can not have more than %d elements", *m.MaxProperties)
 		}
 	}
 
@@ -313,15 +308,18 @@ func (m *Map) ValidateValue(value interface{}) error {
 
 	for _, k := range getSortedMapKeys(v) {
 		if p.Type() == TypeFalse {
-			return NewFieldError(k, errors.New("no map values are allowed"))
+			return nil, NewFieldError(k, errors.New("no map values are allowed"))
 		} else {
-			if err := p.ValidateValue(v[k]); err != nil {
-				return NewFieldError(k, err)
+			nv, err := p.ValidateValue(v[k])
+			if err != nil {
+				return nil, NewFieldError(k, err)
+			} else {
+				v[k] = nv
 			}
 		}
 	}
 
-	return nil
+	return v, nil
 }
 
 func (m *Map) join(elems []map[string]interface{}, sep string) string {

@@ -86,7 +86,7 @@ func (f *Function) GoType(imports map[string]string) string {
 		sb.WriteString(", ")
 		sb.WriteString(f.AdditionalParameters.Name)
 		sb.WriteString("...")
-		sb.WriteString(f.AdditionalParameters.GoString())
+		sb.WriteString(f.AdditionalParameters.GoString(imports))
 	}
 
 	sb.WriteRune(')')
@@ -109,20 +109,20 @@ func (f *Function) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (f *Function) GoString() string {
+func (f *Function) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Function{\n")
 	if !reflect.ValueOf(f.Metadata).IsZero() {
 		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(f.Metadata.GoString()))
 	}
 	if f.AdditionalParameters != nil {
-		_, _ = fmt.Fprintf(buf, "\tAdditionalParameters: &%s,\n", indent(f.AdditionalParameters.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tAdditionalParameters: &%s,\n", indent(f.AdditionalParameters.GoString(imports)))
 	}
 	if len(f.Parameters) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tParameters: %s,\n", indent(f.Parameters.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tParameters: %s,\n", indent(f.Parameters.GoString(imports)))
 	}
 	if f.Result != nil {
-		_, _ = fmt.Fprintf(buf, "\tResult: %s,\n", indent(f.Result.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tResult: %s,\n", indent(f.Result.GoString(imports)))
 	}
 	if f.ResultTypeFrom != "" {
 		_, _ = fmt.Fprintf(buf, "\tResultTypeFrom: %q,\n", f.ResultTypeFrom)
@@ -198,7 +198,7 @@ func (f *Function) ValidateSchema(s Schema, compare bool) error {
 	panic("ValidateSchema on functions should not be called")
 }
 
-func (f *Function) ValidateValue(value interface{}) error {
+func (f *Function) ValidateValue(value interface{}) (interface{}, error) {
 	panic("ValidateValue on functions should not be called")
 }
 
@@ -227,11 +227,11 @@ func (p Parameters) MarshalJSON() ([]byte, error) {
 	return sb.Bytes(), nil
 }
 
-func (p Parameters) GoString() string {
+func (p Parameters) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("schema.Parameters{\n")
 	for _, param := range p {
-		_, _ = fmt.Fprintf(buf, "\t%s,\n", indent(param.GoString()))
+		_, _ = fmt.Fprintf(buf, "\t%s,\n", indent(param.GoString(imports)))
 	}
 	buf.WriteRune('}')
 	return buf.String()

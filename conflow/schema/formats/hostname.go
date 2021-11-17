@@ -8,8 +8,8 @@ package formats
 
 import (
 	"errors"
-	"fmt"
 	"net"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -18,27 +18,36 @@ var hostnameRegex = regexp.MustCompile(`^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0
 
 type Hostname struct{}
 
-func (h Hostname) Parse(input string) (interface{}, error) {
+func (h Hostname) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
 
-	res := input
 	if hostnameRegex.MatchString(input) {
-		return &res, nil
+		return input, nil
 	}
 
 	if ip := net.ParseIP(input); ip != nil {
-		return &res, nil
+		return input, nil
 	}
 	return nil, errors.New("must be a valid hostname")
 }
 
-func (h Hostname) Format(input interface{}) string {
+func (h Hostname) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
+	case string:
+		return v, true
 	case *string:
-		return *v
+		return *v, true
 	default:
-		panic(fmt.Errorf("invalid input type: %T", v))
+		return "", false
 	}
+}
+
+func (h Hostname) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(""), false
+}
+
+func (h Hostname) PtrFunc() string {
+	return "github.com/conflowio/conflow/conflow/schema/StringPtr"
 }

@@ -33,10 +33,11 @@ type Number struct {
 	Maximum          *float64  `json:"maximum,omitempty"`
 	Minimum          *float64  `json:"minimum,omitempty"`
 	MultipleOf       *float64  `json:"multipleOf,omitempty"`
+	Nullable         bool      `json:"nullable,omitempty"`
 }
 
 func (n *Number) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if n.Pointer {
+	if n.Nullable {
 		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf("%s = %s.NumberPtr(%s.(float64))", resultName, schemaPackageName, valueName)
 	}
@@ -107,7 +108,11 @@ func (n *Number) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (n *Number) GoString() string {
+func (n *Number) GetNullable() bool {
+	return n.Nullable
+}
+
+func (n *Number) GoString(map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Number{\n")
 	if !reflect.ValueOf(n.Metadata).IsZero() {
@@ -137,15 +142,22 @@ func (n *Number) GoString() string {
 	if n.MultipleOf != nil {
 		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.NumberPtr(%#v),\n", *n.MultipleOf)
 	}
+	if n.Nullable {
+		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", n.Nullable)
+	}
 	buf.WriteRune('}')
 	return buf.String()
 }
 
 func (n *Number) GoType(_ map[string]string) string {
-	if n.Pointer {
+	if n.Nullable {
 		return "*float64"
 	}
 	return "float64"
+}
+
+func (n *Number) SetNullable(nullable bool) {
+	n.Nullable = nullable
 }
 
 func (n *Number) StringValue(value interface{}) string {
@@ -173,7 +185,6 @@ func (n *Number) UnmarshalJSON(input []byte) error {
 		Type string `json:"type"`
 		*Alias
 	}{
-		Type:  string(n.Type()),
 		Alias: (*Alias)(n),
 	})
 }
@@ -186,7 +197,7 @@ func (n *Number) ValidateSchema(n2 Schema, _ bool) error {
 	return nil
 }
 
-func (n *Number) ValidateValue(value interface{}) error {
+func (n *Number) ValidateValue(value interface{}) (interface{}, error) {
 	var v float64
 	switch vt := value.(type) {
 	case int64:
@@ -194,15 +205,15 @@ func (n *Number) ValidateValue(value interface{}) error {
 	case float64:
 		v = vt
 	default:
-		return errors.New("must be number")
+		return nil, errors.New("must be number")
 	}
 
 	if n.Const != nil && *n.Const != v {
-		return fmt.Errorf("must be %s", n.StringValue(*n.Const))
+		return nil, fmt.Errorf("must be %s", n.StringValue(*n.Const))
 	}
 
 	if len(n.Enum) == 1 && !NumberEquals(n.Enum[0], v) {
-		return fmt.Errorf("must be %s", n.StringValue(n.Enum[0]))
+		return nil, fmt.Errorf("must be %s", n.StringValue(n.Enum[0]))
 	}
 
 	if len(n.Enum) > 0 {
@@ -215,31 +226,31 @@ func (n *Number) ValidateValue(value interface{}) error {
 			return false
 		}
 		if !allowed() {
-			return fmt.Errorf("must be one of %s", n.join(n.Enum, ", "))
+			return nil, fmt.Errorf("must be one of %s", n.join(n.Enum, ", "))
 		}
 	}
 
 	if n.Minimum != nil && !NumberGreaterThanOrEqualsTo(v, *n.Minimum) {
-		return fmt.Errorf("must be greater than or equal to %s", n.StringValue(*n.Minimum))
+		return nil, fmt.Errorf("must be greater than or equal to %s", n.StringValue(*n.Minimum))
 	}
 
 	if n.ExclusiveMinimum != nil && !NumberGreaterThan(v, *n.ExclusiveMinimum) {
-		return fmt.Errorf("must be greater than %s", n.StringValue(*n.ExclusiveMinimum))
+		return nil, fmt.Errorf("must be greater than %s", n.StringValue(*n.ExclusiveMinimum))
 	}
 
 	if n.Maximum != nil && !NumberLessThanOrEqualsTo(v, *n.Maximum) {
-		return fmt.Errorf("must be less than or equal to %s", n.StringValue(*n.Maximum))
+		return nil, fmt.Errorf("must be less than or equal to %s", n.StringValue(*n.Maximum))
 	}
 
 	if n.ExclusiveMaximum != nil && !NumberLessThan(v, *n.ExclusiveMaximum) {
-		return fmt.Errorf("must be less than %s", n.StringValue(*n.ExclusiveMaximum))
+		return nil, fmt.Errorf("must be less than %s", n.StringValue(*n.ExclusiveMaximum))
 	}
 
 	if n.MultipleOf != nil && !NumberMultipleOf(v, *n.MultipleOf) {
-		return fmt.Errorf("must be multiple of %s", n.StringValue(*n.MultipleOf))
+		return nil, fmt.Errorf("must be multiple of %s", n.StringValue(*n.MultipleOf))
 	}
 
-	return nil
+	return v, nil
 }
 
 func (n *Number) join(elems []float64, sep string) string {
@@ -275,7 +286,7 @@ func (n *numberValue) Copy() Schema {
 	return numberValueInst
 }
 
-func (n *numberValue) GoString() string {
+func (n *numberValue) GoString(map[string]string) string {
 	return "schema.NumberValue()"
 }
 

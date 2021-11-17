@@ -27,25 +27,26 @@ func (c *Const) ID() conflow.ID {
 }
 
 func (c *Const) ApplyToSchema(s schema.Schema) error {
-	if err := s.ValidateValue(c.value); err != nil {
+	value, err := s.ValidateValue(c.value)
+	if err != nil {
 		return fmt.Errorf("const value is invalid: %w", err)
 	}
 
 	switch st := s.(type) {
 	case *schema.Array:
-		st.Const = c.value.([]interface{})
+		st.Const = value.([]interface{})
 	case *schema.Boolean:
-		st.Const = schema.BooleanPtr(c.value.(bool))
+		st.Const = schema.BooleanPtr(value.(bool))
 	case *schema.Integer:
-		st.Const = schema.IntegerPtr(c.value.(int64))
+		st.Const = schema.IntegerPtr(value.(int64))
 	case *schema.Map:
-		st.Const = c.value.(map[string]interface{})
+		st.Const = value.(map[string]interface{})
 	case *schema.Number:
-		st.Const = schema.NumberPtr(c.value.(float64))
+		st.Const = schema.NumberPtr(value.(float64))
 	case *schema.String:
-		st.Const = schema.StringPtr(c.value.(string))
+		st.Const = schema.StringPtr(value.(string))
 	case *schema.Object:
-		st.Const = schema.ObjectPtr(c.value.(map[string]interface{}))
+		st.Const = schema.ObjectPtr(value.(map[string]interface{}))
 	default:
 		return fmt.Errorf("const directive can not be applied to %T", s)
 	}

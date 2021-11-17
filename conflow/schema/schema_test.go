@@ -9,8 +9,16 @@ package schema_test
 import (
 	"encoding/json"
 	"fmt"
+	"net"
+	"net/mail"
+	"net/url"
 	"os"
+	"regexp"
 	"time"
+
+	"github.com/conflowio/conflow/conflow/types"
+
+	"github.com/google/uuid"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -106,12 +114,6 @@ var _ = Describe("Schema", func() {
 			},
 		),
 		Entry(
-			"byte stream",
-			&schema.ByteStream{
-				Metadata: schema.Metadata{Description: "foo"},
-			},
-		),
-		Entry(
 			"integer",
 			&schema.Integer{
 				Metadata: schema.Metadata{Description: "foo"},
@@ -126,18 +128,6 @@ var _ = Describe("Schema", func() {
 		Entry(
 			"string",
 			&schema.String{
-				Metadata: schema.Metadata{Description: "foo"},
-			},
-		),
-		Entry(
-			"date-time",
-			&schema.Time{
-				Metadata: schema.Metadata{Description: "foo"},
-			},
-		),
-		Entry(
-			"time duration",
-			&schema.TimeDuration{
 				Metadata: schema.Metadata{Description: "foo"},
 			},
 		),
@@ -169,18 +159,6 @@ var _ = Describe("Schema", func() {
 			&schema.Array{
 				Metadata: schema.Metadata{Description: "foo"},
 				Items:    &schema.String{},
-			},
-		),
-		Entry(
-			"function",
-			&schema.Function{
-				Metadata: schema.Metadata{Description: "foo"},
-				Parameters: []schema.NamedSchema{
-					{
-						Name:   "foo",
-						Schema: &schema.String{},
-					},
-				},
 			},
 		),
 		Entry(
@@ -217,10 +195,19 @@ var _ = Describe("Schema", func() {
 		Entry("integer", int64(1), schema.IntegerValue(), nil),
 		Entry("number", float64(1), schema.NumberValue(), nil),
 		Entry("string", "foo", schema.StringValue(), nil),
-		Entry("time", time.Now(), schema.TimeValue(), nil),
-		Entry("time duration", 1*time.Second, schema.TimeDurationValue(), nil),
 		Entry("byte stream", os.Stdin, schema.ByteStreamValue(), nil),
 		Entry("unknown value", int8(1), nil, fmt.Errorf("value type int8 is not allowed")),
+
+		Entry("date-time", time.Now(), &schema.String{Format: schema.FormatDateTime}, nil),
+		Entry("duration", types.RFC3339Duration{}, &schema.String{Format: schema.FormatDurationRFC3339}, nil),
+		Entry("duration-go", 1*time.Second, &schema.String{Format: schema.FormatDurationGo}, nil),
+		Entry("email", mail.Address{}, &schema.String{Format: schema.FormatEmail}, nil),
+		Entry("ip", net.IP{}, &schema.String{Format: schema.FormatIP}, nil),
+		Entry("ipc-cidr", types.CIDR{}, &schema.String{Format: schema.FormatIPCIDR}, nil),
+		Entry("regexp", regexp.Regexp{}, &schema.String{Format: schema.FormatRegex}, nil),
+		Entry("time", types.Time{}, &schema.String{Format: schema.FormatTime}, nil),
+		Entry("uri", url.URL{}, &schema.String{Format: schema.FormatURI}, nil),
+		Entry("uuid", uuid.UUID{}, &schema.String{Format: schema.FormatUUID}, nil),
 
 		Entry(
 			"bool array",
@@ -260,12 +247,12 @@ var _ = Describe("Schema", func() {
 		Entry(
 			"time array",
 			[]interface{}{time.Now(), time.Now()},
-			&schema.Array{Items: schema.TimeValue()}, nil,
+			&schema.Array{Items: &schema.String{Format: schema.FormatDateTime}}, nil,
 		),
 		Entry(
 			"time duration array",
 			[]interface{}{1 * time.Second, 2 * time.Second},
-			&schema.Array{Items: schema.TimeDurationValue()}, nil,
+			&schema.Array{Items: &schema.String{Format: schema.FormatDurationGo}}, nil,
 		),
 		Entry(
 			"mixed types in array",
@@ -316,12 +303,12 @@ var _ = Describe("Schema", func() {
 		Entry(
 			"time map",
 			map[string]interface{}{"a": time.Now(), "b": time.Now()},
-			&schema.Map{AdditionalProperties: schema.TimeValue()}, nil,
+			&schema.Map{AdditionalProperties: &schema.String{Format: schema.FormatDateTime}}, nil,
 		),
 		Entry(
 			"time duration map",
 			map[string]interface{}{"a": 1 * time.Second, "b": 2 * time.Second},
-			&schema.Map{AdditionalProperties: schema.TimeDurationValue()}, nil,
+			&schema.Map{AdditionalProperties: &schema.String{Format: schema.FormatDurationGo}}, nil,
 		),
 		Entry(
 			"mixed types in map",

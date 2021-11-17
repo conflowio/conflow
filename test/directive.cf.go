@@ -30,8 +30,10 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 				"field_map": &schema.Map{
 					AdditionalProperties: &schema.Untyped{},
 				},
-				"field_string":        &schema.String{},
-				"field_time_duration": &schema.TimeDuration{},
+				"field_string": &schema.String{},
+				"field_time_duration": &schema.String{
+					Format: "duration-go",
+				},
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},
@@ -41,10 +43,8 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 				},
 				"testblock": &schema.Array{
 					Items: &schema.Reference{
-						Metadata: schema.Metadata{
-							Pointer: true,
-						},
-						Ref: "http://conflow.schema/github.com/conflowio/conflow/test.Block",
+						Nullable: true,
+						Ref:      "http://conflow.schema/github.com/conflowio/conflow/test.Block",
 					},
 				},
 				"value": &schema.Untyped{

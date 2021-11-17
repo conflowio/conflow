@@ -25,6 +25,7 @@ type ReferenceResolver interface {
 type Reference struct {
 	Metadata
 
+	Nullable bool              `json:"nullable,omitempty"`
 	Ref      string            `json:"ref,omitempty"`
 	Resolver ReferenceResolver `json:"-"`
 	schema   Schema
@@ -48,11 +49,18 @@ func (r *Reference) DefaultValue() interface{} {
 	return r.getSchema().DefaultValue()
 }
 
-func (r *Reference) GoString() string {
+func (r *Reference) GetNullable() bool {
+	return r.Nullable
+}
+
+func (r *Reference) GoString(map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Reference{\n")
 	if !reflect.ValueOf(r.Metadata).IsZero() {
 		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(r.Metadata.GoString()))
+	}
+	if r.Nullable {
+		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", r.Nullable)
 	}
 	_, _ = fmt.Fprintf(buf, "\tRef: %q,\n", r.Ref)
 	buf.WriteRune('}')
@@ -77,7 +85,7 @@ func (r *Reference) GoType(imports map[string]string) string {
 	}
 
 	if path == "" || imports["."] == path {
-		if r.Pointer {
+		if r.Nullable {
 			return fmt.Sprintf("*%s", typeName)
 		}
 		return typeName
@@ -85,11 +93,15 @@ func (r *Reference) GoType(imports map[string]string) string {
 
 	packageName := utils.EnsureUniqueGoPackageName(imports, path)
 
-	if r.Pointer {
+	if r.Nullable {
 		return fmt.Sprintf("*%s.%s", packageName, typeName)
 	}
 
 	return fmt.Sprintf("%s.%s", packageName, typeName)
+}
+
+func (r *Reference) SetNullable(nullable bool) {
+	r.Nullable = nullable
 }
 
 func (r *Reference) StringValue(value interface{}) string {
@@ -112,7 +124,7 @@ func (r *Reference) ValidateSchema(s Schema, compare bool) error {
 	return r.getSchema().ValidateSchema(s, compare)
 }
 
-func (r *Reference) ValidateValue(value interface{}) error {
+func (r *Reference) ValidateValue(value interface{}) (interface{}, error) {
 	return r.getSchema().ValidateValue(value)
 }
 

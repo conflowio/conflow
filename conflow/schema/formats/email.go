@@ -8,14 +8,16 @@ package formats
 
 import (
 	"errors"
-	"fmt"
 	"net/mail"
+	"reflect"
 	"strings"
 )
 
-type Email struct{}
+type Email struct {
+	Default bool
+}
 
-func (e Email) Parse(input string) (interface{}, error) {
+func (e Email) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
@@ -25,18 +27,36 @@ func (e Email) Parse(input string) (interface{}, error) {
 		return nil, errors.New("must be a valid email address")
 	}
 
-	return res, nil
+	return *res, nil
 }
 
-func (e Email) Format(input interface{}) string {
+func (e Email) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
-	case *mail.Address:
+	case mail.Address:
 		if v.Name == "" {
-			return v.Address
+			return v.Address, true
 		}
 
-		return v.String()
+		return v.String(), true
+	case *mail.Address:
+		if v.Name == "" {
+			return v.Address, true
+		}
+
+		return v.String(), true
 	default:
-		panic(fmt.Errorf("invalid input type: %T", v))
+		return "", false
 	}
+}
+
+func (e Email) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(mail.Address{}), e.Default
+}
+
+func (e Email) PtrFunc() string {
+	return "github.com/conflowio/conflow/conflow/schema/formats.EmailPtr"
+}
+
+func EmailPtr(v mail.Address) *mail.Address {
+	return &v
 }

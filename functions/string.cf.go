@@ -3,10 +3,7 @@
 package functions
 
 import (
-	"github.com/conflowio/conflow/conflow"
-	"github.com/conflowio/conflow/conflow/function"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/parsley/parsley"
 )
 
 // StringInterpreter is the conflow interpreter for the String function
@@ -33,26 +30,7 @@ func (i StringInterpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i StringInterpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
-	parameters := i.Schema().(*schema.Function).GetParameters()
-	arguments := node.ArgumentNodes()
-
-	arg0, evalErr := parsley.EvaluateNode(ctx, arguments[0])
-	if evalErr != nil {
-		return nil, evalErr
-	}
-	if err := parameters[0].Schema.ValidateValue(arg0); err != nil {
-		return nil, parsley.NewError(arguments[0].Pos(), err)
-	}
-	var val0 = arg0
-
-	res, resErr := String(val0)
-	if resErr != nil {
-		if funcErr, ok := resErr.(*function.Error); ok {
-			return nil, parsley.NewError(arguments[funcErr.ArgIndex].Pos(), funcErr.Err)
-		}
-		return nil, parsley.NewError(node.Pos(), resErr)
-	}
-
-	return res, nil
+func (i StringInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
+	var val0 = args[0]
+	return String(val0)
 }

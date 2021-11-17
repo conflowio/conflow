@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
+	"regexp"
 )
 
 // PatternInterpreter is the conflow interpreter for the Pattern block
@@ -75,7 +76,7 @@ func (i PatternInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*Pattern)
 	switch name {
 	case "value":
-		b.value = value.(string)
+		b.value = value.(regexp.Regexp)
 	}
 	return nil
 }

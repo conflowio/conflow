@@ -27,41 +27,44 @@ func (e *Enum) ID() conflow.ID {
 }
 
 func (e *Enum) ApplyToSchema(s schema.Schema) error {
-	for _, e := range e.values {
-		if err := s.ValidateValue(e); err != nil {
-			return fmt.Errorf("enum value %q is invalid: %w", schema.UntypedValue().StringValue(e), err)
+	values := make([]interface{}, len(e.values))
+	for i, v := range e.values {
+		nv, err := s.ValidateValue(v)
+		if err != nil {
+			return fmt.Errorf("enum value %q is invalid: %w", schema.UntypedValue().StringValue(v), err)
 		}
+		values[i] = nv
 	}
 
 	switch st := s.(type) {
 	case *schema.Array:
-		st.Enum = make([][]interface{}, len(e.values))
-		for i, v := range e.values {
+		st.Enum = make([][]interface{}, len(values))
+		for i, v := range values {
 			st.Enum[i] = v.([]interface{})
 		}
 	case *schema.Object:
-		st.Enum = make([]map[string]interface{}, len(e.values))
-		for i, v := range e.values {
+		st.Enum = make([]map[string]interface{}, len(values))
+		for i, v := range values {
 			st.Enum[i] = v.(map[string]interface{})
 		}
 	case *schema.Boolean:
-		st.Enum = make([]bool, len(e.values))
-		for i, v := range e.values {
+		st.Enum = make([]bool, len(values))
+		for i, v := range values {
 			st.Enum[i] = v.(bool)
 		}
 	case *schema.Integer:
-		st.Enum = make([]int64, len(e.values))
-		for i, v := range e.values {
+		st.Enum = make([]int64, len(values))
+		for i, v := range values {
 			st.Enum[i] = v.(int64)
 		}
 	case *schema.Number:
-		st.Enum = make([]float64, len(e.values))
-		for i, v := range e.values {
+		st.Enum = make([]float64, len(values))
+		for i, v := range values {
 			st.Enum[i] = v.(float64)
 		}
 	case *schema.String:
-		st.Enum = make([]string, len(e.values))
-		for i, v := range e.values {
+		st.Enum = make([]string, len(values))
+		for i, v := range values {
 			st.Enum[i] = v.(string)
 		}
 	default:

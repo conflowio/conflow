@@ -26,13 +26,15 @@ func (i TickerInterpreter) Schema() schema.Schema {
 					},
 					Format: "conflow.ID",
 				},
-				"interval": &schema.TimeDuration{},
+				"interval": &schema.String{
+					Format: "duration-go",
+				},
 				"tick": &schema.Reference{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.Tick",
+					Nullable: true,
+					Ref:      "http://conflow.schema/github.com/conflowio/conflow/blocks.Tick",
 				},
 			},
 			Required: []string{"interval", "tick"},

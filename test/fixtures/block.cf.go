@@ -44,8 +44,12 @@ func (i BlockInterpreter) Schema() schema.Schema {
 				"field_string_array": &schema.Array{
 					Items: &schema.String{},
 				},
-				"field_time":          &schema.Time{},
-				"field_time_duration": &schema.TimeDuration{},
+				"field_time": &schema.String{
+					Format: "date-time",
+				},
+				"field_time_duration": &schema.String{
+					Format: "duration-go",
+				},
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/id": "true"},

@@ -30,9 +30,9 @@ func (i GzipInterpreter) Schema() schema.Schema {
 				"out": &schema.Reference{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/blocks.Stream",
+					Nullable: true,
+					Ref:      "http://conflow.schema/github.com/conflowio/conflow/blocks.Stream",
 				},
 			},
 			Required: []string{"in", "out"},

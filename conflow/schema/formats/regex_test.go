@@ -9,6 +9,9 @@ package formats_test
 import (
 	"regexp"
 
+	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -22,16 +25,57 @@ var _ = Describe("Regex", func() {
 
 	DescribeTable("Valid values",
 		expectFormatToParse(format),
-		Entry("valid regexp", "^[a-z]+$", regexp.MustCompile("^[a-z]+$"), "^[a-z]+$"),
+		Entry("valid regexp", "^[a-z]+$", *regexp.MustCompile("^[a-z]+$"), "^[a-z]+$"),
 	)
 
 	DescribeTable("Invalid values",
 		func(input string) {
-			_, err := format.Parse(input)
+			_, err := format.ValidateValue(input)
 			Expect(err).To(HaveOccurred())
 		},
 		Entry("empty", ""),
 		Entry("missing parentheses", "(a-z"),
 	)
+
+	When("a field type is regexp.Regexp", func() {
+		It("should be parsed as string schema with regex format", func() {
+			source := `
+				import "regexp"
+				// @block
+				type Foo struct {
+					v regexp.Regexp
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format: schema.FormatRegex,
+					},
+				},
+			})
+		})
+	})
+
+	When("a field type is *regexp.Regexp", func() {
+		It("should be parsed as string schema with regex format", func() {
+			source := `
+				import "regexp"
+				// @block
+				type Foo struct {
+					v *regexp.Regexp
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format:   schema.FormatRegex,
+						Nullable: true,
+					},
+				},
+			})
+		})
+	})
 
 })

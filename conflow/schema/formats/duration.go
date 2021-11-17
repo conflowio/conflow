@@ -8,6 +8,7 @@ package formats
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,9 +18,9 @@ import (
 
 var durationRegex = regexp.MustCompile(`^P((\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?(\d+S)?)?|\d+W)$`)
 
-type Duration struct{}
+type DurationRFC3339 struct{}
 
-func (d Duration) Parse(input string) (interface{}, error) {
+func (d DurationRFC3339) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
@@ -65,14 +66,28 @@ func (d Duration) Parse(input string) (interface{}, error) {
 		}
 	}
 
-	return &res, nil
+	return res, nil
 }
 
-func (d Duration) Format(input interface{}) string {
+func (d DurationRFC3339) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
+	case types.RFC3339Duration:
+		return v.String(), true
 	case *types.RFC3339Duration:
-		return v.String()
+		return v.String(), true
 	default:
-		panic(fmt.Errorf("invalid input type: %T", v))
+		return "", false
 	}
+}
+
+func (d DurationRFC3339) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(types.RFC3339Duration{}), true
+}
+
+func (d DurationRFC3339) PtrFunc() string {
+	return "github.com/conflowio/conflow/conflow/schema/formats.DurationRFC3339Ptr"
+}
+
+func DurationRFC3339Ptr(v types.RFC3339Duration) *types.RFC3339Duration {
+	return &v
 }

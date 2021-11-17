@@ -14,6 +14,7 @@ type InterpreterTemplateParams struct {
 	FuncNameSelector string
 	FuncName         string
 	Schema           schema.Schema
+	SchemaString     string
 	Imports          map[string]string
 	ReturnsError     bool
 }
@@ -44,63 +45,23 @@ type {{ .Name }}Interpreter struct {
 
 func (i {{ .Name }}Interpreter) Schema() schema.Schema {
 	if i.s == nil {
-		i.s = {{ .Schema.GoString }}
+		i.s = {{ .SchemaString }}
 	}
 	return i.s
 }
 
 // Eval returns with the result of the function
-func (i {{ .Name }}Interpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
-	{{ if .Schema.GetParameters -}}
-	parameters := i.Schema().(*schema.Function).GetParameters()
-	arguments := node.ArgumentNodes()
-
+func (i {{ .Name }}Interpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
 	{{ range $i, $property := .Schema.GetParameters -}}
-	arg{{ $i }}, evalErr := parsley.EvaluateNode(ctx, arguments[{{ $i }}])
-	if evalErr != nil {
-		return nil, evalErr
-	}
-	if err := parameters[{{ $i }}].Schema.ValidateValue(arg{{ $i }}); err != nil {
-		return nil, parsley.NewError(arguments[{{ $i }}].Pos(), err)
-	}
-	var {{ assignValue $property.Schema (printf "arg%d" $i) (printf "val%d" $i) }}
-
+	var {{ assignValue $property.Schema (printf "args[%d]" $i) (printf "val%d" $i) }}
 	{{ end -}}
-
 	{{ if .Schema.GetAdditionalParameters -}}
 	var variadicArgs []{{ getType .Schema.GetAdditionalParameters.Schema }}
-	for p := len(parameters); p < len(arguments); p++ {
-		arg, evalErr := parsley.EvaluateNode(ctx, arguments[p])
-		if evalErr != nil {
-			return nil, evalErr
-		}
-		if err := i.Schema().(*schema.Function).GetAdditionalParameters().Schema.ValidateValue(arg); err != nil {
-			return nil, parsley.NewError(arguments[p].Pos(), err)
-		}
-		var {{ assignValue .Schema.GetAdditionalParameters.Schema "arg" "val" }}
+	for p := {{ len .Schema.GetParameters }}; p < len(args); p++ {
+		var {{ assignValue .Schema.GetAdditionalParameters.Schema "args[p]" "val" }}
 		variadicArgs = append(variadicArgs, val)
 	}
 	{{ end -}}
-
-	{{ end -}}
-	{{ if .ReturnsError -}}
-	res, resErr := {{ .FuncNameSelector }}{{ .FuncName }}(
-		{{- range $i, $property := .Schema.GetParameters -}}
-		val{{ $i }},
-		{{- end -}}
-		{{- if .Schema.GetAdditionalParameters -}}
-		variadicArgs...,
-		{{- end -}}
-	)
-	if resErr != nil {
-		if funcErr, ok := resErr.(*function.Error); ok {
-			return nil, parsley.NewError(arguments[funcErr.ArgIndex].Pos(), funcErr.Err)
-		}
-		return nil, parsley.NewError(node.Pos(), resErr)
-	}
-
-	return res, nil
-	{{ else -}}
 	return {{ .FuncNameSelector }}{{ .FuncName }}(
 		{{- range $i, $property := .Schema.GetParameters -}}
 		val{{ $i }},
@@ -108,7 +69,6 @@ func (i {{ .Name }}Interpreter) Eval(ctx interface{}, node conflow.FunctionNode)
 		{{- if .Schema.GetAdditionalParameters -}}
 		variadicArgs...,
 		{{- end -}}
-	), nil
-	{{ end -}}
+	){{ if not .ReturnsError }}, nil{{ end }}
 }
 `

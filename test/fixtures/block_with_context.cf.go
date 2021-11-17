@@ -27,10 +27,11 @@ func (i BlockWithContextInterpreter) Schema() schema.Schema {
 					},
 					Format: "conflow.ID",
 				},
-				"timeout": &schema.TimeDuration{
+				"timeout": &schema.String{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "init"},
 					},
+					Format: "duration-go",
 				},
 			},
 			Required: []string{"timeout"},

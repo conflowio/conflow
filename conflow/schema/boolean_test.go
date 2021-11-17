@@ -7,13 +7,15 @@
 package schema_test
 
 import (
-	"encoding/json"
 	"errors"
 
-	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 var _ schema.Schema = &schema.Boolean{}
@@ -21,7 +23,7 @@ var _ schema.Schema = &schema.Boolean{}
 var _ = Describe("Boolean", func() {
 	DescribeTable("Validate accepts value",
 		func(schema *schema.Boolean, value interface{}) {
-			err := schema.ValidateValue(value)
+			_, err := schema.ValidateValue(value)
 			Expect(err).ToNot(HaveOccurred())
 		},
 		Entry("true", &schema.Boolean{}, true),
@@ -32,7 +34,7 @@ var _ = Describe("Boolean", func() {
 
 	DescribeTable("Validate errors",
 		func(schema *schema.Boolean, value interface{}, expectedErr error) {
-			err := schema.ValidateValue(value)
+			_, err := schema.ValidateValue(value)
 			Expect(err).To(MatchError(expectedErr))
 		},
 		Entry(
@@ -57,7 +59,7 @@ var _ = Describe("Boolean", func() {
 
 	DescribeTable("GoString prints a valid Go struct",
 		func(schema *schema.Boolean, expected string) {
-			str := schema.GoString()
+			str := schema.GoString(map[string]string{})
 			Expect(str).To(Equal(expected))
 		},
 		Entry(
@@ -87,20 +89,25 @@ var _ = Describe("Boolean", func() {
 	Enum: []bool{true},
 }`,
 		),
+		Entry(
+			"nullable",
+			&schema.Boolean{Nullable: true},
+			`&schema.Boolean{
+	Nullable: true,
+}`,
+		),
 	)
 
-	It("should marshal/unmarshal", func() {
-		b := &schema.Boolean{
-			Const:   schema.BooleanPtr(true),
-			Default: schema.BooleanPtr(true),
-			Enum:    []bool{true},
-		}
-		j, err := json.Marshal(b)
-		Expect(err).ToNot(HaveOccurred())
-
-		b2 := &schema.Boolean{}
-		err = json.Unmarshal(j, &b2)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(b2).To(Equal(b))
+	It("should unmarshal/marshal a json", func() {
+		testhelper.ExpectConsistentJSONMarshalling(
+			`{
+				"const": true,
+				"default": false,
+				"enum": [false, true],
+				"nullable": true,
+				"type": "boolean"
+			}`,
+			&schema.Boolean{},
+		)
 	})
 })

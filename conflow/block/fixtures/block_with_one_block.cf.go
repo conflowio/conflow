@@ -20,10 +20,8 @@ func (i BlockWithOneBlockInterpreter) Schema() schema.Schema {
 			Name:              "BlockWithOneBlock",
 			Parameters: map[string]schema.Schema{
 				"block_simple": &schema.Reference{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/conflow/block/fixtures.BlockSimple",
+					Nullable: true,
+					Ref:      "http://conflow.schema/github.com/conflowio/conflow/conflow/block/fixtures.BlockSimple",
 				},
 				"id_field": &schema.String{
 					Metadata: schema.Metadata{

@@ -8,14 +8,14 @@ package formats
 
 import (
 	"errors"
-	"fmt"
+	"reflect"
 	"strings"
 	"time"
 )
 
 type Date struct{}
 
-func (d Date) Parse(input string) (interface{}, error) {
+func (d Date) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
@@ -26,14 +26,28 @@ func (d Date) Parse(input string) (interface{}, error) {
 		return nil, errors.New("must be an RFC 3339 date value")
 	}
 
-	return &res, err
+	return res, err
 }
 
-func (d Date) Format(input interface{}) string {
+func (d Date) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
+	case time.Time:
+		return v.Format("2006-01-02"), true
 	case *time.Time:
-		return v.Format("2006-01-02")
+		return v.Format("2006-01-02"), true
 	default:
-		panic(fmt.Errorf("invalid input type: %T", v))
+		return "", false
 	}
+}
+
+func (d Date) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(time.Time{}), false
+}
+
+func (d Date) PtrFunc() string {
+	return "github.com/conflowio/conflow/conflow/schema/formats.DatePtr"
+}
+
+func DatePtr(v time.Time) *time.Time {
+	return &v
 }

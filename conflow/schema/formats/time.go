@@ -8,7 +8,7 @@ package formats
 
 import (
 	"errors"
-	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -17,7 +17,7 @@ import (
 
 type Time struct{}
 
-func (t Time) Parse(input string) (interface{}, error) {
+func (t Time) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
@@ -33,7 +33,7 @@ func (t Time) Parse(input string) (interface{}, error) {
 		return nil, errors.New("must be an RFC 3339 time value")
 	}
 
-	return &types.Time{
+	return types.Time{
 		Hour:       res.Hour(),
 		Minute:     res.Minute(),
 		Second:     res.Second(),
@@ -42,13 +42,25 @@ func (t Time) Parse(input string) (interface{}, error) {
 	}, err
 }
 
-func (t Time) Format(input interface{}) string {
+func (t Time) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
+	case types.Time:
+		return v.String(), true
 	case *types.Time:
-		return v.String()
-	case *time.Time:
-		return v.Format("15:04:05.999999999Z07:00")
+		return v.String(), true
 	default:
-		panic(fmt.Errorf("invalid input type: %T", v))
+		return "", false
 	}
+}
+
+func (t Time) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(types.Time{}), true
+}
+
+func (t Time) PtrFunc() string {
+	return "github.com/conflowio/conflow/conflow/schema/formats.TimePtr"
+}
+
+func TimePtr(v types.Time) *types.Time {
+	return &v
 }

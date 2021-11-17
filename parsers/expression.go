@@ -37,7 +37,7 @@ func Expression() *combinator.Sequence {
 	), arrayIndex)
 
 	value := combinator.Choice(
-		terminal.TimeDuration(schema.TimeDurationValue()),
+		terminal.TimeDuration(&schema.String{Format: schema.FormatDurationGo}),
 		terminal.Float(schema.NumberValue()),
 		terminal.Integer(schema.IntegerValue()),
 		MultilineText(),

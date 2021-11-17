@@ -31,9 +31,9 @@ func (i BlockGeneratorInterpreter) Schema() schema.Schema {
 				"result": &schema.Reference{
 					Metadata: schema.Metadata{
 						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-						Pointer:     true,
 					},
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/test/fixtures.BlockGeneratorResult",
+					Nullable: true,
+					Ref:      "http://conflow.schema/github.com/conflowio/conflow/test/fixtures.BlockGeneratorResult",
 				},
 			},
 			Required: []string{"items", "result"},

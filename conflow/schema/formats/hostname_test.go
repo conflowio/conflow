@@ -11,6 +11,9 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	"github.com/conflowio/conflow/conflow/schema/formats"
 )
 
@@ -18,21 +21,17 @@ var _ = Describe("Hostname", func() {
 
 	format := formats.Hostname{}
 
-	ptr := func(s string) *string {
-		return &s
-	}
-
 	DescribeTable("Valid values",
 		expectFormatToParse(format),
-		Entry("simple host", "host", ptr("host"), "host"),
-		Entry("subdomain", "sub.host", ptr("sub.host"), "sub.host"),
-		Entry("starts with a digit", "123domain.com", ptr("123domain.com"), "123domain.com"),
-		Entry("IP address", "1.2.3.4", ptr("1.2.3.4"), "1.2.3.4"),
+		Entry("simple host", "host", "host", "host"),
+		Entry("subdomain", "sub.host", "sub.host", "sub.host"),
+		Entry("starts with a digit", "123domain.com", "123domain.com", "123domain.com"),
+		Entry("IP address", "1.2.3.4", "1.2.3.4", "1.2.3.4"),
 	)
 
 	DescribeTable("Invalid values",
 		func(input string) {
-			_, err := format.Parse(input)
+			_, err := format.ValidateValue(input)
 			Expect(err).To(HaveOccurred())
 		},
 		Entry("empty", ""),
@@ -43,5 +42,46 @@ var _ = Describe("Hostname", func() {
 		Entry("part starts with hyphen", "foo.-bar"),
 		Entry("part ends with hyphen", "foo-.bar"),
 	)
+
+	When("a field type is string and has 'hostname' format", func() {
+		It("should be parsed as string schema with hostname format", func() {
+			source := `
+				// @block
+				type Foo struct {
+					// @format "hostname"
+					v string
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format: schema.FormatHostname,
+					},
+				},
+			})
+		})
+	})
+
+	When("a field type is *string and has hostname format", func() {
+		It("should be parsed as string schema with hostname format", func() {
+			source := `
+				// @block
+				type Foo struct {
+					// @format "hostname"
+					v *string
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format:   schema.FormatHostname,
+						Nullable: true,
+					},
+				},
+			})
+		})
+	})
 
 })

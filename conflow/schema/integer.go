@@ -28,11 +28,12 @@ type Integer struct {
 	ExclusiveMaximum *int64  `json:"exclusiveMaximum,omitempty"`
 	Maximum          *int64  `json:"maximum,omitempty"`
 	Minimum          *int64  `json:"minimum,omitempty"`
+	Nullable         bool    `json:"nullable,omitempty"`
 	MultipleOf       *int64  `json:"multipleOf,omitempty"`
 }
 
 func (i *Integer) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if i.Pointer {
+	if i.Nullable {
 		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf("%s = %s.IntegerPtr(%s.(int64))", resultName, schemaPackageName, valueName)
 	}
@@ -92,7 +93,11 @@ func (i *Integer) DefaultValue() interface{} {
 	return *i.Default
 }
 
-func (i *Integer) GoString() string {
+func (i *Integer) GetNullable() bool {
+	return i.Nullable
+}
+
+func (i *Integer) GoString(map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Integer{\n")
 	if !reflect.ValueOf(i.Metadata).IsZero() {
@@ -122,12 +127,15 @@ func (i *Integer) GoString() string {
 	if i.MultipleOf != nil {
 		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.IntegerPtr(%#v),\n", *i.MultipleOf)
 	}
+	if i.Nullable {
+		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", i.Nullable)
+	}
 	buf.WriteRune('}')
 	return buf.String()
 }
 
 func (i *Integer) GoType(_ map[string]string) string {
-	if i.Pointer {
+	if i.Nullable {
 		return "*int64"
 	}
 	return "int64"
@@ -142,6 +150,10 @@ func (i *Integer) MarshalJSON() ([]byte, error) {
 		Type:  string(i.Type()),
 		Alias: (*Alias)(i),
 	})
+}
+
+func (i *Integer) SetNullable(nullable bool) {
+	i.Nullable = nullable
 }
 
 func (i *Integer) StringValue(value interface{}) string {
@@ -167,7 +179,6 @@ func (i *Integer) UnmarshalJSON(input []byte) error {
 		Type string `json:"type"`
 		*Alias
 	}{
-		Type:  string(i.Type()),
 		Alias: (*Alias)(i),
 	})
 }
@@ -187,18 +198,18 @@ func (i *Integer) ValidateSchema(i2 Schema, compare bool) error {
 	return nil
 }
 
-func (i *Integer) ValidateValue(value interface{}) error {
+func (i *Integer) ValidateValue(value interface{}) (interface{}, error) {
 	v, ok := value.(int64)
 	if !ok {
-		return errors.New("must be integer")
+		return nil, errors.New("must be integer")
 	}
 
 	if i.Const != nil && *i.Const != v {
-		return fmt.Errorf("must be %s", i.StringValue(*i.Const))
+		return nil, fmt.Errorf("must be %s", i.StringValue(*i.Const))
 	}
 
 	if len(i.Enum) == 1 && i.Enum[0] != v {
-		return fmt.Errorf("must be %s", i.StringValue(i.Enum[0]))
+		return nil, fmt.Errorf("must be %s", i.StringValue(i.Enum[0]))
 	}
 
 	if len(i.Enum) > 0 {
@@ -211,31 +222,31 @@ func (i *Integer) ValidateValue(value interface{}) error {
 			return false
 		}
 		if !allowed() {
-			return fmt.Errorf("must be one of %s", i.join(i.Enum, ", "))
+			return nil, fmt.Errorf("must be one of %s", i.join(i.Enum, ", "))
 		}
 	}
 
 	if i.Minimum != nil && v < *i.Minimum {
-		return fmt.Errorf("must be greater than or equal to %d", *i.Minimum)
+		return nil, fmt.Errorf("must be greater than or equal to %d", *i.Minimum)
 	}
 
 	if i.ExclusiveMinimum != nil && v <= *i.ExclusiveMinimum {
-		return fmt.Errorf("must be greater than %d", *i.ExclusiveMinimum)
+		return nil, fmt.Errorf("must be greater than %d", *i.ExclusiveMinimum)
 	}
 
 	if i.Maximum != nil && v > *i.Maximum {
-		return fmt.Errorf("must be less than or equal to %d", *i.Maximum)
+		return nil, fmt.Errorf("must be less than or equal to %d", *i.Maximum)
 	}
 
 	if i.ExclusiveMaximum != nil && v >= *i.ExclusiveMaximum {
-		return fmt.Errorf("must be less than %d", *i.ExclusiveMaximum)
+		return nil, fmt.Errorf("must be less than %d", *i.ExclusiveMaximum)
 	}
 
 	if i.MultipleOf != nil && v%*i.MultipleOf != 0 {
-		return fmt.Errorf("must be multiple of %d", *i.MultipleOf)
+		return nil, fmt.Errorf("must be multiple of %d", *i.MultipleOf)
 	}
 
-	return nil
+	return v, nil
 }
 
 func (i *Integer) join(elems []int64, sep string) string {
@@ -271,7 +282,7 @@ func (i *integerValue) Copy() Schema {
 	return integerValueInst
 }
 
-func (i *integerValue) GoString() string {
+func (i *integerValue) GoString(map[string]string) string {
 	return "schema.IntegerValue()"
 }
 

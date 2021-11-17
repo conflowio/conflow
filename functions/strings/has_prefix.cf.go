@@ -3,9 +3,7 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/parsley/parsley"
 )
 
 // HasPrefixInterpreter is the conflow interpreter for the HasPrefix function
@@ -36,27 +34,8 @@ func (i HasPrefixInterpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i HasPrefixInterpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
-	parameters := i.Schema().(*schema.Function).GetParameters()
-	arguments := node.ArgumentNodes()
-
-	arg0, evalErr := parsley.EvaluateNode(ctx, arguments[0])
-	if evalErr != nil {
-		return nil, evalErr
-	}
-	if err := parameters[0].Schema.ValidateValue(arg0); err != nil {
-		return nil, parsley.NewError(arguments[0].Pos(), err)
-	}
-	var val0 = arg0.(string)
-
-	arg1, evalErr := parsley.EvaluateNode(ctx, arguments[1])
-	if evalErr != nil {
-		return nil, evalErr
-	}
-	if err := parameters[1].Schema.ValidateValue(arg1); err != nil {
-		return nil, parsley.NewError(arguments[1].Pos(), err)
-	}
-	var val1 = arg1.(string)
-
+func (i HasPrefixInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
+	var val0 = args[0].(string)
+	var val1 = args[1].(string)
 	return HasPrefix(val0, val1), nil
 }

@@ -27,15 +27,16 @@ func (m *Minimum) ID() conflow.ID {
 }
 
 func (m *Minimum) ApplyToSchema(s schema.Schema) error {
-	if err := s.ValidateValue(m.value); err != nil {
+	value, err := s.ValidateValue(m.value)
+	if err != nil {
 		return fmt.Errorf("minimum value is invalid: %w", err)
 	}
 
 	switch st := s.(type) {
 	case *schema.Integer:
-		st.Minimum = schema.IntegerPtr(m.value.(int64))
+		st.Minimum = schema.IntegerPtr(value.(int64))
 	case *schema.Number:
-		st.Minimum = schema.NumberPtr(m.value.(float64))
+		st.Minimum = schema.NumberPtr(value.(float64))
 	default:
 		return fmt.Errorf("minimum directive can not be applied to %T", s)
 	}

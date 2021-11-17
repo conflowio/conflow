@@ -146,7 +146,7 @@ func (o *Object) IsParameterRequired(name string) bool {
 	return false
 }
 
-func (o *Object) GoString() string {
+func (o *Object) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Object{\n")
 	if !reflect.ValueOf(o.Metadata).IsZero() {
@@ -180,7 +180,7 @@ func (o *Object) GoString() string {
 		_, _ = fmt.Fprintf(buf, "\tName: %q,\n", o.Name)
 	}
 	if len(o.Parameters) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tParameters: %s,\n", indent(o.parametersString()))
+		_, _ = fmt.Fprintf(buf, "\tParameters: %s,\n", indent(o.parametersString(imports)))
 	}
 	if len(o.Required) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tRequired: %#v,\n", o.Required)
@@ -354,18 +354,18 @@ func (o *Object) ValidateSchema(s Schema, compare bool) error {
 	return nil
 }
 
-func (o *Object) ValidateValue(value interface{}) error {
+func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 	v, ok := value.(map[string]interface{})
 	if !ok {
-		return errors.New("must be object")
+		return nil, errors.New("must be object")
 	}
 
 	if o.Const != nil && o.CompareValues(*o.Const, v) != 0 {
-		return fmt.Errorf("must be %s", o.StringValue(*o.Const))
+		return nil, fmt.Errorf("must be %s", o.StringValue(*o.Const))
 	}
 
 	if len(o.Enum) == 1 && o.CompareValues(o.Enum[0], v) != 0 {
-		return fmt.Errorf("must be %s", o.StringValue(o.Enum[0]))
+		return nil, fmt.Errorf("must be %s", o.StringValue(o.Enum[0]))
 	}
 
 	if len(o.Enum) > 0 {
@@ -378,27 +378,27 @@ func (o *Object) ValidateValue(value interface{}) error {
 			return false
 		}
 		if !allowed() {
-			return fmt.Errorf("must be one of %s", o.join(o.Enum, ", "))
+			return nil, fmt.Errorf("must be one of %s", o.join(o.Enum, ", "))
 		}
 	}
 
 	if int64(len(v)) < o.MinProperties {
 		switch o.MinProperties {
 		case 1:
-			return errors.New("the object can not be empty")
+			return nil, errors.New("the object can not be empty")
 		default:
-			return fmt.Errorf("the object must have at least %d properties defined", o.MinProperties)
+			return nil, fmt.Errorf("the object must have at least %d properties defined", o.MinProperties)
 		}
 	}
 
 	if o.MaxProperties != nil && int64(len(v)) > *o.MaxProperties {
 		switch *o.MaxProperties {
 		case 0:
-			return errors.New("the object must be empty")
+			return nil, errors.New("the object must be empty")
 		case 1:
-			return errors.New("the object can only have a single property defined")
+			return nil, errors.New("the object can only have a single property defined")
 		default:
-			return fmt.Errorf("the object can not have more than %d properties defined", *o.MaxProperties)
+			return nil, fmt.Errorf("the object can not have more than %d properties defined", *o.MaxProperties)
 		}
 	}
 
@@ -431,15 +431,22 @@ func (o *Object) ValidateValue(value interface{}) error {
 
 	for _, k := range getSortedMapKeys(v) {
 		if p, ok := o.Parameters[k]; ok {
-			if err := p.ValidateValue(v[k]); err != nil {
+			nv, err := p.ValidateValue(v[k])
+			if err != nil {
 				ve.AddError(k, err)
+			} else {
+				v[k] = nv
 			}
 		} else {
 			ve.AddError(k, errors.New("property does not exist"))
 		}
 	}
 
-	return ve.ErrOrNil()
+	if err := ve.ErrOrNil(); err != nil {
+		return nil, err
+	}
+
+	return v, nil
 }
 
 func (o *Object) join(elems []map[string]interface{}, sep string) string {
@@ -459,12 +466,12 @@ func (o *Object) join(elems []map[string]interface{}, sep string) string {
 	return b.String()
 }
 
-func (o *Object) parametersString() string {
+func (o *Object) parametersString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("map[string]schema.Schema{\n")
 	for _, k := range o.parameterNames() {
 		if p := o.Parameters[k]; p != nil {
-			_, _ = fmt.Fprintf(buf, "\t%#v: %s,\n", k, indent(p.GoString()))
+			_, _ = fmt.Fprintf(buf, "\t%#v: %s,\n", k, indent(p.GoString(imports)))
 		}
 	}
 	buf.WriteRune('}')

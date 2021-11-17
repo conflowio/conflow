@@ -8,6 +8,7 @@ package schema_test
 
 import (
 	"errors"
+	"regexp"
 
 	"github.com/conflowio/conflow/internal/testhelper"
 
@@ -23,7 +24,7 @@ var _ schema.Schema = &schema.String{}
 var _ = Describe("String", func() {
 	DescribeTable("Validate accepts value",
 		func(schema *schema.String, value interface{}) {
-			err := schema.ValidateValue(value)
+			_, err := schema.ValidateValue(value)
 			Expect(err).ToNot(HaveOccurred())
 		},
 		Entry("empty string", &schema.String{}, ""),
@@ -38,15 +39,15 @@ var _ = Describe("String", func() {
 		Entry("max length - equal", &schema.String{MaxLength: schema.IntegerPtr(1)}, "a"),
 		Entry("max length - shorter", &schema.String{MaxLength: schema.IntegerPtr(2)}, "a"),
 		Entry("max length - unicode", &schema.String{MaxLength: schema.IntegerPtr(1)}, "🍕"),
-		Entry("pattern - partial match", &schema.String{Pattern: "[a-z]+"}, "12ab34"),
-		Entry("pattern - full match", &schema.String{Pattern: "^[a-z]+$"}, "ab"),
+		Entry("pattern - partial match", &schema.String{Pattern: regexp.MustCompile("[a-z]+")}, "12ab34"),
+		Entry("pattern - full match", &schema.String{Pattern: regexp.MustCompile("^[a-z]+$")}, "ab"),
 		Entry("format - email", &schema.String{Format: "email"}, "my.name@example.com"),
 		Entry("format - unknown", &schema.String{Format: "unknown"}, "foo"),
 	)
 
 	DescribeTable("Validate errors",
 		func(schema *schema.String, value interface{}, expectedErr error) {
-			err := schema.ValidateValue(value)
+			_, err := schema.ValidateValue(value)
 			Expect(err).To(MatchError(expectedErr))
 		},
 		Entry(
@@ -123,13 +124,13 @@ var _ = Describe("String", func() {
 		),
 		Entry(
 			"pattern - no match",
-			&schema.String{Pattern: "[a-z]+"},
+			&schema.String{Pattern: regexp.MustCompile("[a-z]+")},
 			"012",
 			errors.New(`must match regular expression: [a-z]+`),
 		),
 		Entry(
 			"pattern - no full match",
-			&schema.String{Pattern: "^[a-z]+$"},
+			&schema.String{Pattern: regexp.MustCompile("^[a-z]+$")},
 			"ab012",
 			errors.New(`must match regular expression: ^[a-z]+$`),
 		),
@@ -143,7 +144,7 @@ var _ = Describe("String", func() {
 
 	DescribeTable("GoString prints a valid Go struct",
 		func(schema *schema.String, expected string) {
-			str := schema.GoString()
+			str := schema.GoString(map[string]string{})
 			Expect(str).To(Equal(expected))
 		},
 		Entry(
@@ -196,9 +197,16 @@ var _ = Describe("String", func() {
 		),
 		Entry(
 			"pattern",
-			&schema.String{Pattern: "^foo$"},
+			&schema.String{Pattern: regexp.MustCompile("^foo$")},
 			`&schema.String{
-	Pattern: "^foo$",
+	Pattern: regexp.MustCompile("^foo$"),
+}`,
+		),
+		Entry(
+			"nullable",
+			&schema.String{Nullable: true},
+			`&schema.String{
+	Nullable: true,
 }`,
 		),
 	)
@@ -212,6 +220,7 @@ var _ = Describe("String", func() {
 				"format": "formatval",
 				"minLength": 1,
 				"maxLength": 2,
+				"nullable": true,
 				"pattern": "^foo$",
 				"type": "string"
 			}`,

@@ -19,7 +19,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly"},
 			JSONPropertyNames: map[string]string{"id": "$id", "max_items": "maxItems", "min_items": "minItems", "read_only": "readOnly", "unique_items": "uniqueItems", "write_only": "writeOnly"},
 			Name:              "Array",
 			Parameters: map[string]schema.Schema{
@@ -47,12 +47,9 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 					Ref: "http://conflow.schema/github.com/conflowio/conflow/conflow/schema.Schema",
 				},
 				"max_items": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"min_items":    &schema.Integer{},
-				"pointer":      &schema.Boolean{},
 				"read_only":    &schema.Boolean{},
 				"title":        &schema.String{},
 				"unique_items": &schema.Boolean{},
@@ -106,8 +103,6 @@ func (i ArrayInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Array).MaxItems
 	case "min_items":
 		return b.(*Array).MinItems
-	case "pointer":
-		return b.(*Array).Pointer
 	case "read_only":
 		return b.(*Array).ReadOnly
 	case "title":
@@ -150,8 +145,6 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 		b.MaxItems = schema.IntegerPtr(value.(int64))
 	case "min_items":
 		b.MinItems = value.(int64)
-	case "pointer":
-		b.Pointer = value.(bool)
 	case "read_only":
 		b.ReadOnly = value.(bool)
 	case "title":

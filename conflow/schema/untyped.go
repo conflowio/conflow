@@ -22,10 +22,6 @@ type Untyped struct {
 }
 
 func (u *Untyped) AssignValue(_ map[string]string, valueName, resultName string) string {
-	if u.Pointer {
-		panic("an untyped value can not have a pointer")
-	}
-
 	return fmt.Sprintf("%s = %s", resultName, valueName)
 }
 
@@ -56,7 +52,7 @@ func (u *Untyped) DefaultValue() interface{} {
 	return nil
 }
 
-func (u *Untyped) GoString() string {
+func (u *Untyped) GoString(map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Untyped{\n")
 	if !reflect.ValueOf(u.Metadata).IsZero() {
@@ -70,9 +66,6 @@ func (u *Untyped) GoString() string {
 }
 
 func (u *Untyped) GoType(_ map[string]string) string {
-	if u.Pointer {
-		panic("an untyped value can not have a pointer")
-	}
 	return "interface{}"
 }
 
@@ -121,7 +114,7 @@ func (u *Untyped) StringValue(value interface{}) string {
 			sb.WriteString(u.StringValue(v[k]))
 		}
 		sb.WriteRune('}')
-		return u.GoString()
+		return sb.String()
 	case io.Reader:
 		return "<byte stream>"
 	case fmt.Stringer:
@@ -166,14 +159,16 @@ func (u *Untyped) ValidateSchema(s Schema, compare bool) error {
 	return nil
 }
 
-func (u *Untyped) ValidateValue(v interface{}) error {
+func (u *Untyped) ValidateValue(v interface{}) (interface{}, error) {
 	if len(u.Types) == 0 {
-		return nil
+		return v, nil
 	}
 
 	isValid := false
 	for _, t := range u.Types {
-		if err := typeSchemas[Type(t)].ValidateValue(v); err == nil {
+		nv, err := typeSchemas[Type(t)].ValidateValue(v)
+		if err == nil {
+			v = nv
 			isValid = true
 			break
 		}
@@ -181,16 +176,16 @@ func (u *Untyped) ValidateValue(v interface{}) error {
 
 	if !isValid {
 		if len(u.Types) == 1 {
-			return fmt.Errorf("was expecting %s", u.Types[0])
+			return nil, fmt.Errorf("was expecting %s", u.Types[0])
 		}
-		return fmt.Errorf(
+		return nil, fmt.Errorf(
 			"was expecting %s or %s",
 			strings.Join(u.Types[0:len(u.Types)-1], ", "),
 			u.Types[len(u.Types)-1],
 		)
 	}
 
-	return nil
+	return v, nil
 }
 
 func UntypedValue() Schema {
@@ -209,6 +204,6 @@ func (u *untypedValue) Copy() Schema {
 	return untypedValueInst
 }
 
-func (u *untypedValue) GoString() string {
+func (u *untypedValue) GoString(map[string]string) string {
 	return "schema.UntypedValue()"
 }

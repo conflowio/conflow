@@ -20,13 +20,14 @@ import (
 type Boolean struct {
 	Metadata
 
-	Const   *bool  `json:"const,omitempty"`
-	Default *bool  `json:"default,omitempty"`
-	Enum    []bool `json:"enum,omitempty"`
+	Const    *bool  `json:"const,omitempty"`
+	Default  *bool  `json:"default,omitempty"`
+	Enum     []bool `json:"enum,omitempty"`
+	Nullable bool   `json:"nullable,omitempty"`
 }
 
 func (b *Boolean) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if b.Pointer {
+	if b.Nullable {
 		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/conflow/schema")
 		return fmt.Sprintf("%s = %s.BooleanPtr(%s.(bool))", resultName, schemaPackageName, valueName)
 	}
@@ -76,7 +77,11 @@ func (b *Boolean) DefaultValue() interface{} {
 	return *b.Default
 }
 
-func (b *Boolean) GoString() string {
+func (b *Boolean) GetNullable() bool {
+	return b.Nullable
+}
+
+func (b *Boolean) GoString(map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Boolean{\n")
 	if !reflect.ValueOf(b.Metadata).IsZero() {
@@ -91,12 +96,15 @@ func (b *Boolean) GoString() string {
 	if len(b.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", b.Enum)
 	}
+	if b.Nullable {
+		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", b.Nullable)
+	}
 	buf.WriteRune('}')
 	return buf.String()
 }
 
 func (b *Boolean) GoType(_ map[string]string) string {
-	if b.Pointer {
+	if b.Nullable {
 		return "*bool"
 	}
 	return "bool"
@@ -111,6 +119,10 @@ func (b *Boolean) MarshalJSON() ([]byte, error) {
 		Type:  string(b.Type()),
 		Alias: (*Alias)(b),
 	})
+}
+
+func (b *Boolean) SetNullable(nullable bool) {
+	b.Nullable = nullable
 }
 
 func (b *Boolean) StringValue(value interface{}) string {
@@ -130,6 +142,16 @@ func (b *Boolean) TypeString() string {
 	return string(TypeBoolean)
 }
 
+func (b *Boolean) UnmarshalJSON(input []byte) error {
+	type Alias Boolean
+	return json.Unmarshal(input, &struct {
+		Type string `json:"type"`
+		*Alias
+	}{
+		Alias: (*Alias)(b),
+	})
+}
+
 func (b *Boolean) ValidateSchema(b2 Schema, _ bool) error {
 	if b2.Type() != TypeBoolean {
 		return typeError("must be boolean")
@@ -138,21 +160,21 @@ func (b *Boolean) ValidateSchema(b2 Schema, _ bool) error {
 	return nil
 }
 
-func (b *Boolean) ValidateValue(value interface{}) error {
+func (b *Boolean) ValidateValue(value interface{}) (interface{}, error) {
 	v, ok := value.(bool)
 	if !ok {
-		return errors.New("must be boolean")
+		return nil, errors.New("must be boolean")
 	}
 
 	if b.Const != nil && *b.Const != v {
-		return fmt.Errorf("must be %s", b.StringValue(*b.Const))
+		return nil, fmt.Errorf("must be %s", b.StringValue(*b.Const))
 	}
 
 	if len(b.Enum) == 1 && b.Enum[0] != v {
-		return fmt.Errorf("must be %s", b.StringValue(b.Enum[0]))
+		return nil, fmt.Errorf("must be %s", b.StringValue(b.Enum[0]))
 	}
 
-	return nil
+	return v, nil
 }
 
 func BooleanValue() Schema {
@@ -171,7 +193,7 @@ func (b *booleanValue) Copy() Schema {
 	return booleanValueInst
 }
 
-func (b *booleanValue) GoString() string {
+func (b *booleanValue) GoString(map[string]string) string {
 	return "schema.BooleanValue()"
 }
 

@@ -23,7 +23,7 @@ var _ = Describe("Function", func() {
 
 	DescribeTable("GoString prints a valid Go struct",
 		func(schema *schema.Function, expected string) {
-			str := schema.GoString()
+			str := schema.GoString(map[string]string{})
 			Expect(str).To(Equal(expected))
 		},
 		Entry(

@@ -3,9 +3,7 @@
 package test
 
 import (
-	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/parsley/parsley"
 )
 
 // TestFunc0Interpreter is the conflow interpreter for the testFunc0 function
@@ -23,6 +21,6 @@ func (i TestFunc0Interpreter) Schema() schema.Schema {
 }
 
 // Eval returns with the result of the function
-func (i TestFunc0Interpreter) Eval(ctx interface{}, node conflow.FunctionNode) (interface{}, parsley.Error) {
+func (i TestFunc0Interpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
 	return testFunc0(), nil
 }

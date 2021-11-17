@@ -19,7 +19,7 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 			Metadata: schema.Metadata{
 				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
 			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "pointer": "Pointer", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 			JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
 			Name:              "Integer",
 			Parameters: map[string]schema.Schema{
@@ -27,14 +27,10 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 					AdditionalProperties: &schema.String{},
 				},
 				"const": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"default": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"deprecated":  &schema.Boolean{},
 				"description": &schema.String{},
@@ -45,32 +41,22 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 					Items: &schema.Untyped{},
 				},
 				"exclusive_maximum": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"exclusive_minimum": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"id": &schema.String{},
 				"maximum": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"minimum": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
 				"multiple_of": &schema.Integer{
-					Metadata: schema.Metadata{
-						Pointer: true,
-					},
+					Nullable: true,
 				},
-				"pointer":    &schema.Boolean{},
+				"nullable":   &schema.Boolean{},
 				"read_only":  &schema.Boolean{},
 				"title":      &schema.String{},
 				"write_only": &schema.Boolean{},
@@ -128,8 +114,8 @@ func (i IntegerInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 		return b.(*Integer).Minimum
 	case "multiple_of":
 		return b.(*Integer).MultipleOf
-	case "pointer":
-		return b.(*Integer).Pointer
+	case "nullable":
+		return b.(*Integer).Nullable
 	case "read_only":
 		return b.(*Integer).ReadOnly
 	case "title":
@@ -176,8 +162,8 @@ func (i IntegerInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 		b.Minimum = schema.IntegerPtr(value.(int64))
 	case "multiple_of":
 		b.MultipleOf = schema.IntegerPtr(value.(int64))
-	case "pointer":
-		b.Pointer = value.(bool)
+	case "nullable":
+		b.Nullable = value.(bool)
 	case "read_only":
 		b.ReadOnly = value.(bool)
 	case "title":

@@ -12,6 +12,9 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	"github.com/conflowio/conflow/conflow/schema/formats"
 )
 
@@ -24,18 +27,59 @@ var _ = Describe("UUID", func() {
 
 	DescribeTable("Valid values",
 		expectFormatToParse(format),
-		Entry("version 1", "c94b8114-3f28-11ec-9bbc-0242ac130002", &uuid1, "c94b8114-3f28-11ec-9bbc-0242ac130002"),
-		Entry("version 4", "cb95ec16-54d2-46f0-a63f-e94c0803d0d1", &uuid4, "cb95ec16-54d2-46f0-a63f-e94c0803d0d1"),
+		Entry("version 1", "c94b8114-3f28-11ec-9bbc-0242ac130002", uuid1, "c94b8114-3f28-11ec-9bbc-0242ac130002"),
+		Entry("version 4", "cb95ec16-54d2-46f0-a63f-e94c0803d0d1", uuid4, "cb95ec16-54d2-46f0-a63f-e94c0803d0d1"),
 	)
 
 	DescribeTable("Invalid values",
 		func(input string) {
-			_, err := format.Parse(input)
+			_, err := format.ValidateValue(input)
 			Expect(err).To(HaveOccurred())
 		},
 		Entry("empty", ""),
 		Entry("random string", "foo"),
 		Entry("incomplete", "c94b8114-3f28-11ec-9bbc-0242ac13000"),
 	)
+
+	When("a field type is uuid.UUID", func() {
+		It("should be parsed as string schema with uuid format", func() {
+			source := `
+				import "github.com/google/uuid"
+				// @block
+				type Foo struct {
+					v uuid.UUID
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format: schema.FormatUUID,
+					},
+				},
+			})
+		})
+	})
+
+	When("a field type is *uuid.UUID", func() {
+		It("should be parsed as string schema with uuid format", func() {
+			source := `
+				import "github.com/google/uuid"
+				// @block
+				type Foo struct {
+					v *uuid.UUID
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format:   schema.FormatUUID,
+						Nullable: true,
+					},
+				},
+			})
+		})
+	})
 
 })

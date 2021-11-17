@@ -33,5 +33,5 @@ type FunctionTransformerRegistryAware interface {
 //counterfeiter:generate . FunctionInterpreter
 type FunctionInterpreter interface {
 	Schema() schema.Schema
-	Eval(ctx interface{}, node FunctionNode) (interface{}, parsley.Error)
+	Eval(ctx interface{}, args []interface{}) (interface{}, error)
 }

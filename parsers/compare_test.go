@@ -33,15 +33,15 @@ var _ = Describe("Compare", func() {
 	var q pparser.Func
 	q = combinator.Choice(
 		terminal.String(schema.StringValue(), false),
-		terminal.TimeDuration(schema.TimeDurationValue()),
+		terminal.TimeDuration(&schema.String{Format: schema.FormatDurationGo}),
 		terminal.Float(schema.NumberValue()),
 		terminal.Integer(schema.IntegerValue()),
 		terminal.Bool(schema.BooleanValue(), "true", "false"),
 		parsers.Array(&q),
 		terminal.Nil(schema.NullValue(), "NULL"),
 		test.EvalErrorParser(schema.IntegerValue(), "ERR"),
-		terminal.Word(schema.TimeValue(), "TIME1", time1),
-		terminal.Word(schema.TimeValue(), "TIME2", time2),
+		terminal.Word(&schema.String{Format: schema.FormatDateTime}, "TIME1", time1),
+		terminal.Word(&schema.String{Format: schema.FormatDateTime}, "TIME2", time2),
 	).Name("value")
 
 	p := parsers.Compare(q)

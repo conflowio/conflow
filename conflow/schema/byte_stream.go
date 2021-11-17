@@ -22,10 +22,6 @@ type ByteStream struct {
 }
 
 func (b *ByteStream) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if b.Pointer {
-		panic("a byte stream can not have a pointer")
-	}
-
 	ioPackageName := utils.EnsureUniqueGoPackageName(imports, "io")
 
 	return fmt.Sprintf("%s = %s.(%s.ReadCloser)", resultName, valueName, ioPackageName)
@@ -53,7 +49,7 @@ func (b *ByteStream) DefaultValue() interface{} {
 	return nil
 }
 
-func (b *ByteStream) GoString() string {
+func (b *ByteStream) GoString(map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.ByteStream{\n")
 	if !reflect.ValueOf(b.Metadata).IsZero() {
@@ -64,13 +60,7 @@ func (b *ByteStream) GoString() string {
 }
 
 func (b *ByteStream) GoType(imports map[string]string) string {
-	if b.Pointer {
-		panic("a byte stream can not have a pointer")
-	}
-
-	packageName := utils.EnsureUniqueGoPackageName(imports, "io")
-
-	return fmt.Sprintf("%s.ReadCloser", packageName)
+	return utils.GoType(imports, reflect.TypeOf(io.ReadCloser(nil)), false)
 }
 
 func (b *ByteStream) MarshalJSON() ([]byte, error) {
@@ -108,13 +98,13 @@ func (b *ByteStream) ValidateSchema(s2 Schema, compare bool) error {
 	return nil
 }
 
-func (b *ByteStream) ValidateValue(value interface{}) error {
-	_, ok := value.(io.Reader)
+func (b *ByteStream) ValidateValue(value interface{}) (interface{}, error) {
+	v, ok := value.(io.Reader)
 	if !ok {
-		return errors.New("must be byte stream")
+		return nil, errors.New("must be byte stream")
 	}
 
-	return nil
+	return v, nil
 }
 
 func ByteStreamValue() Schema {
@@ -133,6 +123,6 @@ func (u *byteStreamValue) Copy() Schema {
 	return byteStreamValueInst
 }
 
-func (u *byteStreamValue) GoString() string {
+func (u *byteStreamValue) GoString(map[string]string) string {
 	return "schema.ByteStreamValue()"
 }

@@ -122,7 +122,44 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value returns with the result of the function
 func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
-	return n.interpreter.Eval(ctx, n)
+	parameters := n.interpreter.Schema().(*schema.Function).GetParameters()
+
+	args := make([]interface{}, 0, len(n.argumentNodes))
+
+	for i := 0; i < len(parameters); i++ {
+		v, evalErr := parsley.EvaluateNode(ctx, n.argumentNodes[i])
+		if evalErr != nil {
+			return nil, evalErr
+		}
+		vv, verr := parameters[i].Schema.ValidateValue(v)
+		if verr != nil {
+			return nil, parsley.NewError(n.argumentNodes[i].Pos(), verr)
+		}
+		args = append(args, vv)
+	}
+
+	if n.interpreter.Schema().(*schema.Function).AdditionalParameters != nil {
+		for i := len(parameters); i < len(n.argumentNodes); i++ {
+			v, evalErr := parsley.EvaluateNode(ctx, n.argumentNodes[i])
+			if evalErr != nil {
+				return nil, evalErr
+			}
+			vv, verr := n.interpreter.Schema().(*schema.Function).GetAdditionalParameters().Schema.ValidateValue(v)
+			if verr != nil {
+				return nil, parsley.NewError(n.argumentNodes[i].Pos(), verr)
+			}
+			args = append(args, vv)
+		}
+	}
+
+	res, resErr := n.interpreter.Eval(ctx, args)
+	if resErr != nil {
+		if funcErr, ok := resErr.(*Error); ok {
+			return nil, parsley.NewError(n.argumentNodes[funcErr.ArgIndex].Pos(), funcErr.Err)
+		}
+		return nil, parsley.NewError(n.Pos(), resErr)
+	}
+	return res, nil
 }
 
 // Pos returns with the node's position

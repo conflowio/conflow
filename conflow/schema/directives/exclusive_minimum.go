@@ -27,15 +27,16 @@ func (e *ExclusiveMinimum) ID() conflow.ID {
 }
 
 func (e *ExclusiveMinimum) ApplyToSchema(s schema.Schema) error {
-	if err := s.ValidateValue(e.value); err != nil {
+	value, err := s.ValidateValue(e.value)
+	if err != nil {
 		return fmt.Errorf("exclusive_minimum value is invalid: %w", err)
 	}
 
 	switch st := s.(type) {
 	case *schema.Integer:
-		st.ExclusiveMinimum = schema.IntegerPtr(e.value.(int64))
+		st.ExclusiveMinimum = schema.IntegerPtr(value.(int64))
 	case *schema.Number:
-		st.ExclusiveMinimum = schema.NumberPtr(e.value.(float64))
+		st.ExclusiveMinimum = schema.NumberPtr(value.(float64))
 	default:
 		return fmt.Errorf("exclusive_minimum directive can not be applied to %T", s)
 	}

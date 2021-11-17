@@ -27,15 +27,16 @@ func (m *MultipleOf) ID() conflow.ID {
 }
 
 func (m *MultipleOf) ApplyToSchema(s schema.Schema) error {
-	if err := s.ValidateValue(m.value); err != nil {
+	value, err := s.ValidateValue(m.value)
+	if err != nil {
 		return fmt.Errorf("multiple_of value is invalid: %w", err)
 	}
 
 	switch st := s.(type) {
 	case *schema.Integer:
-		st.MultipleOf = schema.IntegerPtr(m.value.(int64))
+		st.MultipleOf = schema.IntegerPtr(value.(int64))
 	case *schema.Number:
-		st.MultipleOf = schema.NumberPtr(m.value.(float64))
+		st.MultipleOf = schema.NumberPtr(value.(float64))
 	default:
 		return fmt.Errorf("multiple_of directive can not be applied to %T", s)
 	}

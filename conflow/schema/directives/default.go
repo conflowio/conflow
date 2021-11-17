@@ -27,23 +27,24 @@ func (d *Default) ID() conflow.ID {
 }
 
 func (d *Default) ApplyToSchema(s schema.Schema) error {
-	if err := s.ValidateValue(d.value); err != nil {
+	value, err := s.ValidateValue(d.value)
+	if err != nil {
 		return fmt.Errorf("default value is invalid: %w", err)
 	}
 
 	switch st := s.(type) {
 	case *schema.Array:
-		st.Default = d.value.([]interface{})
+		st.Default = value.([]interface{})
 	case *schema.Object:
-		st.Default = schema.ObjectPtr(d.value.(map[string]interface{}))
+		st.Default = schema.ObjectPtr(value.(map[string]interface{}))
 	case *schema.Boolean:
-		st.Default = schema.BooleanPtr(d.value.(bool))
+		st.Default = schema.BooleanPtr(value.(bool))
 	case *schema.Integer:
-		st.Default = schema.IntegerPtr(d.value.(int64))
+		st.Default = schema.IntegerPtr(value.(int64))
 	case *schema.Number:
-		st.Default = schema.NumberPtr(d.value.(float64))
+		st.Default = schema.NumberPtr(value.(float64))
 	case *schema.String:
-		st.Default = schema.StringPtr(d.value.(string))
+		st.Default = schema.StringPtr(value.(string))
 	default:
 		return fmt.Errorf("default directive can not be applied to %T", s)
 	}

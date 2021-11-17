@@ -9,6 +9,9 @@ package formats_test
 import (
 	"time"
 
+	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -20,23 +23,19 @@ var _ = Describe("Date", func() {
 
 	format := formats.Date{}
 
-	ptr := func(t time.Time) *time.Time {
-		return &t
-	}
-
 	DescribeTable("Valid values",
 		expectFormatToParse(format),
 		Entry(
 			"any date",
 			"2021-01-02",
-			ptr(time.Date(2021, 1, 02, 0, 0, 0, 0, time.UTC)),
+			time.Date(2021, 1, 02, 0, 0, 0, 0, time.UTC),
 			"2021-01-02",
 		),
 	)
 
 	DescribeTable("Invalid values",
 		func(input string) {
-			_, err := format.Parse(input)
+			_, err := format.ValidateValue(input)
 			Expect(err).To(HaveOccurred())
 		},
 		Entry("empty", ""),
@@ -45,5 +44,46 @@ var _ = Describe("Date", func() {
 		Entry("incomplete - short day", "2021-01-1"),
 		Entry("non-existing day", "2021-02-31"),
 	)
+
+	When("a field type is time.Time and format is set as date", func() {
+		It("should be parsed as string schema with date format", func() {
+			source := `
+				// @block
+				type Foo struct {
+					// @format "date"
+					v time.Time
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format: schema.FormatDate,
+					},
+				},
+			})
+		})
+	})
+
+	When("a field type is *time.Time and format is set as date", func() {
+		It("should be parsed as string schema with date format", func() {
+			source := `
+				// @block
+				type Foo struct {
+					// @format "date"
+					v *time.Time
+				}
+			`
+			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+				Name: "Foo",
+				Parameters: map[string]schema.Schema{
+					"v": &schema.String{
+						Format:   schema.FormatDate,
+						Nullable: true,
+					},
+				},
+			})
+		})
+	})
 
 })
