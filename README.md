@@ -1,18 +1,19 @@
-# Conflow - Domain specific language generator and workflow engine
+# Conflow - Configuration and workflow language
 
-:exclamation: This project is a technology preview and heavily under development. If you would like to have a chat or contribute, please open an issue or drop an email to andras@[this github org].co.uk.
+:exclamation: This project is a technology preview and still under development. If you would like to have a chat or contribute, please open an issue or drop an email to hello@[project name].io
 
 ## Introduction
 
-Conflow is able to **generate, parse and evaluate your own domain specific language (DSL)**. Your DSL can be used purely for configuration or you can define **complex workflows** with custom business logic. It's **written in Go** and similar to the Go language's syntax where applicable.
+Conflow is a strongly typed configuration language focusing on simplicity and usability.
+It makes conscious choices, so you can be more productive and make less mistakes.
 
-Conflow's main aim to generate languages used by people by focusing on **simplicity and readability**.
+If you are tired using YAML, hopefully you’ll love Conflow.
+
+Conflow is able to **generate, parse and evaluate your own domain specific language (DSL)**. Your DSL can be used purely for configuration or you can define **complex workflows** with custom business logic. It's **written in Go** and similar to the Go language's syntax where applicable.
 
 It generates a **parallel programming language** where a piece of code will be evaluated and run when all its dependencies are available. This capability makes it especially suitable for creating **workflow-as-code** languages.
 
-It generates a **weakly typed language** but runs **static checking** to catch most type errors before evaluation.
-
-It doesn't have iterators, but introduces generators instead to be more closer to a real workflow. You can of course still write a generator which will emulate a simple numeric iterator.
+It generates a **strongly typed language**, and runs **static checking** to catch most type errors before evaluation.
 
 As a language creator you only need to define simple Go structs or functions and Conflow will generate the necessary Go code for parsing and evaluation. **No reflection is used runtime.**
 
@@ -32,6 +33,8 @@ package hello
 import (
 	"context"
 	"fmt"
+	"io"
+
 	"github.com/conflowio/conflow/conflow"
 )
 
@@ -40,7 +43,10 @@ type Hello struct {
 	// @id
 	id conflow.ID
 	// @required
+	// @minLength 1
 	to string
+	// @dependency
+	stdout io.Writer
 }
 
 func (h *Hello) ID() conflow.ID {
@@ -48,7 +54,9 @@ func (h *Hello) ID() conflow.ID {
 }
 
 func (h *Hello) Run(ctx context.Context) (conflow.Result, error) {
-	fmt.Printf("Hello %s!\n", h.to)
+	if _, err := fmt.Fprintf(h.stdout, "Hello %s!\n", h.to); err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 ```
