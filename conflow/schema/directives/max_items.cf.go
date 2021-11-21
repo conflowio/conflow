@@ -16,6 +16,9 @@ type MaxItemsInterpreter struct {
 func (i MaxItemsInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			},
 			Name: "MaxItems",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

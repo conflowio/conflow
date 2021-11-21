@@ -17,6 +17,7 @@ func (i BlockInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
 				Description: "It is the directive for marking structs as conflow blocks",
 			},
 			JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path", "type": "Type"},

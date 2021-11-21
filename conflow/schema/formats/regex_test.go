@@ -10,7 +10,6 @@ import (
 	"regexp"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -46,14 +45,7 @@ var _ = Describe("Regex", func() {
 					v regexp.Regexp
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatRegex,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatRegex, false)
 		})
 	})
 
@@ -66,15 +58,7 @@ var _ = Describe("Regex", func() {
 					v *regexp.Regexp
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatRegex,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatRegex, true)
 		})
 	})
 

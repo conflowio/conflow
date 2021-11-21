@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -54,14 +53,7 @@ var _ = Describe("Date", func() {
 					v time.Time
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatDate,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatDate, false)
 		})
 	})
 
@@ -74,15 +66,7 @@ var _ = Describe("Date", func() {
 					v *time.Time
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatDate,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatDate, true)
 		})
 	})
 

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	"github.com/conflowio/conflow/conflow/types"
 
@@ -85,14 +84,7 @@ var _ = Describe("Time", func() {
 					v types.Time
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatTime,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatTime, false)
 		})
 	})
 
@@ -105,15 +97,7 @@ var _ = Describe("Time", func() {
 					v *types.Time
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatTime,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatTime, true)
 		})
 	})
 

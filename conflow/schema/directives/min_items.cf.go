@@ -16,6 +16,9 @@ type MinItemsInterpreter struct {
 func (i MinItemsInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			},
 			Name: "MinItems",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

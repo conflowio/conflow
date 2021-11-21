@@ -16,6 +16,9 @@ type MaxLengthInterpreter struct {
 func (i MaxLengthInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			},
 			Name: "MaxLength",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

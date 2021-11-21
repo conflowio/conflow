@@ -16,6 +16,9 @@ type ItInterpreter struct {
 func (i ItInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			},
 			Name: "It",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

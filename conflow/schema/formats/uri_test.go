@@ -10,7 +10,6 @@ import (
 	"net/url"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -65,14 +64,7 @@ var _ = Describe("URI", func() {
 					v url.URL
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatURI,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatURI, false)
 		})
 	})
 
@@ -85,15 +77,7 @@ var _ = Describe("URI", func() {
 					v *url.URL
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatURI,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatURI, true)
 		})
 	})
 
@@ -163,14 +147,7 @@ var _ = Describe("URIReference", func() {
 					v url.URL
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatURIReference,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatURIReference, false)
 		})
 	})
 

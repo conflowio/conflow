@@ -9,6 +9,9 @@ package formats_test
 import (
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/internal/testhelper"
+
 	"github.com/conflowio/conflow/conflow/schema"
 )
 
@@ -21,4 +24,21 @@ func expectFormatToParse(format schema.Format) func(string, interface{}, string)
 		formatted, _ := format.StringValue(output)
 		Expect(formatted).To(Equal(formattedExpected), "format mismatch")
 	}
+}
+
+func expectGoStructToHaveStringSchema(source string, format string, nullable bool) {
+	testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
+		Name: "Foo",
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{
+				conflow.AnnotationType: conflow.BlockTypeConfiguration,
+			},
+		},
+		Parameters: map[string]schema.Schema{
+			"v": &schema.String{
+				Format:   format,
+				Nullable: nullable,
+			},
+		},
+	})
 }

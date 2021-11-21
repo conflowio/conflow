@@ -16,6 +16,9 @@ type FailInterpreter struct {
 func (i FailInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "task"},
+			},
 			Name: "Fail",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

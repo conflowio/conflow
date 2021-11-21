@@ -10,7 +10,6 @@ import (
 	"net/mail"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -75,14 +74,7 @@ var _ = Describe("Email", func() {
 					v mail.Address
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatEmail,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatEmail, false)
 		})
 	})
 
@@ -95,15 +87,7 @@ var _ = Describe("Email", func() {
 					v *mail.Address
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatEmail,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatEmail, true)
 		})
 	})
 

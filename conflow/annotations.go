@@ -10,6 +10,7 @@ const (
 	AnnotationEvalStage   = "block.conflow.io/eval_stage"
 	AnnotationGenerated   = "block.conflow.io/generated"
 	AnnotationID          = "block.conflow.io/id"
+	AnnotationType        = "block.conflow.io/type"
 	AnnotationUserDefined = "block.conflow.io/user_defined"
 	AnnotationValue       = "block.conflow.io/value"
 )

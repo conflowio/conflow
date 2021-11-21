@@ -10,7 +10,6 @@ import (
 	"github.com/conflowio/conflow/conflow/schema"
 	"github.com/conflowio/conflow/conflow/schema/formats"
 	"github.com/conflowio/conflow/conflow/types"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 
@@ -110,14 +109,7 @@ var _ = Describe("DurationGo", func() {
 					v types.RFC3339Duration
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatDurationRFC3339,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatDurationRFC3339, false)
 		})
 	})
 
@@ -130,15 +122,7 @@ var _ = Describe("DurationGo", func() {
 					v *types.RFC3339Duration
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatDurationRFC3339,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatDurationRFC3339, true)
 		})
 	})
 

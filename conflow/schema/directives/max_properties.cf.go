@@ -16,6 +16,9 @@ type MaxPropertiesInterpreter struct {
 func (i MaxPropertiesInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			},
 			Name: "MaxProperties",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

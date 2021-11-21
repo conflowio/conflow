@@ -16,6 +16,9 @@ type BlockRequiredFieldInterpreter struct {
 func (i BlockRequiredFieldInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			},
 			JSONPropertyNames: map[string]string{"id_field": "IDField"},
 			Name:              "BlockRequiredField",
 			Parameters: map[string]schema.Schema{

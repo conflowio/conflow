@@ -10,7 +10,6 @@ import (
 	"net"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	"github.com/conflowio/conflow/conflow/types"
 
@@ -70,14 +69,7 @@ var _ = Describe("IPCIDR", func() {
 					v types.CIDR
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPCIDR,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPCIDR, false)
 		})
 	})
 
@@ -90,15 +82,7 @@ var _ = Describe("IPCIDR", func() {
 					v *types.CIDR
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatIPCIDR,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPCIDR, true)
 		})
 	})
 
@@ -144,14 +128,7 @@ var _ = Describe("IPv4CIDR", func() {
 					v types.CIDR
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPv4CIDR,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPv4CIDR, false)
 		})
 	})
 
@@ -197,14 +174,7 @@ var _ = Describe("IPv6CIDR", func() {
 					v types.CIDR
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPv6CIDR,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPv6CIDR, false)
 		})
 	})
 

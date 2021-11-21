@@ -16,6 +16,9 @@ type BlockWithManyBlockInterpreter struct {
 func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			},
 			JSONPropertyNames: map[string]string{"block": "Block", "id_field": "IDField"},
 			Name:              "BlockWithManyBlock",
 			Parameters: map[string]schema.Schema{

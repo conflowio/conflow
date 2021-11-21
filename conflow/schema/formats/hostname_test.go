@@ -12,7 +12,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	"github.com/conflowio/conflow/conflow/schema/formats"
 )
@@ -52,14 +51,7 @@ var _ = Describe("Hostname", func() {
 					v string
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatHostname,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatHostname, false)
 		})
 	})
 
@@ -72,15 +64,7 @@ var _ = Describe("Hostname", func() {
 					v *string
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatHostname,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatHostname, true)
 		})
 	})
 

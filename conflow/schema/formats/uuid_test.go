@@ -13,7 +13,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	"github.com/conflowio/conflow/conflow/schema/formats"
 )
@@ -50,14 +49,7 @@ var _ = Describe("UUID", func() {
 					v uuid.UUID
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatUUID,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatUUID, false)
 		})
 	})
 
@@ -70,15 +62,7 @@ var _ = Describe("UUID", func() {
 					v *uuid.UUID
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatUUID,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatUUID, true)
 		})
 	})
 

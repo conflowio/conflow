@@ -17,7 +17,7 @@ func (i RunInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "init"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/type": "directive"},
 			},
 			Name: "Run",
 			Parameters: map[string]schema.Schema{

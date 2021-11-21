@@ -16,6 +16,9 @@ type EnumInterpreter struct {
 func (i EnumInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			},
 			Name: "Enum",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

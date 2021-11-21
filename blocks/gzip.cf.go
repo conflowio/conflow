@@ -17,6 +17,9 @@ type GzipInterpreter struct {
 func (i GzipInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "task"},
+			},
 			Name: "Gzip",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

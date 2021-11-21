@@ -16,6 +16,9 @@ type MainInterpreter struct {
 func (i MainInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "main"},
+			},
 			Name: "Main",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

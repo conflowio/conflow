@@ -9,12 +9,11 @@ package formats_test
 import (
 	"net"
 
-	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/conflow/schema"
 
 	"github.com/conflowio/conflow/conflow/schema/formats"
 )
@@ -53,14 +52,7 @@ var _ = Describe("IP", func() {
 					v net.IP
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIP,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIP, false)
 		})
 	})
 
@@ -73,15 +65,7 @@ var _ = Describe("IP", func() {
 					v *net.IP
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatIP,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIP, true)
 		})
 	})
 
@@ -119,14 +103,7 @@ var _ = Describe("IPv4", func() {
 					v net.IP
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPv4,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPv4, false)
 		})
 	})
 
@@ -165,14 +142,7 @@ var _ = Describe("IPv6", func() {
 					v net.IP
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPv6,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPv6, false)
 		})
 	})
 

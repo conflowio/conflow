@@ -17,7 +17,7 @@ func (i TriggersInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "resolve"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "resolve", "block.conflow.io/type": "directive"},
 			},
 			JSONPropertyNames: map[string]string{"block_ids": "blockIDs"},
 			Name:              "Triggers",

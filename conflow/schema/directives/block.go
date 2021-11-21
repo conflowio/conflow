@@ -37,6 +37,8 @@ func (b *Block) ApplyToSchema(s schema.Schema) error {
 		return fmt.Errorf("@block can only be used on a struct")
 	}
 
+	s.(*schema.Object).SetAnnotation(conflow.AnnotationType, b.Type)
+
 	if b.EvalStage != "" {
 		s.(*schema.Object).SetAnnotation(conflow.AnnotationEvalStage, b.EvalStage)
 	}
