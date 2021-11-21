@@ -48,7 +48,7 @@ var _ = Describe("IP", func() {
 		It("should be parsed as string schema with ip format", func() {
 			source := `
 				import "net"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v net.IP
 				}
@@ -68,7 +68,7 @@ var _ = Describe("IP", func() {
 		It("should be parsed as string schema with ip format", func() {
 			source := `
 				import "net"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *net.IP
 				}
@@ -113,7 +113,7 @@ var _ = Describe("IPv4", func() {
 		It("should be parsed as string schema with ipv4 format", func() {
 			source := `
 				import "net"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "ipv4"
 					v net.IP
@@ -159,7 +159,7 @@ var _ = Describe("IPv6", func() {
 		It("should be parsed as string schema with ipv6 format", func() {
 			source := `
 				import "net"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "ipv6"
 					v net.IP

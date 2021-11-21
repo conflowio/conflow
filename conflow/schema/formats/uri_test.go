@@ -60,7 +60,7 @@ var _ = Describe("URI", func() {
 		It("should be parsed as string schema with uri format", func() {
 			source := `
 				import "net/url"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v url.URL
 				}
@@ -80,7 +80,7 @@ var _ = Describe("URI", func() {
 		It("should be parsed as string schema with uri format", func() {
 			source := `
 				import "net/url"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *url.URL
 				}
@@ -157,7 +157,7 @@ var _ = Describe("URIReference", func() {
 		It("should be parsed as string schema with uri-reference format", func() {
 			source := `
 				import "net/url"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "uri-reference"
 					v url.URL

@@ -14,7 +14,7 @@ import (
 	"github.com/conflowio/conflow/conflow/block"
 )
 
-// @block
+// @block "generator"
 type Range struct {
 	// @id
 	id    conflow.ID
@@ -68,7 +68,7 @@ func (r *Range) Run(ctx context.Context) (conflow.Result, error) {
 	return nil, nil
 }
 
-// @block
+// @block "configuration"
 type RangeEntry struct {
 	// @id
 	id conflow.ID

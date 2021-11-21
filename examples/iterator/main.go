@@ -19,7 +19,7 @@ import (
 	"github.com/conflowio/conflow/util"
 )
 
-// @block
+// @block "main"
 type Main struct {
 	// @id
 	id conflow.ID

@@ -46,7 +46,7 @@ var _ = Describe("Hostname", func() {
 	When("a field type is string and has 'hostname' format", func() {
 		It("should be parsed as string schema with hostname format", func() {
 			source := `
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "hostname"
 					v string
@@ -66,7 +66,7 @@ var _ = Describe("Hostname", func() {
 	When("a field type is *string and has hostname format", func() {
 		It("should be parsed as string schema with hostname format", func() {
 			source := `
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "hostname"
 					v *string

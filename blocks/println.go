@@ -16,7 +16,7 @@ import (
 )
 
 // Println will write a string followed by a new line to the standard output
-// @block
+// @block "task"
 type Println struct {
 	// @id
 	id conflow.ID

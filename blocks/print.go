@@ -16,7 +16,7 @@ import (
 )
 
 // Print will write a string to the standard output
-// @block
+// @block "task"
 type Print struct {
 	// @id
 	id conflow.ID

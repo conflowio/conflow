@@ -16,7 +16,7 @@ import (
 	"github.com/conflowio/conflow/conflow/block"
 )
 
-// @block
+// @block "generator"
 type Glob struct {
 	// @id
 	id conflow.ID
@@ -90,7 +90,7 @@ func (g *Glob) compileRegexps(exprs []string) ([]*regexp.Regexp, error) {
 	return res, nil
 }
 
-// @block
+// @block "configuration"
 type File struct {
 	// @id
 	id   conflow.ID

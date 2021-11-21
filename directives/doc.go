@@ -9,7 +9,8 @@ package directives
 import "github.com/conflowio/conflow/conflow"
 
 // @block {
-//  eval_stage = "ignore"
+//   type = "directive"
+//   eval_stage = "ignore"
 // }
 type Doc struct {
 	// @id

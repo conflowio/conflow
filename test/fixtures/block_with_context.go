@@ -13,7 +13,7 @@ import (
 	"github.com/conflowio/conflow/conflow"
 )
 
-// @block
+// @block "configuration"
 type BlockWithContext struct {
 	// @id
 	IDField conflow.ID

@@ -41,7 +41,7 @@ var _ = Describe("Regex", func() {
 		It("should be parsed as string schema with regex format", func() {
 			source := `
 				import "regexp"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v regexp.Regexp
 				}
@@ -61,7 +61,7 @@ var _ = Describe("Regex", func() {
 		It("should be parsed as string schema with regex format", func() {
 			source := `
 				import "regexp"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *regexp.Regexp
 				}

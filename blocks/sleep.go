@@ -14,7 +14,7 @@ import (
 	"github.com/conflowio/conflow/conflow"
 )
 
-// @block
+// @block "task"
 type Sleep struct {
 	// @id
 	id conflow.ID

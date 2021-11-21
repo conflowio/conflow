@@ -25,7 +25,7 @@ var mainRegistry = block.InterpreterRegistry{
 	"println": blocks.PrintlnInterpreter{},
 }
 
-// @block
+// @block "main"
 type Main struct {
 	// @id
 	id conflow.ID

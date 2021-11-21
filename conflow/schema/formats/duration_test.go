@@ -104,7 +104,7 @@ var _ = Describe("Duration", func() {
 	When("a field type is time.Duration", func() {
 		It("should be parsed as string schema with duration-go format", func() {
 			source := `
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v time.Duration
 				}
@@ -123,7 +123,7 @@ var _ = Describe("Duration", func() {
 	When("a field type is *time.Duration", func() {
 		It("should be parsed as string schema with duration-go format", func() {
 			source := `
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *time.Duration
 				}

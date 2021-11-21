@@ -36,7 +36,7 @@ type BlockWithClose interface {
 	conflow.BlockCloser
 }
 
-// @block
+// @block "configuration"
 type Block struct {
 	// @id
 	IDField conflow.ID

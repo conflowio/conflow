@@ -17,7 +17,7 @@ import (
 
 var _ conflow.BlockDirective = &Directive{}
 
-// @block
+// @block "directive"
 type Directive struct {
 	// @id
 	IDField conflow.ID

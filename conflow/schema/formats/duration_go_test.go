@@ -105,7 +105,7 @@ var _ = Describe("DurationGo", func() {
 		It("should be parsed as string schema with duration format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v types.RFC3339Duration
 				}
@@ -125,7 +125,7 @@ var _ = Describe("DurationGo", func() {
 		It("should be parsed as string schema with duration format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *types.RFC3339Duration
 				}

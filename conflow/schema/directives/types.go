@@ -13,7 +13,7 @@ import (
 	"github.com/conflowio/conflow/conflow/schema"
 )
 
-// @block
+// @block "directive"
 type Types struct {
 	// @id
 	id conflow.ID

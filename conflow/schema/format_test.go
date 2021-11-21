@@ -66,7 +66,7 @@ var _ = Describe("Format", func() {
 			It("should be used for the given type", func() {
 				source := `
 					import "github.com/conflowio/conflow/internal/testhelper"
-					// @block
+					// @block "configuration"
 					type Foo struct {
 						v testhelper.CustomStruct
 					}

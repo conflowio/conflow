@@ -65,7 +65,7 @@ var _ = Describe("IPCIDR", func() {
 		It("should be parsed as string schema with ip-cidr format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v types.CIDR
 				}
@@ -85,7 +85,7 @@ var _ = Describe("IPCIDR", func() {
 		It("should be parsed as string schema with ip-cidr format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *types.CIDR
 				}
@@ -138,7 +138,7 @@ var _ = Describe("IPv4CIDR", func() {
 		It("should be parsed as string schema with ipv4-cidr format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "ipv4-cidr"
 					v types.CIDR
@@ -191,7 +191,7 @@ var _ = Describe("IPv6CIDR", func() {
 		It("should be parsed as string schema with ipv6-cidr format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "ipv6-cidr"
 					v types.CIDR

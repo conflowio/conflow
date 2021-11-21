@@ -14,6 +14,14 @@ import (
 	"github.com/conflowio/conflow/conflow/schema"
 )
 
+const (
+	BlockTypeConfiguration = "configuration"
+	BlockTypeDirective     = "directive"
+	BlockTypeGenerator     = "generator"
+	BlockTypeMain          = "main"
+	BlockTypeTask          = "task"
+)
+
 // Block is an interface for a block object
 type Block interface {
 }

@@ -70,7 +70,7 @@ var _ = Describe("Email", func() {
 		It("should be parsed as string schema with email format", func() {
 			source := `
 				import "net/mail"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v mail.Address
 				}
@@ -90,7 +90,7 @@ var _ = Describe("Email", func() {
 		It("should be parsed as string schema with email format", func() {
 			source := `
 				import "net/mail"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *mail.Address
 				}

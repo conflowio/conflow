@@ -45,7 +45,7 @@ var _ = Describe("UUID", func() {
 		It("should be parsed as string schema with uuid format", func() {
 			source := `
 				import "github.com/google/uuid"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v uuid.UUID
 				}
@@ -65,7 +65,7 @@ var _ = Describe("UUID", func() {
 		It("should be parsed as string schema with uuid format", func() {
 			source := `
 				import "github.com/google/uuid"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *uuid.UUID
 				}

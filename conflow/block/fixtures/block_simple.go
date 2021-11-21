@@ -8,7 +8,7 @@ package fixtures
 
 import "github.com/conflowio/conflow/conflow"
 
-// @block
+// @block "configuration"
 type BlockSimple struct {
 	// @id
 	IDField conflow.ID

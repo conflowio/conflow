@@ -80,7 +80,7 @@ var _ = Describe("Time", func() {
 		It("should be parsed as string schema with time format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v types.Time
 				}
@@ -100,7 +100,7 @@ var _ = Describe("Time", func() {
 		It("should be parsed as string schema with time format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *types.Time
 				}
