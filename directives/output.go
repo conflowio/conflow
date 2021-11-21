@@ -8,6 +8,7 @@ package directives
 
 import (
 	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 	"github.com/conflowio/conflow/util"
 )
 
@@ -18,6 +19,9 @@ import (
 type Output struct {
 	// @id
 	id conflow.ID
+	// @name "type"
+	// @required
+	schema schema.Schema
 }
 
 func (o *Output) ID() conflow.ID {
@@ -26,4 +30,11 @@ func (o *Output) ID() conflow.ID {
 
 func (o *Output) ApplyToParameterConfig(config *conflow.ParameterConfig) {
 	config.Output = util.BoolPtr(true)
+	config.Schema = o.schema
+}
+
+func (o *Output) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
+		BlockTransformerRegistry: schemaRegistry,
+	}
 }
