@@ -38,9 +38,9 @@ func eval(input string) {
 
 	mainInterpreter := blocks.MainInterpreter{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"println": blocks.PrintlnInterpreter{},
-			"range":   blocks.RangeInterpreter{},
-			"sleep":   blocks.SleepInterpreter{},
+			"println":  blocks.PrintlnInterpreter{},
+			"iterator": blocks.IteratorInterpreter{},
+			"sleep":    blocks.SleepInterpreter{},
 		},
 		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	}

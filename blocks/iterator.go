@@ -15,34 +15,34 @@ import (
 )
 
 // @block "generator"
-type Range struct {
+type Iterator struct {
 	// @id
 	id    conflow.ID
 	value interface{}
 	// @generated
-	entry *RangeEntry
+	it *It
 	// @dependency
 	blockPublisher conflow.BlockPublisher
 }
 
-func (r *Range) ParseContextOverride() conflow.ParseContextOverride {
+func (i *Iterator) ParseContextOverride() conflow.ParseContextOverride {
 	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"entry": RangeEntryInterpreter{},
+			"it": ItInterpreter{},
 		},
 	}
 }
 
-func (r *Range) ID() conflow.ID {
-	return r.id
+func (i *Iterator) ID() conflow.ID {
+	return i.id
 }
 
-func (r *Range) Run(ctx context.Context) (conflow.Result, error) {
-	switch val := r.value.(type) {
+func (i *Iterator) Run(ctx context.Context) (conflow.Result, error) {
+	switch val := i.value.(type) {
 	case []interface{}:
 		for k, v := range val {
-			_, err := r.blockPublisher.PublishBlock(&RangeEntry{
-				id:    r.entry.id,
+			_, err := i.blockPublisher.PublishBlock(&It{
+				id:    i.it.id,
 				key:   k,
 				value: v,
 			}, nil)
@@ -52,8 +52,8 @@ func (r *Range) Run(ctx context.Context) (conflow.Result, error) {
 		}
 	case map[string]interface{}:
 		for k, v := range val {
-			_, err := r.blockPublisher.PublishBlock(&RangeEntry{
-				id:    r.entry.id,
+			_, err := i.blockPublisher.PublishBlock(&It{
+				id:    i.it.id,
 				key:   k,
 				value: v,
 			}, nil)
@@ -62,14 +62,14 @@ func (r *Range) Run(ctx context.Context) (conflow.Result, error) {
 			}
 		}
 	default:
-		return nil, fmt.Errorf("invalid value for range: %T", r.value)
+		return nil, fmt.Errorf("invalid value for range: %T", i.value)
 	}
 
 	return nil, nil
 }
 
 // @block "configuration"
-type RangeEntry struct {
+type It struct {
 	// @id
 	id conflow.ID
 	// @read_only
@@ -78,6 +78,6 @@ type RangeEntry struct {
 	value interface{}
 }
 
-func (r *RangeEntry) ID() conflow.ID {
-	return r.id
+func (i *It) ID() conflow.ID {
+	return i.id
 }
