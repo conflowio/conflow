@@ -121,6 +121,20 @@ func ParseStruct(
 		}
 	}
 
+	if s.GetAnnotation(conflow.AnnotationType) == conflow.BlockTypeGenerator {
+		hasGeneratedField := false
+		for _, p := range s.Parameters {
+			if p.GetAnnotation(conflow.AnnotationGenerated) == "true" {
+				hasGeneratedField = true
+				break
+			}
+		}
+
+		if !hasGeneratedField {
+			return nil, errors.New("a generator block must have at least one field marked as @generated")
+		}
+	}
+
 	var interpreterPath string
 	if bd != nil {
 		interpreterPath = bd.Path
