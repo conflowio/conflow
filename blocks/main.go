@@ -27,7 +27,13 @@ type MainInterpreter struct {
 }
 
 func (m MainInterpreter) Schema() schema.Schema {
-	return &schema.Object{}
+	return &schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{
+				conflow.AnnotationType: conflow.BlockTypeMain,
+			},
+		},
+	}
 }
 
 func (m MainInterpreter) CreateBlock(conflow.ID, *conflow.BlockContext) conflow.Block {

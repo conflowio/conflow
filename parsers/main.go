@@ -20,6 +20,7 @@ import (
 
 	"github.com/conflowio/conflow/conflow"
 	"github.com/conflowio/conflow/conflow/block"
+	"github.com/conflowio/conflow/conflow/schema"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)
@@ -30,6 +31,15 @@ import (
 //         -> ARRAY
 //         -> MAP
 func NewMain(id conflow.ID, interpreter conflow.BlockInterpreter) *Main {
+	blockType := interpreter.Schema().GetAnnotation(conflow.AnnotationType)
+	if blockType != conflow.BlockTypeMain && blockType != conflow.BlockTypeConfiguration {
+		panic(fmt.Errorf(
+			"%T can not be used as a main block, as it is a %s block",
+			interpreter.Schema().(schema.ObjectKind).GetName(),
+			blockType,
+		))
+	}
+
 	m := &Main{
 		id:          id,
 		interpreter: interpreter,
