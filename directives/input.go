@@ -8,16 +8,21 @@ package directives
 
 import (
 	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/conflow/schema"
 	"github.com/conflowio/conflow/util"
 )
 
 // @block {
+//   type = "directive"
 //   eval_stage = "parse"
 // }
 type Input struct {
 	// @id
 	id       conflow.ID
 	required bool
+	// @name "type"
+	// @required
+	schema schema.Schema
 }
 
 func (i *Input) ID() conflow.ID {
@@ -27,4 +32,11 @@ func (i *Input) ID() conflow.ID {
 func (i *Input) ApplyToParameterConfig(config *conflow.ParameterConfig) {
 	config.Input = util.BoolPtr(true)
 	config.Required = util.BoolPtr(i.required)
+	config.Schema = i.schema
+}
+
+func (i *Input) ParseContextOverride() conflow.ParseContextOverride {
+	return conflow.ParseContextOverride{
+		BlockTransformerRegistry: schemaRegistry,
+	}
 }

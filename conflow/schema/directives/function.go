@@ -15,7 +15,7 @@ import (
 
 // Function is the directive for marking functions as conflow functions
 //
-// @block
+// @block "directive"
 type Function struct {
 	// @id
 	id   conflow.ID

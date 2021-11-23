@@ -14,7 +14,7 @@ import (
 	"github.com/conflowio/conflow/conflow/block"
 )
 
-// @block
+// @block "task"
 type Benchmark struct {
 	// @id
 	id conflow.ID
@@ -62,7 +62,7 @@ func (b *Benchmark) ParseContextOverride() conflow.ParseContextOverride {
 	}
 }
 
-// @block
+// @block "configuration"
 type BenchmarkRun struct {
 	// @id
 	id conflow.ID

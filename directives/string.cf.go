@@ -19,7 +19,7 @@ func (i StringInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
 			},
 			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "nullable": "Nullable", "pattern": "Pattern", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 			JSONPropertyNames: map[string]string{"id": "$id", "max_length": "maxLength", "min_length": "minLength", "read_only": "readOnly", "write_only": "writeOnly"},

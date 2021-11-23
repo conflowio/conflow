@@ -17,9 +17,10 @@ func (i InputInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
 			},
-			Name: "Input",
+			JSONPropertyNames: map[string]string{"type": "schema"},
+			Name:              "Input",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
@@ -29,7 +30,11 @@ func (i InputInterpreter) Schema() schema.Schema {
 					Format: "conflow.ID",
 				},
 				"required": &schema.Boolean{},
+				"type": &schema.Reference{
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/conflow/schema.Schema",
+				},
 			},
+			Required: []string{"type"},
 		}
 	}
 	return i.s
@@ -78,5 +83,10 @@ func (i InputInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 }
 
 func (i InputInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+	b := block.(*Input)
+	switch name {
+	case "type":
+		b.schema = value.(schema.Schema)
+	}
 	return nil
 }

@@ -38,7 +38,7 @@ import (
 	"github.com/conflowio/conflow/conflow"
 )
 
-// @block
+// @block "task"
 type Hello struct {
 	// @id
 	id conflow.ID
@@ -117,7 +117,7 @@ print "Result was: " + test.stdout
  * The init call returns with a boolean parameter to signal whether the block should run or be skipped (conditional runs)
 
 ```go
-// @block
+// @block "task"
 type SampleBlock struct {
     // @id
 	id      conflow.ID
@@ -151,7 +151,7 @@ func (s *SampleBlock) Close(ctx context.Context) error {
 * An error will be returned if any dependent blocks had an error during run.
 
 ```go
-// @block
+// @block "generator"
 type Iterator struct {
 	// @id
 	id conflow.ID

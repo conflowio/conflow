@@ -9,6 +9,8 @@ package schema_test
 import (
 	"reflect"
 
+	"github.com/conflowio/conflow/conflow"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -66,13 +68,18 @@ var _ = Describe("Format", func() {
 			It("should be used for the given type", func() {
 				source := `
 					import "github.com/conflowio/conflow/internal/testhelper"
-					// @block
+					// @block "configuration"
 					type Foo struct {
 						v testhelper.CustomStruct
 					}
 				`
 				testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
 					Name: "Foo",
+					Metadata: schema.Metadata{
+						Annotations: map[string]string{
+							conflow.AnnotationType: conflow.BlockTypeConfiguration,
+						},
+					},
 					Parameters: map[string]schema.Schema{
 						"v": &schema.String{
 							Format: "test",

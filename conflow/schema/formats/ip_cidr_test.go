@@ -10,7 +10,6 @@ import (
 	"net"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	"github.com/conflowio/conflow/conflow/types"
 
@@ -65,19 +64,12 @@ var _ = Describe("IPCIDR", func() {
 		It("should be parsed as string schema with ip-cidr format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v types.CIDR
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPCIDR,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPCIDR, false)
 		})
 	})
 
@@ -85,20 +77,12 @@ var _ = Describe("IPCIDR", func() {
 		It("should be parsed as string schema with ip-cidr format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *types.CIDR
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatIPCIDR,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPCIDR, true)
 		})
 	})
 
@@ -138,20 +122,13 @@ var _ = Describe("IPv4CIDR", func() {
 		It("should be parsed as string schema with ipv4-cidr format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "ipv4-cidr"
 					v types.CIDR
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPv4CIDR,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPv4CIDR, false)
 		})
 	})
 
@@ -191,20 +168,13 @@ var _ = Describe("IPv6CIDR", func() {
 		It("should be parsed as string schema with ipv6-cidr format", func() {
 			source := `
 				import "github.com/conflowio/conflow/conflow/types"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "ipv6-cidr"
 					v types.CIDR
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPv6CIDR,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPv6CIDR, false)
 		})
 	})
 

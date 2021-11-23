@@ -12,7 +12,7 @@ import (
 	"github.com/conflowio/conflow/conflow"
 )
 
-// @block
+// @block "generator"
 type BlockGenerator struct {
 	// @id
 	id conflow.ID
@@ -41,7 +41,7 @@ func (b *BlockGenerator) Run(ctx context.Context) (conflow.Result, error) {
 	return nil, nil
 }
 
-// @block
+// @block "configuration"
 type BlockGeneratorResult struct {
 	// @id
 	id    conflow.ID

@@ -15,7 +15,7 @@ import (
 	"github.com/conflowio/conflow/conflow/block"
 )
 
-// @block
+// @block "task"
 type Gunzip struct {
 	// @id
 	id conflow.ID

@@ -17,6 +17,7 @@ func (i FailInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "task"},
 				Description: "It will error for the given tries",
 			},
 			JSONPropertyNames: map[string]string{"tries_required": "triesRequired"},

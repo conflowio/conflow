@@ -13,7 +13,9 @@ import (
 	"github.com/conflowio/conflow/conflow/block"
 )
 
-// @block
+// @block {
+//    type = "generator"
+// }
 type Iterator struct {
 	// @id
 	id conflow.ID
@@ -51,7 +53,7 @@ func (it *Iterator) ParseContextOverride() conflow.ParseContextOverride {
 	}
 }
 
-// @block
+// @block "configuration"
 type It struct {
 	// @id
 	id conflow.ID

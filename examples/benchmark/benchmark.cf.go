@@ -17,6 +17,9 @@ type BenchmarkInterpreter struct {
 func (i BenchmarkInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "task"},
+			},
 			Name: "Benchmark",
 			Parameters: map[string]schema.Schema{
 				"counter": &schema.Integer{

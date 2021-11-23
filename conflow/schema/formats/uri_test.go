@@ -10,7 +10,6 @@ import (
 	"net/url"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -60,19 +59,12 @@ var _ = Describe("URI", func() {
 		It("should be parsed as string schema with uri format", func() {
 			source := `
 				import "net/url"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v url.URL
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatURI,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatURI, false)
 		})
 	})
 
@@ -80,20 +72,12 @@ var _ = Describe("URI", func() {
 		It("should be parsed as string schema with uri format", func() {
 			source := `
 				import "net/url"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *url.URL
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatURI,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatURI, true)
 		})
 	})
 
@@ -157,20 +141,13 @@ var _ = Describe("URIReference", func() {
 		It("should be parsed as string schema with uri-reference format", func() {
 			source := `
 				import "net/url"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "uri-reference"
 					v url.URL
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatURIReference,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatURIReference, false)
 		})
 	})
 

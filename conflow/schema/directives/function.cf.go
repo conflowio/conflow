@@ -17,6 +17,7 @@ func (i FunctionInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
 				Description: "It is the directive for marking functions as conflow functions",
 			},
 			JSONPropertyNames: map[string]string{"path": "Path"},

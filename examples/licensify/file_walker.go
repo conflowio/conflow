@@ -16,8 +16,8 @@ import (
 	"github.com/conflowio/conflow/conflow/block"
 )
 
-// @block
-type Glob struct {
+// @block "generator"
+type FileWalker struct {
 	// @id
 	id conflow.ID
 	// @required
@@ -30,22 +30,22 @@ type Glob struct {
 	blockPublisher conflow.BlockPublisher
 }
 
-func (g *Glob) ID() conflow.ID {
-	return g.id
+func (f *FileWalker) ID() conflow.ID {
+	return f.id
 }
 
-func (g *Glob) Run(ctx context.Context) (conflow.Result, error) {
-	includes, err := g.compileRegexps(g.include)
+func (f *FileWalker) Run(ctx context.Context) (conflow.Result, error) {
+	includes, err := f.compileRegexps(f.include)
 	if err != nil {
 		return nil, err
 	}
 
-	excludes, err := g.compileRegexps(g.exclude)
+	excludes, err := f.compileRegexps(f.exclude)
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, filepath.Walk(g.path, func(path string, info os.FileInfo, err error) error {
+	return nil, filepath.Walk(f.path, func(path string, info os.FileInfo, err error) error {
 		match := len(includes) == 0
 
 		for _, re := range includes {
@@ -65,12 +65,12 @@ func (g *Glob) Run(ctx context.Context) (conflow.Result, error) {
 			}
 		}
 
-		_, perr := g.blockPublisher.PublishBlock(&File{id: g.file.id, path: path}, nil)
+		_, perr := f.blockPublisher.PublishBlock(&File{id: f.file.id, path: path}, nil)
 		return perr
 	})
 }
 
-func (g *Glob) ParseContextOverride() conflow.ParseContextOverride {
+func (f *FileWalker) ParseContextOverride() conflow.ParseContextOverride {
 	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"file": FileInterpreter{},
@@ -78,7 +78,7 @@ func (g *Glob) ParseContextOverride() conflow.ParseContextOverride {
 	}
 }
 
-func (g *Glob) compileRegexps(exprs []string) ([]*regexp.Regexp, error) {
+func (f *FileWalker) compileRegexps(exprs []string) ([]*regexp.Regexp, error) {
 	var res []*regexp.Regexp
 	for _, expr := range exprs {
 		r, err := regexp.Compile(expr)
@@ -90,7 +90,7 @@ func (g *Glob) compileRegexps(exprs []string) ([]*regexp.Regexp, error) {
 	return res, nil
 }
 
-// @block
+// @block "configuration"
 type File struct {
 	// @id
 	id   conflow.ID

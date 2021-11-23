@@ -17,9 +17,10 @@ func (i BlockInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
 				Description: "It is the directive for marking structs as conflow blocks",
 			},
-			JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path"},
+			JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path", "type": "Type"},
 			Name:              "Block",
 			Parameters: map[string]schema.Schema{
 				"eval_stage": &schema.String{
@@ -33,7 +34,14 @@ func (i BlockInterpreter) Schema() schema.Schema {
 					Format: "conflow.ID",
 				},
 				"path": &schema.String{},
+				"type": &schema.String{
+					Metadata: schema.Metadata{
+						Annotations: map[string]string{"block.conflow.io/value": "true"},
+					},
+					Enum: []string{"configuration", "directive", "generator", "main", "task"},
+				},
 			},
+			Required: []string{"type"},
 		}
 	}
 	return i.s
@@ -48,7 +56,7 @@ func (i BlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockCont
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
 func (i BlockInterpreter) ValueParamName() conflow.ID {
-	return ""
+	return "type"
 }
 
 // ParseContext returns with the parse context for the block
@@ -69,6 +77,8 @@ func (i BlockInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Block).id
 	case "path":
 		return b.(*Block).Path
+	case "type":
+		return b.(*Block).Type
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Block", name))
 	}
@@ -81,6 +91,8 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 		b.EvalStage = value.(string)
 	case "path":
 		b.Path = value.(string)
+	case "type":
+		b.Type = value.(string)
 	}
 	return nil
 }

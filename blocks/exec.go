@@ -20,7 +20,7 @@ import (
 	"github.com/conflowio/conflow/util/multierror"
 )
 
-// @block
+// @block "task"
 type Exec struct {
 	// @id
 	id conflow.ID

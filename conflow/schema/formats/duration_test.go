@@ -10,7 +10,6 @@ import (
 	"github.com/conflowio/conflow/conflow/schema"
 	"github.com/conflowio/conflow/conflow/schema/formats"
 	"github.com/conflowio/conflow/conflow/types"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	. "github.com/onsi/ginkgo"
 
@@ -104,39 +103,24 @@ var _ = Describe("Duration", func() {
 	When("a field type is time.Duration", func() {
 		It("should be parsed as string schema with duration-go format", func() {
 			source := `
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v time.Duration
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatDurationGo,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatDurationGo, false)
 		})
 	})
 
 	When("a field type is *time.Duration", func() {
 		It("should be parsed as string schema with duration-go format", func() {
 			source := `
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *time.Duration
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatDurationGo,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatDurationGo, true)
 		})
 	})
 

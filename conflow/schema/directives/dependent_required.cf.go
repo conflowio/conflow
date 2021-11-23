@@ -16,6 +16,9 @@ type DependentRequiredInterpreter struct {
 func (i DependentRequiredInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			},
 			JSONPropertyNames: map[string]string{"value": "Value"},
 			Name:              "DependentRequired",
 			Parameters: map[string]schema.Schema{

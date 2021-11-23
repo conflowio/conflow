@@ -12,7 +12,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
 
 	"github.com/conflowio/conflow/conflow/schema/formats"
 )
@@ -46,41 +45,26 @@ var _ = Describe("Hostname", func() {
 	When("a field type is string and has 'hostname' format", func() {
 		It("should be parsed as string schema with hostname format", func() {
 			source := `
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "hostname"
 					v string
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatHostname,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatHostname, false)
 		})
 	})
 
 	When("a field type is *string and has hostname format", func() {
 		It("should be parsed as string schema with hostname format", func() {
 			source := `
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "hostname"
 					v *string
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatHostname,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatHostname, true)
 		})
 	})
 

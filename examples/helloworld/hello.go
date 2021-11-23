@@ -16,7 +16,7 @@ import (
 )
 
 // Hello is capable to print some greetings
-// @block
+// @block "task"
 type Hello struct {
 	// @id
 	id conflow.ID

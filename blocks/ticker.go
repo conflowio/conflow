@@ -14,7 +14,7 @@ import (
 	"github.com/conflowio/conflow/conflow/block"
 )
 
-// @block
+// @block "generator"
 type Ticker struct {
 	// @id
 	id conflow.ID
@@ -58,7 +58,7 @@ func (t *Ticker) ParseContextOverride() conflow.ParseContextOverride {
 	}
 }
 
-// @block
+// @block "configuration"
 type Tick struct {
 	// @id
 	id conflow.ID

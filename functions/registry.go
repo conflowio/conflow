@@ -11,6 +11,7 @@ import (
 	"github.com/conflowio/conflow/functions/json"
 	"github.com/conflowio/conflow/functions/math"
 	"github.com/conflowio/conflow/functions/strings"
+	"github.com/conflowio/conflow/functions/time"
 )
 
 func DefaultRegistry() function.InterpreterRegistry {
@@ -38,5 +39,6 @@ func DefaultRegistry() function.InterpreterRegistry {
 		"strings.upper":           strings.UpperInterpreter{},
 		"json_decode":             json.DecodeInterpreter{},
 		"json_encode":             json.EncodeInterpreter{},
+		"time.now":                time.NowInterpreter{},
 	}
 }

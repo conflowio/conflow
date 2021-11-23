@@ -16,6 +16,9 @@ type LicensifyInterpreter struct {
 func (i LicensifyInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "task"},
+			},
 			Name: "Licensify",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{

@@ -8,15 +8,18 @@ import (
 	"github.com/conflowio/conflow/conflow/schema"
 )
 
-// RangeEntryInterpreter is the conflow interpreter for the RangeEntry block
-type RangeEntryInterpreter struct {
+// ItInterpreter is the conflow interpreter for the It block
+type ItInterpreter struct {
 	s schema.Schema
 }
 
-func (i RangeEntryInterpreter) Schema() schema.Schema {
+func (i ItInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "RangeEntry",
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			},
+			Name: "It",
 			Parameters: map[string]schema.Schema{
 				"id": &schema.String{
 					Metadata: schema.Metadata{
@@ -43,21 +46,21 @@ func (i RangeEntryInterpreter) Schema() schema.Schema {
 	return i.s
 }
 
-// Create creates a new RangeEntry block
-func (i RangeEntryInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &RangeEntry{
+// Create creates a new It block
+func (i ItInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
+	return &It{
 		id: id,
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i RangeEntryInterpreter) ValueParamName() conflow.ID {
+func (i ItInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i RangeEntryInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
-	var nilBlock *RangeEntry
+func (i ItInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
+	var nilBlock *It
 	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
@@ -65,23 +68,23 @@ func (i RangeEntryInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.
 	return ctx
 }
 
-func (i RangeEntryInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
+func (i ItInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
-		return b.(*RangeEntry).id
+		return b.(*It).id
 	case "key":
-		return b.(*RangeEntry).key
+		return b.(*It).key
 	case "value":
-		return b.(*RangeEntry).value
+		return b.(*It).value
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in RangeEntry", name))
+		panic(fmt.Errorf("unexpected parameter %q in It", name))
 	}
 }
 
-func (i RangeEntryInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i ItInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }
 
-func (i RangeEntryInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i ItInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
 	return nil
 }

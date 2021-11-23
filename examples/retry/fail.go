@@ -13,7 +13,7 @@ import (
 )
 
 // Fail will error for the given tries
-// @block
+// @block "task"
 type Fail struct {
 	// @id
 	id conflow.ID

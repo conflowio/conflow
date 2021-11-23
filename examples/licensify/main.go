@@ -18,7 +18,7 @@ import (
 	"github.com/conflowio/conflow/util"
 )
 
-// @block
+// @block "main"
 type Main struct {
 	// @id
 	id conflow.ID
@@ -31,10 +31,10 @@ func (m *Main) ID() conflow.ID {
 func (m *Main) ParseContextOverride() conflow.ParseContextOverride {
 	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{
-			"glob":      GlobInterpreter{},
-			"licensify": LicensifyInterpreter{},
-			"print":     blocks.PrintInterpreter{},
-			"println":   blocks.PrintlnInterpreter{},
+			"file_walker": FileWalkerInterpreter{},
+			"licensify":   LicensifyInterpreter{},
+			"print":       blocks.PrintInterpreter{},
+			"println":     blocks.PrintlnInterpreter{},
 		},
 	}
 }

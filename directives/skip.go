@@ -12,6 +12,7 @@ import (
 )
 
 // @block {
+//   type = "directive"
 //   eval_stage = "init"
 // }
 type Skip struct {

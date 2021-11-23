@@ -8,7 +8,7 @@ package blocks
 
 import "github.com/conflowio/conflow/conflow"
 
-// @block
+// @block "configuration"
 type Basic struct {
 	// @id
 	id conflow.ID

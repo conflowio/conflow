@@ -15,13 +15,17 @@ import (
 
 // Block is the directive for marking structs as conflow blocks
 //
-// @block
+// @block "directive"
 type Block struct {
 	// @id
-	id   conflow.ID
-	Path string
+	id conflow.ID
 	// @enum ["ignore", "init", "parse", "resolve"]
 	EvalStage string
+	Path      string
+	// @enum ["configuration", "directive", "generator", "main", "task"]
+	// @value
+	// @required
+	Type string
 }
 
 func (b *Block) ID() conflow.ID {
@@ -32,6 +36,8 @@ func (b *Block) ApplyToSchema(s schema.Schema) error {
 	if _, ok := s.(*schema.Object); !ok {
 		return fmt.Errorf("@block can only be used on a struct")
 	}
+
+	s.(*schema.Object).SetAnnotation(conflow.AnnotationType, b.Type)
 
 	if b.EvalStage != "" {
 		s.(*schema.Object).SetAnnotation(conflow.AnnotationEvalStage, b.EvalStage)

@@ -17,6 +17,9 @@ type SleepInterpreter struct {
 func (i SleepInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "task"},
+			},
 			Name: "Sleep",
 			Parameters: map[string]schema.Schema{
 				"duration": &schema.String{

@@ -16,6 +16,7 @@ import (
 )
 
 // @block {
+//   type = "task"
 //   eval_stage = "parse"
 // }
 type Import struct {

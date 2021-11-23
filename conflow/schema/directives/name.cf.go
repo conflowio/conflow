@@ -16,6 +16,9 @@ type NameInterpreter struct {
 func (i NameInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			},
 			JSONPropertyNames: map[string]string{"value": "Value"},
 			Name:              "Name",
 			Parameters: map[string]schema.Schema{

@@ -17,6 +17,9 @@ type StreamInterpreter struct {
 func (i StreamInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			},
 			JSONPropertyNames: map[string]string{"stream": "Stream"},
 			Name:              "Stream",
 			Parameters: map[string]schema.Schema{

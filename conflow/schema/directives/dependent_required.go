@@ -20,7 +20,7 @@ type nonEmptyString = string
 // @unique_items
 type uniqueNonEmptyStringList = []nonEmptyString
 
-// @block
+// @block "directive"
 type DependentRequired struct {
 	// @id
 	id conflow.ID

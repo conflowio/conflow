@@ -65,7 +65,11 @@ func evalParams() (map[conflow.ID]interface{}, error) {
 	f := text.NewFile("params", []byte(*params))
 	fs := parsley.NewFileSet(f)
 
-	value, err := parsley.Evaluate(parsley.NewContext(fs, text.NewReader(f)), combinator.Sentence(parsers.KeyValuePairs()))
+	ctx := parsley.NewContext(fs, text.NewReader(f))
+	ctx.EnableStaticCheck()
+	ctx.EnableTransformation()
+
+	value, err := parsley.Evaluate(ctx, combinator.Sentence(parsers.KeyValuePairs()))
 	if err != nil {
 		return nil, err
 	}

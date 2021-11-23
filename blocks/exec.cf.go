@@ -16,6 +16,9 @@ type ExecInterpreter struct {
 func (i ExecInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "task"},
+			},
 			JSONPropertyNames: map[string]string{"exit_code": "exitCode"},
 			Name:              "Exec",
 			Parameters: map[string]schema.Schema{

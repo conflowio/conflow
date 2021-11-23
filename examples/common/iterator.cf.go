@@ -16,6 +16,9 @@ type IteratorInterpreter struct {
 func (i IteratorInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "generator"},
+			},
 			Name: "Iterator",
 			Parameters: map[string]schema.Schema{
 				"count": &schema.Integer{},

@@ -8,15 +8,18 @@ import (
 	"github.com/conflowio/conflow/conflow/schema"
 )
 
-// GlobInterpreter is the conflow interpreter for the Glob block
-type GlobInterpreter struct {
+// FileWalkerInterpreter is the conflow interpreter for the FileWalker block
+type FileWalkerInterpreter struct {
 	s schema.Schema
 }
 
-func (i GlobInterpreter) Schema() schema.Schema {
+func (i FileWalkerInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
-			Name: "Glob",
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "generator"},
+			},
+			Name: "FileWalker",
 			Parameters: map[string]schema.Schema{
 				"exclude": &schema.Array{
 					Items: &schema.String{},
@@ -46,22 +49,22 @@ func (i GlobInterpreter) Schema() schema.Schema {
 	return i.s
 }
 
-// Create creates a new Glob block
-func (i GlobInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Glob{
+// Create creates a new FileWalker block
+func (i FileWalkerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
+	return &FileWalker{
 		id:             id,
 		blockPublisher: blockCtx.BlockPublisher(),
 	}
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i GlobInterpreter) ValueParamName() conflow.ID {
+func (i FileWalkerInterpreter) ValueParamName() conflow.ID {
 	return ""
 }
 
 // ParseContext returns with the parse context for the block
-func (i GlobInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
-	var nilBlock *Glob
+func (i FileWalkerInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
+	var nilBlock *FileWalker
 	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
@@ -69,23 +72,23 @@ func (i GlobInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseC
 	return ctx
 }
 
-func (i GlobInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
+func (i FileWalkerInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "exclude":
-		return b.(*Glob).exclude
+		return b.(*FileWalker).exclude
 	case "id":
-		return b.(*Glob).id
+		return b.(*FileWalker).id
 	case "include":
-		return b.(*Glob).include
+		return b.(*FileWalker).include
 	case "path":
-		return b.(*Glob).path
+		return b.(*FileWalker).path
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in Glob", name))
+		panic(fmt.Errorf("unexpected parameter %q in FileWalker", name))
 	}
 }
 
-func (i GlobInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
-	b := block.(*Glob)
+func (i FileWalkerInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
+	b := block.(*FileWalker)
 	switch name {
 	case "exclude":
 		b.exclude = make([]string, len(value.([]interface{})))
@@ -103,8 +106,8 @@ func (i GlobInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i GlobInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
-	b := block.(*Glob)
+func (i FileWalkerInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+	b := block.(*FileWalker)
 	switch name {
 	case "file":
 		b.file = value.(*File)

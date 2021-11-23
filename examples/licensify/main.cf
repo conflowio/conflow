@@ -1,4 +1,4 @@
-glob {
+file_walker {
     path = "../../"
     include = [
       ".*\\.go$",

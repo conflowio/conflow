@@ -8,14 +8,14 @@ package directives_test
 
 func ExampleTriggers() {
 	eval(`
-		range {
+		iterator {
 			value = [1, 2, 3]
-			a entry
+			a it
 		}
 
-		range {
+		iterator {
 			value = [1, 2, 3]
-			b entry
+			b it
 		}
 
 		delayed_b sleep {

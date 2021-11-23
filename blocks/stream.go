@@ -19,7 +19,7 @@ func NewStream(id conflow.ID, stream io.ReadCloser) *Stream {
 	}
 }
 
-// @block
+// @block "configuration"
 type Stream struct {
 	// @id
 	id     conflow.ID

@@ -17,7 +17,7 @@ func (i DeprecatedInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "ignore"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "ignore", "block.conflow.io/type": "directive"},
 			},
 			Name: "Deprecated",
 			Parameters: map[string]schema.Schema{

@@ -8,8 +8,9 @@ package directives_test
 
 func ExampleInput_SingleLine() {
 	eval(`
-		@input
-		@string
+		@input {
+		  type:string
+		}
 		input_param := ""
 	`)
 	// Output:

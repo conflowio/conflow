@@ -15,7 +15,7 @@ import (
 	"github.com/conflowio/conflow/conflow"
 )
 
-// @block
+// @block "task"
 type Licensify struct {
 	// @id
 	id conflow.ID

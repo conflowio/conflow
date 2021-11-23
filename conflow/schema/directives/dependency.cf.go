@@ -16,6 +16,9 @@ type DependencyInterpreter struct {
 func (i DependencyInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
+			Metadata: schema.Metadata{
+				Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			},
 			JSONPropertyNames: map[string]string{"name": "Name"},
 			Name:              "Dependency",
 			Parameters: map[string]schema.Schema{

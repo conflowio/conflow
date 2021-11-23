@@ -17,7 +17,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 	if i.s == nil {
 		i.s = &schema.Object{
 			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse"},
+				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
 			},
 			FieldNames:        map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 			JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "read_only": "readOnly", "write_only": "writeOnly"},

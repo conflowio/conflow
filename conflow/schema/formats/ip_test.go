@@ -9,12 +9,11 @@ package formats_test
 import (
 	"net"
 
-	"github.com/conflowio/conflow/conflow/schema"
-	"github.com/conflowio/conflow/internal/testhelper"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/conflow/schema"
 
 	"github.com/conflowio/conflow/conflow/schema/formats"
 )
@@ -48,19 +47,12 @@ var _ = Describe("IP", func() {
 		It("should be parsed as string schema with ip format", func() {
 			source := `
 				import "net"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v net.IP
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIP,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIP, false)
 		})
 	})
 
@@ -68,20 +60,12 @@ var _ = Describe("IP", func() {
 		It("should be parsed as string schema with ip format", func() {
 			source := `
 				import "net"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					v *net.IP
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format:   schema.FormatIP,
-						Nullable: true,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIP, true)
 		})
 	})
 
@@ -113,20 +97,13 @@ var _ = Describe("IPv4", func() {
 		It("should be parsed as string schema with ipv4 format", func() {
 			source := `
 				import "net"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "ipv4"
 					v net.IP
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPv4,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPv4, false)
 		})
 	})
 
@@ -159,20 +136,13 @@ var _ = Describe("IPv6", func() {
 		It("should be parsed as string schema with ipv6 format", func() {
 			source := `
 				import "net"
-				// @block
+				// @block "configuration"
 				type Foo struct {
 					// @format "ipv6"
 					v net.IP
 				}
 			`
-			testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-				Name: "Foo",
-				Parameters: map[string]schema.Schema{
-					"v": &schema.String{
-						Format: schema.FormatIPv6,
-					},
-				},
-			})
+			expectGoStructToHaveStringSchema(source, schema.FormatIPv6, false)
 		})
 	})
 

@@ -1,11 +1,14 @@
-@input
-@integer
+@input {
+ type:integer
+}
 a := 0
 
-@input
-@integer
+@input {
+  type:integer
+}
 b := 0
 
-@output
-@integer
+@output {
+  type:integer
+}
 sum := main.a + main.b
