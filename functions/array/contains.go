@@ -4,15 +4,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package functions
+package array
 
 import (
 	"github.com/conflowio/conflow/conflow/schema"
 )
 
-// ArrayContains returns true if the array contains the given element
+// Contains returns true if the array contains the given element
 // @function
-func ArrayContains(arr []interface{}, elem interface{}) (bool, error) {
+func Contains(arr []interface{}, elem interface{}) (bool, error) {
 	s, err := schema.GetSchemaForValue(arr)
 	if err != nil {
 		return false, err

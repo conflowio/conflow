@@ -10,9 +10,9 @@ noop {
 }
 
 println {
-    value = "Count: " + string(b.counter)
+    value = str_format("Count: %d", b.counter)
 }
 
 println {
-    value = "Elapsed: " + string(b.elapsed)
+    value = str_format("Elapsed: %s", b.elapsed)
 }

@@ -7,5 +7,5 @@ ticker {
 }
 
 println {
-    value = t.prefix + string(t.time)
+    value = str_format("%s%s", t.prefix, t.time)
 }

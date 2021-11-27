@@ -20,5 +20,5 @@ sleep2 sleep {
 
 @triggers ["sleep2"]
 println {
-    value = string(sleep1.i1) + " " + string(sleep2.i2)
+    value = str_format("%d %d", sleep1.i1, sleep2.i2)
 }
