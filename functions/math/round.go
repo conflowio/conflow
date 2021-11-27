@@ -4,14 +4,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package functions
+package math
 
 import (
-	"fmt"
+	"math"
 )
 
-// Format formats according to a format specifier and returns the resulting string.
+// Round returns the nearest integer, rounding half away from zero.
 // @function
-func Format(format string, values ...interface{}) string {
-	return fmt.Sprintf(format, values...)
+func Round(value float64) float64 {
+	return math.Round(value)
 }

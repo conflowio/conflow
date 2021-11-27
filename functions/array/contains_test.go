@@ -4,10 +4,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package functions_test
+package array_test
 
 import (
 	"errors"
+
+	"github.com/conflowio/conflow/functions/array"
 
 	"github.com/conflowio/conflow/conflow/schema"
 
@@ -17,15 +19,14 @@ import (
 	. "github.com/onsi/gomega"
 
 	conflowfunction "github.com/conflowio/conflow/conflow/function"
-	"github.com/conflowio/conflow/functions"
 	"github.com/conflowio/conflow/parsers"
 	"github.com/conflowio/conflow/test"
 )
 
-var _ = Describe("ArrayContains", func() {
+var _ = Describe("Contains", func() {
 
 	registry := conflowfunction.InterpreterRegistry{
-		"test": functions.ArrayContainsInterpreter{},
+		"test": array.ContainsInterpreter{},
 	}
 
 	DescribeTable("it evaluates the input correctly",

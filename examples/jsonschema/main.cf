@@ -16,5 +16,5 @@ you person {
 }
 
 println {
-    value = format("Hello %s and %s! How is %s and %s?", you.name, you_spouse.name, pet1.name, pet2.name)
+    value = str_format("Hello %s and %s! How is %s and %s?", you.name, you_spouse.name, pet1.name, pet2.name)
 }
