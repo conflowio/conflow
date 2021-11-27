@@ -35,6 +35,7 @@ func DefaultRegistry() function.InterpreterRegistry {
 		"max":   math.MaxInterpreter{},
 		"min":   math.MinInterpreter{},
 		"round": math.RoundInterpreter{},
+		"trunc": math.TruncInterpreter{},
 
 		// strings
 		"str_contains":    strings.ContainsInterpreter{},
