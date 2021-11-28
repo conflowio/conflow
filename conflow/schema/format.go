@@ -28,6 +28,8 @@ type Format interface {
 }
 
 const (
+	FormatBinary          = "binary"
+	FormatByte            = "byte" // Alias to "binary"
 	FormatDefault         = ""
 	FormatDate            = "date"
 	FormatDateTime        = "date-time"
@@ -53,6 +55,8 @@ const (
 )
 
 var registeredFormats = map[string]Format{
+	FormatBinary:          formats.Binary{Default: true},
+	FormatByte:            formats.Binary{},
 	FormatDefault:         formats.String{},
 	FormatDate:            formats.Date{},
 	FormatDateTime:        formats.DateTime{},
@@ -96,7 +100,10 @@ func generateRegisteredFormatTypes() {
 
 func getFullyQualifiedTypeName(t reflect.Type) string {
 	if t.PkgPath() == "" {
-		return t.Name()
+		if name := t.Name(); name != "" {
+			return t.Name()
+		}
+		return t.String()
 	}
 	return fmt.Sprintf("%s.%s", t.PkgPath(), t.Name())
 }
