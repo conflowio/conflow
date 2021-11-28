@@ -231,6 +231,14 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 			}
 		}
 	case *ast.ArrayType:
+		// []byte (or []uint8) is a special case
+		if ident, ok := tn.Elt.(*ast.Ident); ok {
+			if ident.String() == "byte" || ident.String() == "uint8" {
+				if formatName, _, ok := schema.GetFormatForType("[]uint8"); ok {
+					return &schema.String{Format: formatName}, false, nil
+				}
+			}
+		}
 		itemsSchema, isRef, err := getBaseSchemaForType(parseCtx, tn.Elt, pkg)
 		if err != nil {
 			return nil, false, err

@@ -198,6 +198,7 @@ var _ = Describe("Schema", func() {
 		Entry("byte stream", os.Stdin, schema.ByteStreamValue(), nil),
 		Entry("unknown value", int8(1), nil, fmt.Errorf("value type int8 is not allowed")),
 
+		Entry("byte", []byte("aGVsbG8="), &schema.String{Format: schema.FormatBinary}, nil),
 		Entry("date-time", time.Now(), &schema.String{Format: schema.FormatDateTime}, nil),
 		Entry("duration", types.RFC3339Duration{}, &schema.String{Format: schema.FormatDurationRFC3339}, nil),
 		Entry("duration-go", 1*time.Second, &schema.String{Format: schema.FormatDurationGo}, nil),
