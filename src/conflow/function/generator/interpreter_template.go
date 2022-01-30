@@ -6,7 +6,7 @@
 
 package generator
 
-import "github.com/conflowio/conflow/src/conflow/schema"
+import "github.com/conflowio/conflow/src/schema"
 
 type InterpreterTemplateParams struct {
 	Package          string
@@ -14,7 +14,6 @@ type InterpreterTemplateParams struct {
 	FuncNameSelector string
 	FuncName         string
 	Schema           schema.Schema
-	SchemaString     string
 	Imports          map[string]string
 	ReturnsError     bool
 }
@@ -38,16 +37,17 @@ import (
 const interpreterTemplate = `
 {{ $root := . -}}
 
-// {{ .Name }}Interpreter is the conflow interpreter for the {{ .FuncName }} function
+func init() {
+	schema.Register({{ .Schema.GoString .Imports }})
+}
+
+// {{ .Name }}Interpreter is the Conflow interpreter for the {{ .FuncName }} function
 type {{ .Name }}Interpreter struct {
-	s schema.Schema
 }
 
 func (i {{ .Name }}Interpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = {{ .SchemaString }}
-	}
-	return i.s
+	s, _ := schema.Get("{{ .Schema.ID }}")
+	return s
 }
 
 // Eval returns with the result of the function

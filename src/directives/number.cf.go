@@ -5,65 +5,67 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// NumberInterpreter is the conflow interpreter for the Number block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Number",
+		},
+		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+		JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
+		Name:              "Number",
+		Parameters: map[string]schema.Schema{
+			"annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
+			"const": &schema.Number{
+				Nullable: true,
+			},
+			"default": &schema.Number{
+				Nullable: true,
+			},
+			"deprecated":  &schema.Boolean{},
+			"description": &schema.String{},
+			"enum": &schema.Array{
+				Items: &schema.Number{},
+			},
+			"examples": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"exclusive_maximum": &schema.Number{
+				Nullable: true,
+			},
+			"exclusive_minimum": &schema.Number{
+				Nullable: true,
+			},
+			"id": &schema.String{},
+			"maximum": &schema.Number{
+				Nullable: true,
+			},
+			"minimum": &schema.Number{
+				Nullable: true,
+			},
+			"multiple_of": &schema.Number{
+				Nullable: true,
+			},
+			"nullable":   &schema.Boolean{},
+			"read_only":  &schema.Boolean{},
+			"title":      &schema.String{},
+			"write_only": &schema.Boolean{},
+		},
+	})
+}
+
+// NumberInterpreter is the Conflow interpreter for the Number block
 type NumberInterpreter struct {
-	s schema.Schema
 }
 
 func (i NumberInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
-			Name:              "Number",
-			Parameters: map[string]schema.Schema{
-				"annotations": &schema.Map{
-					AdditionalProperties: &schema.String{},
-				},
-				"const": &schema.Number{
-					Nullable: true,
-				},
-				"default": &schema.Number{
-					Nullable: true,
-				},
-				"deprecated":  &schema.Boolean{},
-				"description": &schema.String{},
-				"enum": &schema.Array{
-					Items: &schema.Number{},
-				},
-				"examples": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"exclusive_maximum": &schema.Number{
-					Nullable: true,
-				},
-				"exclusive_minimum": &schema.Number{
-					Nullable: true,
-				},
-				"id": &schema.String{},
-				"maximum": &schema.Number{
-					Nullable: true,
-				},
-				"minimum": &schema.Number{
-					Nullable: true,
-				},
-				"multiple_of": &schema.Number{
-					Nullable: true,
-				},
-				"nullable":   &schema.Boolean{},
-				"read_only":  &schema.Boolean{},
-				"title":      &schema.String{},
-				"write_only": &schema.Boolean{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Number")
+	return s
 }
 
 // Create creates a new Number block

@@ -3,38 +3,40 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// ReplaceInterpreter is the conflow interpreter for the Replace function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns a copy of the string s with all\nnon-overlapping instances of old replaced by new.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.Replace",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+			schema.NamedSchema{
+				Name:   "old",
+				Schema: &schema.String{},
+			},
+			schema.NamedSchema{
+				Name:   "new",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// ReplaceInterpreter is the Conflow interpreter for the Replace function
 type ReplaceInterpreter struct {
-	s schema.Schema
 }
 
 func (i ReplaceInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns a copy of the string s with all\nnon-overlapping instances of old replaced by new.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-				schema.NamedSchema{
-					Name:   "old",
-					Schema: &schema.String{},
-				},
-				schema.NamedSchema{
-					Name:   "new",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.Replace")
+	return s
 }
 
 // Eval returns with the result of the function

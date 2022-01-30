@@ -9,10 +9,11 @@ package parsers_test
 import (
 	"errors"
 
-	"github.com/conflowio/conflow/src/parsers"
-	"github.com/conflowio/conflow/src/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
+
+	"github.com/conflowio/conflow/src/parsers"
+	"github.com/conflowio/conflow/src/test"
 )
 
 var _ = Describe("MultilineText", func() {

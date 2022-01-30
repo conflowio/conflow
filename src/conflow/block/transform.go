@@ -18,7 +18,7 @@ import (
 	"github.com/conflowio/conflow/src/conflow/directive"
 	"github.com/conflowio/conflow/src/conflow/job"
 	"github.com/conflowio/conflow/src/conflow/parameter"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 	"github.com/conflowio/conflow/src/util"
 )
 

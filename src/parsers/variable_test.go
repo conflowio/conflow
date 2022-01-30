@@ -9,17 +9,16 @@ package parsers_test
 import (
 	"context"
 
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
-
 	"github.com/conflowio/parsley/combinator"
 	"github.com/conflowio/parsley/parsley"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/conflowfakes"
 	"github.com/conflowio/conflow/src/loggers/zerolog"
 	"github.com/conflowio/conflow/src/parsers"
+	"github.com/conflowio/conflow/src/schema"
 	"github.com/conflowio/conflow/src/test"
 )
 

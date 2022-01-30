@@ -5,63 +5,65 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// ExecInterpreter is the conflow interpreter for the Exec block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "task"},
+			ID:          "github.com/conflowio/conflow/src/blocks.Exec",
+		},
+		JSONPropertyNames: map[string]string{"exit_code": "exitCode"},
+		Name:              "Exec",
+		Parameters: map[string]schema.Schema{
+			"cmd": &schema.String{},
+			"dir": &schema.String{},
+			"env": &schema.Array{
+				Items: &schema.String{},
+			},
+			"exit_code": &schema.Integer{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
+					ReadOnly:    true,
+				},
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"params": &schema.Array{
+				Items: &schema.String{},
+			},
+			"stderr": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/src/blocks.Stream",
+			},
+			"stdout": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/src/blocks.Stream",
+			},
+		},
+		Required: []string{"cmd", "stdout", "stderr"},
+	})
+}
+
+// ExecInterpreter is the Conflow interpreter for the Exec block
 type ExecInterpreter struct {
-	s schema.Schema
 }
 
 func (i ExecInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "task"},
-			},
-			JSONPropertyNames: map[string]string{"exit_code": "exitCode"},
-			Name:              "Exec",
-			Parameters: map[string]schema.Schema{
-				"cmd": &schema.String{},
-				"dir": &schema.String{},
-				"env": &schema.Array{
-					Items: &schema.String{},
-				},
-				"exit_code": &schema.Integer{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-						ReadOnly:    true,
-					},
-				},
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"params": &schema.Array{
-					Items: &schema.String{},
-				},
-				"stderr": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/blocks.Stream",
-				},
-				"stdout": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/blocks.Stream",
-				},
-			},
-			Required: []string{"cmd", "stdout", "stderr"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.Exec")
+	return s
 }
 
 // Create creates a new Exec block

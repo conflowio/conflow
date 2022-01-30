@@ -19,9 +19,9 @@ import (
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/job"
-	"github.com/conflowio/conflow/src/conflow/schema"
-	"github.com/conflowio/conflow/src/conflow/schema/directives"
 	"github.com/conflowio/conflow/src/parsers"
+	"github.com/conflowio/conflow/src/schema"
+	"github.com/conflowio/conflow/src/schema/directives"
 )
 
 type Metadata struct {

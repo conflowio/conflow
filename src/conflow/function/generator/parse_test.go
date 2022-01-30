@@ -11,12 +11,12 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
-	"github.com/conflowio/conflow/src/conflow/function/generator"
-	"github.com/conflowio/conflow/src/conflow/generator/parser"
-	"github.com/conflowio/conflow/src/conflow/schema"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/src/conflow/function/generator"
+	"github.com/conflowio/conflow/src/conflow/generator/parser"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 var _ = Describe("ParseArguments", func() {
@@ -61,6 +61,9 @@ var _ = Describe("ParseArguments", func() {
 		It("should return with empty argument list", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
 			Expect(functionResult.Schema).To(Equal(&schema.Function{
+				Metadata: schema.Metadata{
+					ID: "test.Foo",
+				},
 				Result: &schema.Integer{},
 			}))
 			Expect(functionResult.ReturnsError).To(BeFalse())
@@ -82,6 +85,7 @@ var _ = Describe("ParseArguments", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
 			Expect(functionResult.Schema).To(Equal(&schema.Function{
 				Metadata: schema.Metadata{
+					ID:          "test.Foo",
 					Description: "It is a test function",
 				},
 				Result: &schema.Integer{},
@@ -102,6 +106,9 @@ var _ = Describe("ParseArguments", func() {
 		It("should set ReturnsError to true", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
 			Expect(functionResult.Schema).To(Equal(&schema.Function{
+				Metadata: schema.Metadata{
+					ID: "test.Foo",
+				},
 				Result: &schema.Integer{},
 			}))
 			Expect(functionResult.ReturnsError).To(BeTrue())
@@ -121,6 +128,9 @@ var _ = Describe("ParseArguments", func() {
 		It("should parse the arguments", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
 			Expect(functionResult.Schema).To(Equal(&schema.Function{
+				Metadata: schema.Metadata{
+					ID: "test.Foo",
+				},
 				Parameters: []schema.NamedSchema{
 					{Name: "a", Schema: &schema.Integer{}},
 					{Name: "b", Schema: &schema.Number{}},
@@ -146,6 +156,9 @@ var _ = Describe("ParseArguments", func() {
 		It("should parse the arguments", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
 			Expect(functionResult.Schema).To(Equal(&schema.Function{
+				Metadata: schema.Metadata{
+					ID: "test.Foo",
+				},
 				Parameters: []schema.NamedSchema{
 					{Name: "a", Schema: &schema.Untyped{}},
 				},
@@ -171,6 +184,9 @@ var _ = Describe("ParseArguments", func() {
 		It("should parse the arguments", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
 			Expect(functionResult.Schema).To(Equal(&schema.Function{
+				Metadata: schema.Metadata{
+					ID: "test.Foo",
+				},
 				Parameters: []schema.NamedSchema{
 					{
 						Name: "a",
@@ -197,6 +213,9 @@ var _ = Describe("ParseArguments", func() {
 		It("should parse the arguments", func() {
 			Expect(parseErr).ToNot(HaveOccurred())
 			Expect(functionResult.Schema).To(Equal(&schema.Function{
+				Metadata: schema.Metadata{
+					ID: "test.Foo",
+				},
 				Parameters: []schema.NamedSchema{
 					{
 						Name:   "a1",

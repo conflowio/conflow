@@ -14,8 +14,8 @@ import (
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
-	"github.com/conflowio/conflow/src/conflow/schema"
-	schemadirectives "github.com/conflowio/conflow/src/conflow/schema/directives"
+	"github.com/conflowio/conflow/src/schema"
+	schemadirectives "github.com/conflowio/conflow/src/schema/directives"
 )
 
 type Struct struct {
@@ -43,6 +43,7 @@ func ParseStruct(
 
 	s := &schema.Object{
 		Metadata: schema.Metadata{
+			ID:          fmt.Sprintf("%s.%s", pkg, name),
 			Description: metadata.Description,
 		},
 		Name:       name,

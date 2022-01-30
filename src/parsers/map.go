@@ -16,7 +16,7 @@ import (
 	"github.com/conflowio/parsley/text"
 	"github.com/conflowio/parsley/text/terminal"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // Map will match an map expression defined by the following rule, where P is the input parser:

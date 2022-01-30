@@ -9,7 +9,7 @@ package conflow
 import (
 	"github.com/conflowio/parsley/parsley"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // FunctionNameRegExpPattern defines a valid function name

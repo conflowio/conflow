@@ -3,34 +3,36 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// FormatInterpreter is the conflow interpreter for the Format function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It formats according to a format specifier and returns the resulting string.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.Format",
+		},
+		AdditionalParameters: &schema.NamedSchema{
+			Name:   "values",
+			Schema: &schema.Untyped{},
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "format",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// FormatInterpreter is the Conflow interpreter for the Format function
 type FormatInterpreter struct {
-	s schema.Schema
 }
 
 func (i FormatInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It formats according to a format specifier and returns the resulting string.",
-			},
-			AdditionalParameters: &schema.NamedSchema{
-				Name:   "values",
-				Schema: &schema.Untyped{},
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "format",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.Format")
+	return s
 }
 
 // Eval returns with the result of the function

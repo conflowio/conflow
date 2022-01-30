@@ -5,61 +5,63 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
-	"github.com/conflowio/conflow/src/conflow/schema/formats"
+	"github.com/conflowio/conflow/src/schema"
+	"github.com/conflowio/conflow/src/schema/formats"
 	"regexp"
 )
 
-// StringInterpreter is the conflow interpreter for the String block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.String",
+		},
+		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "nullable": "Nullable", "pattern": "Pattern", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+		JSONPropertyNames: map[string]string{"id": "$id", "max_length": "maxLength", "min_length": "minLength", "read_only": "readOnly", "write_only": "writeOnly"},
+		Name:              "String",
+		Parameters: map[string]schema.Schema{
+			"annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
+			"const": &schema.String{
+				Nullable: true,
+			},
+			"default": &schema.String{
+				Nullable: true,
+			},
+			"deprecated":  &schema.Boolean{},
+			"description": &schema.String{},
+			"enum": &schema.Array{
+				Items: &schema.String{},
+			},
+			"examples": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"format": &schema.String{},
+			"id":     &schema.String{},
+			"max_length": &schema.Integer{
+				Nullable: true,
+			},
+			"min_length": &schema.Integer{},
+			"nullable":   &schema.Boolean{},
+			"pattern": &schema.String{
+				Format:   "regex",
+				Nullable: true,
+			},
+			"read_only":  &schema.Boolean{},
+			"title":      &schema.String{},
+			"write_only": &schema.Boolean{},
+		},
+	})
+}
+
+// StringInterpreter is the Conflow interpreter for the String block
 type StringInterpreter struct {
-	s schema.Schema
 }
 
 func (i StringInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "nullable": "Nullable", "pattern": "Pattern", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"id": "$id", "max_length": "maxLength", "min_length": "minLength", "read_only": "readOnly", "write_only": "writeOnly"},
-			Name:              "String",
-			Parameters: map[string]schema.Schema{
-				"annotations": &schema.Map{
-					AdditionalProperties: &schema.String{},
-				},
-				"const": &schema.String{
-					Nullable: true,
-				},
-				"default": &schema.String{
-					Nullable: true,
-				},
-				"deprecated":  &schema.Boolean{},
-				"description": &schema.String{},
-				"enum": &schema.Array{
-					Items: &schema.String{},
-				},
-				"examples": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"format": &schema.String{},
-				"id":     &schema.String{},
-				"max_length": &schema.Integer{
-					Nullable: true,
-				},
-				"min_length": &schema.Integer{},
-				"nullable":   &schema.Boolean{},
-				"pattern": &schema.String{
-					Format:   "regex",
-					Nullable: true,
-				},
-				"read_only":  &schema.Boolean{},
-				"title":      &schema.String{},
-				"write_only": &schema.Boolean{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.String")
+	return s
 }
 
 // Create creates a new String block

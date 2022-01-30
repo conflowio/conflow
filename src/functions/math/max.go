@@ -7,7 +7,7 @@
 package math
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // Max returns with the greatest value

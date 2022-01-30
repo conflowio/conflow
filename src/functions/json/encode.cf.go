@@ -3,30 +3,32 @@
 package json
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// EncodeInterpreter is the conflow interpreter for the Encode function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It converts the given value to a json string",
+			ID:          "github.com/conflowio/conflow/src/functions/json.Encode",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "value",
+				Schema: &schema.Untyped{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// EncodeInterpreter is the Conflow interpreter for the Encode function
 type EncodeInterpreter struct {
-	s schema.Schema
 }
 
 func (i EncodeInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It converts the given value to a json string",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "value",
-					Schema: &schema.Untyped{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/json.Encode")
+	return s
 }
 
 // Eval returns with the result of the function

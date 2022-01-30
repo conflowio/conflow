@@ -3,34 +3,36 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// ContainsInterpreter is the conflow interpreter for the Contains function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It reports whether substr is within s.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.Contains",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+			schema.NamedSchema{
+				Name:   "substr",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.Boolean{},
+	})
+}
+
+// ContainsInterpreter is the Conflow interpreter for the Contains function
 type ContainsInterpreter struct {
-	s schema.Schema
 }
 
 func (i ContainsInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It reports whether substr is within s.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-				schema.NamedSchema{
-					Name:   "substr",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.Boolean{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.Contains")
+	return s
 }
 
 // Eval returns with the result of the function

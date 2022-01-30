@@ -6,7 +6,7 @@
 
 package conflow
 
-import "github.com/conflowio/conflow/src/conflow/schema"
+import "github.com/conflowio/conflow/src/schema"
 
 // ParameterDirective provides a way to add metadata for parameters
 //counterfeiter:generate . ParameterDirective

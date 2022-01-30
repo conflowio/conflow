@@ -3,30 +3,32 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// LowerInterpreter is the conflow interpreter for the Lower function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns a copy of the string s with all Unicode letters mapped to their lower case.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.Lower",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// LowerInterpreter is the Conflow interpreter for the Lower function
 type LowerInterpreter struct {
-	s schema.Schema
 }
 
 func (i LowerInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns a copy of the string s with all Unicode letters mapped to their lower case.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.Lower")
+	return s
 }
 
 // Eval returns with the result of the function

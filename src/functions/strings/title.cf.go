@@ -3,30 +3,32 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// TitleInterpreter is the conflow interpreter for the Title function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns a copy of the string s with all Unicode letters that begin words\nmapped to their title case.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.Title",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// TitleInterpreter is the Conflow interpreter for the Title function
 type TitleInterpreter struct {
-	s schema.Schema
 }
 
 func (i TitleInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns a copy of the string s with all Unicode letters that begin words\nmapped to their title case.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.Title")
+	return s
 }
 
 // Eval returns with the result of the function

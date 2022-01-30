@@ -5,59 +5,61 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// MapInterpreter is the conflow interpreter for the Map block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Map",
+		},
+		FieldNames:        map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+		JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "read_only": "readOnly", "write_only": "writeOnly"},
+		Name:              "Map",
+		Parameters: map[string]schema.Schema{
+			"additional_properties": &schema.Reference{
+				Ref: "github.com/conflowio/conflow/src/schema.Schema",
+			},
+			"annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
+			"const": &schema.Map{
+				AdditionalProperties: &schema.Untyped{},
+			},
+			"default": &schema.Map{
+				AdditionalProperties: &schema.Untyped{},
+			},
+			"deprecated":  &schema.Boolean{},
+			"description": &schema.String{},
+			"enum": &schema.Array{
+				Items: &schema.Map{
+					AdditionalProperties: &schema.Untyped{},
+				},
+			},
+			"examples": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"id": &schema.String{},
+			"max_properties": &schema.Integer{
+				Nullable: true,
+			},
+			"min_properties": &schema.Integer{},
+			"read_only":      &schema.Boolean{},
+			"title":          &schema.String{},
+			"write_only":     &schema.Boolean{},
+		},
+		Required: []string{"additional_properties"},
+	})
+}
+
+// MapInterpreter is the Conflow interpreter for the Map block
 type MapInterpreter struct {
-	s schema.Schema
 }
 
 func (i MapInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			},
-			FieldNames:        map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "read_only": "readOnly", "write_only": "writeOnly"},
-			Name:              "Map",
-			Parameters: map[string]schema.Schema{
-				"additional_properties": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow/schema.Schema",
-				},
-				"annotations": &schema.Map{
-					AdditionalProperties: &schema.String{},
-				},
-				"const": &schema.Map{
-					AdditionalProperties: &schema.Untyped{},
-				},
-				"default": &schema.Map{
-					AdditionalProperties: &schema.Untyped{},
-				},
-				"deprecated":  &schema.Boolean{},
-				"description": &schema.String{},
-				"enum": &schema.Array{
-					Items: &schema.Map{
-						AdditionalProperties: &schema.Untyped{},
-					},
-				},
-				"examples": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"id": &schema.String{},
-				"max_properties": &schema.Integer{
-					Nullable: true,
-				},
-				"min_properties": &schema.Integer{},
-				"read_only":      &schema.Boolean{},
-				"title":          &schema.String{},
-				"write_only":     &schema.Boolean{},
-			},
-			Required: []string{"additional_properties"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Map")
+	return s
 }
 
 // Create creates a new Map block

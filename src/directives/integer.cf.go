@@ -5,65 +5,67 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// IntegerInterpreter is the conflow interpreter for the Integer block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Integer",
+		},
+		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+		JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
+		Name:              "Integer",
+		Parameters: map[string]schema.Schema{
+			"annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
+			"const": &schema.Integer{
+				Nullable: true,
+			},
+			"default": &schema.Integer{
+				Nullable: true,
+			},
+			"deprecated":  &schema.Boolean{},
+			"description": &schema.String{},
+			"enum": &schema.Array{
+				Items: &schema.Integer{},
+			},
+			"examples": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"exclusive_maximum": &schema.Integer{
+				Nullable: true,
+			},
+			"exclusive_minimum": &schema.Integer{
+				Nullable: true,
+			},
+			"id": &schema.String{},
+			"maximum": &schema.Integer{
+				Nullable: true,
+			},
+			"minimum": &schema.Integer{
+				Nullable: true,
+			},
+			"multiple_of": &schema.Integer{
+				Nullable: true,
+			},
+			"nullable":   &schema.Boolean{},
+			"read_only":  &schema.Boolean{},
+			"title":      &schema.String{},
+			"write_only": &schema.Boolean{},
+		},
+	})
+}
+
+// IntegerInterpreter is the Conflow interpreter for the Integer block
 type IntegerInterpreter struct {
-	s schema.Schema
 }
 
 func (i IntegerInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
-			Name:              "Integer",
-			Parameters: map[string]schema.Schema{
-				"annotations": &schema.Map{
-					AdditionalProperties: &schema.String{},
-				},
-				"const": &schema.Integer{
-					Nullable: true,
-				},
-				"default": &schema.Integer{
-					Nullable: true,
-				},
-				"deprecated":  &schema.Boolean{},
-				"description": &schema.String{},
-				"enum": &schema.Array{
-					Items: &schema.Integer{},
-				},
-				"examples": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"exclusive_maximum": &schema.Integer{
-					Nullable: true,
-				},
-				"exclusive_minimum": &schema.Integer{
-					Nullable: true,
-				},
-				"id": &schema.String{},
-				"maximum": &schema.Integer{
-					Nullable: true,
-				},
-				"minimum": &schema.Integer{
-					Nullable: true,
-				},
-				"multiple_of": &schema.Integer{
-					Nullable: true,
-				},
-				"nullable":   &schema.Boolean{},
-				"read_only":  &schema.Boolean{},
-				"title":      &schema.String{},
-				"write_only": &schema.Boolean{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Integer")
+	return s
 }
 
 // Create creates a new Integer block

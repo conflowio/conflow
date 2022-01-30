@@ -3,38 +3,40 @@
 package math
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// MinInterpreter is the conflow interpreter for the Min function
-type MinInterpreter struct {
-	s schema.Schema
-}
-
-func (i MinInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns with the lowest value",
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns with the lowest value",
+			ID:          "github.com/conflowio/conflow/src/functions/math.Min",
+		},
+		AdditionalParameters: &schema.NamedSchema{
+			Name: "rest",
+			Schema: &schema.Untyped{
+				Types: []string{"integer", "number"},
 			},
-			AdditionalParameters: &schema.NamedSchema{
-				Name: "rest",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name: "min",
 				Schema: &schema.Untyped{
 					Types: []string{"integer", "number"},
 				},
 			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name: "min",
-					Schema: &schema.Untyped{
-						Types: []string{"integer", "number"},
-					},
-				},
-			},
-			Result: &schema.Number{},
-		}
-	}
-	return i.s
+		},
+		Result: &schema.Number{},
+	})
+}
+
+// MinInterpreter is the Conflow interpreter for the Min function
+type MinInterpreter struct {
+}
+
+func (i MinInterpreter) Schema() schema.Schema {
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/math.Min")
+	return s
 }
 
 // Eval returns with the result of the function

@@ -12,7 +12,7 @@ import (
 
 	"github.com/conflowio/parsley/parsley"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // Evaluate will evaluate the given node which was previously parsed with the passed parse context

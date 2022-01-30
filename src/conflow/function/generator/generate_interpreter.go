@@ -13,8 +13,8 @@ import (
 	"text/template"
 
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
-	"github.com/conflowio/conflow/src/conflow/schema"
 	"github.com/conflowio/conflow/src/internal/utils"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // GenerateInterpreter generates an interpreter for the given function
@@ -92,7 +92,7 @@ func generateTemplateParams(
 ) *InterpreterTemplateParams {
 	imports := map[string]string{
 		".":      pkg,
-		"schema": "github.com/conflowio/conflow/src/conflow/schema",
+		"schema": "github.com/conflowio/conflow/src/schema",
 	}
 
 	var nameSelector string
@@ -106,15 +106,12 @@ func generateTemplateParams(
 		pkgName = parts[len(parts)-1]
 	}
 
-	schemaString := f.Schema.GoString(imports)
-
 	return &InterpreterTemplateParams{
 		Package:          pkgName,
 		Name:             strings.ToUpper(string(f.Name[0])) + f.Name[1:],
 		FuncNameSelector: nameSelector,
 		FuncName:         f.Name,
 		Schema:           f.Schema,
-		SchemaString:     schemaString,
 		Imports:          imports,
 		ReturnsError:     f.ReturnsError,
 	}

@@ -16,9 +16,9 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
-	schemadirectives "github.com/conflowio/conflow/src/conflow/schema/directives"
 	"github.com/conflowio/conflow/src/internal/utils"
+	"github.com/conflowio/conflow/src/schema"
+	schemadirectives "github.com/conflowio/conflow/src/schema/directives"
 	"github.com/conflowio/conflow/src/util"
 )
 
@@ -122,7 +122,7 @@ func ParseField(
 			var actualType string
 			switch s := fieldSchema.(type) {
 			case *schema.Reference:
-				actualType = strings.TrimPrefix(s.Ref, "http://conflow.schema/")
+				actualType = s.Ref
 			case *schema.Untyped:
 				actualType = "interface{}"
 			default:
@@ -224,7 +224,7 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 			switch e := expr.(type) {
 			case *ast.StructType:
 				return &schema.Reference{
-					Ref: fmt.Sprintf("http://conflow.schema/%s.%s", pkg, tn.String()),
+					Ref: fmt.Sprintf("%s.%s", pkg, tn.String()),
 				}, true, nil
 			default:
 				return GetSchemaForType(parseCtx.WithFile(astFile), e, pkg, metadata)
@@ -308,7 +308,7 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 			switch e := expr.(type) {
 			case *ast.StructType:
 				return &schema.Reference{
-					Ref: fmt.Sprintf("http://conflow.schema/%s.%s", path, tn.Sel.Name),
+					Ref: fmt.Sprintf("%s.%s", path, tn.Sel.Name),
 				}, true, nil
 			default:
 				return GetSchemaForType(parseCtx.WithFile(astFile), e, path, metadata)

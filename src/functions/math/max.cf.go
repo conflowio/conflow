@@ -3,38 +3,40 @@
 package math
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// MaxInterpreter is the conflow interpreter for the Max function
-type MaxInterpreter struct {
-	s schema.Schema
-}
-
-func (i MaxInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns with the greatest value",
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns with the greatest value",
+			ID:          "github.com/conflowio/conflow/src/functions/math.Max",
+		},
+		AdditionalParameters: &schema.NamedSchema{
+			Name: "rest",
+			Schema: &schema.Untyped{
+				Types: []string{"integer", "number"},
 			},
-			AdditionalParameters: &schema.NamedSchema{
-				Name: "rest",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name: "max",
 				Schema: &schema.Untyped{
 					Types: []string{"integer", "number"},
 				},
 			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name: "max",
-					Schema: &schema.Untyped{
-						Types: []string{"integer", "number"},
-					},
-				},
-			},
-			Result: &schema.Number{},
-		}
-	}
-	return i.s
+		},
+		Result: &schema.Number{},
+	})
+}
+
+// MaxInterpreter is the Conflow interpreter for the Max function
+type MaxInterpreter struct {
+}
+
+func (i MaxInterpreter) Schema() schema.Schema {
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/math.Max")
+	return s
 }
 
 // Eval returns with the result of the function

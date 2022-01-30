@@ -5,54 +5,56 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 	"time"
 )
 
-// BenchmarkInterpreter is the conflow interpreter for the Benchmark block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "task"},
+			ID:          "github.com/conflowio/conflow/examples/benchmark.Benchmark",
+		},
+		Name: "Benchmark",
+		Parameters: map[string]schema.Schema{
+			"counter": &schema.Integer{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
+					ReadOnly:    true,
+				},
+			},
+			"duration": &schema.String{
+				Format: "duration-go",
+			},
+			"elapsed": &schema.String{
+				Format: "duration-go",
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"run": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
+			},
+		},
+		Required: []string{"duration", "run"},
+	})
+}
+
+// BenchmarkInterpreter is the Conflow interpreter for the Benchmark block
 type BenchmarkInterpreter struct {
-	s schema.Schema
 }
 
 func (i BenchmarkInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "task"},
-			},
-			Name: "Benchmark",
-			Parameters: map[string]schema.Schema{
-				"counter": &schema.Integer{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-						ReadOnly:    true,
-					},
-				},
-				"duration": &schema.String{
-					Format: "duration-go",
-				},
-				"elapsed": &schema.String{
-					Format: "duration-go",
-				},
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"run": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
-				},
-			},
-			Required: []string{"duration", "run"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/examples/benchmark.Benchmark")
+	return s
 }
 
 // Create creates a new Benchmark block

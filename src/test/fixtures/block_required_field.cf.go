@@ -5,36 +5,38 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// BlockRequiredFieldInterpreter is the conflow interpreter for the BlockRequiredField block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/test/fixtures.BlockRequiredField",
+		},
+		JSONPropertyNames: map[string]string{"id_field": "IDField"},
+		Name:              "BlockRequiredField",
+		Parameters: map[string]schema.Schema{
+			"id_field": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"required": &schema.Untyped{},
+		},
+		Required: []string{"required"},
+	})
+}
+
+// BlockRequiredFieldInterpreter is the Conflow interpreter for the BlockRequiredField block
 type BlockRequiredFieldInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockRequiredFieldInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"id_field": "IDField"},
-			Name:              "BlockRequiredField",
-			Parameters: map[string]schema.Schema{
-				"id_field": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"required": &schema.Untyped{},
-			},
-			Required: []string{"required"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/test/fixtures.BlockRequiredField")
+	return s
 }
 
 // Create creates a new BlockRequiredField block

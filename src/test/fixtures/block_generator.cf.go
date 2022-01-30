@@ -5,44 +5,46 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// BlockGeneratorInterpreter is the conflow interpreter for the BlockGenerator block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "generator"},
+			ID:          "github.com/conflowio/conflow/src/test/fixtures.BlockGenerator",
+		},
+		Name: "BlockGenerator",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"items": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"result": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/src/test/fixtures.BlockGeneratorResult",
+			},
+		},
+		Required: []string{"items", "result"},
+	})
+}
+
+// BlockGeneratorInterpreter is the Conflow interpreter for the BlockGenerator block
 type BlockGeneratorInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockGeneratorInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			},
-			Name: "BlockGenerator",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"items": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"result": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/test/fixtures.BlockGeneratorResult",
-				},
-			},
-			Required: []string{"items", "result"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/test/fixtures.BlockGenerator")
+	return s
 }
 
 // Create creates a new BlockGenerator block

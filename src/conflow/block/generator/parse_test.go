@@ -12,17 +12,15 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
-	"github.com/conflowio/conflow/src/internal/testhelper"
-
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/generator/parser"
-
-	"github.com/conflowio/conflow/src/conflow/block/generator"
-	"github.com/conflowio/conflow/src/conflow/schema"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/block/generator"
+	"github.com/conflowio/conflow/src/conflow/generator/parser"
+	"github.com/conflowio/conflow/src/internal/testhelper"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 var _ = Describe("ParseStruct", func() {
@@ -52,6 +50,7 @@ var _ = Describe("ParseStruct", func() {
 
 			expectedSchema := &schema.Object{
 				Metadata: schema.Metadata{
+					ID:          "test.Foo",
 					Description: "It is a test struct",
 				},
 				Name: "Foo",
@@ -265,6 +264,9 @@ var _ = Describe("ParseStruct", func() {
 			It("should return with the parsed fields", func() {
 				Expect(parseErr).ToNot(HaveOccurred())
 				Expect(resultStruct.Schema).To(Equal(&schema.Object{
+					Metadata: schema.Metadata{
+						ID: "test.Foo",
+					},
 					Name: "Foo",
 					Parameters: map[string]schema.Schema{
 						"id": &schema.String{

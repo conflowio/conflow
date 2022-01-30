@@ -5,36 +5,38 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 	"io"
 )
 
-// StreamInterpreter is the conflow interpreter for the Stream block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/blocks.Stream",
+		},
+		JSONPropertyNames: map[string]string{"stream": "Stream"},
+		Name:              "Stream",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"stream": &schema.ByteStream{},
+		},
+	})
+}
+
+// StreamInterpreter is the Conflow interpreter for the Stream block
 type StreamInterpreter struct {
-	s schema.Schema
 }
 
 func (i StreamInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"stream": "Stream"},
-			Name:              "Stream",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"stream": &schema.ByteStream{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.Stream")
+	return s
 }
 
 // Create creates a new Stream block

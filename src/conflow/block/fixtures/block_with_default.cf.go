@@ -5,40 +5,42 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// BlockWithDefaultInterpreter is the conflow interpreter for the BlockWithDefault block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithDefault",
+		},
+		JSONPropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
+		Name:              "BlockWithDefault",
+		Parameters: map[string]schema.Schema{
+			"id_field": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"value": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+				Default: schema.StringPtr("foo"),
+			},
+		},
+	})
+}
+
+// BlockWithDefaultInterpreter is the Conflow interpreter for the BlockWithDefault block
 type BlockWithDefaultInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockWithDefaultInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
-			Name:              "BlockWithDefault",
-			Parameters: map[string]schema.Schema{
-				"id_field": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"value": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-					Default: schema.StringPtr("foo"),
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithDefault")
+	return s
 }
 
 // Create creates a new BlockWithDefault block

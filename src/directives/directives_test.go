@@ -14,16 +14,14 @@ import (
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text"
 
+	"github.com/conflowio/conflow/src/blocks"
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/block"
-	"github.com/conflowio/conflow/src/functions"
-	"github.com/conflowio/conflow/src/parsers"
-
-	"github.com/conflowio/conflow/src/blocks"
-
 	"github.com/conflowio/conflow/src/conflow/job"
 	"github.com/conflowio/conflow/src/directives"
+	"github.com/conflowio/conflow/src/functions"
 	"github.com/conflowio/conflow/src/loggers/zerolog"
+	"github.com/conflowio/conflow/src/parsers"
 )
 
 func eval(input string) {

@@ -9,8 +9,6 @@ package parsers_test
 import (
 	"errors"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
-
 	"github.com/conflowio/parsley/combinator"
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text/terminal"
@@ -18,6 +16,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 
 	"github.com/conflowio/conflow/src/parsers"
+	"github.com/conflowio/conflow/src/schema"
 	"github.com/conflowio/conflow/src/test"
 )
 

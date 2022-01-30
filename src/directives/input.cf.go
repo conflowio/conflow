@@ -5,39 +5,41 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// InputInterpreter is the conflow interpreter for the Input block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Input",
+		},
+		JSONPropertyNames: map[string]string{"type": "schema"},
+		Name:              "Input",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"required": &schema.Boolean{},
+			"type": &schema.Reference{
+				Ref: "github.com/conflowio/conflow/src/schema.Schema",
+			},
+		},
+		Required: []string{"type"},
+	})
+}
+
+// InputInterpreter is the Conflow interpreter for the Input block
 type InputInterpreter struct {
-	s schema.Schema
 }
 
 func (i InputInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			},
-			JSONPropertyNames: map[string]string{"type": "schema"},
-			Name:              "Input",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"required": &schema.Boolean{},
-				"type": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow/schema.Schema",
-				},
-			},
-			Required: []string{"type"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Input")
+	return s
 }
 
 // Create creates a new Input block

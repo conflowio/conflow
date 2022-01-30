@@ -5,42 +5,44 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// RetryInterpreter is the conflow interpreter for the Retry block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Retry",
+		},
+		Name: "Retry",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"limit": &schema.Integer{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+				Default: schema.IntegerPtr(-1),
+				Minimum: schema.IntegerPtr(-1),
+				Maximum: schema.IntegerPtr(2147483647),
+			},
+		},
+		Required: []string{"limit"},
+	})
+}
+
+// RetryInterpreter is the Conflow interpreter for the Retry block
 type RetryInterpreter struct {
-	s schema.Schema
 }
 
 func (i RetryInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/type": "directive"},
-			},
-			Name: "Retry",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"limit": &schema.Integer{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-					Default: schema.IntegerPtr(-1),
-					Minimum: schema.IntegerPtr(-1),
-					Maximum: schema.IntegerPtr(2147483647),
-				},
-			},
-			Required: []string{"limit"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Retry")
+	return s
 }
 
 // Create creates a new Retry block

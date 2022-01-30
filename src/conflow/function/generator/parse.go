@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
-	"github.com/conflowio/conflow/src/conflow/schema"
-	schemadirectives "github.com/conflowio/conflow/src/conflow/schema/directives"
+	"github.com/conflowio/conflow/src/schema"
+	schemadirectives "github.com/conflowio/conflow/src/schema/directives"
 )
 
 type Function struct {
@@ -42,6 +42,7 @@ func ParseFunction(
 
 	s := &schema.Function{
 		Metadata: schema.Metadata{
+			ID:          fmt.Sprintf("%s.%s", pkg, name),
 			Description: metadata.Description,
 		},
 	}

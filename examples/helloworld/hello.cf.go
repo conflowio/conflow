@@ -5,42 +5,44 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// HelloInterpreter is the conflow interpreter for the Hello block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "task"},
+			Description: "It is capable to print some greetings",
+			ID:          "github.com/conflowio/conflow/examples/helloworld.Hello",
+		},
+		Name: "Hello",
+		Parameters: map[string]schema.Schema{
+			"greeting": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
+					ReadOnly:    true,
+				},
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"to": &schema.String{},
+		},
+		Required: []string{"to"},
+	})
+}
+
+// HelloInterpreter is the Conflow interpreter for the Hello block
 type HelloInterpreter struct {
-	s schema.Schema
 }
 
 func (i HelloInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "task"},
-				Description: "It is capable to print some greetings",
-			},
-			Name: "Hello",
-			Parameters: map[string]schema.Schema{
-				"greeting": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-						ReadOnly:    true,
-					},
-				},
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"to": &schema.String{},
-			},
-			Required: []string{"to"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/examples/helloworld.Hello")
+	return s
 }
 
 // Create creates a new Hello block

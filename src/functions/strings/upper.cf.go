@@ -3,30 +3,32 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// UpperInterpreter is the conflow interpreter for the Upper function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns a copy of the string s with all Unicode letters mapped to their upper case.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.Upper",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// UpperInterpreter is the Conflow interpreter for the Upper function
 type UpperInterpreter struct {
-	s schema.Schema
 }
 
 func (i UpperInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns a copy of the string s with all Unicode letters mapped to their upper case.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.Upper")
+	return s
 }
 
 // Eval returns with the result of the function

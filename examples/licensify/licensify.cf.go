@@ -5,36 +5,38 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// LicensifyInterpreter is the conflow interpreter for the Licensify block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "task"},
+			ID:          "github.com/conflowio/conflow/examples/licensify.Licensify",
+		},
+		Name: "Licensify",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"license": &schema.String{},
+			"path":    &schema.String{},
+		},
+		Required: []string{"path", "license"},
+	})
+}
+
+// LicensifyInterpreter is the Conflow interpreter for the Licensify block
 type LicensifyInterpreter struct {
-	s schema.Schema
 }
 
 func (i LicensifyInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "task"},
-			},
-			Name: "Licensify",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"license": &schema.String{},
-				"path":    &schema.String{},
-			},
-			Required: []string{"path", "license"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/examples/licensify.Licensify")
+	return s
 }
 
 // Create creates a new Licensify block

@@ -13,7 +13,7 @@ import (
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text/terminal"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // EvalErrorParser returns with a parser which will read the "ERR" string but the result node evaluation will throw an error

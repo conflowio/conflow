@@ -3,36 +3,38 @@
 package array
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// ContainsInterpreter is the conflow interpreter for the Contains function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns true if the array contains the given element",
+			ID:          "github.com/conflowio/conflow/src/functions/array.Contains",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name: "arr",
+				Schema: &schema.Array{
+					Items: &schema.Untyped{},
+				},
+			},
+			schema.NamedSchema{
+				Name:   "elem",
+				Schema: &schema.Untyped{},
+			},
+		},
+		Result: &schema.Boolean{},
+	})
+}
+
+// ContainsInterpreter is the Conflow interpreter for the Contains function
 type ContainsInterpreter struct {
-	s schema.Schema
 }
 
 func (i ContainsInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns true if the array contains the given element",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name: "arr",
-					Schema: &schema.Array{
-						Items: &schema.Untyped{},
-					},
-				},
-				schema.NamedSchema{
-					Name:   "elem",
-					Schema: &schema.Untyped{},
-				},
-			},
-			Result: &schema.Boolean{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/array.Contains")
+	return s
 }
 
 // Eval returns with the result of the function

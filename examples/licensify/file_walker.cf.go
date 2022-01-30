@@ -5,48 +5,50 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// FileWalkerInterpreter is the conflow interpreter for the FileWalker block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "generator"},
+			ID:          "github.com/conflowio/conflow/examples/licensify.FileWalker",
+		},
+		Name: "FileWalker",
+		Parameters: map[string]schema.Schema{
+			"exclude": &schema.Array{
+				Items: &schema.String{},
+			},
+			"file": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/examples/licensify.File",
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"include": &schema.Array{
+				Items: &schema.String{},
+			},
+			"path": &schema.String{},
+		},
+		Required: []string{"path", "file"},
+	})
+}
+
+// FileWalkerInterpreter is the Conflow interpreter for the FileWalker block
 type FileWalkerInterpreter struct {
-	s schema.Schema
 }
 
 func (i FileWalkerInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			},
-			Name: "FileWalker",
-			Parameters: map[string]schema.Schema{
-				"exclude": &schema.Array{
-					Items: &schema.String{},
-				},
-				"file": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/examples/licensify.File",
-				},
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"include": &schema.Array{
-					Items: &schema.String{},
-				},
-				"path": &schema.String{},
-			},
-			Required: []string{"path", "file"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/examples/licensify.FileWalker")
+	return s
 }
 
 // Create creates a new FileWalker block

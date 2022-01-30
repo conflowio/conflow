@@ -8,7 +8,7 @@ package block
 
 import (
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 func IsBlockSchema(s schema.Schema) bool {

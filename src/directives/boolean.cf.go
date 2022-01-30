@@ -5,50 +5,52 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// BooleanInterpreter is the conflow interpreter for the Boolean block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Boolean",
+		},
+		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
+		JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "write_only": "writeOnly"},
+		Name:              "Boolean",
+		Parameters: map[string]schema.Schema{
+			"annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
+			"const": &schema.Boolean{
+				Nullable: true,
+			},
+			"default": &schema.Boolean{
+				Nullable: true,
+			},
+			"deprecated":  &schema.Boolean{},
+			"description": &schema.String{},
+			"enum": &schema.Array{
+				Items: &schema.Boolean{},
+			},
+			"examples": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"id":         &schema.String{},
+			"nullable":   &schema.Boolean{},
+			"read_only":  &schema.Boolean{},
+			"title":      &schema.String{},
+			"write_only": &schema.Boolean{},
+		},
+	})
+}
+
+// BooleanInterpreter is the Conflow interpreter for the Boolean block
 type BooleanInterpreter struct {
-	s schema.Schema
 }
 
 func (i BooleanInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "write_only": "writeOnly"},
-			Name:              "Boolean",
-			Parameters: map[string]schema.Schema{
-				"annotations": &schema.Map{
-					AdditionalProperties: &schema.String{},
-				},
-				"const": &schema.Boolean{
-					Nullable: true,
-				},
-				"default": &schema.Boolean{
-					Nullable: true,
-				},
-				"deprecated":  &schema.Boolean{},
-				"description": &schema.String{},
-				"enum": &schema.Array{
-					Items: &schema.Boolean{},
-				},
-				"examples": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"id":         &schema.String{},
-				"nullable":   &schema.Boolean{},
-				"read_only":  &schema.Boolean{},
-				"title":      &schema.String{},
-				"write_only": &schema.Boolean{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Boolean")
+	return s
 }
 
 // Create creates a new Boolean block

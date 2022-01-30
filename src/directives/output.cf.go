@@ -5,38 +5,40 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
-// OutputInterpreter is the conflow interpreter for the Output block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Output",
+		},
+		JSONPropertyNames: map[string]string{"type": "schema"},
+		Name:              "Output",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"type": &schema.Reference{
+				Ref: "github.com/conflowio/conflow/src/schema.Schema",
+			},
+		},
+		Required: []string{"type"},
+	})
+}
+
+// OutputInterpreter is the Conflow interpreter for the Output block
 type OutputInterpreter struct {
-	s schema.Schema
 }
 
 func (i OutputInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			},
-			JSONPropertyNames: map[string]string{"type": "schema"},
-			Name:              "Output",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"type": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow/schema.Schema",
-				},
-			},
-			Required: []string{"type"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Output")
+	return s
 }
 
 // Create creates a new Output block
