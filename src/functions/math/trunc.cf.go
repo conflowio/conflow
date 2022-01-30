@@ -3,7 +3,7 @@
 package math
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // TruncInterpreter is the conflow interpreter for the Trunc function

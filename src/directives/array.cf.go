@@ -5,7 +5,7 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // ArrayInterpreter is the conflow interpreter for the Array block
@@ -44,7 +44,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 				},
 				"id": &schema.String{},
 				"items": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow/schema.Schema",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/schema.Schema",
 				},
 				"max_items": &schema.Integer{
 					Nullable: true,

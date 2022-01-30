@@ -10,7 +10,7 @@ import (
 	"context"
 
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 
 	"github.com/conflowio/parsley/combinator"
 	"github.com/conflowio/parsley/parsley"

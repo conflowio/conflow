@@ -9,7 +9,7 @@ package math_test
 import (
 	"errors"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 
 	"github.com/conflowio/parsley/parsley"
 	. "github.com/onsi/ginkgo"

@@ -10,7 +10,7 @@ import (
 	"github.com/conflowio/parsley/parser"
 	"github.com/conflowio/parsley/text/terminal"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // MapParser returns with a parser which will read the "MAP" string but the result will return a sample map

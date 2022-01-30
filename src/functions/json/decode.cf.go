@@ -3,7 +3,7 @@
 package json
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // DecodeInterpreter is the conflow interpreter for the Decode function

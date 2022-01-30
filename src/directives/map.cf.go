@@ -5,7 +5,7 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // MapInterpreter is the conflow interpreter for the Map block
@@ -24,7 +24,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 			Name:              "Map",
 			Parameters: map[string]schema.Schema{
 				"additional_properties": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow/schema.Schema",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/schema.Schema",
 				},
 				"annotations": &schema.Map{
 					AdditionalProperties: &schema.String{},

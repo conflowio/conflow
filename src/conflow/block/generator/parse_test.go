@@ -18,7 +18,7 @@ import (
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
 
 	"github.com/conflowio/conflow/src/conflow/block/generator"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"

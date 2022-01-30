@@ -3,7 +3,7 @@
 package time
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // NowInterpreter is the conflow interpreter for the Now function

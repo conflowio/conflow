@@ -13,7 +13,7 @@ import (
 
 	"github.com/conflowio/conflow/src/conflow/function/generator"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -7,7 +7,7 @@
 package functions
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // String converts the given value to a string

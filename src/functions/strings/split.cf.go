@@ -3,7 +3,7 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // SplitInterpreter is the conflow interpreter for the Split function

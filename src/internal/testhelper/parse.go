@@ -16,7 +16,7 @@ import (
 
 	"github.com/conflowio/conflow/src/conflow/block/generator"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 func ExpectGoStructToHaveSchema(source string, expectedSchema schema.Schema, fs ...func(schema2 schema.Schema)) {

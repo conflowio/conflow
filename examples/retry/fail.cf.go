@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // FailInterpreter is the conflow interpreter for the Fail block

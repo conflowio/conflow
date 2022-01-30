@@ -5,7 +5,7 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // OutputInterpreter is the conflow interpreter for the Output block
@@ -30,7 +30,7 @@ func (i OutputInterpreter) Schema() schema.Schema {
 					Format: "conflow.ID",
 				},
 				"type": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow/schema.Schema",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/schema.Schema",
 				},
 			},
 			Required: []string{"type"},

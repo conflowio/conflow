@@ -12,7 +12,7 @@ import (
 	"github.com/conflowio/parsley/text"
 	"github.com/conflowio/parsley/text/terminal"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // Expression returns with an expression parser

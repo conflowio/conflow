@@ -3,7 +3,7 @@
 package test
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // TestFunc2Interpreter is the conflow interpreter for the testFunc2 function

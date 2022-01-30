@@ -3,7 +3,7 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // HasSuffixInterpreter is the conflow interpreter for the HasSuffix function

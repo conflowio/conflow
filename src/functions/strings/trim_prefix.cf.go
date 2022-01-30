@@ -3,7 +3,7 @@
 package strings
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // TrimPrefixInterpreter is the conflow interpreter for the TrimPrefix function

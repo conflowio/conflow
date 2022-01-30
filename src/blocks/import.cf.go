@@ -5,7 +5,7 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // ImportInterpreter is the conflow interpreter for the Import block

@@ -9,7 +9,7 @@ package conflow
 import (
 	"github.com/conflowio/parsley/parsley"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // ParameterNode is the AST node for a parameter

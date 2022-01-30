@@ -8,7 +8,7 @@ package generator
 
 import (
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 type InterpreterTemplateParams struct {

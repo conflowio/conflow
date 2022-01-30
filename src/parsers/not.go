@@ -15,7 +15,7 @@ import (
 	"github.com/conflowio/parsley/text"
 	"github.com/conflowio/parsley/text/terminal"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // Not will match a logical not expression defined by the following rule, where P is the input parser:

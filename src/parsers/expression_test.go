@@ -10,7 +10,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text/terminal"

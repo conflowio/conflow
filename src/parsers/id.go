@@ -15,8 +15,8 @@ import (
 	"github.com/conflowio/parsley/text"
 
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
 	"github.com/conflowio/conflow/src/internal/utils"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // ID parses an identifier:

@@ -3,7 +3,7 @@
 package functions
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // LenInterpreter is the conflow interpreter for the Len function

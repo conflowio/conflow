@@ -3,7 +3,7 @@
 package functions
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // StringInterpreter is the conflow interpreter for the String function

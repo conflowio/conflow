@@ -9,7 +9,7 @@ package parsers_test
 import (
 	"errors"
 
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 
 	"github.com/conflowio/parsley/combinator"
 	pparser "github.com/conflowio/parsley/parser"

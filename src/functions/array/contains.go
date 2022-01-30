@@ -7,7 +7,7 @@
 package array
 
 import (
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // Contains returns true if the array contains the given element

@@ -5,7 +5,7 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // InputInterpreter is the conflow interpreter for the Input block
@@ -31,7 +31,7 @@ func (i InputInterpreter) Schema() schema.Schema {
 				},
 				"required": &schema.Boolean{},
 				"type": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow/schema.Schema",
+					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/schema.Schema",
 				},
 			},
 			Required: []string{"type"},

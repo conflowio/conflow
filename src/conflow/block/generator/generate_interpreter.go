@@ -15,8 +15,8 @@ import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/block"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
-	"github.com/conflowio/conflow/src/conflow/schema"
 	"github.com/conflowio/conflow/src/internal/utils"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // GenerateInterpreter generates an interpreter for the given block
@@ -135,7 +135,7 @@ func generateTemplateParams(
 		".":       pkg,
 		"fmt":     "fmt",
 		"conflow": "github.com/conflowio/conflow/src/conflow",
-		"schema":  "github.com/conflowio/conflow/src/conflow/schema",
+		"schema":  "github.com/conflowio/conflow/src/schema",
 	}
 
 	var nameSelector string
