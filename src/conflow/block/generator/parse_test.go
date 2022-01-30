@@ -12,17 +12,15 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
-	"github.com/conflowio/conflow/src/internal/testhelper"
-
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/generator/parser"
-
-	"github.com/conflowio/conflow/src/conflow/block/generator"
-	"github.com/conflowio/conflow/src/schema"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/block/generator"
+	"github.com/conflowio/conflow/src/conflow/generator/parser"
+	"github.com/conflowio/conflow/src/internal/testhelper"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 var _ = Describe("ParseStruct", func() {

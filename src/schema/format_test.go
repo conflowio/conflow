@@ -9,16 +9,14 @@ package schema_test
 import (
 	"reflect"
 
-	"github.com/conflowio/conflow/src/conflow"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/conflowio/conflow/src/schema/formats"
-
-	"github.com/conflowio/conflow/src/schema"
-	"github.com/conflowio/conflow/src/schema/schemafakes"
+	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/internal/testhelper"
+	"github.com/conflowio/conflow/src/schema"
+	"github.com/conflowio/conflow/src/schema/formats"
+	"github.com/conflowio/conflow/src/schema/schemafakes"
 )
 
 const testStructTypeFQTN = "github.com/conflowio/conflow/src/internal/testhelper.CustomStruct"

@@ -10,12 +10,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/parsers"
-
-	"github.com/conflowio/conflow/src/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
+
+	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/parsers"
+	"github.com/conflowio/conflow/src/test"
 )
 
 var _ = Describe("KeyValuePairs", func() {

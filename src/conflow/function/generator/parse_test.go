@@ -11,12 +11,12 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+
 	"github.com/conflowio/conflow/src/conflow/function/generator"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
 	"github.com/conflowio/conflow/src/schema"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("ParseArguments", func() {

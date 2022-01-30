@@ -10,15 +10,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/job/jobfakes"
-
-	"github.com/conflowio/conflow/src/conflow/job"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/conflowfakes"
+	"github.com/conflowio/conflow/src/conflow/job"
+	"github.com/conflowio/conflow/src/conflow/job/jobfakes"
 	"github.com/conflowio/conflow/src/loggers/zerolog"
 )
 

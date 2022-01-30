@@ -11,7 +11,6 @@ import (
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/internal/testhelper"
-
 	"github.com/conflowio/conflow/src/schema"
 )
 

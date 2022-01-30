@@ -10,12 +10,11 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/conflowio/conflow/src/internal/testhelper"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/src/internal/testhelper"
 	"github.com/conflowio/conflow/src/schema"
 )
 

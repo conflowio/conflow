@@ -9,8 +9,6 @@ package strings_test
 import (
 	"errors"
 
-	"github.com/conflowio/conflow/src/schema"
-
 	"github.com/conflowio/parsley/parsley"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -19,6 +17,7 @@ import (
 	"github.com/conflowio/conflow/src/conflow/function"
 	"github.com/conflowio/conflow/src/functions/strings"
 	"github.com/conflowio/conflow/src/parsers"
+	"github.com/conflowio/conflow/src/schema"
 	"github.com/conflowio/conflow/src/test"
 )
 

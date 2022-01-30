@@ -9,12 +9,11 @@ package formats_test
 import (
 	"time"
 
-	"github.com/conflowio/conflow/src/schema"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/src/schema"
 	"github.com/conflowio/conflow/src/schema/formats"
 )
 

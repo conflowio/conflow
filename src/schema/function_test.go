@@ -9,11 +9,11 @@ package schema_test
 import (
 	"encoding/json"
 
-	"github.com/conflowio/conflow/src/schema"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
+
+	"github.com/conflowio/conflow/src/schema"
 )
 
 var _ schema.Schema = &schema.Function{}

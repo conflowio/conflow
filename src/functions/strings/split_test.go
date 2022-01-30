@@ -9,12 +9,13 @@ package strings_test
 import (
 	"errors"
 
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
+
 	"github.com/conflowio/conflow/src/conflow/function"
 	"github.com/conflowio/conflow/src/functions/strings"
 	"github.com/conflowio/conflow/src/parsers"
 	"github.com/conflowio/conflow/src/test"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
 )
 
 var _ = Describe("Split", func() {

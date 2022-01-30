@@ -11,17 +11,14 @@ import (
 	"errors"
 	"time"
 
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/util"
-
 	"github.com/conflowio/parsley/parsley"
-
-	"github.com/conflowio/conflow/src/loggers/zerolog"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/conflowfakes"
+	"github.com/conflowio/conflow/src/loggers/zerolog"
+	"github.com/conflowio/conflow/src/util"
 )
 
 var _ = Describe("NodeContainer", func() {

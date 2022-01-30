@@ -14,7 +14,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/src/schema"
-
 	"github.com/conflowio/conflow/src/schema/formats"
 )
 
