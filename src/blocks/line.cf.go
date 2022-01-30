@@ -8,31 +8,33 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// LineInterpreter is the conflow interpreter for the Line block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/blocks.Line",
+		},
+		Name: "Line",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"text": &schema.String{},
+		},
+	})
+}
+
+// LineInterpreter is the Conflow interpreter for the Line block
 type LineInterpreter struct {
-	s schema.Schema
 }
 
 func (i LineInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			Name: "Line",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"text": &schema.String{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.Line")
+	return s
 }
 
 // Create creates a new Line block

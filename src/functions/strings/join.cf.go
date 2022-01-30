@@ -6,33 +6,35 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// JoinInterpreter is the conflow interpreter for the Join function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It concatenates the elements of a to create a single string. The separator string\nsep is placed between elements in the resulting string.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.Join",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name: "a",
+				Schema: &schema.Array{
+					Items: &schema.String{},
+				},
+			},
+			schema.NamedSchema{
+				Name:   "sep",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// JoinInterpreter is the Conflow interpreter for the Join function
 type JoinInterpreter struct {
-	s schema.Schema
 }
 
 func (i JoinInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It concatenates the elements of a to create a single string. The separator string\nsep is placed between elements in the resulting string.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name: "a",
-					Schema: &schema.Array{
-						Items: &schema.String{},
-					},
-				},
-				schema.NamedSchema{
-					Name:   "sep",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.Join")
+	return s
 }
 
 // Eval returns with the result of the function

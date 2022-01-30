@@ -6,23 +6,25 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// NowInterpreter is the conflow interpreter for the Now function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns the current time",
+			ID:          "github.com/conflowio/conflow/src/functions/time.Now",
+		},
+		Result: &schema.String{
+			Format: "date-time",
+		},
+	})
+}
+
+// NowInterpreter is the Conflow interpreter for the Now function
 type NowInterpreter struct {
-	s schema.Schema
 }
 
 func (i NowInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns the current time",
-			},
-			Result: &schema.String{
-				Format: "date-time",
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/time.Now")
+	return s
 }
 
 // Eval returns with the result of the function

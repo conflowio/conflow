@@ -8,33 +8,35 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// FunctionInterpreter is the conflow interpreter for the Function block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			Description: "It is the directive for marking functions as conflow functions",
+			ID:          "github.com/conflowio/conflow/src/schema/directives.Function",
+		},
+		JSONPropertyNames: map[string]string{"path": "Path"},
+		Name:              "Function",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"path": &schema.String{},
+		},
+	})
+}
+
+// FunctionInterpreter is the Conflow interpreter for the Function block
 type FunctionInterpreter struct {
-	s schema.Schema
 }
 
 func (i FunctionInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-				Description: "It is the directive for marking functions as conflow functions",
-			},
-			JSONPropertyNames: map[string]string{"path": "Path"},
-			Name:              "Function",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"path": &schema.String{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.Function")
+	return s
 }
 
 // Create creates a new Function block

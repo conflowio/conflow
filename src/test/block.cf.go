@@ -9,56 +9,58 @@ import (
 	"time"
 )
 
-// BlockInterpreter is the conflow interpreter for the Block block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/test.Block",
+		},
+		JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "Blocks", "value": "Value"},
+		Name:              "Block",
+		Parameters: map[string]schema.Schema{
+			"custom_field": &schema.String{},
+			"field_array": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"field_bool":  &schema.Boolean{},
+			"field_float": &schema.Number{},
+			"field_int":   &schema.Integer{},
+			"field_map": &schema.Map{
+				AdditionalProperties: &schema.Untyped{},
+			},
+			"field_string": &schema.String{},
+			"field_time_duration": &schema.String{
+				Format: "duration-go",
+			},
+			"id_field": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"testblock": &schema.Array{
+				Items: &schema.Reference{
+					Nullable: true,
+					Ref:      "github.com/conflowio/conflow/src/test.Block",
+				},
+			},
+			"value": &schema.Untyped{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+			},
+		},
+	})
+}
+
+// BlockInterpreter is the Conflow interpreter for the Block block
 type BlockInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "Blocks", "value": "Value"},
-			Name:              "Block",
-			Parameters: map[string]schema.Schema{
-				"custom_field": &schema.String{},
-				"field_array": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"field_bool":  &schema.Boolean{},
-				"field_float": &schema.Number{},
-				"field_int":   &schema.Integer{},
-				"field_map": &schema.Map{
-					AdditionalProperties: &schema.Untyped{},
-				},
-				"field_string": &schema.String{},
-				"field_time_duration": &schema.String{
-					Format: "duration-go",
-				},
-				"id_field": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"testblock": &schema.Array{
-					Items: &schema.Reference{
-						Nullable: true,
-						Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/test.Block",
-					},
-				},
-				"value": &schema.Untyped{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/test.Block")
+	return s
 }
 
 // Create creates a new Block block

@@ -9,37 +9,39 @@ import (
 	"time"
 )
 
-// TimeoutInterpreter is the conflow interpreter for the Timeout block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Timeout",
+		},
+		Name: "Timeout",
+		Parameters: map[string]schema.Schema{
+			"duration": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+				Format: "duration-go",
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+		Required: []string{"duration"},
+	})
+}
+
+// TimeoutInterpreter is the Conflow interpreter for the Timeout block
 type TimeoutInterpreter struct {
-	s schema.Schema
 }
 
 func (i TimeoutInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/type": "directive"},
-			},
-			Name: "Timeout",
-			Parameters: map[string]schema.Schema{
-				"duration": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-					Format: "duration-go",
-				},
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-			Required: []string{"duration"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Timeout")
+	return s
 }
 
 // Create creates a new Timeout block

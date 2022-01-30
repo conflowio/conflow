@@ -8,36 +8,38 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// DeprecatedInterpreter is the conflow interpreter for the Deprecated block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "ignore", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Deprecated",
+		},
+		Name: "Deprecated",
+		Parameters: map[string]schema.Schema{
+			"description": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+		Required: []string{"description"},
+	})
+}
+
+// DeprecatedInterpreter is the Conflow interpreter for the Deprecated block
 type DeprecatedInterpreter struct {
-	s schema.Schema
 }
 
 func (i DeprecatedInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "ignore", "block.conflow.io/type": "directive"},
-			},
-			Name: "Deprecated",
-			Parameters: map[string]schema.Schema{
-				"description": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-				},
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-			Required: []string{"description"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Deprecated")
+	return s
 }
 
 // Create creates a new Deprecated block

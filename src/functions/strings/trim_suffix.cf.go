@@ -6,31 +6,33 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// TrimSuffixInterpreter is the conflow interpreter for the TrimSuffix function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns s without the provided trailing suffix string.\nIf s doesn't end with suffix, s is returned unchanged.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.TrimSuffix",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+			schema.NamedSchema{
+				Name:   "suffix",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// TrimSuffixInterpreter is the Conflow interpreter for the TrimSuffix function
 type TrimSuffixInterpreter struct {
-	s schema.Schema
 }
 
 func (i TrimSuffixInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns s without the provided trailing suffix string.\nIf s doesn't end with suffix, s is returned unchanged.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-				schema.NamedSchema{
-					Name:   "suffix",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.TrimSuffix")
+	return s
 }
 
 // Eval returns with the result of the function

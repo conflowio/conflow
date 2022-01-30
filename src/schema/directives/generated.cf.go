@@ -8,30 +8,32 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// GeneratedInterpreter is the conflow interpreter for the Generated block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/schema/directives.Generated",
+		},
+		Name: "Generated",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+	})
+}
+
+// GeneratedInterpreter is the Conflow interpreter for the Generated block
 type GeneratedInterpreter struct {
-	s schema.Schema
 }
 
 func (i GeneratedInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			},
-			Name: "Generated",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.Generated")
+	return s
 }
 
 // Create creates a new Generated block

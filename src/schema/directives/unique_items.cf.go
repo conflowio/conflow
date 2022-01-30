@@ -8,30 +8,32 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// UniqueItemsInterpreter is the conflow interpreter for the UniqueItems block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/schema/directives.UniqueItems",
+		},
+		Name: "UniqueItems",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+	})
+}
+
+// UniqueItemsInterpreter is the Conflow interpreter for the UniqueItems block
 type UniqueItemsInterpreter struct {
-	s schema.Schema
 }
 
 func (i UniqueItemsInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			},
-			Name: "UniqueItems",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.UniqueItems")
+	return s
 }
 
 // Create creates a new UniqueItems block

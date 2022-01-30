@@ -8,36 +8,38 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// DefaultInterpreter is the conflow interpreter for the Default block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/schema/directives.Default",
+		},
+		Name: "Default",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"value": &schema.Untyped{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+			},
+		},
+		Required: []string{"value"},
+	})
+}
+
+// DefaultInterpreter is the Conflow interpreter for the Default block
 type DefaultInterpreter struct {
-	s schema.Schema
 }
 
 func (i DefaultInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			},
-			Name: "Default",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"value": &schema.Untyped{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-				},
-			},
-			Required: []string{"value"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.Default")
+	return s
 }
 
 // Create creates a new Default block

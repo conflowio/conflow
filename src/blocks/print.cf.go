@@ -8,37 +8,39 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// PrintInterpreter is the conflow interpreter for the Print block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "task"},
+			Description: "It will write a string to the standard output",
+			ID:          "github.com/conflowio/conflow/src/blocks.Print",
+		},
+		Name: "Print",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"value": &schema.Untyped{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+			},
+		},
+		Required: []string{"value"},
+	})
+}
+
+// PrintInterpreter is the Conflow interpreter for the Print block
 type PrintInterpreter struct {
-	s schema.Schema
 }
 
 func (i PrintInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "task"},
-				Description: "It will write a string to the standard output",
-			},
-			Name: "Print",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"value": &schema.Untyped{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-				},
-			},
-			Required: []string{"value"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.Print")
+	return s
 }
 
 // Create creates a new Print block

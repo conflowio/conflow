@@ -8,30 +8,32 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// IgnoreInterpreter is the conflow interpreter for the Ignore block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/schema/directives.Ignore",
+		},
+		Name: "Ignore",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+	})
+}
+
+// IgnoreInterpreter is the Conflow interpreter for the Ignore block
 type IgnoreInterpreter struct {
-	s schema.Schema
 }
 
 func (i IgnoreInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			},
-			Name: "Ignore",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.Ignore")
+	return s
 }
 
 // Create creates a new Ignore block

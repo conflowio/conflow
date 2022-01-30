@@ -8,36 +8,38 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// MaximumInterpreter is the conflow interpreter for the Maximum block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/schema/directives.Maximum",
+		},
+		Name: "Maximum",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"value": &schema.Untyped{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+			},
+		},
+		Required: []string{"value"},
+	})
+}
+
+// MaximumInterpreter is the Conflow interpreter for the Maximum block
 type MaximumInterpreter struct {
-	s schema.Schema
 }
 
 func (i MaximumInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			},
-			Name: "Maximum",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"value": &schema.Untyped{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-				},
-			},
-			Required: []string{"value"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.Maximum")
+	return s
 }
 
 // Create creates a new Maximum block

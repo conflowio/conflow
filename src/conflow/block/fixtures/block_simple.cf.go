@@ -8,36 +8,38 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// BlockSimpleInterpreter is the conflow interpreter for the BlockSimple block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockSimple",
+		},
+		JSONPropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
+		Name:              "BlockSimple",
+		Parameters: map[string]schema.Schema{
+			"id_field": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"value": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+			},
+		},
+	})
+}
+
+// BlockSimpleInterpreter is the Conflow interpreter for the BlockSimple block
 type BlockSimpleInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockSimpleInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
-			Name:              "BlockSimple",
-			Parameters: map[string]schema.Schema{
-				"id_field": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"value": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/conflow/block/fixtures.BlockSimple")
+	return s
 }
 
 // Create creates a new BlockSimple block

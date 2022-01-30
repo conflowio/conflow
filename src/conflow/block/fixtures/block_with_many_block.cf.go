@@ -8,37 +8,39 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// BlockWithManyBlockInterpreter is the conflow interpreter for the BlockWithManyBlock block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithManyBlock",
+		},
+		JSONPropertyNames: map[string]string{"block_simple": "BlockSimple", "id_field": "IDField"},
+		Name:              "BlockWithManyBlock",
+		Parameters: map[string]schema.Schema{
+			"block_simple": &schema.Array{
+				Items: &schema.Reference{
+					Nullable: true,
+					Ref:      "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockSimple",
+				},
+			},
+			"id_field": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+	})
+}
+
+// BlockWithManyBlockInterpreter is the Conflow interpreter for the BlockWithManyBlock block
 type BlockWithManyBlockInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"block_simple": "BlockSimple", "id_field": "IDField"},
-			Name:              "BlockWithManyBlock",
-			Parameters: map[string]schema.Schema{
-				"block_simple": &schema.Array{
-					Items: &schema.Reference{
-						Nullable: true,
-						Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/conflow/block/fixtures.BlockSimple",
-					},
-				},
-				"id_field": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithManyBlock")
+	return s
 }
 
 // Create creates a new BlockWithManyBlock block

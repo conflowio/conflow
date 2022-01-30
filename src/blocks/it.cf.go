@@ -8,42 +8,44 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// ItInterpreter is the conflow interpreter for the It block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/blocks.It",
+		},
+		Name: "It",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"key": &schema.Untyped{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
+					ReadOnly:    true,
+				},
+			},
+			"value": &schema.Untyped{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
+					ReadOnly:    true,
+				},
+			},
+		},
+	})
+}
+
+// ItInterpreter is the Conflow interpreter for the It block
 type ItInterpreter struct {
-	s schema.Schema
 }
 
 func (i ItInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			Name: "It",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"key": &schema.Untyped{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-						ReadOnly:    true,
-					},
-				},
-				"value": &schema.Untyped{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-						ReadOnly:    true,
-					},
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.It")
+	return s
 }
 
 // Create creates a new It block

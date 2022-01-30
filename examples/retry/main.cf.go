@@ -8,30 +8,32 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// MainInterpreter is the conflow interpreter for the Main block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "main"},
+			ID:          "github.com/conflowio/conflow/examples/retry.Main",
+		},
+		Name: "Main",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+	})
+}
+
+// MainInterpreter is the Conflow interpreter for the Main block
 type MainInterpreter struct {
-	s schema.Schema
 }
 
 func (i MainInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "main"},
-			},
-			Name: "Main",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/examples/retry.Main")
+	return s
 }
 
 // Create creates a new Main block

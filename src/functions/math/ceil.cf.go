@@ -6,29 +6,31 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// CeilInterpreter is the conflow interpreter for the Ceil function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns the least integer value greater than or equal to x.",
+			ID:          "github.com/conflowio/conflow/src/functions/math.Ceil",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name: "number",
+				Schema: &schema.Untyped{
+					Types: []string{"integer", "number"},
+				},
+			},
+		},
+		Result: &schema.Integer{},
+	})
+}
+
+// CeilInterpreter is the Conflow interpreter for the Ceil function
 type CeilInterpreter struct {
-	s schema.Schema
 }
 
 func (i CeilInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns the least integer value greater than or equal to x.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name: "number",
-					Schema: &schema.Untyped{
-						Types: []string{"integer", "number"},
-					},
-				},
-			},
-			Result: &schema.Integer{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/math.Ceil")
+	return s
 }
 
 // Eval returns with the result of the function

@@ -8,43 +8,45 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// BlockInterpreter is the conflow interpreter for the Block block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			Description: "It is the directive for marking structs as conflow blocks",
+			ID:          "github.com/conflowio/conflow/src/schema/directives.Block",
+		},
+		JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path", "type": "Type"},
+		Name:              "Block",
+		Parameters: map[string]schema.Schema{
+			"eval_stage": &schema.String{
+				Enum: []string{"ignore", "init", "parse", "resolve"},
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"path": &schema.String{},
+			"type": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+				Enum: []string{"configuration", "directive", "generator", "main", "task"},
+			},
+		},
+		Required: []string{"type"},
+	})
+}
+
+// BlockInterpreter is the Conflow interpreter for the Block block
 type BlockInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-				Description: "It is the directive for marking structs as conflow blocks",
-			},
-			JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path", "type": "Type"},
-			Name:              "Block",
-			Parameters: map[string]schema.Schema{
-				"eval_stage": &schema.String{
-					Enum: []string{"ignore", "init", "parse", "resolve"},
-				},
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"path": &schema.String{},
-				"type": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-					Enum: []string{"configuration", "directive", "generator", "main", "task"},
-				},
-			},
-			Required: []string{"type"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.Block")
+	return s
 }
 
 // Create creates a new Block block

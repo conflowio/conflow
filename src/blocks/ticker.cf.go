@@ -9,41 +9,43 @@ import (
 	"time"
 )
 
-// TickerInterpreter is the conflow interpreter for the Ticker block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "generator"},
+			ID:          "github.com/conflowio/conflow/src/blocks.Ticker",
+		},
+		Name: "Ticker",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"interval": &schema.String{
+				Format: "duration-go",
+			},
+			"tick": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/src/blocks.Tick",
+			},
+		},
+		Required: []string{"interval", "tick"},
+	})
+}
+
+// TickerInterpreter is the Conflow interpreter for the Ticker block
 type TickerInterpreter struct {
-	s schema.Schema
 }
 
 func (i TickerInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			},
-			Name: "Ticker",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"interval": &schema.String{
-					Format: "duration-go",
-				},
-				"tick": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/blocks.Tick",
-				},
-			},
-			Required: []string{"interval", "tick"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.Ticker")
+	return s
 }
 
 // Create creates a new Ticker block

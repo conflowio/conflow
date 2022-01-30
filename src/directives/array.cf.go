@@ -8,57 +8,59 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// ArrayInterpreter is the conflow interpreter for the Array block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/directives.Array",
+		},
+		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly"},
+		JSONPropertyNames: map[string]string{"id": "$id", "max_items": "maxItems", "min_items": "minItems", "read_only": "readOnly", "unique_items": "uniqueItems", "write_only": "writeOnly"},
+		Name:              "Array",
+		Parameters: map[string]schema.Schema{
+			"annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
+			"const": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"default": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"deprecated":  &schema.Boolean{},
+			"description": &schema.String{},
+			"enum": &schema.Array{
+				Items: &schema.Array{
+					Items: &schema.Untyped{},
+				},
+			},
+			"examples": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"id": &schema.String{},
+			"items": &schema.Reference{
+				Ref: "github.com/conflowio/conflow/src/schema.Schema",
+			},
+			"max_items": &schema.Integer{
+				Nullable: true,
+			},
+			"min_items":    &schema.Integer{},
+			"read_only":    &schema.Boolean{},
+			"title":        &schema.String{},
+			"unique_items": &schema.Boolean{},
+			"write_only":   &schema.Boolean{},
+		},
+		Required: []string{"items"},
+	})
+}
+
+// ArrayInterpreter is the Conflow interpreter for the Array block
 type ArrayInterpreter struct {
-	s schema.Schema
 }
 
 func (i ArrayInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			},
-			FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly"},
-			JSONPropertyNames: map[string]string{"id": "$id", "max_items": "maxItems", "min_items": "minItems", "read_only": "readOnly", "unique_items": "uniqueItems", "write_only": "writeOnly"},
-			Name:              "Array",
-			Parameters: map[string]schema.Schema{
-				"annotations": &schema.Map{
-					AdditionalProperties: &schema.String{},
-				},
-				"const": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"default": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"deprecated":  &schema.Boolean{},
-				"description": &schema.String{},
-				"enum": &schema.Array{
-					Items: &schema.Array{
-						Items: &schema.Untyped{},
-					},
-				},
-				"examples": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"id": &schema.String{},
-				"items": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/schema.Schema",
-				},
-				"max_items": &schema.Integer{
-					Nullable: true,
-				},
-				"min_items":    &schema.Integer{},
-				"read_only":    &schema.Boolean{},
-				"title":        &schema.String{},
-				"unique_items": &schema.Boolean{},
-				"write_only":   &schema.Boolean{},
-			},
-			Required: []string{"items"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/directives.Array")
+	return s
 }
 
 // Create creates a new Array block

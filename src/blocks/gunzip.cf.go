@@ -9,39 +9,41 @@ import (
 	"io"
 )
 
-// GunzipInterpreter is the conflow interpreter for the Gunzip block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "task"},
+			ID:          "github.com/conflowio/conflow/src/blocks.Gunzip",
+		},
+		Name: "Gunzip",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"in": &schema.ByteStream{},
+			"out": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/src/blocks.Stream",
+			},
+		},
+		Required: []string{"in", "out"},
+	})
+}
+
+// GunzipInterpreter is the Conflow interpreter for the Gunzip block
 type GunzipInterpreter struct {
-	s schema.Schema
 }
 
 func (i GunzipInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "task"},
-			},
-			Name: "Gunzip",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"in": &schema.ByteStream{},
-				"out": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/blocks.Stream",
-				},
-			},
-			Required: []string{"in", "out"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.Gunzip")
+	return s
 }
 
 // Create creates a new Gunzip block

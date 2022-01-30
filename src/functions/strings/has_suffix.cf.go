@@ -6,31 +6,33 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// HasSuffixInterpreter is the conflow interpreter for the HasSuffix function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It tests whether the string s ends with suffix.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.HasSuffix",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+			schema.NamedSchema{
+				Name:   "suffix",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.Boolean{},
+	})
+}
+
+// HasSuffixInterpreter is the Conflow interpreter for the HasSuffix function
 type HasSuffixInterpreter struct {
-	s schema.Schema
 }
 
 func (i HasSuffixInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It tests whether the string s ends with suffix.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-				schema.NamedSchema{
-					Name:   "suffix",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.Boolean{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.HasSuffix")
+	return s
 }
 
 // Eval returns with the result of the function

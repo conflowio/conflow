@@ -6,27 +6,29 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// TrimSpaceInterpreter is the conflow interpreter for the TrimSpace function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns a slice of the string s, with all leading\nand trailing white space removed, as defined by Unicode.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.TrimSpace",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// TrimSpaceInterpreter is the Conflow interpreter for the TrimSpace function
 type TrimSpaceInterpreter struct {
-	s schema.Schema
 }
 
 func (i TrimSpaceInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns a slice of the string s, with all leading\nand trailing white space removed, as defined by Unicode.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.TrimSpace")
+	return s
 }
 
 // Eval returns with the result of the function

@@ -6,27 +6,29 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// TruncInterpreter is the conflow interpreter for the Trunc function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns the integer value of x.",
+			ID:          "github.com/conflowio/conflow/src/functions/math.Trunc",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "x",
+				Schema: &schema.Number{},
+			},
+		},
+		Result: &schema.Number{},
+	})
+}
+
+// TruncInterpreter is the Conflow interpreter for the Trunc function
 type TruncInterpreter struct {
-	s schema.Schema
 }
 
 func (i TruncInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns the integer value of x.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "x",
-					Schema: &schema.Number{},
-				},
-			},
-			Result: &schema.Number{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/math.Trunc")
+	return s
 }
 
 // Eval returns with the result of the function

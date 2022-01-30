@@ -8,39 +8,41 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// IteratorInterpreter is the conflow interpreter for the Iterator block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "generator"},
+			ID:          "github.com/conflowio/conflow/src/blocks.Iterator",
+		},
+		Name: "Iterator",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"it": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/src/blocks.It",
+			},
+			"value": &schema.Untyped{},
+		},
+		Required: []string{"it"},
+	})
+}
+
+// IteratorInterpreter is the Conflow interpreter for the Iterator block
 type IteratorInterpreter struct {
-	s schema.Schema
 }
 
 func (i IteratorInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			},
-			Name: "Iterator",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"it": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/blocks.It",
-				},
-				"value": &schema.Untyped{},
-			},
-			Required: []string{"it"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.Iterator")
+	return s
 }
 
 // Create creates a new Iterator block

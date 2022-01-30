@@ -8,44 +8,46 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// DependentRequiredInterpreter is the conflow interpreter for the DependentRequired block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/schema/directives.DependentRequired",
+		},
+		JSONPropertyNames: map[string]string{"value": "Value"},
+		Name:              "DependentRequired",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"value": &schema.Map{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+				AdditionalProperties: &schema.Array{
+					Items: &schema.String{
+						MinLength: 1,
+					},
+					MinItems:    1,
+					UniqueItems: true,
+				},
+			},
+		},
+		Required: []string{"value"},
+	})
+}
+
+// DependentRequiredInterpreter is the Conflow interpreter for the DependentRequired block
 type DependentRequiredInterpreter struct {
-	s schema.Schema
 }
 
 func (i DependentRequiredInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			},
-			JSONPropertyNames: map[string]string{"value": "Value"},
-			Name:              "DependentRequired",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"value": &schema.Map{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-					AdditionalProperties: &schema.Array{
-						Items: &schema.String{
-							MinLength: 1,
-						},
-						MinItems:    1,
-						UniqueItems: true,
-					},
-				},
-			},
-			Required: []string{"value"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.DependentRequired")
+	return s
 }
 
 // Create creates a new DependentRequired block

@@ -6,33 +6,35 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// SplitInterpreter is the conflow interpreter for the Split function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It slices s into all substrings separated by sep and returns a slice of\nthe substrings between those separators.\n\nIf s does not contain sep and sep is not empty, Split returns a\nslice of length 1 whose only element is s.\n\nIf sep is empty, Split splits after each UTF-8 sequence. If both s\nand sep are empty, Split returns an empty slice.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.Split",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+			schema.NamedSchema{
+				Name:   "sep",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.Array{
+			Items: &schema.Untyped{},
+		},
+	})
+}
+
+// SplitInterpreter is the Conflow interpreter for the Split function
 type SplitInterpreter struct {
-	s schema.Schema
 }
 
 func (i SplitInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It slices s into all substrings separated by sep and returns a slice of\nthe substrings between those separators.\n\nIf s does not contain sep and sep is not empty, Split returns a\nslice of length 1 whose only element is s.\n\nIf sep is empty, Split splits after each UTF-8 sequence. If both s\nand sep are empty, Split returns an empty slice.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-				schema.NamedSchema{
-					Name:   "sep",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.Array{
-				Items: &schema.Untyped{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.Split")
+	return s
 }
 
 // Eval returns with the result of the function

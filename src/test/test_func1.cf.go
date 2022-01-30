@@ -6,24 +6,28 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// TestFunc1Interpreter is the conflow interpreter for the testFunc1 function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			ID: "github.com/conflowio/conflow/src/test.testFunc1",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "str",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.String{},
+	})
+}
+
+// TestFunc1Interpreter is the Conflow interpreter for the testFunc1 function
 type TestFunc1Interpreter struct {
-	s schema.Schema
 }
 
 func (i TestFunc1Interpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "str",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.String{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/test.testFunc1")
+	return s
 }
 
 // Eval returns with the result of the function

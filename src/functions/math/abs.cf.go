@@ -6,30 +6,32 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// AbsInterpreter is the conflow interpreter for the Abs function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It returns the absolute value of the given number",
+			ID:          "github.com/conflowio/conflow/src/functions/math.Abs",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name: "value",
+				Schema: &schema.Untyped{
+					Types: []string{"integer", "number"},
+				},
+			},
+		},
+		Result:         &schema.Untyped{},
+		ResultTypeFrom: "value",
+	})
+}
+
+// AbsInterpreter is the Conflow interpreter for the Abs function
 type AbsInterpreter struct {
-	s schema.Schema
 }
 
 func (i AbsInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It returns the absolute value of the given number",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name: "value",
-					Schema: &schema.Untyped{
-						Types: []string{"integer", "number"},
-					},
-				},
-			},
-			Result:         &schema.Untyped{},
-			ResultTypeFrom: "value",
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/math.Abs")
+	return s
 }
 
 // Eval returns with the result of the function

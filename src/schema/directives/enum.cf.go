@@ -8,37 +8,39 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// EnumInterpreter is the conflow interpreter for the Enum block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/schema/directives.Enum",
+		},
+		Name: "Enum",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"values": &schema.Array{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+				Items: &schema.Untyped{},
+			},
+		},
+		Required: []string{"values"},
+	})
+}
+
+// EnumInterpreter is the Conflow interpreter for the Enum block
 type EnumInterpreter struct {
-	s schema.Schema
 }
 
 func (i EnumInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			},
-			Name: "Enum",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"values": &schema.Array{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-					Items: &schema.Untyped{},
-				},
-			},
-			Required: []string{"values"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.Enum")
+	return s
 }
 
 // Create creates a new Enum block

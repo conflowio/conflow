@@ -9,38 +9,40 @@ import (
 	"time"
 )
 
-// BlockWithContextInterpreter is the conflow interpreter for the BlockWithContext block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/test/fixtures.BlockWithContext",
+		},
+		JSONPropertyNames: map[string]string{"id_field": "IDField"},
+		Name:              "BlockWithContext",
+		Parameters: map[string]schema.Schema{
+			"id_field": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"timeout": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init"},
+				},
+				Format: "duration-go",
+			},
+		},
+		Required: []string{"timeout"},
+	})
+}
+
+// BlockWithContextInterpreter is the Conflow interpreter for the BlockWithContext block
 type BlockWithContextInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockWithContextInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"id_field": "IDField"},
-			Name:              "BlockWithContext",
-			Parameters: map[string]schema.Schema{
-				"id_field": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"timeout": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init"},
-					},
-					Format: "duration-go",
-				},
-			},
-			Required: []string{"timeout"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/test/fixtures.BlockWithContext")
+	return s
 }
 
 // Create creates a new BlockWithContext block

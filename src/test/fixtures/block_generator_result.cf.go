@@ -8,31 +8,33 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// BlockGeneratorResultInterpreter is the conflow interpreter for the BlockGeneratorResult block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/test/fixtures.BlockGeneratorResult",
+		},
+		Name: "BlockGeneratorResult",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"value": &schema.Untyped{},
+		},
+	})
+}
+
+// BlockGeneratorResultInterpreter is the Conflow interpreter for the BlockGeneratorResult block
 type BlockGeneratorResultInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockGeneratorResultInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			Name: "BlockGeneratorResult",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"value": &schema.Untyped{},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/test/fixtures.BlockGeneratorResult")
+	return s
 }
 
 // Create creates a new BlockGeneratorResult block

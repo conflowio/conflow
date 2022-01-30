@@ -8,36 +8,38 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// BenchmarkRunInterpreter is the conflow interpreter for the BenchmarkRun block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
+		},
+		Name: "BenchmarkRun",
+		Parameters: map[string]schema.Schema{
+			"cnt": &schema.Integer{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
+					ReadOnly:    true,
+				},
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+	})
+}
+
+// BenchmarkRunInterpreter is the Conflow interpreter for the BenchmarkRun block
 type BenchmarkRunInterpreter struct {
-	s schema.Schema
 }
 
 func (i BenchmarkRunInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			Name: "BenchmarkRun",
-			Parameters: map[string]schema.Schema{
-				"cnt": &schema.Integer{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-						ReadOnly:    true,
-					},
-				},
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/examples/benchmark.BenchmarkRun")
+	return s
 }
 
 // Create creates a new BenchmarkRun block

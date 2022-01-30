@@ -8,39 +8,41 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// LineScannerInterpreter is the conflow interpreter for the LineScanner block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "generator"},
+			ID:          "github.com/conflowio/conflow/src/blocks.LineScanner",
+		},
+		Name: "LineScanner",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"input": &schema.Untyped{},
+			"line": &schema.Reference{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+				},
+				Nullable: true,
+				Ref:      "github.com/conflowio/conflow/src/blocks.Line",
+			},
+		},
+		Required: []string{"input", "line"},
+	})
+}
+
+// LineScannerInterpreter is the Conflow interpreter for the LineScanner block
 type LineScannerInterpreter struct {
-	s schema.Schema
 }
 
 func (i LineScannerInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			},
-			Name: "LineScanner",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"input": &schema.Untyped{},
-				"line": &schema.Reference{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
-					},
-					Nullable: true,
-					Ref:      "http://conflow.schema/github.com/conflowio/conflow/src/blocks.Line",
-				},
-			},
-			Required: []string{"input", "line"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/blocks.LineScanner")
+	return s
 }
 
 // Create creates a new LineScanner block

@@ -6,31 +6,33 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// HasPrefixInterpreter is the conflow interpreter for the HasPrefix function
+func init() {
+	schema.Register(&schema.Function{
+		Metadata: schema.Metadata{
+			Description: "It tests whether the string s begins with prefix.",
+			ID:          "github.com/conflowio/conflow/src/functions/strings.HasPrefix",
+		},
+		Parameters: schema.Parameters{
+			schema.NamedSchema{
+				Name:   "s",
+				Schema: &schema.String{},
+			},
+			schema.NamedSchema{
+				Name:   "prefix",
+				Schema: &schema.String{},
+			},
+		},
+		Result: &schema.Boolean{},
+	})
+}
+
+// HasPrefixInterpreter is the Conflow interpreter for the HasPrefix function
 type HasPrefixInterpreter struct {
-	s schema.Schema
 }
 
 func (i HasPrefixInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Function{
-			Metadata: schema.Metadata{
-				Description: "It tests whether the string s begins with prefix.",
-			},
-			Parameters: schema.Parameters{
-				schema.NamedSchema{
-					Name:   "s",
-					Schema: &schema.String{},
-				},
-				schema.NamedSchema{
-					Name:   "prefix",
-					Schema: &schema.String{},
-				},
-			},
-			Result: &schema.Boolean{},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/functions/strings.HasPrefix")
+	return s
 }
 
 // Eval returns with the result of the function

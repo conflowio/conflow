@@ -8,37 +8,39 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// FormatInterpreter is the conflow interpreter for the Format block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			ID:          "github.com/conflowio/conflow/src/schema/directives.Format",
+		},
+		Name: "Format",
+		Parameters: map[string]schema.Schema{
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"value": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/value": "true"},
+				},
+				Enum: []string{"date", "date-time", "duration", "email", "hostname", "idn-email", "idn-hostname", "ip", "ip-cidr", "ipv4", "ipv4-cidr", "ipv6", "ipv6-cidr", "iri", "iri-reference", "regex", "time", "uri", "uri-reference", "uri-template", "uuid"},
+			},
+		},
+		Required: []string{"value"},
+	})
+}
+
+// FormatInterpreter is the Conflow interpreter for the Format block
 type FormatInterpreter struct {
-	s schema.Schema
 }
 
 func (i FormatInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			},
-			Name: "Format",
-			Parameters: map[string]schema.Schema{
-				"id": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"value": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/value": "true"},
-					},
-					Enum: []string{"date", "date-time", "duration", "email", "hostname", "idn-email", "idn-hostname", "ip", "ip-cidr", "ipv4", "ipv4-cidr", "ipv6", "ipv6-cidr", "iri", "iri-reference", "regex", "time", "uri", "uri-reference", "uri-template", "uuid"},
-				},
-			},
-			Required: []string{"value"},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/schema/directives.Format")
+	return s
 }
 
 // Create creates a new Format block

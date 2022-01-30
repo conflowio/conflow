@@ -8,39 +8,41 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// BlockWithInterfaceInterpreter is the conflow interpreter for the BlockWithInterface block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithInterface",
+		},
+		JSONPropertyNames: map[string]string{"block": "Block", "blocks": "Blocks", "id_field": "IDField"},
+		Name:              "BlockWithInterface",
+		Parameters: map[string]schema.Schema{
+			"block": &schema.Reference{
+				Ref: "github.com/conflowio/conflow/src/conflow.Block",
+			},
+			"blocks": &schema.Array{
+				Items: &schema.Reference{
+					Ref: "github.com/conflowio/conflow/src/conflow.Block",
+				},
+			},
+			"id_field": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+	})
+}
+
+// BlockWithInterfaceInterpreter is the Conflow interpreter for the BlockWithInterface block
 type BlockWithInterfaceInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"block": "Block", "blocks": "Blocks", "id_field": "IDField"},
-			Name:              "BlockWithInterface",
-			Parameters: map[string]schema.Schema{
-				"block": &schema.Reference{
-					Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow.Block",
-				},
-				"blocks": &schema.Array{
-					Items: &schema.Reference{
-						Ref: "http://conflow.schema/github.com/conflowio/conflow/src/conflow.Block",
-					},
-				},
-				"id_field": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithInterface")
+	return s
 }
 
 // Create creates a new BlockWithInterface block

@@ -9,61 +9,63 @@ import (
 	"time"
 )
 
-// BlockInterpreter is the conflow interpreter for the Block block
+func init() {
+	schema.Register(&schema.Object{
+		Metadata: schema.Metadata{
+			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
+			ID:          "github.com/conflowio/conflow/src/test/fixtures.Block",
+		},
+		JSONPropertyNames: map[string]string{"field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_identifier": "FieldIdentifier", "field_integer": "FieldInteger", "field_interface": "FieldInterface", "field_map": "FieldMap", "field_number": "FieldNumber", "field_string": "FieldString", "field_string_array": "FieldStringArray", "field_time": "FieldTime", "field_time_duration": "FieldTimeDuration", "id_field": "IDField"},
+		Name:              "Block",
+		Parameters: map[string]schema.Schema{
+			"field_array": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"field_bool":  &schema.Boolean{},
+			"field_float": &schema.Number{},
+			"field_identifier": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+			"field_integer":   &schema.Integer{},
+			"field_interface": &schema.Untyped{},
+			"field_map": &schema.Map{
+				AdditionalProperties: &schema.Untyped{},
+			},
+			"field_number": &schema.Untyped{
+				Types: []string{"integer", "number"},
+			},
+			"field_string": &schema.String{},
+			"field_string_array": &schema.Array{
+				Items: &schema.String{},
+			},
+			"field_time": &schema.String{
+				Format: "date-time",
+			},
+			"field_time_duration": &schema.String{
+				Format: "duration-go",
+			},
+			"id_field": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{"block.conflow.io/id": "true"},
+					ReadOnly:    true,
+				},
+				Format: "conflow.ID",
+			},
+		},
+	})
+}
+
+// BlockInterpreter is the Conflow interpreter for the Block block
 type BlockInterpreter struct {
-	s schema.Schema
 }
 
 func (i BlockInterpreter) Schema() schema.Schema {
-	if i.s == nil {
-		i.s = &schema.Object{
-			Metadata: schema.Metadata{
-				Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			},
-			JSONPropertyNames: map[string]string{"field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_identifier": "FieldIdentifier", "field_integer": "FieldInteger", "field_interface": "FieldInterface", "field_map": "FieldMap", "field_number": "FieldNumber", "field_string": "FieldString", "field_string_array": "FieldStringArray", "field_time": "FieldTime", "field_time_duration": "FieldTimeDuration", "id_field": "IDField"},
-			Name:              "Block",
-			Parameters: map[string]schema.Schema{
-				"field_array": &schema.Array{
-					Items: &schema.Untyped{},
-				},
-				"field_bool":  &schema.Boolean{},
-				"field_float": &schema.Number{},
-				"field_identifier": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-				"field_integer":   &schema.Integer{},
-				"field_interface": &schema.Untyped{},
-				"field_map": &schema.Map{
-					AdditionalProperties: &schema.Untyped{},
-				},
-				"field_number": &schema.Untyped{
-					Types: []string{"integer", "number"},
-				},
-				"field_string": &schema.String{},
-				"field_string_array": &schema.Array{
-					Items: &schema.String{},
-				},
-				"field_time": &schema.String{
-					Format: "date-time",
-				},
-				"field_time_duration": &schema.String{
-					Format: "duration-go",
-				},
-				"id_field": &schema.String{
-					Metadata: schema.Metadata{
-						Annotations: map[string]string{"block.conflow.io/id": "true"},
-						ReadOnly:    true,
-					},
-					Format: "conflow.ID",
-				},
-			},
-		}
-	}
-	return i.s
+	s, _ := schema.Get("github.com/conflowio/conflow/src/test/fixtures.Block")
+	return s
 }
 
 // Create creates a new Block block
