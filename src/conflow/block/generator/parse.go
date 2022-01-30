@@ -43,6 +43,7 @@ func ParseStruct(
 
 	s := &schema.Object{
 		Metadata: schema.Metadata{
+			ID:          fmt.Sprintf("%s.%s", pkg, name),
 			Description: metadata.Description,
 		},
 		Name:       name,

@@ -42,6 +42,7 @@ func ParseFunction(
 
 	s := &schema.Function{
 		Metadata: schema.Metadata{
+			ID:          fmt.Sprintf("%s.%s", pkg, name),
 			Description: metadata.Description,
 		},
 	}

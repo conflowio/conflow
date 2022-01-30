@@ -12,23 +12,21 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/conflowio/conflow/src/internal/utils"
 )
 
 var _ Schema = &Reference{}
 
-type ReferenceResolver interface {
-	ResolveSchemaReference(string) Schema
-}
-
 type Reference struct {
 	Metadata
 
-	Nullable bool              `json:"nullable,omitempty"`
-	Ref      string            `json:"ref,omitempty"`
-	Resolver ReferenceResolver `json:"-"`
-	schema   Schema
+	Nullable bool   `json:"nullable,omitempty"`
+	Ref      string `json:"ref,omitempty"`
+
+	schema         Schema
+	schemaResolver sync.Once
 }
 
 func (r *Reference) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -109,10 +107,6 @@ func (r *Reference) StringValue(value interface{}) string {
 }
 
 func (r *Reference) Type() Type {
-	if r.schema == nil && r.Resolver == nil {
-		return TypeReference
-	}
-
 	return r.getSchema().Type()
 }
 
@@ -129,10 +123,22 @@ func (r *Reference) ValidateValue(value interface{}) (interface{}, error) {
 }
 
 func (r *Reference) getSchema() Schema {
-	if r.schema == nil {
-		r.schema = r.Resolver.ResolveSchemaReference(r.Ref).Copy()
-		r.schema.(MetadataAccessor).Merge(r.Metadata)
+	if r.schema != nil {
+		return r.schema
 	}
+
+	r.schemaResolver.Do(func() {
+		s, err := Get(r.Ref)
+		if err != nil {
+			panic(fmt.Errorf("failed to resolve schema %q: %w", r.Ref, err))
+		}
+
+		if s == nil {
+			panic(fmt.Errorf("schema not found for %q", r.Ref))
+		}
+
+		r.schema = s
+	})
 
 	return r.schema
 }

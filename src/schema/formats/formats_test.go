@@ -29,6 +29,7 @@ func expectGoStructToHaveStringSchema(source string, format string, nullable boo
 	testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
 		Name: "Foo",
 		Metadata: schema.Metadata{
+			ID: "test.Foo",
 			Annotations: map[string]string{
 				conflow.AnnotationType: conflow.BlockTypeConfiguration,
 			},

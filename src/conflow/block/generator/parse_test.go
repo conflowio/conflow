@@ -50,6 +50,7 @@ var _ = Describe("ParseStruct", func() {
 
 			expectedSchema := &schema.Object{
 				Metadata: schema.Metadata{
+					ID:          "test.Foo",
 					Description: "It is a test struct",
 				},
 				Name: "Foo",
@@ -263,6 +264,9 @@ var _ = Describe("ParseStruct", func() {
 			It("should return with the parsed fields", func() {
 				Expect(parseErr).ToNot(HaveOccurred())
 				Expect(resultStruct.Schema).To(Equal(&schema.Object{
+					Metadata: schema.Metadata{
+						ID: "test.Foo",
+					},
 					Name: "Foo",
 					Parameters: map[string]schema.Schema{
 						"id": &schema.String{

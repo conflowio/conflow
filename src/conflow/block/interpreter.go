@@ -23,38 +23,65 @@ func (b *block) ID() conflow.ID {
 	return b.id
 }
 
-func NewInterpreter(s schema.ObjectKind) conflow.BlockInterpreter {
+func NewInterpreter(uri string) (conflow.BlockInterpreter, error) {
+	s, err := schema.Get(uri)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load schema %q: %w", uri, err)
+	}
+	if s == nil {
+		return nil, fmt.Errorf("schema %q does not exist", uri)
+	}
+
+	o, ok := s.(*schema.Object)
+	if !ok {
+		return nil, fmt.Errorf("schema %q must define an object", uri)
+	}
+
 	interpreterRegistry := InterpreterRegistry{}
 
 	var valueParamName string
-	for name, p := range s.GetParameters() {
+	for name, p := range o.Parameters {
 		if p.GetAnnotation(conflow.AnnotationValue) == "true" {
 			valueParamName = name
 		}
 
 		switch pt := p.(type) {
-		case schema.ObjectKind:
-			p.(schema.MetadataAccessor).SetID(fmt.Sprintf("%s/%s", s.GetID(), name))
-			interpreterRegistry[name] = NewInterpreter(pt)
-			s.GetParameters()[name] = &schema.Reference{Ref: p.GetID()}
-		case schema.ArrayKind:
-			if o, ok := pt.GetItems().(schema.ObjectKind); ok {
-				pt.GetItems().(schema.MetadataAccessor).SetID(fmt.Sprintf("%s/%s", s.GetID(), name))
-				interpreterRegistry[name] = NewInterpreter(o)
-				s.GetParameters()[name].(*schema.Array).Items = &schema.Reference{Ref: p.GetID()}
+		case *schema.Object:
+			id := fmt.Sprintf("%s/%s", s.GetID(), name)
+			pt.SetID(id)
+			schema.Register(pt)
+			o.Parameters[name] = &schema.Reference{Ref: id}
+
+			var err error
+			interpreterRegistry[name], err = NewInterpreter(id)
+			if err != nil {
+				return nil, err
+			}
+		case *schema.Array:
+			if po, ok := pt.Items.(*schema.Object); ok {
+				id := fmt.Sprintf("%s/%s", s.GetID(), name)
+				po.SetID(id)
+				schema.Register(po)
+				pt.Items = &schema.Reference{Ref: id}
+
+				var err error
+				interpreterRegistry[name], err = NewInterpreter(id)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
 
 	return interpreter{
-		schema:              s,
+		schema:              o,
 		valueParamName:      conflow.ID(valueParamName),
 		interpreterRegistry: interpreterRegistry,
-	}
+	}, nil
 }
 
 type interpreter struct {
-	schema              schema.ObjectKind
+	schema              *schema.Object
 	valueParamName      conflow.ID
 	interpreterRegistry InterpreterRegistry
 }

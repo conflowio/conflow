@@ -106,15 +106,12 @@ func generateTemplateParams(
 		pkgName = parts[len(parts)-1]
 	}
 
-	schemaString := f.Schema.GoString(imports)
-
 	return &InterpreterTemplateParams{
 		Package:          pkgName,
 		Name:             strings.ToUpper(string(f.Name[0])) + f.Name[1:],
 		FuncNameSelector: nameSelector,
 		FuncName:         f.Name,
 		Schema:           f.Schema,
-		SchemaString:     schemaString,
 		Imports:          imports,
 		ReturnsError:     f.ReturnsError,
 	}

@@ -159,14 +159,11 @@ func generateTemplateParams(
 		pkgName = parts[len(parts)-1]
 	}
 
-	schemaString := s.Schema.GoString(imports)
-
 	return &InterpreterTemplateParams{
 		Package:           pkgName,
 		NameSelector:      nameSelector,
 		Name:              s.Name,
 		Schema:            s.Schema,
-		SchemaString:      schemaString,
 		IDPropertyName:    idPropertyName,
 		ValuePropertyName: valuePropertyName,
 		Imports:           imports,

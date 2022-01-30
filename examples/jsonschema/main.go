@@ -53,20 +53,14 @@ func mainWithError() error {
 	ctx, cancel := util.CreateDefaultContext()
 	defer cancel()
 
-	personSchemaJSON, err := os.ReadFile("person.json")
-	if err != nil {
-		return fmt.Errorf("failed to read person.json: %w", err)
-	}
-	personSchema, err := schema.UnmarshalJSON(personSchemaJSON)
-	if err != nil {
-		return fmt.Errorf("failed to parse person.json: %w", err)
-	}
+	schemaID := "file://person.json"
+	schema.RegisterResolver(schemaID, schema.ResolverFunc(schema.ResolveFromFile))
 
-	if _, ok := personSchema.(schema.ObjectKind); !ok {
-		return fmt.Errorf("person.json must define an object type, got %s", personSchema.Type())
+	personInterpreter, err := block.NewInterpreter(schemaID)
+	if err != nil {
+		return err
 	}
-
-	mainRegistry["person"] = block.NewInterpreter(personSchema.(schema.ObjectKind))
+	mainRegistry["person"] = personInterpreter
 
 	parseCtx := common.NewParseContext()
 
