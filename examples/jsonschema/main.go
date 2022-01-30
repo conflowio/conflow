@@ -10,14 +10,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/conflowio/conflow/blocks"
-	"github.com/conflowio/conflow/conflow"
-	"github.com/conflowio/conflow/conflow/block"
-	"github.com/conflowio/conflow/conflow/schema"
 	"github.com/conflowio/conflow/examples/common"
-	"github.com/conflowio/conflow/functions"
-	"github.com/conflowio/conflow/parsers"
-	"github.com/conflowio/conflow/util"
+	"github.com/conflowio/conflow/src/blocks"
+	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/block"
+	"github.com/conflowio/conflow/src/conflow/schema"
+	"github.com/conflowio/conflow/src/functions"
+	"github.com/conflowio/conflow/src/parsers"
+	"github.com/conflowio/conflow/src/util"
 )
 
 var mainRegistry = block.InterpreterRegistry{

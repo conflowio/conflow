@@ -4,8 +4,8 @@ package common
 
 import (
 	"fmt"
-	"github.com/conflowio/conflow/conflow"
-	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/schema"
 )
 
 // IteratorInterpreter is the conflow interpreter for the Iterator block

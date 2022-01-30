@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/conflowio/conflow/conflow"
-	"github.com/conflowio/conflow/conflow/block"
+	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/block"
 )
 
 // @block "generator"
