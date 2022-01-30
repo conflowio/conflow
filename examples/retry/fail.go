@@ -9,7 +9,7 @@ package main
 import (
 	"context"
 
-	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/src/conflow"
 )
 
 // Fail will error for the given tries

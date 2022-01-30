@@ -7,9 +7,9 @@
 package acceptance
 
 import (
-	"github.com/conflowio/conflow/blocks"
-	"github.com/conflowio/conflow/conflow"
-	"github.com/conflowio/conflow/conflow/block"
+	"github.com/conflowio/conflow/src/blocks"
+	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/block"
 )
 
 // @block "main"

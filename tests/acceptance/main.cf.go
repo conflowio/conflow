@@ -4,8 +4,8 @@ package acceptance
 
 import (
 	"fmt"
-	"github.com/conflowio/conflow/conflow"
-	"github.com/conflowio/conflow/conflow/schema"
+	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/schema"
 )
 
 // MainInterpreter is the conflow interpreter for the Main block

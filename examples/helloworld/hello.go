@@ -12,7 +12,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/conflowio/conflow/conflow"
+	"github.com/conflowio/conflow/src/conflow"
 )
 
 // Hello is capable to print some greetings
