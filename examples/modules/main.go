@@ -24,17 +24,17 @@ func main() {
 
 	parseCtx := common.NewParseContext()
 
-	mainInterpreter := blocks.MainInterpreter{}
-	mainInterpreter.BlockTransformerRegistry = block.InterpreterRegistry{
-		"module":   mainInterpreter,
+	rootInterpreter := &blocks.RootInterpreter{}
+	rootInterpreter.BlockTransformerRegistry = block.InterpreterRegistry{
+		"module":   rootInterpreter,
 		"import":   blocks.ImportInterpreter{},
 		"iterator": common.IteratorInterpreter{},
 		"print":    blocks.PrintInterpreter{},
 		"println":  blocks.PrintlnInterpreter{},
 	}
-	mainInterpreter.FunctionTransformerRegistry = functions.DefaultRegistry()
+	rootInterpreter.FunctionTransformerRegistry = functions.DefaultRegistry()
 
-	p := parsers.NewMain("main", mainInterpreter)
+	p := parsers.NewRoot("root", rootInterpreter)
 
 	if err := p.ParseFile(
 		parseCtx,

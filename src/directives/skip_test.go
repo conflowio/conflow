@@ -34,7 +34,7 @@ func ExampleSkip_UsingAVariable() {
 
 		println "First will run"
 
-		@skip main.skip_second
+		@skip root.skip_second
 		println "Second won't run"
 	`)
 	// Output: First will run

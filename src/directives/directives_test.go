@@ -34,7 +34,7 @@ func eval(input string) {
 	scheduler.Start()
 	defer scheduler.Stop()
 
-	mainInterpreter := blocks.MainInterpreter{
+	mainInterpreter := blocks.RootInterpreter{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"println":  blocks.PrintlnInterpreter{},
 			"iterator": blocks.IteratorInterpreter{},
@@ -43,13 +43,13 @@ func eval(input string) {
 		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	}
 
-	p := parsers.NewMain("main", mainInterpreter)
+	p := parsers.NewRoot("root", mainInterpreter)
 	if err := p.ParseText(parseCtx, input); err != nil {
 		fmt.Printf("Example errored: %s\n", err.Error())
 		return
 	}
 
-	if _, err := conflow.Evaluate(parseCtx, context.Background(), nil, logger, scheduler, "main", nil); err != nil {
+	if _, err := conflow.Evaluate(parseCtx, context.Background(), nil, logger, scheduler, "root", nil); err != nil {
 		fmt.Printf("Example errored: %s\n", err.Error())
 		return
 	}

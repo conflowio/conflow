@@ -36,7 +36,7 @@ func main() {
 
 	parseCtx := common.NewParseContext()
 
-	p := parsers.NewMain("main", blocks.MainInterpreter{
+	p := parsers.NewRoot("root", blocks.RootInterpreter{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"print":   blocks.PrintInterpreter{},
 			"println": blocks.PrintlnInterpreter{},

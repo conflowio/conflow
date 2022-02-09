@@ -44,7 +44,7 @@ func (i *Import) BlockInterpreters(parseCtx *conflow.ParseContext) (map[conflow.
 		return nil, errors.New("import is not allowed as the \"module\" block is not registered")
 	}
 
-	p := parsers.NewMain("main", moduleInterpreter)
+	p := parsers.NewRoot("root", moduleInterpreter)
 
 	if err := p.ParseDir(
 		parseCtx,
@@ -53,9 +53,9 @@ func (i *Import) BlockInterpreters(parseCtx *conflow.ParseContext) (map[conflow.
 		return nil, err
 	}
 
-	node, ok := parseCtx.BlockNode("main")
+	node, ok := parseCtx.BlockNode("root")
 	if !ok {
-		return nil, fmt.Errorf("block \"main\" does not exist in module %s", i.path)
+		return nil, fmt.Errorf("block \"root\" does not exist in module %s", i.path)
 	}
 
 	return map[conflow.ID]conflow.BlockInterpreter{

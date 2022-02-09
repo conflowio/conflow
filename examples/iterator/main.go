@@ -12,34 +12,11 @@ import (
 
 	"github.com/conflowio/conflow/examples/common"
 	"github.com/conflowio/conflow/src/blocks"
-	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/block"
 	"github.com/conflowio/conflow/src/functions"
 	"github.com/conflowio/conflow/src/parsers"
 	"github.com/conflowio/conflow/src/util"
 )
-
-// @block "main"
-type Main struct {
-	// @id
-	id conflow.ID
-}
-
-func (m *Main) ID() conflow.ID {
-	return m.id
-}
-
-func (m *Main) ParseContextOverride() conflow.ParseContextOverride {
-	return conflow.ParseContextOverride{
-		BlockTransformerRegistry: block.InterpreterRegistry{
-			"iterator": common.IteratorInterpreter{},
-			"print":    blocks.PrintInterpreter{},
-			"println":  blocks.PrintlnInterpreter{},
-			"do":       MainInterpreter{},
-		},
-		FunctionTransformerRegistry: functions.DefaultRegistry(),
-	}
-}
 
 func main() {
 	ctx, cancel := util.CreateDefaultContext()
@@ -47,7 +24,16 @@ func main() {
 
 	parseCtx := common.NewParseContext()
 
-	p := parsers.NewMain("main", MainInterpreter{})
+	rootInterpreter := &blocks.RootInterpreter{}
+	rootInterpreter.BlockTransformerRegistry = block.InterpreterRegistry{
+		"iterator": common.IteratorInterpreter{},
+		"print":    blocks.PrintInterpreter{},
+		"println":  blocks.PrintlnInterpreter{},
+		"do":       rootInterpreter,
+	}
+	rootInterpreter.FunctionTransformerRegistry = functions.DefaultRegistry()
+
+	p := parsers.NewRoot("root", rootInterpreter)
 
 	if err := p.ParseFile(
 		parseCtx,

@@ -1,7 +1,7 @@
 world := "World"
 
 hello_world hello {
-    to = main.world
+    to = root.world
 }
 
 println {

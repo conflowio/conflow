@@ -55,7 +55,7 @@ func Main(ctx context.Context, parseCtx *conflow.ParseContext, inputParams map[c
 		nil,
 		logger,
 		scheduler,
-		"main",
+		"root",
 		inputParams,
 	); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())

@@ -11,4 +11,4 @@ b := 0
 @output {
   type:integer
 }
-sum := main.a + main.b
+sum := root.a + root.b

@@ -33,7 +33,7 @@ func init() {
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{"block.conflow.io/value": "true"},
 				},
-				Enum: []string{"configuration", "directive", "generator", "main", "task"},
+				Enum: []string{"configuration", "directive", "generator", "root", "task"},
 			},
 		},
 		Required: []string{"type"},

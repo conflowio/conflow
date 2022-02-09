@@ -22,7 +22,7 @@ type Block struct {
 	// @enum ["ignore", "init", "parse", "resolve"]
 	EvalStage string
 	Path      string
-	// @enum ["configuration", "directive", "generator", "main", "task"]
+	// @enum ["configuration", "directive", "generator", "root", "task"]
 	// @value
 	// @required
 	Type string

@@ -94,12 +94,12 @@ See [examples/helloworld](examples/helloworld) for the rest of the code.
 
 ```conflow
 
-// This is the body of the top level block called "main"
+// This is the body of the top level block called "root"
 
 program := "test.sh" // This is a user defined parameter in the main block
 
 test exec { // This is an "exec" type block with the id "test"
-    program = main.program // Parameter referencing the "program" parameter in the top level block
+    program = root.program // Parameter referencing the "program" parameter in the top level block
 }
 
 // If the block supports it you can use the short block format if one parameter is marked as a value parameter

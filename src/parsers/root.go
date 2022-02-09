@@ -23,24 +23,24 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// NewMain returns a parser for parsing a main block (a block body)
+// NewRoot returns a parser for parsing the root block (a block body)
 //   S     -> (PARAM|BLOCK)*
 //   ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //   PARAM -> ID ("="|":=") P
 //   VALUE -> EXPRESSION
 //         -> ARRAY
 //         -> MAP
-func NewMain(id conflow.ID, interpreter conflow.BlockInterpreter) *Main {
+func NewRoot(id conflow.ID, interpreter conflow.BlockInterpreter) *Root {
 	blockType := interpreter.Schema().GetAnnotation(conflow.AnnotationType)
-	if blockType != conflow.BlockTypeMain && blockType != conflow.BlockTypeConfiguration {
+	if blockType != conflow.BlockTypeRoot && blockType != conflow.BlockTypeConfiguration {
 		panic(fmt.Errorf(
-			"%T can not be used as a main block, as it is a %s block",
+			"%T can not be used as a root block, as it is a %s block",
 			interpreter.Schema().(schema.ObjectKind).GetName(),
 			blockType,
 		))
 	}
 
-	m := &Main{
+	m := &Root{
 		id:          id,
 		interpreter: interpreter,
 	}
@@ -70,33 +70,33 @@ func NewMain(id conflow.ID, interpreter conflow.BlockInterpreter) *Main {
 	return m
 }
 
-// Main is the main block parser
+// Root is the root block parser
 // It will parse a block body (list of params and blocks)
-// and will return with a block with the given id and the type "main"
-type Main struct {
+// and will return with a block with the given id and the type "root"
+type Root struct {
 	id          conflow.ID
 	interpreter conflow.BlockInterpreter
 	p           parsley.Parser
 }
 
 // Parse will parse the input into a block
-func (m *Main) Parse(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
-	return m.p.Parse(ctx, leftRecCtx, pos)
+func (r *Root) Parse(ctx *parsley.Context, leftRecCtx data.IntMap, pos parsley.Pos) (parsley.Node, data.IntSet, parsley.Error) {
+	return r.p.Parse(ctx, leftRecCtx, pos)
 }
 
-// ParseText parses the string input as a main block
-func (m *Main) ParseText(ctx *conflow.ParseContext, input string) error {
-	_, err := conflow.ParseText(ctx, m.p, input)
+// ParseText parses the string input as a root block
+func (r *Root) ParseText(ctx *conflow.ParseContext, input string) error {
+	_, err := conflow.ParseText(ctx, r.p, input)
 	return err
 }
 
-// ParseFile parses the given file as a main block
-func (m *Main) ParseFile(ctx *conflow.ParseContext, path string) error {
-	_, err := conflow.ParseFile(ctx, m.p, path)
+// ParseFile parses the given file as a root block
+func (r *Root) ParseFile(ctx *conflow.ParseContext, path string) error {
+	_, err := conflow.ParseFile(ctx, r.p, path)
 	return err
 }
 
-func (m *Main) ParseDir(ctx *conflow.ParseContext, dir string) error {
+func (r *Root) ParseDir(ctx *conflow.ParseContext, dir string) error {
 	info, err := os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -112,23 +112,23 @@ func (m *Main) ParseDir(ctx *conflow.ParseContext, dir string) error {
 		return err
 	}
 
-	return m.ParseFiles(ctx, paths...)
+	return r.ParseFiles(ctx, paths...)
 }
 
 // ParseFiles parses multiple files as one block
-func (m *Main) ParseFiles(ctx *conflow.ParseContext, paths ...string) error {
+func (r *Root) ParseFiles(ctx *conflow.ParseContext, paths ...string) error {
 	nodeBuilder := func(nodes []parsley.Node) parsley.Node {
-		return ast.NewNonTerminalNode("BLOCK_BODY", nodes, m)
+		return ast.NewNonTerminalNode("BLOCK_BODY", nodes, r)
 	}
-	return conflow.ParseFiles(ctx, m.p, nodeBuilder, paths)
+	return conflow.ParseFiles(ctx, r.p, nodeBuilder, paths)
 }
 
 // Eval will panic as it should not be called on a raw block node
-func (m *Main) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
+func (r *Root) Eval(userCtx interface{}, node parsley.NonTerminalNode) (interface{}, parsley.Error) {
 	panic("Eval should not be called on a raw block node")
 }
 
 // TransformNode will transform the parsley node into a conflow block node
-func (m *Main) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	return block.TransformMainNode(userCtx, node, m.id, m.interpreter)
+func (r *Root) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
+	return block.TransformRootNode(userCtx, node, r.id, r.interpreter)
 }

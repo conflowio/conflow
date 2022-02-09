@@ -18,7 +18,7 @@ const (
 	BlockTypeConfiguration = "configuration"
 	BlockTypeDirective     = "directive"
 	BlockTypeGenerator     = "generator"
-	BlockTypeMain          = "main"
+	BlockTypeRoot          = "root"
 	BlockTypeTask          = "task"
 )
 

@@ -2,19 +2,19 @@ colors := ["green", "red", "blue"]
 shapes := ["circle", "rectangle", "triangle"]
 
 iterator {
-    count = len(main.colors)
+    count = len(root.colors)
     i1 it
 }
 
 print_colors do {
-    color := main.colors[i1.value]
+    color := root.colors[i1.value]
 
     iterator {
-        count = len(main.shapes)
+        count = len(root.shapes)
         i2 it
     }
 
     println {
-        value = print_colors.color + " " + main.shapes[i2.value]
+        value = print_colors.color + " " + root.shapes[i2.value]
     }
 }

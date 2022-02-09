@@ -129,7 +129,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 	return res, nil
 }
 
-func TransformMainNode(ctx interface{}, node parsley.Node, id conflow.ID, interpreter conflow.BlockInterpreter) (parsley.Node, parsley.Error) {
+func TransformRootNode(ctx interface{}, node parsley.Node, id conflow.ID, interpreter conflow.BlockInterpreter) (parsley.Node, parsley.Error) {
 	parseCtx := interpreter.ParseContext(ctx.(*conflow.ParseContext))
 
 	children, dependencies, err := TransformChildren(
@@ -148,7 +148,7 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id conflow.ID, interp
 	}
 
 	if moduleSchema != interpreter.Schema() {
-		interpreter = &mainInterpreter{BlockInterpreter: interpreter, schema: moduleSchema}
+		interpreter = &rootInterpreter{BlockInterpreter: interpreter, schema: moduleSchema}
 	}
 
 	if len(dependencies) > 0 {
@@ -163,7 +163,7 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id conflow.ID, interp
 
 	res := NewNode(
 		conflow.NewIDNode(id, conflow.ClassifierNone, node.Pos(), node.Pos()),
-		conflow.NewNameNode(nil, nil, conflow.NewIDNode(conflow.ID("main"), conflow.ClassifierNone, node.Pos(), node.Pos())),
+		conflow.NewNameNode(nil, nil, conflow.NewIDNode(conflow.ID("root"), conflow.ClassifierNone, node.Pos(), node.Pos())),
 		children,
 		TokenBlock,
 		nil,
@@ -173,7 +173,7 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id conflow.ID, interp
 	)
 
 	if err := parseCtx.AddBlockNode(res); err != nil {
-		panic(fmt.Errorf("failed to register the main block node: %w", err))
+		panic(fmt.Errorf("failed to register the root block node: %w", err))
 	}
 
 	return res, nil

@@ -19,16 +19,16 @@ import (
 	"github.com/conflowio/conflow/src/test"
 )
 
-var _ = Describe("Main block parser", func() {
+var _ = Describe("Root block parser", func() {
 
-	p := parsers.NewMain("main", test.BlockInterpreter{})
+	p := parsers.NewRoot("root", test.BlockInterpreter{})
 
 	var registry = block.InterpreterRegistry{
-		"main":      test.BlockInterpreter{},
+		"root":      test.BlockInterpreter{},
 		"testblock": test.BlockInterpreter{},
 	}
 
-	DescribeTable("it evaluates the main block correctly",
+	DescribeTable("it evaluates the root block correctly",
 		func(input string, expected *test.Block) {
 			test.ExpectBlockToEvaluate(p, registry)(input, expected, func(i interface{}, i2 interface{}, s string) {
 				i.(*test.Block).Compare(i2.(*test.Block), input)
@@ -37,12 +37,12 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"empty",
 			``,
-			&test.Block{IDField: "main"},
+			&test.Block{IDField: "root"},
 		),
 		Entry(
 			"a parameter defined",
 			`value = 1`,
-			&test.Block{IDField: "main", Value: int64(1)},
+			&test.Block{IDField: "root", Value: int64(1)},
 		),
 		Entry(
 			"whitespaces and newlines",
@@ -51,7 +51,7 @@ var _ = Describe("Main block parser", func() {
 
 				field_string = "foo"
 			`,
-			&test.Block{IDField: "main", Value: int64(1), FieldString: "foo"},
+			&test.Block{IDField: "root", Value: int64(1), FieldString: "foo"},
 		),
 		Entry(
 			"a block defined",
@@ -61,7 +61,7 @@ var _ = Describe("Main block parser", func() {
 				}
 			`,
 			&test.Block{
-				IDField: "main",
+				IDField: "root",
 				Blocks: []*test.Block{
 					{IDField: "c", Value: int64(1)},
 				},
@@ -76,7 +76,7 @@ var _ = Describe("Main block parser", func() {
 				}
 			`,
 			&test.Block{
-				IDField: "main",
+				IDField: "root",
 				Value:   int64(1),
 				Blocks: []*test.Block{
 					{IDField: "c", Value: int64(2)},
@@ -95,10 +95,10 @@ var _ = Describe("Main block parser", func() {
 			"a parameter depends on an other",
 			`
 				field_int = 1
-				value = main.field_int + 1
+				value = root.field_int + 1
 			`,
 			&test.Block{
-				IDField:  "main",
+				IDField:  "root",
 				Value:    int64(2),
 				FieldInt: int64(1),
 			},
@@ -106,11 +106,11 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"a parameter depends on a custom parameter",
 			`
-				value = main.user_param + 1
+				value = root.user_param + 1
 				user_param := 1
 			`,
 			&test.Block{
-				IDField: "main",
+				IDField: "root",
 				Value:   int64(2),
 			},
 		),
@@ -125,7 +125,7 @@ var _ = Describe("Main block parser", func() {
 				}
 			`,
 			&test.Block{
-				IDField: "main",
+				IDField: "root",
 				Blocks: []*test.Block{
 					{IDField: "c2", FieldInt: int64(1)},
 					{IDField: "c1", FieldInt: int64(2)},
@@ -141,7 +141,7 @@ var _ = Describe("Main block parser", func() {
 				}
 			`,
 			&test.Block{
-				IDField:  "main",
+				IDField:  "root",
 				FieldInt: int64(2),
 				Blocks: []*test.Block{
 					{IDField: "c", FieldInt: int64(1)},
@@ -157,7 +157,7 @@ var _ = Describe("Main block parser", func() {
 				}
 			`,
 			&test.Block{
-				IDField:  "main",
+				IDField:  "root",
 				FieldInt: int64(2),
 				Blocks: []*test.Block{
 					{IDField: "c"},
@@ -168,12 +168,12 @@ var _ = Describe("Main block parser", func() {
 			"a child block depends on a parameter",
 			`
 				c testblock {
-					field_int = main.field_int + 1
+					field_int = root.field_int + 1
 				}
 				field_int = 1
 			`,
 			&test.Block{
-				IDField:  "main",
+				IDField:  "root",
 				FieldInt: int64(1),
 				Blocks: []*test.Block{
 					{IDField: "c", FieldInt: int64(2)},
@@ -191,7 +191,7 @@ var _ = Describe("Main block parser", func() {
 				field_int = c2.field_int + 1
 			`,
 			&test.Block{
-				IDField:  "main",
+				IDField:  "root",
 				FieldInt: int64(2),
 				Blocks: []*test.Block{
 					{
@@ -221,7 +221,7 @@ var _ = Describe("Main block parser", func() {
 				}
 			`,
 			&test.Block{
-				IDField: "main",
+				IDField: "root",
 				Blocks: []*test.Block{
 					{
 						IDField: "c3",
@@ -258,7 +258,7 @@ var _ = Describe("Main block parser", func() {
 				}
 			`,
 			&test.Block{
-				IDField:  "main",
+				IDField:  "root",
 				FieldInt: int64(6),
 				Blocks: []*test.Block{
 					{IDField: "c1", FieldInt: int64(2)},
@@ -275,19 +275,19 @@ var _ = Describe("Main block parser", func() {
 		Entry(
 			"a parameter depends on itself",
 			`
-				value = main.value + 1
+				value = root.value + 1
 			`,
-			MatchError(errors.New("main.value should not reference itself at testfile:2:13")),
+			MatchError(errors.New("root.value should not reference itself at testfile:2:13")),
 		),
 		Entry(
 			"parameters depend on each other",
 			`
-				value = main.field_int + 1
-				field_int = main.value + 1
+				value = root.field_int + 1
+				field_int = root.value + 1
 			`,
 			Or(
-				MatchError(errors.New("circular dependency detected: main.field_int, main.value at testfile:3:5")),
-				MatchError(errors.New("circular dependency detected: main.value, main.field_int at testfile:2:5")),
+				MatchError(errors.New("circular dependency detected: root.field_int, root.value at testfile:3:5")),
+				MatchError(errors.New("circular dependency detected: root.value, root.field_int at testfile:2:5")),
 			),
 		),
 		Entry(
@@ -295,12 +295,12 @@ var _ = Describe("Main block parser", func() {
 			`
 				value = c.value
 				c testblock {
-					value = main.value
+					value = root.value
 				}
 			`,
 			Or(
-				MatchError(errors.New("circular dependency detected: c, main.value at testfile:3:5")),
-				MatchError(errors.New("circular dependency detected: main.value, c at testfile:2:5")),
+				MatchError(errors.New("circular dependency detected: c, root.value at testfile:3:5")),
+				MatchError(errors.New("circular dependency detected: root.value, c at testfile:2:5")),
 			),
 		),
 		Entry(
@@ -335,8 +335,8 @@ var _ = Describe("Main block parser", func() {
 		),
 		Entry(
 			"unknown parameter reference",
-			`value = main.nonexisting`,
-			errors.New("unknown parameter: \"main.nonexisting\" at testfile:1:9"),
+			`value = root.nonexisting`,
+			errors.New("unknown parameter: \"root.nonexisting\" at testfile:1:9"),
 		),
 	)
 

@@ -34,7 +34,7 @@ func ExampleRun_UsingAVariable() {
 
 		println "First will run"
 
-		@run main.run_second
+		@run root.run_second
 		println "Second won't run"
 	`)
 	// Output: First will run

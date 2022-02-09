@@ -11,11 +11,11 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-type mainInterpreter struct {
+type rootInterpreter struct {
 	conflow.BlockInterpreter
 	schema schema.Schema
 }
 
-func (m *mainInterpreter) Schema() schema.Schema {
-	return m.schema
+func (r *rootInterpreter) Schema() schema.Schema {
+	return r.schema
 }
