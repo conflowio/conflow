@@ -24,8 +24,9 @@ type ParseContext struct {
 
 // ParseContextOverride stores override values for a parse context
 type ParseContextOverride struct {
-	BlockTransformerRegistry    parsley.NodeTransformerRegistry
-	FunctionTransformerRegistry parsley.NodeTransformerRegistry
+	BlockTransformerRegistry     parsley.NodeTransformerRegistry
+	FunctionTransformerRegistry  parsley.NodeTransformerRegistry
+	DirectiveTransformerRegistry parsley.NodeTransformerRegistry
 }
 
 // ParseContextOverrider defines an interface to be able to override a parse config
@@ -75,6 +76,9 @@ func (p *ParseContext) New(config ParseContextOverride) *ParseContext {
 	}
 	if config.FunctionTransformerRegistry != nil {
 		ctx.functionTransformerRegistry = config.FunctionTransformerRegistry
+	}
+	if config.DirectiveTransformerRegistry != nil {
+		ctx.directiveTransformerRegistry = config.DirectiveTransformerRegistry
 	}
 	return ctx
 }

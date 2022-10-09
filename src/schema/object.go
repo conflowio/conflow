@@ -21,20 +21,24 @@ import (
 type Object struct {
 	Metadata
 
-	Const             *map[string]interface{}  `json:"const,omitempty"`
-	Default           *map[string]interface{}  `json:"default,omitempty"`
+	Const             map[string]interface{}   `json:"const,omitempty"`
+	Default           map[string]interface{}   `json:"default,omitempty"`
 	DependentRequired map[string][]string      `json:"dependentRequired,omitempty"`
 	Enum              []map[string]interface{} `json:"enum,omitempty"`
 	// FieldNames will contain the json property name -> field name mapping, if they are different
+	// @ignore
 	FieldNames map[string]string `json:"fieldNames,omitempty"`
 	// JSONPropertyNames will contain the parameter name -> json property name mapping, if they are different
+	// @ignore
 	JSONPropertyNames map[string]string `json:"-"`
 	MinProperties     int64             `json:"minProperties,omitempty"`
 	MaxProperties     *int64            `json:"maxProperties,omitempty"`
-	Name              string            `json:"name,omitempty"`
-	// Parameters will contain the parameter name -> schema mapping
+	// @ignore
+	Name string `json:"name,omitempty"`
+	// @name "property"
 	Parameters map[string]Schema `json:"-"`
 	// Required will contain the required parameter names
+	// @ignore
 	Required []string `json:"-"`
 }
 
@@ -96,10 +100,7 @@ func (o *Object) Copy() Schema {
 }
 
 func (o *Object) DefaultValue() interface{} {
-	if o.Default == nil {
-		return nil
-	}
-	return *o.Default
+	return o.Default
 }
 
 // GetFieldName returns the field name for the given parameter name
@@ -360,8 +361,8 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 		return nil, errors.New("must be object")
 	}
 
-	if o.Const != nil && o.CompareValues(*o.Const, v) != 0 {
-		return nil, fmt.Errorf("must be %s", o.StringValue(*o.Const))
+	if o.Const != nil && o.CompareValues(o.Const, v) != 0 {
+		return nil, fmt.Errorf("must be %s", o.StringValue(o.Const))
 	}
 
 	if len(o.Enum) == 1 && o.CompareValues(o.Enum[0], v) != 0 {
@@ -489,8 +490,4 @@ func (o *Object) parameterNames() []string {
 	}
 	sort.Strings(keys)
 	return keys
-}
-
-func ObjectPtr(v map[string]interface{}) *map[string]interface{} {
-	return &v
 }

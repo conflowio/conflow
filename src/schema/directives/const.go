@@ -46,7 +46,7 @@ func (c *Const) ApplyToSchema(s schema.Schema) error {
 	case *schema.String:
 		st.Const = schema.StringPtr(value.(string))
 	case *schema.Object:
-		st.Const = schema.ObjectPtr(value.(map[string]interface{}))
+		st.Const = value.(map[string]interface{})
 	default:
 		return fmt.Errorf("const directive can not be applied to %T", s)
 	}

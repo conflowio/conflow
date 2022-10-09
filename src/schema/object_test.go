@@ -77,7 +77,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const value",
 			func(s *schema.Object) {
-				s.Const = &map[string]interface{}{
+				s.Const = map[string]interface{}{
 					"foo": int64(1),
 				}
 			},
@@ -88,7 +88,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const value - empty object",
 			func(s *schema.Object) {
-				s.Const = &map[string]interface{}{}
+				s.Const = map[string]interface{}{}
 			},
 			map[string]interface{}{},
 		),
@@ -225,7 +225,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const value",
 			func(s *schema.Object) {
-				s.Const = &map[string]interface{}{
+				s.Const = map[string]interface{}{
 					"foo": int64(1),
 				}
 			},
@@ -237,7 +237,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const value - empty object",
 			func(s *schema.Object) {
-				s.Const = &map[string]interface{}{}
+				s.Const = map[string]interface{}{}
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -346,19 +346,19 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const",
 			&schema.Object{
-				Const: &map[string]interface{}{"foo": "bar"},
+				Const: map[string]interface{}{"foo": "bar"},
 			},
 			`&schema.Object{
-	Const: &map[string]interface {}{"foo":"bar"},
+	Const: map[string]interface {}{"foo":"bar"},
 }`,
 		),
 		Entry(
 			"default",
 			&schema.Object{
-				Default: &map[string]interface{}{"foo": "bar"},
+				Default: map[string]interface{}{"foo": "bar"},
 			},
 			`&schema.Object{
-	Default: &map[string]interface {}{"foo":"bar"},
+	Default: map[string]interface {}{"foo":"bar"},
 }`,
 		),
 		Entry(

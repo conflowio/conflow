@@ -36,7 +36,7 @@ func (d *Default) ApplyToSchema(s schema.Schema) error {
 	case *schema.Array:
 		st.Default = value.([]interface{})
 	case *schema.Object:
-		st.Default = schema.ObjectPtr(value.(map[string]interface{}))
+		st.Default = value.(map[string]interface{})
 	case *schema.Boolean:
 		st.Default = schema.BooleanPtr(value.(bool))
 	case *schema.Integer:
