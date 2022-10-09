@@ -1,10 +1,27 @@
-sum import "./sum"
+sum module {
+    @input {
+        type:integer
+    }
+    a := 0
 
-one_plus_two sum {
-  a = 1
-  b = 2
+    @input {
+        type:integer
+    }
+    b := 0
+
+    @output {
+        type:integer
+    }
+    sum := root.a + root.b
 }
 
-println {
-    value = one_plus_two.sum
+main module {
+    one_plus_two sum {
+        a = 1
+        b = 2
+    }
+
+    println {
+        value = one_plus_two.sum
+    }
 }

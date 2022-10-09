@@ -1,0 +1,12 @@
+sum import "./modules/sum"
+
+main module {
+    one_plus_two sum {
+        a = 1
+        b = 2
+    }
+
+    println {
+        value = one_plus_two.sum
+    }
+}

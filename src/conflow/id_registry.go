@@ -15,6 +15,7 @@ import (
 
 // IDRegistry generates and stores identifiers
 type IDRegistry interface {
+	New() IDRegistry
 	IDExists(id ID) bool
 	RegisterID(id ID) error
 	GenerateID() ID
@@ -34,6 +35,11 @@ func NewIDRegistry(minLength int, maxLength int) IDRegistry {
 		minLength: minLength,
 		maxLength: maxLength,
 	}
+}
+
+// New creates a new ID registry with the same configuration
+func (i *idRegistry) New() IDRegistry {
+	return NewIDRegistry(i.minLength, i.maxLength)
 }
 
 // IDExists returns true if the identifier already exists

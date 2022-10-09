@@ -23,6 +23,10 @@ func newIDRegistry() *idRegistry {
 	}
 }
 
+func (r *idRegistry) New() conflow.IDRegistry {
+	return newIDRegistry()
+}
+
 func (r *idRegistry) IDExists(id conflow.ID) bool {
 	_, exists := r.ids[id]
 	return exists

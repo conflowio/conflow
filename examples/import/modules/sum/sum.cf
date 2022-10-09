@@ -1,14 +1,14 @@
 @input {
- type:integer
+    type:integer
 }
 a := 0
 
 @input {
-  type:integer
+    type:integer
 }
 b := 0
 
 @output {
-  type:integer
+    type:integer
 }
 sum := root.a + root.b

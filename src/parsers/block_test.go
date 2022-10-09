@@ -457,7 +457,7 @@ var _ = Describe("Block parser", func() {
 				foo testblock {}
 				foo testblock {}
 			}`,
-			errors.New("\"foo\" is already defined, please use a globally unique identifier at testfile:3:5"),
+			errors.New("\"foo\" is already defined, please use a unique identifier at testfile:3:5"),
 		),
 	)
 

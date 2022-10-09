@@ -19,12 +19,51 @@ import (
 	"github.com/conflowio/conflow/src/conflow/job"
 	"github.com/conflowio/conflow/src/conflow/parameter"
 	"github.com/conflowio/conflow/src/schema"
-	"github.com/conflowio/conflow/src/util"
 )
+
+func GetIDAndNameFromNode(node parsley.Node) (*conflow.IDNode, *conflow.NameNode) {
+	var idNode *conflow.IDNode
+	var nameNode *conflow.NameNode
+	switch n := node.(type) {
+	case parsley.NonTerminalNode:
+		if _, isEmpty := n.Children()[0].(ast.EmptyNode); !isEmpty {
+			idNode = n.Children()[0].(*conflow.IDNode)
+		}
+		nameNode = n.Children()[1].(*conflow.NameNode)
+	case *conflow.NameNode:
+		nameNode = n
+	case *conflow.IDNode:
+		nameNode = conflow.NewNameNode(nil, nil, n)
+	default:
+		panic(fmt.Errorf("unexpected identifier node: %T", node))
+	}
+
+	return idNode, nameNode
+}
 
 func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.BlockInterpreter) (parsley.Node, parsley.Error) {
 	parseCtx := interpreter.ParseContext(ctx.(*conflow.ParseContext))
 	nodes := node.(parsley.NonTerminalNode).Children()
+
+	idNode, nameNode := GetIDAndNameFromNode(nodes[1])
+	isModule := nameNode.Value() == "module"
+
+	if idNode != nil {
+		if err := parseCtx.RegisterID(idNode.ID()); err != nil {
+			return nil, parsley.NewError(idNode.Pos(), err)
+		}
+	} else {
+		if isModule {
+			return nil, parsley.NewErrorf(nameNode.Pos(), "a module must have an identifier")
+		}
+
+		id := parseCtx.GenerateID()
+		idNode = conflow.NewIDNode(id, conflow.ClassifierNone, nameNode.Pos(), nameNode.Pos())
+	}
+
+	if isModule {
+		parseCtx = parseCtx.NewForModule()
+	}
 
 	var directives []conflow.BlockNode
 	dependencies := make(conflow.Dependencies)
@@ -36,31 +75,6 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 			return nil, err
 		}
 		dependencies.Add(deps)
-	}
-
-	var idNode *conflow.IDNode
-	var nameNode *conflow.NameNode
-	switch n := nodes[1].(type) {
-	case parsley.NonTerminalNode:
-		if _, isEmpty := n.Children()[0].(ast.EmptyNode); !isEmpty {
-			idNode = n.Children()[0].(*conflow.IDNode)
-			if err := parseCtx.RegisterID(idNode.ID()); err != nil {
-				return nil, parsley.NewError(idNode.Pos(), err)
-			}
-		}
-
-		nameNode = n.Children()[1].(*conflow.NameNode)
-	case *conflow.NameNode:
-		nameNode = n
-	case *conflow.IDNode:
-		nameNode = conflow.NewNameNode(nil, nil, n)
-	default:
-		panic(fmt.Errorf("unexpected identifier node: %T", nodes[1]))
-	}
-
-	if idNode == nil {
-		id := parseCtx.GenerateID()
-		idNode = conflow.NewIDNode(id, conflow.ClassifierNone, nameNode.Pos(), nameNode.Pos())
 	}
 
 	var children []conflow.Node
@@ -111,7 +125,17 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 		}
 	}
 
-	res := NewNode(
+	if isModule && len(dependencies) > 0 {
+		for _, d := range dependencies {
+			if _, blockNodeExists := parseCtx.BlockNode(d.ParentID()); blockNodeExists {
+				return nil, parsley.NewErrorf(d.Pos(), "unknown parameter: %q", d.ID())
+			} else {
+				return nil, parsley.NewErrorf(d.Pos(), "unknown block: %q", d.ParentID())
+			}
+		}
+	}
+
+	return NewNode(
 		idNode,
 		nameNode,
 		children,
@@ -120,13 +144,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 		node.ReaderPos(),
 		interpreter,
 		dependencies,
-	)
-
-	if err := parseCtx.AddBlockNode(res); err != nil {
-		return nil, parsley.NewError(idNode.Pos(), err)
-	}
-
-	return res, nil
+	), nil
 }
 
 func TransformRootNode(ctx interface{}, node parsley.Node, id conflow.ID, interpreter conflow.BlockInterpreter) (parsley.Node, parsley.Error) {
@@ -142,15 +160,6 @@ func TransformRootNode(ctx interface{}, node parsley.Node, id conflow.ID, interp
 		return nil, err
 	}
 
-	moduleSchema, err := getModuleSchema(children, interpreter)
-	if err != nil {
-		return nil, err
-	}
-
-	if moduleSchema != interpreter.Schema() {
-		interpreter = &rootInterpreter{BlockInterpreter: interpreter, schema: moduleSchema}
-	}
-
 	if len(dependencies) > 0 {
 		for _, d := range dependencies {
 			if _, blockNodeExists := parseCtx.BlockNode(d.ParentID()); blockNodeExists {
@@ -161,9 +170,24 @@ func TransformRootNode(ctx interface{}, node parsley.Node, id conflow.ID, interp
 		}
 	}
 
-	res := NewNode(
+	var hasModules bool
+	for _, child := range children {
+		if b, ok := child.(conflow.BlockNode); ok {
+			if b.BlockType() == "module" {
+				hasModules = true
+				break
+			}
+		}
+	}
+
+	blockName := "root"
+	if !hasModules {
+		blockName = "main"
+	}
+
+	blockNode := NewNode(
 		conflow.NewIDNode(id, conflow.ClassifierNone, node.Pos(), node.Pos()),
-		conflow.NewNameNode(nil, nil, conflow.NewIDNode(conflow.ID("root"), conflow.ClassifierNone, node.Pos(), node.Pos())),
+		conflow.NewNameNode(nil, nil, conflow.NewIDNode(blockName, conflow.ClassifierNone, node.Pos(), node.Pos())),
 		children,
 		TokenBlock,
 		nil,
@@ -172,27 +196,36 @@ func TransformRootNode(ctx interface{}, node parsley.Node, id conflow.ID, interp
 		nil,
 	)
 
-	if err := parseCtx.AddBlockNode(res); err != nil {
+	if !hasModules {
+		moduleInterpreter, err := NewModuleInterpreter(blockNode)
+		if err != nil {
+			return nil, nil, err
+		}
+		registry := parseCtx.BlockTransformerRegistry().(InterpreterRegistry)
+		registry[string(blockNode.ID())] = moduleInterpreter
+	}
+
+	if err := parseCtx.AddBlockNode(blockNode); err != nil {
 		panic(fmt.Errorf("failed to register the root block node: %w", err))
 	}
 
-	return res, nil
+	return blockNode, nil
 }
 
 func TransformChildren(
 	parseCtx *conflow.ParseContext,
 	blockID conflow.ID,
-	nodes []parsley.Node,
+	children []parsley.Node,
 	interpreter conflow.BlockInterpreter,
 ) ([]conflow.Node, conflow.Dependencies, parsley.Error) {
-	if len(nodes) == 0 {
+	if len(children) == 0 {
 		return nil, nil, nil
 	}
 
-	conflowNodes := make([]conflow.Node, 0, len(nodes))
-	paramNames := make(map[conflow.ID]struct{}, len(nodes))
+	nodes := make([]conflow.Node, 0, len(children))
+	paramNames := make(map[conflow.ID]struct{}, len(children))
 
-	for _, node := range nodes {
+	for _, node := range children {
 		if node.Token() == TokenBlock {
 			res, err := node.(parsley.Transformable).Transform(parseCtx)
 			if err != nil {
@@ -200,13 +233,29 @@ func TransformChildren(
 			}
 			blockNode := res.(conflow.BlockNode)
 
+			if blockNode.BlockType() == "module" {
+				moduleInterpreter, err := NewModuleInterpreter(blockNode)
+				if err != nil {
+					return nil, nil, err
+				}
+				registry := parseCtx.BlockTransformerRegistry().(InterpreterRegistry)
+				registry[string(blockNode.ID())] = moduleInterpreter
+
+				continue
+			}
+
+			if err := parseCtx.AddBlockNode(blockNode); err != nil {
+				return nil, nil, parsley.NewError(blockNode.Pos(), err)
+			}
+
+			// TODO: what's the use case for these?
 			if blockSchema, ok := interpreter.Schema().(*schema.Object).Parameters[string(blockNode.ID())]; ok {
 				blockNode.SetSchema(blockSchema)
 			} else if blockSchema, ok := interpreter.Schema().(*schema.Object).Parameters[string(blockNode.ParameterName())]; ok {
 				blockNode.SetSchema(blockSchema)
 			}
 
-			conflowNodes = append(conflowNodes, res.(conflow.BlockNode))
+			nodes = append(nodes, res.(conflow.BlockNode))
 
 			if blockNode.EvalStage() == conflow.EvalStageParse {
 				if err := evaluateBlock(parseCtx, blockNode); err != nil {
@@ -223,102 +272,13 @@ func TransformChildren(
 				paramNode.SetSchema(paramSchema)
 			}
 
-			conflowNodes = append(conflowNodes, paramNode)
+			nodes = append(nodes, paramNode)
 		} else {
 			panic(fmt.Errorf("invalid block child node: %T", node))
 		}
 	}
 
-	return dependency.NewResolver(blockID, conflowNodes...).Resolve()
-}
-
-func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpreter) (schema.Schema, parsley.Error) {
-	var s schema.Schema
-
-	for _, c := range children {
-		if paramNode, ok := c.(conflow.ParameterNode); ok {
-			config, err := getParameterConfig(paramNode)
-			if err != nil {
-				return nil, err
-			}
-
-			if util.BoolValue(config.Input) || util.BoolValue(config.Output) {
-				if _, exists := interpreter.Schema().(schema.ObjectKind).GetParameters()[string(paramNode.Name())]; exists {
-					return nil, parsley.NewErrorf(c.Pos(), "%q parameter already exists.", paramNode.Name())
-				}
-			} else {
-				continue
-			}
-
-			if s == nil {
-				s = interpreter.Schema().Copy()
-			}
-			o := s.(*schema.Object)
-			if o.Parameters == nil {
-				o.Parameters = map[string]schema.Schema{}
-			}
-
-			switch {
-			case util.BoolValue(config.Input):
-				if util.BoolValue(config.Required) {
-					o.Required = append(o.Required, string(paramNode.Name()))
-				}
-
-				if config.Schema == nil {
-					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
-				}
-
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, conflow.EvalStageInit.String())
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "true")
-
-				o.Parameters[string(paramNode.Name())] = config.Schema
-				paramNode.SetSchema(config.Schema)
-			case util.BoolValue(config.Output):
-				if config.Schema == nil {
-					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
-				}
-
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, conflow.EvalStageInit.String())
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "true")
-				config.Schema.(schema.MetadataAccessor).SetReadOnly(true)
-
-				o.Parameters[string(paramNode.Name())] = config.Schema
-				paramNode.SetSchema(config.Schema)
-			}
-		}
-	}
-
-	if s == nil {
-		return interpreter.Schema(), nil
-	}
-
-	return s, nil
-}
-
-func getParameterConfig(param conflow.ParameterNode) (*conflow.ParameterConfig, parsley.Error) {
-	config := &conflow.ParameterConfig{}
-
-	for _, d := range param.Directives() {
-		if d.EvalStage() != conflow.EvalStageParse {
-			continue
-		}
-
-		evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
-
-		block, err := d.Value(evalCtx)
-		if err != nil {
-			return nil, parsley.NewErrorf(d.Pos(), "failed to evaluate directive %s: %w", d.ID(), err)
-		}
-
-		opt, ok := block.(conflow.ParameterConfigOption)
-		if !ok {
-			return nil, parsley.NewError(d.Pos(), fmt.Errorf("%q directive can not be defined on a parameter", d.BlockType()))
-		}
-
-		opt.ApplyToParameterConfig(config)
-	}
-
-	return config, nil
+	return dependency.NewResolver(blockID, nodes...).Resolve()
 }
 
 func evaluateBlock(parseCtx *conflow.ParseContext, node conflow.BlockNode) parsley.Error {

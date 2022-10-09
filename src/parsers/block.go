@@ -98,22 +98,10 @@ func (b blockInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode
 }
 
 func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
-	registry := userCtx.(conflow.BlockTransformerRegistryAware).BlockTransformerRegistry()
-
 	nodes := node.(parsley.NonTerminalNode).Children()
+	_, nameNode := block.GetIDAndNameFromNode(nodes[1])
 
-	var nameNode *conflow.NameNode
-	switch n := nodes[1].(type) {
-	case parsley.NonTerminalNode:
-		nameNode = n.Children()[1].(*conflow.NameNode)
-	case *conflow.NameNode:
-		nameNode = n
-	case *conflow.IDNode:
-		nameNode = conflow.NewNameNode(nil, nil, n)
-	default:
-		panic(fmt.Errorf("unexpected node type: %T", nodes[1]))
-	}
-
+	registry := userCtx.(conflow.BlockTransformerRegistryAware).BlockTransformerRegistry()
 	transformer, exists := registry.NodeTransformer(string(nameNode.NameNode().ID()))
 	if !exists {
 		return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q block is unknown or not allowed", nameNode.NameNode().ID()))

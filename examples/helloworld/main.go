@@ -24,11 +24,18 @@ func main() {
 
 	parseCtx := common.NewParseContext()
 
-	p := parsers.NewRoot("root", blocks.RootInterpreter{
+	moduleInterpreter := blocks.RootInterpreter{
 		BlockTransformerRegistry: block.InterpreterRegistry{
 			"hello":   HelloInterpreter{},
 			"print":   blocks.PrintInterpreter{},
 			"println": blocks.PrintlnInterpreter{},
+		},
+		FunctionTransformerRegistry: functions.DefaultRegistry(),
+	}
+
+	p := parsers.NewRoot("root", blocks.RootInterpreter{
+		BlockTransformerRegistry: block.InterpreterRegistry{
+			"module": moduleInterpreter,
 		},
 		FunctionTransformerRegistry: functions.DefaultRegistry(),
 	})

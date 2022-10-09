@@ -81,7 +81,7 @@ func (p *ParseContext) New(config ParseContextOverride) *ParseContext {
 
 func (p *ParseContext) NewForModule() *ParseContext {
 	return &ParseContext{
-		idRegistry:                   p.idRegistry,
+		idRegistry:                   p.idRegistry.New(),
 		blockNodes:                   make(map[ID]BlockNode, 32),
 		fileSet:                      parsley.NewFileSet(),
 		directiveTransformerRegistry: p.directiveTransformerRegistry,
@@ -115,7 +115,7 @@ func (p *ParseContext) BlockNode(id ID) (BlockNode, bool) {
 // It returns with an error if a block with the same id was already registered
 func (p *ParseContext) AddBlockNode(node BlockNode) error {
 	if _, exists := p.blockNodes[node.ID()]; exists {
-		return fmt.Errorf("%q is already defined, please use a globally unique identifier", node.ID())
+		return fmt.Errorf("%q is already defined, please use a unique identifier", node.ID())
 	}
 
 	p.blockNodes[node.ID()] = node
