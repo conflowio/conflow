@@ -156,4 +156,4 @@ require (
 	mvdan.cc/unparam v0.0.0-20210104141923-aac4ce9116a7 // indirect
 )
 
-go 1.17
+go 1.19
