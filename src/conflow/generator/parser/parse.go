@@ -67,7 +67,7 @@ func ParseField(
 		jsonName := strings.TrimSpace(jsonTagParts[0])
 
 		if jsonName == "-" {
-			return nil, nil
+			jsonName = ""
 		}
 
 		if jsonName != "" {

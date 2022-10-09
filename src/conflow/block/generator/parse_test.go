@@ -194,9 +194,11 @@ var _ = Describe("ParseStruct", func() {
 		),
 
 		Entry(
-			"field should be ignored if a JSON annotation ignores it",
+			"field should not be ignored if a JSON annotation ignores it",
 			"fieldName string `json:\"-\"`",
 			func(s schema.Schema) {
+				s.(*schema.Object).Parameters["field_name"] = &schema.String{}
+				s.(*schema.Object).JSONPropertyNames = map[string]string{"field_name": "fieldName"}
 			},
 		),
 
