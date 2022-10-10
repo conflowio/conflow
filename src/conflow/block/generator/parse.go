@@ -103,10 +103,6 @@ func ParseStruct(
 					continue
 				}
 
-				if parameter.GetAnnotation(conflow.AnnotationValue) == "true" {
-					parameter.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationValue, "")
-				}
-
 				f := parser.Field{
 					Name:             fieldStrSchema.GetFieldName(parameterName),
 					ParameterName:    parameterName,
