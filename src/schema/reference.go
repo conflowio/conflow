@@ -22,10 +22,14 @@ var _ Schema = &Reference{}
 type Reference struct {
 	Metadata
 
-	Nullable bool   `json:"nullable,omitempty"`
-	Ref      string `json:"ref,omitempty"`
+	Nullable bool `json:"nullable,omitempty"`
+	// @value
+	// @required
+	Ref string `json:"$ref"`
 
-	schema         Schema
+	// @ignore
+	schema Schema
+	// @ignore
 	schemaResolver sync.Once
 }
 
