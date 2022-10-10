@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/schema"
@@ -29,6 +30,7 @@ var _ conflow.BlockNode = &Node{}
 type Node struct {
 	idNode       *conflow.IDNode
 	nameNode     *conflow.NameNode
+	keyNode      *terminal.StringNode
 	children     []conflow.Node
 	token        string
 	directives   []conflow.BlockNode
@@ -44,6 +46,7 @@ type Node struct {
 func NewNode(
 	idNode *conflow.IDNode,
 	nameNode *conflow.NameNode,
+	keyNode *terminal.StringNode,
 	children []conflow.Node,
 	token string,
 	directives []conflow.BlockNode,
@@ -69,6 +72,7 @@ func NewNode(
 	return &Node{
 		idNode:       idNode,
 		nameNode:     nameNode,
+		keyNode:      keyNode,
 		children:     children,
 		token:        token,
 		directives:   directives,
@@ -100,6 +104,14 @@ func (n *Node) BlockType() conflow.ID {
 	return n.nameNode.NameNode().ID()
 }
 
+func (n *Node) Key() *string {
+	if n.keyNode != nil {
+		key := n.keyNode.Value().(string)
+		return &key
+	}
+	return nil
+}
+
 // Token returns with the node's token
 func (n *Node) Token() string {
 	return n.token
@@ -115,6 +127,8 @@ func (n *Node) SetSchema(s schema.Schema) {
 	switch st := s.(type) {
 	case *schema.Array:
 		n.schema.Metadata.Merge(st.Items.(*schema.Reference).Metadata)
+	case *schema.Map:
+		n.schema.Metadata.Merge(st.AdditionalProperties.(*schema.Reference).Metadata)
 	case *schema.Reference:
 		n.schema.Metadata.Merge(st.Metadata)
 	default:
@@ -184,7 +198,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 			if exists {
 				blockCounts[c.ParameterName()] = blockCounts[c.ParameterName()] + 1
-				if blockCounts[c.ParameterName()] > 1 && property.Type() != schema.TypeArray {
+				if blockCounts[c.ParameterName()] > 1 && property.Type() != schema.TypeArray && property.Type() != schema.TypeMap {
 					return parsley.NewError(c.Pos(), fmt.Errorf("%q block can only be defined once", c.ParameterName()))
 				}
 			}

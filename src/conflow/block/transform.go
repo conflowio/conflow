@@ -12,6 +12,7 @@ import (
 
 	"github.com/conflowio/parsley/ast"
 	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/dependency"
@@ -40,6 +41,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 
 	var idNode *conflow.IDNode
 	var nameNode *conflow.NameNode
+	var keyNode *terminal.StringNode
 	switch n := nodes[1].(type) {
 	case parsley.NonTerminalNode:
 		if _, isEmpty := n.Children()[0].(ast.EmptyNode); !isEmpty {
@@ -50,6 +52,10 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 		}
 
 		nameNode = n.Children()[1].(*conflow.NameNode)
+		if _, isEmpty := n.Children()[2].(ast.EmptyNode); !isEmpty {
+			keyNode = n.Children()[2].(*terminal.StringNode)
+		}
+
 	case *conflow.NameNode:
 		nameNode = n
 	case *conflow.IDNode:
@@ -108,12 +114,30 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 				return nil, err
 			}
 			dependencies.Add(deps)
+		} else { // If there is no body, we'll check if there is a key, as value takes precedence
+			valueParamName := interpreter.ValueParamName()
+			if keyNode != nil && valueParamName != "" {
+				valueParamSchema := interpreter.Schema().(*schema.Object).Parameters[string(valueParamName)]
+				if valueParamSchema.Type() == schema.TypeString || valueParamSchema.Type() == schema.TypeUntyped {
+					children = []conflow.Node{
+						parameter.NewNode(
+							idNode.ID(),
+							conflow.NewIDNode(valueParamName, conflow.ClassifierNone, keyNode.Pos(), keyNode.Pos()),
+							keyNode,
+							false,
+							nil,
+						),
+					}
+					keyNode = nil
+				}
+			}
 		}
 	}
 
 	res := NewNode(
 		idNode,
 		nameNode,
+		keyNode,
 		children,
 		node.Token(),
 		directives,
@@ -164,6 +188,7 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id conflow.ID, interp
 	res := NewNode(
 		conflow.NewIDNode(id, conflow.ClassifierNone, node.Pos(), node.Pos()),
 		conflow.NewNameNode(nil, nil, conflow.NewIDNode(conflow.ID("main"), conflow.ClassifierNone, node.Pos(), node.Pos())),
+		nil,
 		children,
 		TokenBlock,
 		nil,

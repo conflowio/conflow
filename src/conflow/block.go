@@ -72,6 +72,7 @@ type BlockNode interface {
 	Interpreter() BlockInterpreter
 	SetSchema(schema.Schema)
 	GetPropertySchema(ID) (schema.Schema, bool)
+	Key() *string
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks
@@ -92,7 +93,7 @@ type BlockInterpreter interface {
 	Schema() schema.Schema
 	CreateBlock(ID, *BlockContext) Block
 	SetParam(b Block, name ID, value interface{}) error
-	SetBlock(b Block, name ID, value interface{}) error
+	SetBlock(b Block, name ID, key string, value interface{}) error
 	Param(b Block, name ID) interface{}
 	ValueParamName() ID
 	ParseContext(*ParseContext) *ParseContext

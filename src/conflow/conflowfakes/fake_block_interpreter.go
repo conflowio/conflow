@@ -54,12 +54,13 @@ type FakeBlockInterpreter struct {
 	schemaReturnsOnCall map[int]struct {
 		result1 schema.Schema
 	}
-	SetBlockStub        func(conflow.Block, conflow.ID, interface{}) error
+	SetBlockStub        func(conflow.Block, conflow.ID, string, interface{}) error
 	setBlockMutex       sync.RWMutex
 	setBlockArgsForCall []struct {
 		arg1 conflow.Block
 		arg2 conflow.ID
-		arg3 interface{}
+		arg3 string
+		arg4 interface{}
 	}
 	setBlockReturns struct {
 		result1 error
@@ -332,20 +333,21 @@ func (fake *FakeBlockInterpreter) SchemaReturnsOnCall(i int, result1 schema.Sche
 	}{result1}
 }
 
-func (fake *FakeBlockInterpreter) SetBlock(arg1 conflow.Block, arg2 conflow.ID, arg3 interface{}) error {
+func (fake *FakeBlockInterpreter) SetBlock(arg1 conflow.Block, arg2 conflow.ID, arg3 string, arg4 interface{}) error {
 	fake.setBlockMutex.Lock()
 	ret, specificReturn := fake.setBlockReturnsOnCall[len(fake.setBlockArgsForCall)]
 	fake.setBlockArgsForCall = append(fake.setBlockArgsForCall, struct {
 		arg1 conflow.Block
 		arg2 conflow.ID
-		arg3 interface{}
-	}{arg1, arg2, arg3})
+		arg3 string
+		arg4 interface{}
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.SetBlockStub
 	fakeReturns := fake.setBlockReturns
-	fake.recordInvocation("SetBlock", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("SetBlock", []interface{}{arg1, arg2, arg3, arg4})
 	fake.setBlockMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -359,17 +361,17 @@ func (fake *FakeBlockInterpreter) SetBlockCallCount() int {
 	return len(fake.setBlockArgsForCall)
 }
 
-func (fake *FakeBlockInterpreter) SetBlockCalls(stub func(conflow.Block, conflow.ID, interface{}) error) {
+func (fake *FakeBlockInterpreter) SetBlockCalls(stub func(conflow.Block, conflow.ID, string, interface{}) error) {
 	fake.setBlockMutex.Lock()
 	defer fake.setBlockMutex.Unlock()
 	fake.SetBlockStub = stub
 }
 
-func (fake *FakeBlockInterpreter) SetBlockArgsForCall(i int) (conflow.Block, conflow.ID, interface{}) {
+func (fake *FakeBlockInterpreter) SetBlockArgsForCall(i int) (conflow.Block, conflow.ID, string, interface{}) {
 	fake.setBlockMutex.RLock()
 	defer fake.setBlockMutex.RUnlock()
 	argsForCall := fake.setBlockArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *FakeBlockInterpreter) SetBlockReturns(result1 error) {

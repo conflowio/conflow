@@ -119,6 +119,16 @@ type FakeBlockNode struct {
 	interpreterReturnsOnCall map[int]struct {
 		result1 conflow.BlockInterpreter
 	}
+	KeyStub        func() *string
+	keyMutex       sync.RWMutex
+	keyArgsForCall []struct {
+	}
+	keyReturns struct {
+		result1 *string
+	}
+	keyReturnsOnCall map[int]struct {
+		result1 *string
+	}
 	ParameterNameStub        func() conflow.ID
 	parameterNameMutex       sync.RWMutex
 	parameterNameArgsForCall []struct {
@@ -760,6 +770,59 @@ func (fake *FakeBlockNode) InterpreterReturnsOnCall(i int, result1 conflow.Block
 	}{result1}
 }
 
+func (fake *FakeBlockNode) Key() *string {
+	fake.keyMutex.Lock()
+	ret, specificReturn := fake.keyReturnsOnCall[len(fake.keyArgsForCall)]
+	fake.keyArgsForCall = append(fake.keyArgsForCall, struct {
+	}{})
+	stub := fake.KeyStub
+	fakeReturns := fake.keyReturns
+	fake.recordInvocation("Key", []interface{}{})
+	fake.keyMutex.Unlock()
+	if stub != nil {
+		return stub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeBlockNode) KeyCallCount() int {
+	fake.keyMutex.RLock()
+	defer fake.keyMutex.RUnlock()
+	return len(fake.keyArgsForCall)
+}
+
+func (fake *FakeBlockNode) KeyCalls(stub func() *string) {
+	fake.keyMutex.Lock()
+	defer fake.keyMutex.Unlock()
+	fake.KeyStub = stub
+}
+
+func (fake *FakeBlockNode) KeyReturns(result1 *string) {
+	fake.keyMutex.Lock()
+	defer fake.keyMutex.Unlock()
+	fake.KeyStub = nil
+	fake.keyReturns = struct {
+		result1 *string
+	}{result1}
+}
+
+func (fake *FakeBlockNode) KeyReturnsOnCall(i int, result1 *string) {
+	fake.keyMutex.Lock()
+	defer fake.keyMutex.Unlock()
+	fake.KeyStub = nil
+	if fake.keyReturnsOnCall == nil {
+		fake.keyReturnsOnCall = make(map[int]struct {
+			result1 *string
+		})
+	}
+	fake.keyReturnsOnCall[i] = struct {
+		result1 *string
+	}{result1}
+}
+
 func (fake *FakeBlockNode) ParameterName() conflow.ID {
 	fake.parameterNameMutex.Lock()
 	ret, specificReturn := fake.parameterNameReturnsOnCall[len(fake.parameterNameArgsForCall)]
@@ -1197,6 +1260,8 @@ func (fake *FakeBlockNode) Invocations() map[string][][]interface{} {
 	defer fake.iDMutex.RUnlock()
 	fake.interpreterMutex.RLock()
 	defer fake.interpreterMutex.RUnlock()
+	fake.keyMutex.RLock()
+	defer fake.keyMutex.RUnlock()
 	fake.parameterNameMutex.RLock()
 	defer fake.parameterNameMutex.RUnlock()
 	fake.posMutex.RLock()

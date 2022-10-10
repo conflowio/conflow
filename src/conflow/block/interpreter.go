@@ -104,7 +104,7 @@ func (g interpreter) SetParam(b conflow.Block, name conflow.ID, value interface{
 	return nil
 }
 
-func (g interpreter) SetBlock(b conflow.Block, name conflow.ID, value interface{}) error {
+func (g interpreter) SetBlock(b conflow.Block, name conflow.ID, key string, value interface{}) error {
 	s := g.schema.GetParameters()[string(name)]
 	if s.Type() == schema.TypeArray {
 		if b.(*block).blocks[name] == nil {

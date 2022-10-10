@@ -60,17 +60,16 @@ func ParseStruct(
 		}
 	}
 
-	var idField string
-	var valueField string
+	var idField, valueField, keyField string
 	var dependencies []parser.Dependency
 
 	parseCtx = parseCtx.WithParent(str)
 
-	for _, field := range str.Fields.List {
-		if len(field.Names) > 0 {
-			fieldName := field.Names[0].String()
+	for _, strField := range str.Fields.List {
+		if len(strField.Names) > 0 {
+			fieldName := strField.Names[0].String()
 
-			field, err := parser.ParseField(parseCtx, fieldName, field, pkg)
+			field, err := parser.ParseField(parseCtx, fieldName, strField, pkg)
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse field %q: %w", fieldName, err)
 			}
@@ -87,13 +86,13 @@ func ParseStruct(
 				continue
 			}
 
-			if err := addField(s, &idField, &valueField, *field); err != nil {
+			if err := addField(s, &idField, &valueField, &keyField, *field); err != nil {
 				return nil, err
 			}
 		} else {
-			fieldStr, err := ParseEmbeddedField(parseCtx, pkg, field)
+			fieldStr, err := ParseEmbeddedField(parseCtx, pkg, strField)
 			if err != nil {
-				return nil, fmt.Errorf("failed to parse embedded struct %q: %w", field.Type, err)
+				return nil, fmt.Errorf("failed to parse embedded struct %q: %w", strField.Type, err)
 			}
 
 			fieldStrSchema := fieldStr.Schema.(*schema.Object)
@@ -111,11 +110,15 @@ func ParseStruct(
 					JSONPropertyName: fieldStrSchema.GetJSONPropertyName(parameterName),
 				}
 
-				if err := addField(s, &idField, &valueField, f); err != nil {
+				if err := addField(s, &idField, &valueField, &keyField, f); err != nil {
 					return nil, err
 				}
 			}
 		}
+	}
+
+	if valueField != "" && len(s.Required) > 0 && (len(s.Required) > 1 || s.Required[0] != valueField) {
+		return nil, errors.New("when setting a value field then no other fields can be required")
 	}
 
 	if s.GetAnnotation(conflow.AnnotationType) == conflow.BlockTypeGenerator {
@@ -198,29 +201,33 @@ func ParseEmbeddedField(
 	}
 }
 
-func addField(s *schema.Object, idField, valueField *string, field parser.Field) error {
+func addField(s *schema.Object, idField, valueField, keyField *string, field parser.Field) error {
 	if _, exists := s.Parameters[field.ParameterName]; exists {
 		return fmt.Errorf("multiple fields has the same property name: %s", field.ParameterName)
 	}
 
 	if field.Schema.GetAnnotation(conflow.AnnotationID) == "true" {
 		if *idField != "" {
-			return fmt.Errorf("multiple id fields were found: %s, %s", *idField, field.Name)
+			return fmt.Errorf("multiple id fields were found: %s, %s", *idField, field.ParameterName)
 		}
-		*idField = field.Name
+		*idField = field.ParameterName
 	}
 
 	if field.Schema.GetAnnotation(conflow.AnnotationValue) == "true" {
 		if *valueField != "" {
-			return fmt.Errorf("multiple value fields were found: %s, %s", *valueField, field.Name)
+			return fmt.Errorf("multiple value fields were found: %s, %s", *valueField, field.ParameterName)
 		}
-		*valueField = field.Name
+		*valueField = field.ParameterName
+	}
+
+	if field.Schema.GetAnnotation(conflow.AnnotationKey) == "true" {
+		if *keyField != "" {
+			return fmt.Errorf("multiple key fields were found: %s, %s", *keyField, field.ParameterName)
+		}
+		*keyField = field.ParameterName
 	}
 
 	if field.Required {
-		if *valueField != "" && *valueField != field.Name {
-			return errors.New("when setting a value field then no other fields can be required")
-		}
 		s.Required = append(s.Required, field.ParameterName)
 	}
 

@@ -63,6 +63,11 @@ func (i {{ .Name }}Interpreter) CreateBlock(id conflow.ID, blockCtx *conflow.Blo
 	{{ range $name, $schema := filterDefaults (filterParams .Schema.GetParameters) -}}
 	b.{{ getFieldName $name }} = {{ printf "%#v" .DefaultValue }}
 	{{ end -}}
+	{{ range $name, $property := filterInputs (filterBlocks .Schema.GetParameters) -}}
+	{{ if isMap $property -}}
+	b.{{ getFieldName $name }} = map[string]{{ getType $property.GetAdditionalProperties }}{}
+	{{ end -}}
+	{{ end -}}
 	{{ range .Dependencies -}}
 	b.{{ .FieldName }} = blockCtx.{{ title .Name }}()
 	{{ end -}}
@@ -110,7 +115,7 @@ func (i {{ .Name }}Interpreter) SetParam(block conflow.Block, name conflow.ID, v
 	{{ end -}}
 }
 
-func (i {{ .Name }}Interpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i {{ .Name }}Interpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	{{ if filterInputs (filterBlocks .Schema.GetParameters) -}}
 	b := block.(*{{ $root.NameSelector }}{{ $root.Name }})
 	switch name {
@@ -118,6 +123,8 @@ func (i {{ .Name }}Interpreter) SetBlock(block conflow.Block, name conflow.ID, v
 	case "{{ $name }}":
 		{{ if isArray $property -}}
 		b.{{ getFieldName $name }} = append(b.{{ getFieldName $name }}, value.({{ getType $property.GetItems }}))
+		{{ else if isMap $property -}}
+		b.{{ getFieldName $name }}[key] = value.({{ getType $property.GetAdditionalProperties }})
 		{{ else -}}
 		b.{{ getFieldName $name }} = value.({{ getType $property }})
 		{{ end -}}

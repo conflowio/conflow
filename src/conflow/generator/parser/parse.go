@@ -257,13 +257,10 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 		if err != nil {
 			return nil, false, err
 		}
-		if isRef {
-			return nil, false, fmt.Errorf("only single blocks or slice of blocks are supported")
-		}
 
 		return &schema.Map{
 			AdditionalProperties: propertiesSchema,
-		}, false, nil
+		}, isRef, nil
 	case *ast.StarExpr:
 		res, isRef, err := getBaseSchemaForType(parseCtx, tn.X, pkg)
 		if err != nil {

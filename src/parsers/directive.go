@@ -30,7 +30,7 @@ import (
 func Directive(expr parsley.Parser) *combinator.Sequence {
 	paramOrBlock := combinator.Choice(
 		Parameter(expr, false, false),
-		blockWithOptions(expr, false, false, false),
+		blockWithOptions(expr, false, false, false, false),
 	).Name("parameter or block")
 
 	emptyBody := combinator.SeqOf(

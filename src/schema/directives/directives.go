@@ -27,6 +27,7 @@ func Registry() block.InterpreterRegistry {
 		"generated":         GeneratedInterpreter{},
 		"id":                IDInterpreter{},
 		"ignore":            IgnoreInterpreter{},
+		"key":               KeyInterpreter{},
 		"max_items":         MaxItemsInterpreter{},
 		"max_properties":    MaxPropertiesInterpreter{},
 		"max_length":        MaxLengthInterpreter{},

@@ -77,6 +77,10 @@ func GenerateInterpreter(
 			_, ok := s.(schema.ArrayKind)
 			return ok
 		},
+		"isMap": func(s schema.Schema) bool {
+			_, ok := s.(schema.MapKind)
+			return ok
+		},
 		"title": func(s string) string {
 			return strings.Title(s)
 		},

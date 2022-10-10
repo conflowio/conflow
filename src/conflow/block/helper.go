@@ -22,6 +22,12 @@ func IsBlockSchema(s schema.Schema) bool {
 		}
 	}
 
+	if a, ok := s.(schema.MapKind); ok {
+		if _, ok := a.GetAdditionalProperties().(*schema.Reference); ok {
+			return true
+		}
+	}
+
 	return false
 }
 

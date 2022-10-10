@@ -96,7 +96,7 @@ func (m *moduleInterpreter) SetParam(b conflow.Block, name conflow.ID, value int
 	return nil
 }
 
-func (m *moduleInterpreter) SetBlock(b conflow.Block, name conflow.ID, value interface{}) error {
+func (m *moduleInterpreter) SetBlock(b conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }
 
