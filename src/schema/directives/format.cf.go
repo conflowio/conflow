@@ -45,9 +45,9 @@ func (i FormatInterpreter) Schema() schema.Schema {
 
 // Create creates a new Format block
 func (i FormatInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Format{
-		id: id,
-	}
+	b := &Format{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

@@ -44,9 +44,9 @@ func (i BugInterpreter) Schema() schema.Schema {
 
 // Create creates a new Bug block
 func (i BugInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Bug{
-		id: id,
-	}
+	b := &Bug{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

@@ -46,9 +46,9 @@ func (i TimeoutInterpreter) Schema() schema.Schema {
 
 // Create creates a new Timeout block
 func (i TimeoutInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Timeout{
-		id: id,
-	}
+	b := &Timeout{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

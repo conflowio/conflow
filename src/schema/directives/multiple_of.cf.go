@@ -44,9 +44,9 @@ func (i MultipleOfInterpreter) Schema() schema.Schema {
 
 // Create creates a new MultipleOf block
 func (i MultipleOfInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &MultipleOf{
-		id: id,
-	}
+	b := &MultipleOf{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

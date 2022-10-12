@@ -41,9 +41,9 @@ func (i BlockRequiredFieldInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockRequiredField block
 func (i BlockRequiredFieldInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BlockRequiredField{
-		IDField: id,
-	}
+	b := &BlockRequiredField{}
+	b.IDField = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

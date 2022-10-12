@@ -47,9 +47,9 @@ func (i HelloInterpreter) Schema() schema.Schema {
 
 // Create creates a new Hello block
 func (i HelloInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Hello{
-		id: id,
-	}
+	b := &Hello{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

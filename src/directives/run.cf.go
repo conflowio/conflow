@@ -44,10 +44,10 @@ func (i RunInterpreter) Schema() schema.Schema {
 
 // Create creates a new Run block
 func (i RunInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Run{
-		id:   id,
-		when: true,
-	}
+	b := &Run{}
+	b.id = id
+	b.when = true
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

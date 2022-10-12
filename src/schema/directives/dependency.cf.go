@@ -44,9 +44,9 @@ func (i DependencyInterpreter) Schema() schema.Schema {
 
 // Create creates a new Dependency block
 func (i DependencyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Dependency{
-		id: id,
-	}
+	b := &Dependency{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

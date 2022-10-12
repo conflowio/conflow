@@ -44,9 +44,9 @@ func (i DeprecatedInterpreter) Schema() schema.Schema {
 
 // Create creates a new Deprecated block
 func (i DeprecatedInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Deprecated{
-		id: id,
-	}
+	b := &Deprecated{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

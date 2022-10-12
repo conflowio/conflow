@@ -47,10 +47,10 @@ func (i RetryInterpreter) Schema() schema.Schema {
 
 // Create creates a new Retry block
 func (i RetryInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Retry{
-		id:    id,
-		limit: -1,
-	}
+	b := &Retry{}
+	b.id = id
+	b.limit = -1
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

@@ -50,10 +50,10 @@ func (i TickerInterpreter) Schema() schema.Schema {
 
 // Create creates a new Ticker block
 func (i TickerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Ticker{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &Ticker{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

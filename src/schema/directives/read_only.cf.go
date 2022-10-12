@@ -38,9 +38,9 @@ func (i ReadOnlyInterpreter) Schema() schema.Schema {
 
 // Create creates a new ReadOnly block
 func (i ReadOnlyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &ReadOnly{
-		id: id,
-	}
+	b := &ReadOnly{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

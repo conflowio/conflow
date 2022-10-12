@@ -53,10 +53,10 @@ func (i FileWalkerInterpreter) Schema() schema.Schema {
 
 // Create creates a new FileWalker block
 func (i FileWalkerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &FileWalker{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &FileWalker{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

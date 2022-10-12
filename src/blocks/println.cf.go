@@ -45,10 +45,10 @@ func (i PrintlnInterpreter) Schema() schema.Schema {
 
 // Create creates a new Println block
 func (i PrintlnInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Println{
-		id:     id,
-		stdout: blockCtx.Stdout(),
-	}
+	b := &Println{}
+	b.id = id
+	b.stdout = blockCtx.Stdout()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

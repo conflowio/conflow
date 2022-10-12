@@ -45,9 +45,9 @@ func (i TypesInterpreter) Schema() schema.Schema {
 
 // Create creates a new Types block
 func (i TypesInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Types{
-		id: id,
-	}
+	b := &Types{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

@@ -55,7 +55,8 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 
 // Create creates a new Boolean block
 func (i BooleanInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Boolean{}
+	b := &Boolean{}
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

@@ -44,9 +44,9 @@ func (i TitleInterpreter) Schema() schema.Schema {
 
 // Create creates a new Title block
 func (i TitleInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Title{
-		id: id,
-	}
+	b := &Title{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

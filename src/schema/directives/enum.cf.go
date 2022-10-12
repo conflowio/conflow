@@ -45,9 +45,9 @@ func (i EnumInterpreter) Schema() schema.Schema {
 
 // Create creates a new Enum block
 func (i EnumInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Enum{
-		id: id,
-	}
+	b := &Enum{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

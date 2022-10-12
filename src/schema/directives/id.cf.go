@@ -38,9 +38,9 @@ func (i IDInterpreter) Schema() schema.Schema {
 
 // Create creates a new ID block
 func (i IDInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &ID{
-		id: id,
-	}
+	b := &ID{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

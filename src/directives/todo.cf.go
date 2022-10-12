@@ -44,9 +44,9 @@ func (i TodoInterpreter) Schema() schema.Schema {
 
 // Create creates a new Todo block
 func (i TodoInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Todo{
-		id: id,
-	}
+	b := &Todo{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

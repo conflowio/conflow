@@ -73,7 +73,8 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 
 // Create creates a new Integer block
 func (i IntegerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Integer{}
+	b := &Integer{}
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

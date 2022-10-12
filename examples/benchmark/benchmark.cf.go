@@ -59,10 +59,10 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 
 // Create creates a new Benchmark block
 func (i BenchmarkInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Benchmark{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &Benchmark{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

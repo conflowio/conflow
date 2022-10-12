@@ -44,9 +44,9 @@ func (i FailInterpreter) Schema() schema.Schema {
 
 // Create creates a new Fail block
 func (i FailInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Fail{
-		id: id,
-	}
+	b := &Fail{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

@@ -44,9 +44,9 @@ func (i MinPropertiesInterpreter) Schema() schema.Schema {
 
 // Create creates a new MinProperties block
 func (i MinPropertiesInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &MinProperties{
-		id: id,
-	}
+	b := &MinProperties{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

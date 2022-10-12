@@ -44,9 +44,9 @@ func (i ImportInterpreter) Schema() schema.Schema {
 
 // Create creates a new Import block
 func (i ImportInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Import{
-		id: id,
-	}
+	b := &Import{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

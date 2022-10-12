@@ -65,9 +65,9 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 
 // Create creates a new Directive block
 func (i DirectiveInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Directive{
-		IDField: id,
-	}
+	b := &Directive{}
+	b.IDField = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

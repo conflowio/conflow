@@ -45,10 +45,10 @@ func (i BlockWithDefaultInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockWithDefault block
 func (i BlockWithDefaultInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BlockWithDefault{
-		IDField: id,
-		Value:   "foo",
-	}
+	b := &BlockWithDefault{}
+	b.IDField = id
+	b.Value = "foo"
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

@@ -44,9 +44,9 @@ func (i DocInterpreter) Schema() schema.Schema {
 
 // Create creates a new Doc block
 func (i DocInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Doc{
-		id: id,
-	}
+	b := &Doc{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

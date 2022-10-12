@@ -44,9 +44,9 @@ func (i MinimumInterpreter) Schema() schema.Schema {
 
 // Create creates a new Minimum block
 func (i MinimumInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Minimum{
-		id: id,
-	}
+	b := &Minimum{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

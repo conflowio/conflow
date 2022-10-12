@@ -39,9 +39,9 @@ func (i FileInterpreter) Schema() schema.Schema {
 
 // Create creates a new File block
 func (i FileInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &File{
-		id: id,
-	}
+	b := &File{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

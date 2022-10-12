@@ -44,10 +44,10 @@ func (i SkipInterpreter) Schema() schema.Schema {
 
 // Create creates a new Skip block
 func (i SkipInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Skip{
-		id:   id,
-		when: true,
-	}
+	b := &Skip{}
+	b.id = id
+	b.when = true
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

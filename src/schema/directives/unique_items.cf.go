@@ -38,9 +38,9 @@ func (i UniqueItemsInterpreter) Schema() schema.Schema {
 
 // Create creates a new UniqueItems block
 func (i UniqueItemsInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &UniqueItems{
-		id: id,
-	}
+	b := &UniqueItems{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

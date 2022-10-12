@@ -44,9 +44,9 @@ func (i MaxItemsInterpreter) Schema() schema.Schema {
 
 // Create creates a new MaxItems block
 func (i MaxItemsInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &MaxItems{
-		id: id,
-	}
+	b := &MaxItems{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

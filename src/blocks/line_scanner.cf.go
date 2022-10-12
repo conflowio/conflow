@@ -47,10 +47,10 @@ func (i LineScannerInterpreter) Schema() schema.Schema {
 
 // Create creates a new LineScanner block
 func (i LineScannerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &LineScanner{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &LineScanner{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

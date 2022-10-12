@@ -52,9 +52,9 @@ func (i DependentRequiredInterpreter) Schema() schema.Schema {
 
 // Create creates a new DependentRequired block
 func (i DependentRequiredInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &DependentRequired{
-		id: id,
-	}
+	b := &DependentRequired{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

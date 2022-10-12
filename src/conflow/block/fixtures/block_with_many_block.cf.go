@@ -45,9 +45,9 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockWithManyBlock block
 func (i BlockWithManyBlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BlockWithManyBlock{
-		IDField: id,
-	}
+	b := &BlockWithManyBlock{}
+	b.IDField = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

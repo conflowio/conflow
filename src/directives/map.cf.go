@@ -64,7 +64,8 @@ func (i MapInterpreter) Schema() schema.Schema {
 
 // Create creates a new Map block
 func (i MapInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Map{}
+	b := &Map{}
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

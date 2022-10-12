@@ -41,9 +41,9 @@ func (i LicensifyInterpreter) Schema() schema.Schema {
 
 // Create creates a new Licensify block
 func (i LicensifyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Licensify{
-		id: id,
-	}
+	b := &Licensify{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

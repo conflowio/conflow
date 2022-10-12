@@ -38,9 +38,9 @@ func (i WriteOnlyInterpreter) Schema() schema.Schema {
 
 // Create creates a new WriteOnly block
 func (i WriteOnlyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &WriteOnly{
-		id: id,
-	}
+	b := &WriteOnly{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

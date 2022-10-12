@@ -39,9 +39,9 @@ func (i BlockGeneratorResultInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockGeneratorResult block
 func (i BlockGeneratorResultInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BlockGeneratorResult{
-		id: id,
-	}
+	b := &BlockGeneratorResult{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

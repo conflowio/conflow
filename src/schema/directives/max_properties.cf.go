@@ -44,9 +44,9 @@ func (i MaxPropertiesInterpreter) Schema() schema.Schema {
 
 // Create creates a new MaxProperties block
 func (i MaxPropertiesInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &MaxProperties{
-		id: id,
-	}
+	b := &MaxProperties{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

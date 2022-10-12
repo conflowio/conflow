@@ -38,9 +38,9 @@ func (i ResultTypeInterpreter) Schema() schema.Schema {
 
 // Create creates a new ResultType block
 func (i ResultTypeInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &ResultType{
-		id: id,
-	}
+	b := &ResultType{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set

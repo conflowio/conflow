@@ -38,9 +38,9 @@ func (i IgnoreInterpreter) Schema() schema.Schema {
 
 // Create creates a new Ignore block
 func (i IgnoreInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Ignore{
-		id: id,
-	}
+	b := &Ignore{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
