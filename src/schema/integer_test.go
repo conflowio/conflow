@@ -8,6 +8,8 @@ package schema_test
 
 import (
 	"errors"
+	"fmt"
+	"math"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -37,6 +39,8 @@ var _ = Describe("Integer", func() {
 		Entry("enum value - exclusive minimum", &schema.Integer{ExclusiveMinimum: schema.IntegerPtr(1)}, int64(2)),
 		Entry("enum value - exclusive maximum", &schema.Integer{ExclusiveMaximum: schema.IntegerPtr(2)}, int64(1)),
 		Entry("enum value - multiple of", &schema.Integer{MultipleOf: schema.IntegerPtr(2)}, int64(4)),
+		Entry("int32 with maximum valid value", &schema.Integer{Format: "int32"}, int64(math.MaxInt32)),
+		Entry("int32 with minimum valid value", &schema.Integer{Format: "int32"}, int64(math.MinInt32)),
 	)
 
 	DescribeTable("Validate errors",
@@ -110,6 +114,18 @@ var _ = Describe("Integer", func() {
 			int64(3),
 			errors.New("must be multiple of 2"),
 		),
+		Entry(
+			"int32 minimum",
+			&schema.Integer{Format: "int32"},
+			int64(math.MinInt32-1),
+			fmt.Errorf("must be greater than or equal to %d", math.MinInt32),
+		),
+		Entry(
+			"int32 maximum",
+			&schema.Integer{Format: "int32"},
+			int64(math.MaxInt32+1),
+			fmt.Errorf("must be less than or equal to %d", math.MaxInt32),
+		),
 	)
 
 	DescribeTable("GoString prints a valid Go struct",
@@ -142,6 +158,13 @@ var _ = Describe("Integer", func() {
 			&schema.Integer{Enum: []int64{1}},
 			`&schema.Integer{
 	Enum: []int64{1},
+}`,
+		),
+		Entry(
+			"format",
+			&schema.Integer{Format: "int32"},
+			`&schema.Integer{
+	Format: "int32",
 }`,
 		),
 		Entry(
@@ -196,6 +219,7 @@ var _ = Describe("Integer", func() {
 				"enum": [3, 4],
 				"exclusiveMinimum": 5,
 				"exclusiveMaximum": 6,
+				"format": "int32",
 				"maximum": 7,
 				"minimum": 8,
 				"multipleOf": 9,
