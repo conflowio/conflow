@@ -88,7 +88,7 @@ func (i LineScannerInterpreter) SetParam(block conflow.Block, name conflow.ID, v
 	return nil
 }
 
-func (i LineScannerInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i LineScannerInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*LineScanner)
 	switch name {
 	case "line":

@@ -89,7 +89,7 @@ func (i GzipInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i GzipInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i GzipInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Gzip)
 	switch name {
 	case "out":

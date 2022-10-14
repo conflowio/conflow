@@ -160,7 +160,7 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i ArrayInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i ArrayInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Array)
 	switch name {
 	case "items":

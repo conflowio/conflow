@@ -76,7 +76,7 @@ func (i BlockWithOneBlockInterpreter) SetParam(block conflow.Block, name conflow
 	return nil
 }
 
-func (i BlockWithOneBlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockWithOneBlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*BlockWithOneBlock)
 	switch name {
 	case "block_simple":

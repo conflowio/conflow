@@ -155,7 +155,7 @@ func (i MapInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	return nil
 }
 
-func (i MapInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i MapInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Map)
 	switch name {
 	case "additional_properties":

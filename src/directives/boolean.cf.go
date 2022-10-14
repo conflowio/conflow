@@ -142,6 +142,6 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	return nil
 }
 
-func (i BooleanInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BooleanInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

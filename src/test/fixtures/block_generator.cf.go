@@ -90,7 +90,7 @@ func (i BlockGeneratorInterpreter) SetParam(block conflow.Block, name conflow.ID
 	return nil
 }
 
-func (i BlockGeneratorInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockGeneratorInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*BlockGenerator)
 	switch name {
 	case "result":

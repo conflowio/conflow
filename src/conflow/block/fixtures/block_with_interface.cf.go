@@ -80,7 +80,7 @@ func (i BlockWithInterfaceInterpreter) SetParam(block conflow.Block, name conflo
 	return nil
 }
 
-func (i BlockWithInterfaceInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockWithInterfaceInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*BlockWithInterface)
 	switch name {
 	case "block":

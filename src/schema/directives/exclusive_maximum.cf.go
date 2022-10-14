@@ -84,6 +84,6 @@ func (i ExclusiveMaximumInterpreter) SetParam(block conflow.Block, name conflow.
 	return nil
 }
 
-func (i ExclusiveMaximumInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i ExclusiveMaximumInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

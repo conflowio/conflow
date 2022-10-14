@@ -89,6 +89,6 @@ func (i HelloInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i HelloInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i HelloInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

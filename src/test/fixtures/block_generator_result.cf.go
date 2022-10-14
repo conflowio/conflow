@@ -79,6 +79,6 @@ func (i BlockGeneratorResultInterpreter) SetParam(block conflow.Block, name conf
 	return nil
 }
 
-func (i BlockGeneratorResultInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockGeneratorResultInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

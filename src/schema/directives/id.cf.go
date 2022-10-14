@@ -71,6 +71,6 @@ func (i IDInterpreter) SetParam(block conflow.Block, name conflow.ID, value inte
 	return nil
 }
 
-func (i IDInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i IDInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

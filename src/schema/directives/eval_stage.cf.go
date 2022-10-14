@@ -85,6 +85,6 @@ func (i EvalStageInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	return nil
 }
 
-func (i EvalStageInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i EvalStageInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

@@ -71,6 +71,6 @@ func (i ReadOnlyInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	return nil
 }
 
-func (i ReadOnlyInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i ReadOnlyInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

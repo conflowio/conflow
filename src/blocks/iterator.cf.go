@@ -88,7 +88,7 @@ func (i IteratorInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	return nil
 }
 
-func (i IteratorInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i IteratorInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Iterator)
 	switch name {
 	case "it":

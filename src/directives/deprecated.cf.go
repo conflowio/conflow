@@ -84,6 +84,6 @@ func (i DeprecatedInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	return nil
 }
 
-func (i DeprecatedInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i DeprecatedInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

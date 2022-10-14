@@ -137,7 +137,7 @@ func (i DirectiveInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	return nil
 }
 
-func (i DirectiveInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i DirectiveInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Directive)
 	switch name {
 	case "testblock":

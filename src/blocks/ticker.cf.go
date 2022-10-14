@@ -91,7 +91,7 @@ func (i TickerInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	return nil
 }
 
-func (i TickerInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i TickerInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Ticker)
 	switch name {
 	case "tick":

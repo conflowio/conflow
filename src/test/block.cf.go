@@ -15,7 +15,7 @@ func init() {
 			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
 			ID:          "github.com/conflowio/conflow/src/test.Block",
 		},
-		JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "Blocks", "value": "Value"},
+		JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "BlockArray", "testblockmap": "BlockMap", "value": "Value"},
 		Name:              "Block",
 		Parameters: map[string]schema.Schema{
 			"custom_field": &schema.String{},
@@ -45,6 +45,12 @@ func init() {
 					Ref:      "github.com/conflowio/conflow/src/test.Block",
 				},
 			},
+			"testblockmap": &schema.Map{
+				AdditionalProperties: &schema.Reference{
+					Nullable: true,
+					Ref:      "github.com/conflowio/conflow/src/test.Block",
+				},
+			},
 			"value": &schema.Untyped{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{"block.conflow.io/value": "true"},
@@ -67,6 +73,7 @@ func (i BlockInterpreter) Schema() schema.Schema {
 func (i BlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	b := &Block{}
 	b.IDField = id
+	b.BlockMap = map[string]*Block{}
 	return b
 }
 
@@ -137,11 +144,13 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i BlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Block)
 	switch name {
 	case "testblock":
-		b.Blocks = append(b.Blocks, value.(*Block))
+		b.BlockArray = append(b.BlockArray, value.(*Block))
+	case "testblockmap":
+		b.BlockMap[key] = value.(*Block)
 	}
 	return nil
 }

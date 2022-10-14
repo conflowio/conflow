@@ -129,7 +129,7 @@ func (i ExecInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i ExecInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i ExecInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Exec)
 	switch name {
 	case "stderr":

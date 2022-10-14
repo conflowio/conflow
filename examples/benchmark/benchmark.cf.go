@@ -106,7 +106,7 @@ func (i BenchmarkInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	return nil
 }
 
-func (i BenchmarkInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BenchmarkInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Benchmark)
 	switch name {
 	case "run":

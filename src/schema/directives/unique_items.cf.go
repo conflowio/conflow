@@ -71,6 +71,6 @@ func (i UniqueItemsInterpreter) SetParam(block conflow.Block, name conflow.ID, v
 	return nil
 }
 
-func (i UniqueItemsInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i UniqueItemsInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

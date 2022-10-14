@@ -84,6 +84,6 @@ func (i TodoInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i TodoInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i TodoInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

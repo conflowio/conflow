@@ -108,7 +108,7 @@ func (i FileWalkerInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	return nil
 }
 
-func (i FileWalkerInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i FileWalkerInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*FileWalker)
 	switch name {
 	case "file":

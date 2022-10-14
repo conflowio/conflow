@@ -84,6 +84,6 @@ func (i DocInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	return nil
 }
 
-func (i DocInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i DocInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

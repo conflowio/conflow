@@ -86,6 +86,6 @@ func (i TimeoutInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	return nil
 }
 
-func (i TimeoutInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i TimeoutInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

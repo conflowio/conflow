@@ -84,6 +84,6 @@ func (i MinPropertiesInterpreter) SetParam(block conflow.Block, name conflow.ID,
 	return nil
 }
 
-func (i MinPropertiesInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i MinPropertiesInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

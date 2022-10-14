@@ -84,6 +84,6 @@ func (i MaxLengthInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	return nil
 }
 
-func (i MaxLengthInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i MaxLengthInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

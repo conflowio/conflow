@@ -38,9 +38,9 @@ func (i KeyInterpreter) Schema() schema.Schema {
 
 // Create creates a new Key block
 func (i KeyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Key{
-		id: id,
-	}
+	b := &Key{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -71,6 +71,6 @@ func (i KeyInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	return nil
 }
 
-func (i KeyInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i KeyInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

@@ -86,6 +86,6 @@ func (i TriggersInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	return nil
 }
 
-func (i TriggersInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i TriggersInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }
