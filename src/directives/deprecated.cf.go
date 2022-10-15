@@ -13,12 +13,11 @@ func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
 			Annotations: map[string]string{
-				annotations.Type:      "directive",
 				annotations.EvalStage: "ignore",
+				annotations.Type:      "directive",
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Deprecated",
 		},
-		Name: "Deprecated",
 		Parameters: map[string]schema.Schema{
 			"description": &schema.String{
 				Metadata: schema.Metadata{

@@ -17,7 +17,6 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/examples/common.Iterator",
 		},
-		Name: "Iterator",
 		Parameters: map[string]schema.Schema{
 			"count": &schema.Integer{},
 			"id": &schema.String{

@@ -18,7 +18,6 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Run",
 		},
-		Name: "Run",
 		Parameters: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{

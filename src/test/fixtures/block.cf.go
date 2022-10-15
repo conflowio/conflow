@@ -19,7 +19,6 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/test/fixtures.Block",
 		},
 		JSONPropertyNames: map[string]string{"field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_identifier": "FieldIdentifier", "field_integer": "FieldInteger", "field_interface": "FieldInterface", "field_map": "FieldMap", "field_number": "FieldNumber", "field_string": "FieldString", "field_string_array": "FieldStringArray", "field_time": "FieldTime", "field_time_duration": "FieldTimeDuration", "id_field": "IDField"},
-		Name:              "Block",
 		Parameters: map[string]schema.Schema{
 			"field_array": &schema.Array{
 				Items: &schema.Untyped{},

@@ -29,7 +29,6 @@ func expectFormatToParse(format schema.Format) func(string, interface{}, string)
 
 func expectGoStructToHaveStringSchema(source string, format string, nullable bool) {
 	testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-		Name: "Foo",
 		Metadata: schema.Metadata{
 			ID: "test.Foo",
 			Annotations: map[string]string{

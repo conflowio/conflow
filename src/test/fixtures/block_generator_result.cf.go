@@ -17,7 +17,6 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/test/fixtures.BlockGeneratorResult",
 		},
-		Name: "BlockGeneratorResult",
 		Parameters: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{

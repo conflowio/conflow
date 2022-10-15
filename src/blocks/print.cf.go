@@ -18,7 +18,6 @@ func init() {
 			Description: "It will write a string to the standard output",
 			ID:          "github.com/conflowio/conflow/src/blocks.Print",
 		},
-		Name: "Print",
 		Parameters: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{

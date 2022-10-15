@@ -48,7 +48,6 @@ func ParseStruct(
 			ID:          fmt.Sprintf("%s.%s", pkg, name),
 			Description: metadata.Description,
 		},
-		Name:       name,
 		Parameters: map[string]schema.Schema{},
 	}
 

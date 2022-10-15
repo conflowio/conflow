@@ -18,7 +18,6 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Retry",
 		},
-		Name: "Retry",
 		Parameters: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{

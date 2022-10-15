@@ -18,7 +18,6 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/schema/directives.Name",
 		},
 		JSONPropertyNames: map[string]string{"value": "Value"},
-		Name:              "Name",
 		Parameters: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{

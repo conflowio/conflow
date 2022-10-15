@@ -19,7 +19,6 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/directives.Triggers",
 		},
 		JSONPropertyNames: map[string]string{"block_ids": "blockIDs"},
-		Name:              "Triggers",
 		Parameters: map[string]schema.Schema{
 			"block_ids": &schema.Array{
 				Metadata: schema.Metadata{

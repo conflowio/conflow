@@ -18,7 +18,6 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/examples/benchmark.Benchmark",
 		},
-		Name: "Benchmark",
 		Parameters: map[string]schema.Schema{
 			"counter": &schema.Integer{
 				Metadata: schema.Metadata{

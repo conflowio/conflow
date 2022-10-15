@@ -18,7 +18,6 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/test/fixtures.BlockRequiredField",
 		},
 		JSONPropertyNames: map[string]string{"id_field": "IDField"},
-		Name:              "BlockRequiredField",
 		Parameters: map[string]schema.Schema{
 			"id_field": &schema.String{
 				Metadata: schema.Metadata{

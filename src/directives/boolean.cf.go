@@ -13,14 +13,13 @@ func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
 			Annotations: map[string]string{
-				annotations.Type:      "directive",
 				annotations.EvalStage: "parse",
+				annotations.Type:      "directive",
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Boolean",
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "write_only": "writeOnly"},
-		Name:              "Boolean",
 		Parameters: map[string]schema.Schema{
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},

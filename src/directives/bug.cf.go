@@ -18,7 +18,6 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Bug",
 		},
-		Name: "Bug",
 		Parameters: map[string]schema.Schema{
 			"description": &schema.String{
 				Metadata: schema.Metadata{

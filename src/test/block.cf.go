@@ -19,7 +19,6 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/test.Block",
 		},
 		JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "BlockArray", "testblockmap": "BlockMap", "value": "Value"},
-		Name:              "Block",
 		Parameters: map[string]schema.Schema{
 			"custom_field": &schema.String{},
 			"field_array": &schema.Array{

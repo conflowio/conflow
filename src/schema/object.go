@@ -33,8 +33,6 @@ type Object struct {
 	JSONPropertyNames map[string]string `json:"-"`
 	MinProperties     int64             `json:"minProperties,omitempty"`
 	MaxProperties     *int64            `json:"maxProperties,omitempty"`
-	// @ignore
-	Name string `json:"name,omitempty"`
 	// @name "property"
 	Parameters map[string]Schema `json:"-"`
 	// Required will contain the required parameter names
@@ -126,10 +124,6 @@ func (o *Object) GetParameters() map[string]Schema {
 	return o.Parameters
 }
 
-func (o *Object) GetName() string {
-	return o.Name
-}
-
 func (o *Object) GetRequired() []string {
 	return o.Required
 }
@@ -176,9 +170,6 @@ func (o *Object) GoString(imports map[string]string) string {
 	}
 	if o.MaxProperties != nil {
 		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.IntegerPtr(%d),\n", *o.MaxProperties)
-	}
-	if o.Name != "" {
-		_, _ = fmt.Fprintf(buf, "\tName: %q,\n", o.Name)
 	}
 	if len(o.Parameters) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tParameters: %s,\n", indent(o.parametersString(imports)))

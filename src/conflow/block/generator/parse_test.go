@@ -54,7 +54,6 @@ var _ = Describe("ParseStruct", func() {
 					ID:          "test.Foo",
 					Description: "It is a test struct",
 				},
-				Name: "Foo",
 				Parameters: map[string]schema.Schema{
 					"id": &schema.String{
 						Metadata: schema.Metadata{
@@ -270,7 +269,6 @@ var _ = Describe("ParseStruct", func() {
 					Metadata: schema.Metadata{
 						ID: "test.Foo",
 					},
-					Name: "Foo",
 					Parameters: map[string]schema.Schema{
 						"id": &schema.String{
 							Metadata: schema.Metadata{

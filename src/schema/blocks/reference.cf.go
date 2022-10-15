@@ -19,7 +19,6 @@ func init() {
 		},
 		FieldNames:        map[string]string{"$id": "ID", "$ref": "Ref", "annotations": "Annotations", "deprecated": "Deprecated", "description": "Description", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "ref": "$ref", "write_only": "writeOnly"},
-		Name:              "Reference",
 		Parameters: map[string]schema.Schema{
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},

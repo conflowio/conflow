@@ -19,7 +19,6 @@ func init() {
 			ID:          "github.com/conflowio/conflow/examples/retry.Fail",
 		},
 		JSONPropertyNames: map[string]string{"tries_required": "triesRequired"},
-		Name:              "Fail",
 		Parameters: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{

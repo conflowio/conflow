@@ -60,7 +60,6 @@ type ObjectKind interface {
 	GetJSONPropertyName(string) string
 	GetParameters() map[string]Schema
 	IsParameterRequired(name string) bool
-	GetName() string
 	GetRequired() []string
 }
 

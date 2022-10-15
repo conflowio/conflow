@@ -19,7 +19,6 @@ func init() {
 			ID:          "github.com/conflowio/conflow/src/schema/directives.Block",
 		},
 		JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path", "type": "Type"},
-		Name:              "Block",
 		Parameters: map[string]schema.Schema{
 			"eval_stage": &schema.String{
 				Enum: []string{"ignore", "init", "parse", "resolve"},

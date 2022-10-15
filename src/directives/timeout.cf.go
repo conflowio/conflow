@@ -19,7 +19,6 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Timeout",
 		},
-		Name: "Timeout",
 		Parameters: map[string]schema.Schema{
 			"duration": &schema.String{
 				Metadata: schema.Metadata{

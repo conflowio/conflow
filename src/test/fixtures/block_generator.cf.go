@@ -17,7 +17,6 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/test/fixtures.BlockGenerator",
 		},
-		Name: "BlockGenerator",
 		Parameters: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
@@ -34,8 +33,8 @@ func init() {
 			"result": &schema.Reference{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
-						annotations.Generated: "true",
 						annotations.EvalStage: "init",
+						annotations.Generated: "true",
 					},
 				},
 				Nullable: true,
