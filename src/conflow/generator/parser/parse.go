@@ -15,7 +15,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/conflow/src/internal/utils"
 	"github.com/conflowio/conflow/src/schema"
 	schemadirectives "github.com/conflowio/conflow/src/schema/directives"
@@ -148,17 +149,17 @@ func ParseField(
 		}
 	}
 
-	if fieldSchema.GetAnnotation(conflow.AnnotationID) == "true" &&
-		fieldSchema.GetAnnotation(conflow.AnnotationValue) == "true" {
+	if fieldSchema.GetAnnotation(annotations.ID) == "true" &&
+		fieldSchema.GetAnnotation(annotations.Value) == "true" {
 		return nil, errors.New("the id field can not be marked as the value field")
 	}
 
-	if fieldSchema.GetReadOnly() && fieldSchema.GetAnnotation(conflow.AnnotationID) != "true" {
-		fieldSchema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, "close")
+	if fieldSchema.GetReadOnly() && fieldSchema.GetAnnotation(annotations.ID) != "true" {
+		fieldSchema.(schema.MetadataAccessor).SetAnnotation(annotations.EvalStage, "close")
 	}
 
-	if fieldSchema.GetAnnotation(conflow.AnnotationGenerated) == "true" {
-		fieldSchema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, "init")
+	if fieldSchema.GetAnnotation(annotations.Generated) == "true" {
+		fieldSchema.(schema.MetadataAccessor).SetAnnotation(annotations.EvalStage, "init")
 		required = true
 	}
 

@@ -10,6 +10,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/src/schema"
@@ -32,7 +34,7 @@ func Evaluate(
 
 	o := node.Interpreter().Schema().(schema.ObjectKind)
 	for paramName, param := range o.GetParameters() {
-		if param.GetAnnotation(AnnotationUserDefined) == "true" && o.IsParameterRequired(paramName) {
+		if param.GetAnnotation(annotations.UserDefined) == "true" && o.IsParameterRequired(paramName) {
 			if _, isDefined := inputParams[ID(paramName)]; !isDefined {
 				return nil, fmt.Errorf("%q input parameter must be defined", paramName)
 			}
@@ -42,7 +44,7 @@ func Evaluate(
 	for k, v := range inputParams {
 		property := o.GetParameters()[string(k)]
 		if property != nil &&
-			property.GetAnnotation(AnnotationUserDefined) == "true" &&
+			property.GetAnnotation(annotations.UserDefined) == "true" &&
 			!property.GetReadOnly() {
 			nv, err := property.ValidateValue(v)
 			if err != nil {

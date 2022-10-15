@@ -151,7 +151,7 @@ func (o *Object) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Object{\n")
 	if !reflect.ValueOf(o.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(o.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(o.Metadata.GoString(imports)))
 	}
 	if o.Const != nil {
 		_, _ = fmt.Fprintf(buf, "\tConst: %#v,\n", o.Const)

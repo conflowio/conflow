@@ -9,6 +9,8 @@ package directives
 import (
 	"errors"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/schema"
 )
@@ -27,7 +29,7 @@ func (k *Key) ApplyToSchema(s schema.Schema) error {
 	switch s.(type) {
 	case *schema.String:
 		return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {
-			meta.SetAnnotation(conflow.AnnotationKey, "true")
+			meta.SetAnnotation(annotations.Key, "true")
 			return nil
 		})
 	default:

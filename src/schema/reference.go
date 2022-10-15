@@ -55,11 +55,11 @@ func (r *Reference) GetNullable() bool {
 	return r.Nullable
 }
 
-func (r *Reference) GoString(map[string]string) string {
+func (r *Reference) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Reference{\n")
 	if !reflect.ValueOf(r.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(r.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(r.Metadata.GoString(imports)))
 	}
 	if r.Nullable {
 		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", r.Nullable)

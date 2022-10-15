@@ -9,6 +9,8 @@ package block
 import (
 	"fmt"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/schema"
 )
@@ -41,7 +43,7 @@ func NewInterpreter(uri string) (conflow.BlockInterpreter, error) {
 
 	var valueParamName string
 	for name, p := range o.Parameters {
-		if p.GetAnnotation(conflow.AnnotationValue) == "true" {
+		if p.GetAnnotation(annotations.Value) == "true" {
 			valueParamName = name
 		}
 

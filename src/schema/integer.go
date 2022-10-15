@@ -100,11 +100,11 @@ func (i *Integer) GetNullable() bool {
 	return i.Nullable
 }
 
-func (i *Integer) GoString(map[string]string) string {
+func (i *Integer) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Integer{\n")
 	if !reflect.ValueOf(i.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(i.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(i.Metadata.GoString(imports)))
 	}
 	if i.Const != nil {
 		_, _ = fmt.Fprintf(buf, "\tConst: schema.IntegerPtr(%#v),\n", *i.Const)

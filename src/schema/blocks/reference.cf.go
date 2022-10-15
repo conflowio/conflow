@@ -5,14 +5,17 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/schema/blocks.Reference",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/schema/blocks.Reference",
 		},
 		FieldNames:        map[string]string{"$id": "ID", "$ref": "Ref", "annotations": "Annotations", "deprecated": "Deprecated", "description": "Description", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "ref": "$ref", "write_only": "writeOnly"},
@@ -31,7 +34,9 @@ func init() {
 			"read_only": &schema.Boolean{},
 			"ref": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 			},
 			"title":      &schema.String{},

@@ -9,6 +9,8 @@ package blocks
 import (
 	"context"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/src/conflow"
@@ -59,7 +61,7 @@ func NewModuleInterpreter(
 ) conflow.BlockInterpreter {
 	s := interpreter.Schema().Copy().(*schema.Object)
 	for _, p := range s.Parameters {
-		p.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "")
+		p.(schema.MetadataAccessor).SetAnnotation(annotations.UserDefined, "")
 	}
 
 	return &moduleInterpreter{

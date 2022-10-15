@@ -81,11 +81,11 @@ func (b *Boolean) GetNullable() bool {
 	return b.Nullable
 }
 
-func (b *Boolean) GoString(map[string]string) string {
+func (b *Boolean) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Boolean{\n")
 	if !reflect.ValueOf(b.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString(imports)))
 	}
 	if b.Const != nil {
 		_, _ = fmt.Fprintf(buf, "\tConst: schema.BooleanPtr(%#v),\n", *b.Const)

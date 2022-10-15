@@ -113,7 +113,7 @@ func (f *Function) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Function{\n")
 	if !reflect.ValueOf(f.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(f.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(f.Metadata.GoString(imports)))
 	}
 	if f.AdditionalParameters != nil {
 		_, _ = fmt.Fprintf(buf, "\tAdditionalParameters: &%s,\n", indent(f.AdditionalParameters.GoString(imports)))

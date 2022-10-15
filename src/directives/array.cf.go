@@ -5,14 +5,18 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Array",
+			Annotations: map[string]string{
+				annotations.EvalStage: "parse",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Array",
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "max_items": "maxItems", "min_items": "minItems", "read_only": "readOnly", "unique_items": "uniqueItems", "write_only": "writeOnly"},

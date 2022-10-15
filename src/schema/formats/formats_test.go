@@ -9,6 +9,8 @@ package formats_test
 import (
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/internal/testhelper"
 	"github.com/conflowio/conflow/src/schema"
@@ -31,7 +33,7 @@ func expectGoStructToHaveStringSchema(source string, format string, nullable boo
 		Metadata: schema.Metadata{
 			ID: "test.Foo",
 			Annotations: map[string]string{
-				conflow.AnnotationType: conflow.BlockTypeConfiguration,
+				annotations.Type: conflow.BlockTypeConfiguration,
 			},
 		},
 		Parameters: map[string]schema.Schema{

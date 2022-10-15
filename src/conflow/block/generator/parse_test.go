@@ -12,11 +12,12 @@ import (
 	goparser "go/parser"
 	gotoken "go/token"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
-	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/block/generator"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
 	"github.com/conflowio/conflow/src/internal/testhelper"
@@ -26,7 +27,7 @@ import (
 var _ = Describe("ParseStruct", func() {
 
 	var expectedIDAnnotations = map[string]string{
-		conflow.AnnotationID: "true",
+		annotations.ID: "true",
 	}
 
 	basicTemplate := func(fields string) string {

@@ -117,7 +117,7 @@ func (a *Array) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Array{\n")
 	if !reflect.ValueOf(a.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString(imports)))
 	}
 	if a.Const != nil {
 		_, _ = fmt.Fprintf(buf, "\tConst: %#v,\n", a.Const)

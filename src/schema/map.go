@@ -145,7 +145,7 @@ func (m *Map) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Map{\n")
 	if !reflect.ValueOf(m.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(m.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(m.Metadata.GoString(imports)))
 	}
 	if m.AdditionalProperties != nil {
 		_, _ = fmt.Fprintf(buf, "\tAdditionalProperties: %s,\n", indent(m.AdditionalProperties.GoString(imports)))

@@ -9,6 +9,8 @@ package schema_test
 import (
 	"reflect"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -76,7 +78,7 @@ var _ = Describe("Format", func() {
 					Metadata: schema.Metadata{
 						ID: "test.Foo",
 						Annotations: map[string]string{
-							conflow.AnnotationType: conflow.BlockTypeConfiguration,
+							annotations.Type: conflow.BlockTypeConfiguration,
 						},
 					},
 					Parameters: map[string]schema.Schema{

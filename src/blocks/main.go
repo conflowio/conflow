@@ -9,6 +9,8 @@ package blocks
 import (
 	"github.com/conflowio/parsley/parsley"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/schema"
 )
@@ -30,7 +32,7 @@ func (m MainInterpreter) Schema() schema.Schema {
 	return &schema.Object{
 		Metadata: schema.Metadata{
 			Annotations: map[string]string{
-				conflow.AnnotationType: conflow.BlockTypeMain,
+				annotations.Type: conflow.BlockTypeMain,
 			},
 		},
 	}

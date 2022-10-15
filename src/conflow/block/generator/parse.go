@@ -12,6 +12,8 @@ import (
 	"go/ast"
 	"strings"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
 	"github.com/conflowio/conflow/src/schema"
@@ -98,7 +100,7 @@ func ParseStruct(
 			fieldStrSchema := fieldStr.Schema.(*schema.Object)
 
 			for parameterName, parameter := range fieldStrSchema.Parameters {
-				if parameter.GetAnnotation(conflow.AnnotationID) == "true" {
+				if parameter.GetAnnotation(annotations.ID) == "true" {
 					continue
 				}
 
@@ -121,10 +123,10 @@ func ParseStruct(
 		return nil, errors.New("when setting a value field then no other fields can be required")
 	}
 
-	if s.GetAnnotation(conflow.AnnotationType) == conflow.BlockTypeGenerator {
+	if s.GetAnnotation(annotations.Type) == conflow.BlockTypeGenerator {
 		hasGeneratedField := false
 		for _, p := range s.Parameters {
-			if p.GetAnnotation(conflow.AnnotationGenerated) == "true" {
+			if p.GetAnnotation(annotations.Generated) == "true" {
 				hasGeneratedField = true
 				break
 			}
@@ -206,21 +208,21 @@ func addField(s *schema.Object, idField, valueField, keyField *string, field par
 		return fmt.Errorf("multiple fields has the same property name: %s", field.ParameterName)
 	}
 
-	if field.Schema.GetAnnotation(conflow.AnnotationID) == "true" {
+	if field.Schema.GetAnnotation(annotations.ID) == "true" {
 		if *idField != "" {
 			return fmt.Errorf("multiple id fields were found: %s, %s", *idField, field.ParameterName)
 		}
 		*idField = field.ParameterName
 	}
 
-	if field.Schema.GetAnnotation(conflow.AnnotationValue) == "true" {
+	if field.Schema.GetAnnotation(annotations.Value) == "true" {
 		if *valueField != "" {
 			return fmt.Errorf("multiple value fields were found: %s, %s", *valueField, field.ParameterName)
 		}
 		*valueField = field.ParameterName
 	}
 
-	if field.Schema.GetAnnotation(conflow.AnnotationKey) == "true" {
+	if field.Schema.GetAnnotation(annotations.Key) == "true" {
 		if *keyField != "" {
 			return fmt.Errorf("multiple key fields were found: %s, %s", *keyField, field.ParameterName)
 		}

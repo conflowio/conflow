@@ -49,11 +49,11 @@ func (b *ByteStream) DefaultValue() interface{} {
 	return nil
 }
 
-func (b *ByteStream) GoString(map[string]string) string {
+func (b *ByteStream) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.ByteStream{\n")
 	if !reflect.ValueOf(b.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString(imports)))
 	}
 	buf.WriteRune('}')
 	return buf.String()

@@ -10,6 +10,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/parsley/ast"
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text/terminal"
@@ -293,8 +295,8 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
 				}
 
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, conflow.EvalStageInit.String())
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "true")
+				config.Schema.(schema.MetadataAccessor).SetAnnotation(annotations.EvalStage, conflow.EvalStageInit.String())
+				config.Schema.(schema.MetadataAccessor).SetAnnotation(annotations.UserDefined, "true")
 
 				o.Parameters[string(paramNode.Name())] = config.Schema
 				paramNode.SetSchema(config.Schema)
@@ -303,8 +305,8 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
 				}
 
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, conflow.EvalStageInit.String())
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "true")
+				config.Schema.(schema.MetadataAccessor).SetAnnotation(annotations.EvalStage, conflow.EvalStageInit.String())
+				config.Schema.(schema.MetadataAccessor).SetAnnotation(annotations.UserDefined, "true")
 				config.Schema.(schema.MetadataAccessor).SetReadOnly(true)
 
 				o.Parameters[string(paramNode.Name())] = config.Schema

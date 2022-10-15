@@ -9,6 +9,8 @@ package block
 import (
 	"fmt"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text/terminal"
 
@@ -58,7 +60,7 @@ func NewNode(
 	var generates []conflow.ID
 	for _, c := range children {
 		if b, ok := c.(conflow.BlockNode); ok {
-			if b.Schema().(schema.Schema).GetAnnotation(conflow.AnnotationGenerated) == "true" {
+			if b.Schema().(schema.Schema).GetAnnotation(annotations.Generated) == "true" {
 				generates = append(generates, b.ID())
 				generates = append(generates, b.Provides()...)
 			} else {
@@ -155,7 +157,7 @@ func (n *Node) GetPropertySchema(name conflow.ID) (schema.Schema, bool) {
 
 // EvalStage returns with the evaluation stage
 func (n *Node) EvalStage() conflow.EvalStage {
-	evalStageStr := n.schema.GetAnnotation(conflow.AnnotationEvalStage)
+	evalStageStr := n.schema.GetAnnotation(annotations.EvalStage)
 	if evalStageStr != "" {
 		return conflow.EvalStages[evalStageStr]
 	}
@@ -206,13 +208,13 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			property, exists := n.schema.Parameters[string(c.Name())]
 
 			switch {
-			case exists && c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true":
+			case exists && c.IsDeclaration() && property.GetAnnotation(annotations.UserDefined) != "true":
 				return parsley.NewErrorf(c.Pos(), "%q parameter already exists. Use \"=\" to set the parameter value or use a different name", c.Name())
-			case exists && !c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) == "true":
+			case exists && !c.IsDeclaration() && property.GetAnnotation(annotations.UserDefined) == "true":
 				return parsley.NewErrorf(c.Pos(), "%q must be defined as a new variable using \":=\"", c.Name())
 			case !exists && !c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
-			case !c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true" && property.GetReadOnly():
+			case !c.IsDeclaration() && property.GetAnnotation(annotations.UserDefined) != "true" && property.GetReadOnly():
 				return parsley.NewErrorf(c.Pos(), "%q is a read-only parameter and can not be set", c.Name())
 			}
 		default:

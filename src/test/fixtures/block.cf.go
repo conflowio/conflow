@@ -5,6 +5,7 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 	"time"
 )
@@ -12,8 +13,10 @@ import (
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/test/fixtures.Block",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/test/fixtures.Block",
 		},
 		JSONPropertyNames: map[string]string{"field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_identifier": "FieldIdentifier", "field_integer": "FieldInteger", "field_interface": "FieldInterface", "field_map": "FieldMap", "field_number": "FieldNumber", "field_string": "FieldString", "field_string_array": "FieldStringArray", "field_time": "FieldTime", "field_time_duration": "FieldTimeDuration", "id_field": "IDField"},
 		Name:              "Block",
@@ -25,8 +28,10 @@ func init() {
 			"field_float": &schema.Number{},
 			"field_identifier": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.EvalStage: "close",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -50,8 +55,10 @@ func init() {
 			},
 			"id_field": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},

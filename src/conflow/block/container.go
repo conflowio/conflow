@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/src/conflow"
@@ -528,7 +530,7 @@ func (c *Container) setChild(result conflow.Container) parsley.Error {
 		}
 
 		// Do not publish the empty generated node
-		if p != nil && p.GetAnnotation(conflow.AnnotationGenerated) == "true" && c.evalStage == conflow.EvalStageInit {
+		if p != nil && p.GetAnnotation(annotations.Generated) == "true" && c.evalStage == conflow.EvalStageInit {
 			return nil
 		}
 
@@ -550,7 +552,7 @@ func (c *Container) PublishBlock(block conflow.Block, f func() error) (bool, err
 
 	nodeContainer, ok := c.children[blockID]
 	propertyName := string(nodeContainer.Node().(conflow.BlockNode).ParameterName())
-	if !ok || c.Node().Schema().(*schema.Object).Parameters[propertyName].GetAnnotation(conflow.AnnotationGenerated) != "true" {
+	if !ok || c.Node().Schema().(*schema.Object).Parameters[propertyName].GetAnnotation(annotations.Generated) != "true" {
 		return false, fmt.Errorf("%q block does not exist or is not marked as generated", blockID)
 	}
 

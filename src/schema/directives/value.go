@@ -8,6 +8,7 @@ package directives
 
 import (
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
@@ -23,7 +24,7 @@ func (v *Value) ID() conflow.ID {
 
 func (v *Value) ApplyToSchema(s schema.Schema) error {
 	return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {
-		meta.SetAnnotation(conflow.AnnotationValue, "true")
+		meta.SetAnnotation(annotations.Value, "true")
 		return nil
 	})
 }

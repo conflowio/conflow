@@ -116,7 +116,7 @@ func (s *String) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.String{\n")
 	if !reflect.ValueOf(s.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(s.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(s.Metadata.GoString(imports)))
 	}
 	if s.Const != nil {
 		_, _ = fmt.Fprintf(buf, "\tConst: schema.StringPtr(%#v),\n", *s.Const)

@@ -12,6 +12,8 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/conflowio/parsley/ast"
 	"github.com/conflowio/parsley/combinator"
 	"github.com/conflowio/parsley/data"
@@ -31,7 +33,7 @@ import (
 //         -> ARRAY
 //         -> MAP
 func NewMain(id conflow.ID, interpreter conflow.BlockInterpreter) *Main {
-	blockType := interpreter.Schema().GetAnnotation(conflow.AnnotationType)
+	blockType := interpreter.Schema().GetAnnotation(annotations.Type)
 	if blockType != conflow.BlockTypeMain && blockType != conflow.BlockTypeConfiguration {
 		panic(fmt.Errorf(
 			"%T can not be used as a main block, as it is a %s block",

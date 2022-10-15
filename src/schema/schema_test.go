@@ -16,6 +16,8 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
+
 	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -28,7 +30,7 @@ import (
 var _ = Describe("Metadata", func() {
 	DescribeTable("GoString prints a valid Go struct",
 		func(b schema.Metadata, expected string) {
-			str := b.GoString()
+			str := b.GoString(nil)
 			Expect(str).To(Equal(expected))
 		},
 		Entry(
@@ -41,7 +43,9 @@ var _ = Describe("Metadata", func() {
 			"annotations",
 			schema.Metadata{Annotations: map[string]string{"foo": "bar"}},
 			`schema.Metadata{
-	Annotations: map[string]string{"foo":"bar"},
+	Annotations: map[string]string{
+		"foo": "bar",
+	},
 }`,
 		),
 		Entry(
@@ -80,6 +84,24 @@ var _ = Describe("Metadata", func() {
 }`,
 		),
 	)
+
+	It("should use a constant for the annotations, if possible", func() {
+		m := schema.Metadata{
+			Annotations: map[string]string{
+				annotations.ID: "test",
+			},
+		}
+		imports := map[string]string{}
+		str := m.GoString(imports)
+		Expect(str).To(Equal(`schema.Metadata{
+	Annotations: map[string]string{
+		annotations.ID: "test",
+	},
+}`))
+		Expect(imports).To(Equal(map[string]string{
+			"annotations": "github.com/conflowio/conflow/src/conflow/annotations",
+		}))
+	})
 })
 
 var _ = Describe("Schema", func() {

@@ -5,13 +5,16 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
 			Description: "It is the directive for marking structs as conflow blocks",
 			ID:          "github.com/conflowio/conflow/src/schema/directives.Block",
 		},
@@ -23,15 +26,19 @@ func init() {
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"path": &schema.String{},
 			"type": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 				Enum: []string{"configuration", "directive", "generator", "main", "task"},
 			},

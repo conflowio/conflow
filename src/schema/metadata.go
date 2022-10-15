@@ -10,6 +10,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
+	"github.com/conflowio/conflow/src/util"
+
+	"github.com/conflowio/conflow/src/conflow/annotations"
 )
 
 var ErrMetadataReadOnly = errors.New("metadata is read-only")
@@ -141,11 +145,15 @@ func (m *Metadata) SetWriteOnly(writeOnly bool) {
 	m.WriteOnly = writeOnly
 }
 
-func (m *Metadata) GoString() string {
+func (m *Metadata) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("schema.Metadata{\n")
 	if len(m.Annotations) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tAnnotations: %#v,\n", m.Annotations)
+		_, _ = fmt.Fprintf(buf, "\tAnnotations: map[string]string{\n")
+		for _, k := range util.SortedMapKeys(m.Annotations) {
+			_, _ = fmt.Fprintf(buf, "\t\t%s: %q,\n", annotations.GoString(k, imports), m.Annotations[k])
+		}
+		_, _ = fmt.Fprintf(buf, "\t},\n")
 	}
 	if m.Deprecated {
 		_, _ = fmt.Fprintf(buf, "\tDeprecated: %#v,\n", m.Deprecated)
