@@ -17,7 +17,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
 		},
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"cnt": &schema.Integer{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{

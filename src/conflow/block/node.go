@@ -139,7 +139,7 @@ func (n *Node) SetSchema(s schema.Schema) {
 }
 
 func (n *Node) GetPropertySchema(name conflow.ID) (schema.Schema, bool) {
-	s, ok := n.schema.Parameters[string(name)]
+	s, ok := n.schema.PropertyByParameterName(string(name))
 	if ok {
 		return s, true
 	}
@@ -192,7 +192,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case conflow.BlockNode:
-			property, exists := n.schema.Parameters[string(c.ParameterName())]
+			property, exists := n.schema.PropertyByParameterName(string(c.ParameterName()))
 
 			if !exists && c.ParameterName() != c.BlockType() {
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.ParameterName())
@@ -205,7 +205,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 				}
 			}
 		case conflow.ParameterNode:
-			property, exists := n.schema.Parameters[string(c.Name())]
+			property, exists := n.schema.PropertyByParameterName(string(c.Name()))
 
 			switch {
 			case exists && c.IsDeclaration() && property.GetAnnotation(annotations.UserDefined) != "true":
@@ -223,15 +223,16 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	}
 
 	for _, required := range n.schema.Required {
+		requiredParameterName := n.schema.ParameterName(required)
 		found := func() bool {
 			for _, child := range n.Children() {
 				switch c := child.(type) {
 				case conflow.BlockNode:
-					if string(c.ParameterName()) == required {
+					if string(c.ParameterName()) == requiredParameterName {
 						return true
 					}
 				case conflow.ParameterNode:
-					if string(c.Name()) == required && c.ValueNode().Schema().(schema.Schema).Type() != schema.TypeNull {
+					if string(c.Name()) == requiredParameterName && c.ValueNode().Schema().(schema.Schema).Type() != schema.TypeNull {
 						return true
 					}
 				}
@@ -239,7 +240,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			return false
 		}()
 		if !found {
-			if IsBlockSchema(n.schema.Parameters[required]) {
+			if IsBlockSchema(n.schema.Properties[required]) {
 				return parsley.NewError(n.Pos(), fmt.Errorf("%q block is required", required))
 			} else {
 				return parsley.NewError(n.Pos(), fmt.Errorf("%q parameter is required", required))

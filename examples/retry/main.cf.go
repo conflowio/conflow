@@ -17,7 +17,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/examples/retry.Main",
 		},
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{

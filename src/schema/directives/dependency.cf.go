@@ -18,7 +18,15 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/schema/directives.Dependency",
 		},
 		JSONPropertyNames: map[string]string{"name": "Name"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"Name": "name"},
+		Properties: map[string]schema.Schema{
+			"Name": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
+				},
+			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
@@ -27,13 +35,6 @@ func init() {
 					ReadOnly: true,
 				},
 				Format: "conflow.ID",
-			},
-			"name": &schema.String{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{
-						annotations.Value: "true",
-					},
-				},
 			},
 		},
 	})
@@ -72,10 +73,10 @@ func (i DependencyInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.
 
 func (i DependencyInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*Dependency).id
 	case "name":
 		return b.(*Dependency).Name
+	case "id":
+		return b.(*Dependency).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Dependency", name))
 	}

@@ -52,11 +52,6 @@ func ParseField(
 		return nil, err
 	}
 
-	parameterName := fieldName
-	if parameterName != "" && !schema.NameRegExp.MatchString(parameterName) {
-		parameterName = utils.ToSnakeCase(parameterName)
-	}
-
 	jsonPropertyName := fieldName
 	if astField.Tag != nil {
 		tag, err := strconv.Unquote(astField.Tag.Value)
@@ -67,12 +62,23 @@ func ParseField(
 		jsonTagParts := strings.Split(jsonTags, ",")
 		jsonName := strings.TrimSpace(jsonTagParts[0])
 
-		if jsonName == "-" {
-			jsonName = ""
-		}
-
-		if jsonName != "" {
+		if jsonName != "" && jsonName != "-" {
 			jsonPropertyName = jsonName
+		}
+	}
+
+	var parameterName string
+	if jsonPropertyName != "" && schema.NameRegExp.MatchString(jsonPropertyName) {
+		parameterName = jsonPropertyName
+	}
+	if parameterName == "" && fieldName != "" {
+		if schema.NameRegExp.MatchString(fieldName) {
+			parameterName = fieldName
+		} else {
+			parameterName = utils.ToSnakeCase(fieldName)
+			if !schema.NameRegExp.MatchString(parameterName) {
+				return nil, fmt.Errorf("unable to generate a valid parameter name from field %q, please use @name to define one", fieldName)
+			}
 		}
 	}
 

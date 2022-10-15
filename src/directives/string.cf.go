@@ -21,7 +21,9 @@ func init() {
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "nullable": "Nullable", "pattern": "Pattern", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "max_length": "maxLength", "min_length": "minLength", "read_only": "readOnly", "write_only": "writeOnly"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"$id": "id", "maxLength": "max_length", "minLength": "min_length", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -40,19 +42,18 @@ func init() {
 				Items: &schema.Untyped{},
 			},
 			"format": &schema.String{},
-			"id":     &schema.String{},
-			"max_length": &schema.Integer{
+			"maxLength": &schema.Integer{
 				Nullable: true,
 			},
-			"min_length": &schema.Integer{},
-			"nullable":   &schema.Boolean{},
+			"minLength": &schema.Integer{},
+			"nullable":  &schema.Boolean{},
 			"pattern": &schema.String{
 				Format:   "regex",
 				Nullable: true,
 			},
-			"read_only":  &schema.Boolean{},
-			"title":      &schema.String{},
-			"write_only": &schema.Boolean{},
+			"readOnly":  &schema.Boolean{},
+			"title":     &schema.String{},
+			"writeOnly": &schema.Boolean{},
 		},
 	})
 }
@@ -89,6 +90,8 @@ func (i StringInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Pars
 
 func (i StringInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*String).ID
 	case "annotations":
 		return b.(*String).Annotations
 	case "const":
@@ -105,8 +108,6 @@ func (i StringInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*String).Examples
 	case "format":
 		return b.(*String).Format
-	case "id":
-		return b.(*String).ID
 	case "max_length":
 		return b.(*String).MaxLength
 	case "min_length":
@@ -129,6 +130,8 @@ func (i StringInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*String)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
@@ -151,8 +154,6 @@ func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 		b.Examples = value.([]interface{})
 	case "format":
 		b.Format = value.(string)
-	case "id":
-		b.ID = value.(string)
 	case "max_length":
 		b.MaxLength = schema.Pointer(value.(int64))
 	case "min_length":

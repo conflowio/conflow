@@ -19,7 +19,9 @@ func init() {
 			ID:          "github.com/conflowio/conflow/src/schema/directives.Function",
 		},
 		JSONPropertyNames: map[string]string{"path": "Path"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"Path": "path"},
+		Properties: map[string]schema.Schema{
+			"Path": &schema.String{},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
@@ -29,7 +31,6 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"path": &schema.String{},
 		},
 	})
 }
@@ -67,10 +68,10 @@ func (i FunctionInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Pa
 
 func (i FunctionInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*Function).id
 	case "path":
 		return b.(*Function).Path
+	case "id":
+		return b.(*Function).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Function", name))
 	}

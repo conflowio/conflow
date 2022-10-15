@@ -18,7 +18,6 @@ import (
 )
 
 var _ schema.Schema = &schema.Map{}
-var _ schema.MapKind = &schema.Map{}
 
 var _ = Describe("Map", func() {
 	defaultSchema := func() *schema.Map {

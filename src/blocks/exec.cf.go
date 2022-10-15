@@ -18,13 +18,14 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/blocks.Exec",
 		},
 		JSONPropertyNames: map[string]string{"exit_code": "exitCode"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"exitCode": "exit_code"},
+		Properties: map[string]schema.Schema{
 			"cmd": &schema.String{},
 			"dir": &schema.String{},
 			"env": &schema.Array{
 				Items: &schema.String{},
 			},
-			"exit_code": &schema.Integer{
+			"exitCode": &schema.Integer{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.EvalStage: "close",

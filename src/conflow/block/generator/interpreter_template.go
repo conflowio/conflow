@@ -60,12 +60,12 @@ func (i {{ .Name }}Interpreter) CreateBlock(id conflow.ID, blockCtx *conflow.Blo
 	{{ if .IDPropertyName -}}
 	b.{{ getFieldName .IDPropertyName }} = id
 	{{ end -}}
-	{{ range $name, $schema := filterDefaults (filterParams .Schema.GetParameters) -}}
+	{{ range $name, $schema := filterDefaults (filterParams .Schema.Properties) -}}
 	b.{{ getFieldName $name }} = {{ printf "%#v" .DefaultValue }}
 	{{ end -}}
-	{{ range $name, $property := filterInputs (filterBlocks .Schema.GetParameters) -}}
+	{{ range $name, $property := filterInputs (filterBlocks .Schema.Properties) -}}
 	{{ if isMap $property -}}
-	b.{{ getFieldName $name }} = map[string]{{ getType $property.GetAdditionalProperties }}{}
+	b.{{ getFieldName $name }} = map[string]{{ getType $property.AdditionalProperties }}{}
 	{{ end -}}
 	{{ end -}}
 	{{ range .Dependencies -}}
@@ -91,8 +91,8 @@ func (i {{.Name}}Interpreter) ParseContext(ctx *conflow.ParseContext) *conflow.P
 
 func (i {{ .Name }}Interpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	{{ range $name, $property := filterParams .Schema.GetParameters -}}
-	case "{{ $name }}":
+	{{ range $name, $property := filterParams .Schema.Properties -}}
+	case "{{ getParameterName $name }}":
 		return b.(*{{ $root.NameSelector }}{{ $root.Name }}).{{ getFieldName $name }}
 	{{ end -}}
 	default:
@@ -101,11 +101,11 @@ func (i {{ .Name }}Interpreter) Param(b conflow.Block, name conflow.ID) interfac
 }
 
 func (i {{ .Name }}Interpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
-	{{ if filterInputs (filterParams .Schema.GetParameters) -}}
+	{{ if filterInputs (filterParams .Schema.Properties) -}}
 	b := block.(*{{ .NameSelector }}{{ .Name }})
 	switch name {
-	{{ range $name, $property := filterInputs (filterParams .Schema.GetParameters) -}}
-	case "{{ $name }}":
+	{{ range $name, $property := filterInputs (filterParams .Schema.Properties) -}}
+	case "{{ getParameterName $name }}":
 		{{ assignValue $property "value" (printf "b.%s" (getFieldName $name)) }}
 	{{ end -}}
 	}
@@ -116,11 +116,11 @@ func (i {{ .Name }}Interpreter) SetParam(block conflow.Block, name conflow.ID, v
 }
 
 func (i {{ .Name }}Interpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
-	{{ if filterInputs (filterBlocks .Schema.GetParameters) -}}
+	{{ if filterInputs (filterBlocks .Schema.Properties) -}}
 	b := block.(*{{ $root.NameSelector }}{{ $root.Name }})
 	switch name {
-	{{ range $name, $property := filterInputs (filterBlocks .Schema.GetParameters) -}}
-	case "{{ $name }}":
+	{{ range $name, $property := filterInputs (filterBlocks .Schema.Properties) -}}
+	case "{{ getParameterName $name }}":
 		{{ if isArray $property -}}
 		b.{{ getFieldName $name }} = append(b.{{ getFieldName $name }}, value.({{ getType $property.GetItems }}))
 		{{ else if isMap $property -}}

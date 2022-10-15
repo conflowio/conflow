@@ -20,7 +20,9 @@ func init() {
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "max_items": "maxItems", "min_items": "minItems", "read_only": "readOnly", "unique_items": "uniqueItems", "write_only": "writeOnly"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"$id": "id", "maxItems": "max_items", "minItems": "min_items", "readOnly": "read_only", "uniqueItems": "unique_items", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -40,18 +42,17 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"id": &schema.String{},
 			"items": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/src/schema.Schema",
 			},
-			"max_items": &schema.Integer{
+			"maxItems": &schema.Integer{
 				Nullable: true,
 			},
-			"min_items":    &schema.Integer{},
-			"read_only":    &schema.Boolean{},
-			"title":        &schema.String{},
-			"unique_items": &schema.Boolean{},
-			"write_only":   &schema.Boolean{},
+			"minItems":    &schema.Integer{},
+			"readOnly":    &schema.Boolean{},
+			"title":       &schema.String{},
+			"uniqueItems": &schema.Boolean{},
+			"writeOnly":   &schema.Boolean{},
 		},
 		Required: []string{"items"},
 	})
@@ -89,6 +90,8 @@ func (i ArrayInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Parse
 
 func (i ArrayInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Array).ID
 	case "annotations":
 		return b.(*Array).Annotations
 	case "const":
@@ -103,8 +106,6 @@ func (i ArrayInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Array).Enum
 	case "examples":
 		return b.(*Array).Examples
-	case "id":
-		return b.(*Array).ID
 	case "max_items":
 		return b.(*Array).MaxItems
 	case "min_items":
@@ -125,6 +126,8 @@ func (i ArrayInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Array)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
@@ -145,8 +148,6 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
-	case "id":
-		b.ID = value.(string)
 	case "max_items":
 		b.MaxItems = schema.Pointer(value.(int64))
 	case "min_items":

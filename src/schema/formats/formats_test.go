@@ -35,7 +35,7 @@ func expectGoStructToHaveStringSchema(source string, format string, nullable boo
 				annotations.Type: conflow.BlockTypeConfiguration,
 			},
 		},
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"v": &schema.String{
 				Format:   format,
 				Nullable: nullable,

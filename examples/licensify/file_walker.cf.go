@@ -17,7 +17,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/examples/licensify.FileWalker",
 		},
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"exclude": &schema.Array{
 				Items: &schema.String{},
 			},

@@ -22,8 +22,7 @@ const NameRegExpPattern = "[a-z][a-z0-9]*(?:_[a-z0-9]+)*"
 
 // NameRegExp is a compiled regular expression object for a valid identifier
 var NameRegExp = regexp.MustCompile("^" + NameRegExpPattern + "$")
-
-var fieldNameRegexp = regexp.MustCompile("^[_a-zA-Z][_a-zA-Z0-9]*$")
+var FieldNameRegexp = regexp.MustCompile("^[_a-zA-Z][_a-zA-Z0-9]*$")
 
 type Schema interface {
 	AssignValue(imports map[string]string, valueName, resultName string) string
@@ -45,37 +44,6 @@ type Schema interface {
 	TypeString() string
 	ValidateValue(interface{}) (interface{}, error)
 	ValidateSchema(s Schema, compare bool) error
-}
-
-type ArrayKind interface {
-	Schema
-
-	GetItems() Schema
-}
-
-type ObjectKind interface {
-	Schema
-
-	GetFieldName(string) string
-	GetJSONPropertyName(string) string
-	GetParameters() map[string]Schema
-	IsParameterRequired(name string) bool
-	GetRequired() []string
-}
-
-type MapKind interface {
-	Schema
-
-	GetAdditionalProperties() Schema
-}
-
-type FunctionKind interface {
-	Schema
-
-	GetAdditionalParameters() *NamedSchema
-	GetParameters() Parameters
-	GetResult() Schema
-	GetResultTypeFrom() string
 }
 
 type Directive interface {
@@ -244,8 +212,8 @@ func GetCommonSchema(s1, s2 Schema) (Schema, error) {
 			return s1, nil
 		}
 
-		if s2a, ok := s2.(ArrayKind); ok {
-			items, err := GetCommonSchema(s1.(ArrayKind).GetItems(), s2a.GetItems())
+		if s2a, ok := s2.(*Array); ok {
+			items, err := GetCommonSchema(s1.(*Array).Items, s2a.Items)
 			if err != nil {
 				return nil, err
 			}
@@ -259,9 +227,9 @@ func GetCommonSchema(s1, s2 Schema) (Schema, error) {
 			return s1, nil
 		}
 
-		if s2m, ok := s2.(MapKind); ok {
+		if s2m, ok := s2.(*Map); ok {
 			additionalProperties, err := GetCommonSchema(
-				s1.(MapKind).GetAdditionalProperties(),
+				s1.(*Map).GetAdditionalProperties(),
 				s2m.GetAdditionalProperties(),
 			)
 			if err != nil {

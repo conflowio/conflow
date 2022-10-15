@@ -18,7 +18,7 @@ func init() {
 			Description: "It is capable to print some greetings",
 			ID:          "github.com/conflowio/conflow/examples/helloworld.Hello",
 		},
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"greeting": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{

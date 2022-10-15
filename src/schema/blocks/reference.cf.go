@@ -19,7 +19,16 @@ func init() {
 		},
 		FieldNames:        map[string]string{"$id": "ID", "$ref": "Ref", "annotations": "Annotations", "deprecated": "Deprecated", "description": "Description", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "ref": "$ref", "write_only": "writeOnly"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"$id": "id", "$ref": "ref", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
+			"$ref": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
+				},
+			},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -28,20 +37,11 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"id":        &schema.String{},
 			"nullable":  &schema.Boolean{},
-			"read_only": &schema.Boolean{},
-			"ref": &schema.String{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{
-						annotations.Value: "true",
-					},
-				},
-			},
-			"title":      &schema.String{},
-			"write_only": &schema.Boolean{},
+			"readOnly":  &schema.Boolean{},
+			"title":     &schema.String{},
+			"writeOnly": &schema.Boolean{},
 		},
-		Required: []string{"ref"},
 	})
 }
 
@@ -77,6 +77,10 @@ func (i ReferenceInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.P
 
 func (i ReferenceInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Reference).ID
+	case "ref":
+		return b.(*Reference).Ref
 	case "annotations":
 		return b.(*Reference).Annotations
 	case "deprecated":
@@ -85,14 +89,10 @@ func (i ReferenceInterpreter) Param(b conflow.Block, name conflow.ID) interface{
 		return b.(*Reference).Description
 	case "examples":
 		return b.(*Reference).Examples
-	case "id":
-		return b.(*Reference).ID
 	case "nullable":
 		return b.(*Reference).Nullable
 	case "read_only":
 		return b.(*Reference).ReadOnly
-	case "ref":
-		return b.(*Reference).Ref
 	case "title":
 		return b.(*Reference).Title
 	case "write_only":
@@ -105,6 +105,10 @@ func (i ReferenceInterpreter) Param(b conflow.Block, name conflow.ID) interface{
 func (i ReferenceInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Reference)
 	switch name {
+	case "id":
+		b.ID = value.(string)
+	case "ref":
+		b.Ref = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
@@ -116,14 +120,10 @@ func (i ReferenceInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 		b.Description = value.(string)
 	case "examples":
 		b.Examples = value.([]interface{})
-	case "id":
-		b.ID = value.(string)
 	case "nullable":
 		b.Nullable = value.(bool)
 	case "read_only":
 		b.ReadOnly = value.(bool)
-	case "ref":
-		b.Ref = value.(string)
 	case "title":
 		b.Title = value.(string)
 	case "write_only":

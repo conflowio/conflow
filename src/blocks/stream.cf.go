@@ -19,7 +19,9 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/blocks.Stream",
 		},
 		JSONPropertyNames: map[string]string{"stream": "Stream"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"Stream": "stream"},
+		Properties: map[string]schema.Schema{
+			"Stream": &schema.ByteStream{},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
@@ -29,7 +31,6 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"stream": &schema.ByteStream{},
 		},
 	})
 }
@@ -67,10 +68,10 @@ func (i StreamInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Pars
 
 func (i StreamInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*Stream).id
 	case "stream":
 		return b.(*Stream).Stream
+	case "id":
+		return b.(*Stream).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Stream", name))
 	}

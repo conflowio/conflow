@@ -18,7 +18,6 @@ import (
 )
 
 var _ schema.Schema = &schema.Array{}
-var _ schema.ArrayKind = &schema.Array{}
 
 var _ = Describe("Array", func() {
 

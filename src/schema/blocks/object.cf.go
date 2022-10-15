@@ -17,9 +17,11 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/schema/blocks.Object",
 		},
-		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "dependentRequired": "DependentRequired", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-		JSONPropertyNames: map[string]string{"dependent_required": "dependentRequired", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "property": "Parameters", "read_only": "readOnly", "write_only": "writeOnly"},
-		Parameters: map[string]schema.Schema{
+		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "dependentRequired": "DependentRequired", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "properties": "Properties", "readOnly": "ReadOnly", "required": "Required", "title": "Title", "writeOnly": "WriteOnly"},
+		JSONPropertyNames: map[string]string{"dependent_required": "dependentRequired", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "property": "properties", "read_only": "readOnly", "write_only": "writeOnly"},
+		ParameterNames:    map[string]string{"$id": "id", "dependentRequired": "dependent_required", "maxProperties": "max_properties", "minProperties": "min_properties", "properties": "property", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -29,7 +31,7 @@ func init() {
 			"default": &schema.Map{
 				AdditionalProperties: &schema.Untyped{},
 			},
-			"dependent_required": &schema.Map{
+			"dependentRequired": &schema.Map{
 				AdditionalProperties: &schema.Array{
 					Items: &schema.String{},
 				},
@@ -44,19 +46,24 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"id": &schema.String{},
-			"max_properties": &schema.Integer{
+			"maxProperties": &schema.Integer{
 				Nullable: true,
 			},
-			"min_properties": &schema.Integer{},
-			"property": &schema.Map{
+			"minProperties": &schema.Integer{},
+			"properties": &schema.Map{
 				AdditionalProperties: &schema.Reference{
 					Ref: "github.com/conflowio/conflow/src/schema.Schema",
 				},
 			},
-			"read_only":  &schema.Boolean{},
-			"title":      &schema.String{},
-			"write_only": &schema.Boolean{},
+			"readOnly": &schema.Boolean{},
+			"required": &schema.Array{
+				Metadata: schema.Metadata{
+					Description: "It will contain the required parameter names",
+				},
+				Items: &schema.String{},
+			},
+			"title":     &schema.String{},
+			"writeOnly": &schema.Boolean{},
 		},
 	})
 }
@@ -73,7 +80,7 @@ func (i ObjectInterpreter) Schema() schema.Schema {
 // Create creates a new Object block
 func (i ObjectInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	b := &Object{}
-	b.Parameters = map[string]schema.Schema{}
+	b.Properties = map[string]schema.Schema{}
 	return b
 }
 
@@ -94,6 +101,8 @@ func (i ObjectInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Pars
 
 func (i ObjectInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Object).ID
 	case "annotations":
 		return b.(*Object).Annotations
 	case "const":
@@ -110,14 +119,14 @@ func (i ObjectInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Object).Enum
 	case "examples":
 		return b.(*Object).Examples
-	case "id":
-		return b.(*Object).ID
 	case "max_properties":
 		return b.(*Object).MaxProperties
 	case "min_properties":
 		return b.(*Object).MinProperties
 	case "read_only":
 		return b.(*Object).ReadOnly
+	case "required":
+		return b.(*Object).Required
 	case "title":
 		return b.(*Object).Title
 	case "write_only":
@@ -130,6 +139,8 @@ func (i ObjectInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 func (i ObjectInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Object)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
@@ -158,14 +169,17 @@ func (i ObjectInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
-	case "id":
-		b.ID = value.(string)
 	case "max_properties":
 		b.MaxProperties = schema.Pointer(value.(int64))
 	case "min_properties":
 		b.MinProperties = value.(int64)
 	case "read_only":
 		b.ReadOnly = value.(bool)
+	case "required":
+		b.Required = make([]string, len(value.([]interface{})))
+		for valuek, valuev := range value.([]interface{}) {
+			b.Required[valuek] = valuev.(string)
+		}
 	case "title":
 		b.Title = value.(string)
 	case "write_only":
@@ -178,7 +192,7 @@ func (i ObjectInterpreter) SetBlock(block conflow.Block, name conflow.ID, key st
 	b := block.(*Object)
 	switch name {
 	case "property":
-		b.Parameters[key] = value.(schema.Schema)
+		b.Properties[key] = value.(schema.Schema)
 	}
 	return nil
 }

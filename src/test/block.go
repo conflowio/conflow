@@ -101,17 +101,19 @@ func (b *Block) Compare(b2 *Block, input string) {
 func compareBlocks(b1, b2 conflow.Identifiable, interpreter conflow.BlockInterpreter, input string) {
 	Expect(b1.ID()).To(Equal(b2.ID()), "id does not match, input: %s", input)
 
-	for propertyName, p := range interpreter.Schema().(schema.ObjectKind).GetParameters() {
+	o := interpreter.Schema().(*schema.Object)
+	for jsonPropertyName, p := range o.Properties {
 		if block.IsBlockSchema(p) {
 			continue
 		}
+		parameterName := o.ParameterName(jsonPropertyName)
 
-		v1 := interpreter.Param(b1, conflow.ID(propertyName))
-		v2 := interpreter.Param(b2, conflow.ID(propertyName))
+		v1 := interpreter.Param(b1, conflow.ID(parameterName))
+		v2 := interpreter.Param(b2, conflow.ID(parameterName))
 		if v2 != nil {
-			Expect(v1).To(Equal(v2), "%s does not match, input: %s", propertyName, input)
+			Expect(v1).To(Equal(v2), "%s does not match, input: %s", parameterName, input)
 		} else {
-			Expect(v1).To(BeNil(), "%s does not match, input: %s", propertyName, input)
+			Expect(v1).To(BeNil(), "%s does not match, input: %s", parameterName, input)
 		}
 	}
 }

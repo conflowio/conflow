@@ -19,13 +19,14 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/test/fixtures.Block",
 		},
 		JSONPropertyNames: map[string]string{"field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_identifier": "FieldIdentifier", "field_integer": "FieldInteger", "field_interface": "FieldInterface", "field_map": "FieldMap", "field_number": "FieldNumber", "field_string": "FieldString", "field_string_array": "FieldStringArray", "field_time": "FieldTime", "field_time_duration": "FieldTimeDuration", "id_field": "IDField"},
-		Parameters: map[string]schema.Schema{
-			"field_array": &schema.Array{
+		ParameterNames:    map[string]string{"FieldArray": "field_array", "FieldBool": "field_bool", "FieldFloat": "field_float", "FieldIdentifier": "field_identifier", "FieldInteger": "field_integer", "FieldInterface": "field_interface", "FieldMap": "field_map", "FieldNumber": "field_number", "FieldString": "field_string", "FieldStringArray": "field_string_array", "FieldTime": "field_time", "FieldTimeDuration": "field_time_duration", "IDField": "id_field"},
+		Properties: map[string]schema.Schema{
+			"FieldArray": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"field_bool":  &schema.Boolean{},
-			"field_float": &schema.Number{},
-			"field_identifier": &schema.String{
+			"FieldBool":  &schema.Boolean{},
+			"FieldFloat": &schema.Number{},
+			"FieldIdentifier": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.EvalStage: "close",
@@ -34,25 +35,25 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"field_integer":   &schema.Integer{},
-			"field_interface": &schema.Untyped{},
-			"field_map": &schema.Map{
+			"FieldInteger":   &schema.Integer{},
+			"FieldInterface": &schema.Untyped{},
+			"FieldMap": &schema.Map{
 				AdditionalProperties: &schema.Untyped{},
 			},
-			"field_number": &schema.Untyped{
+			"FieldNumber": &schema.Untyped{
 				Types: []string{"integer", "number"},
 			},
-			"field_string": &schema.String{},
-			"field_string_array": &schema.Array{
+			"FieldString": &schema.String{},
+			"FieldStringArray": &schema.Array{
 				Items: &schema.String{},
 			},
-			"field_time": &schema.String{
+			"FieldTime": &schema.String{
 				Format: "date-time",
 			},
-			"field_time_duration": &schema.String{
+			"FieldTimeDuration": &schema.String{
 				Format: "duration-go",
 			},
-			"id_field": &schema.String{
+			"IDField": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.ID: "true",

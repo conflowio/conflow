@@ -19,9 +19,19 @@ func init() {
 			ID:          "github.com/conflowio/conflow/src/schema/directives.Block",
 		},
 		JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path", "type": "Type"},
-		Parameters: map[string]schema.Schema{
-			"eval_stage": &schema.String{
+		ParameterNames:    map[string]string{"EvalStage": "eval_stage", "Path": "path", "Type": "type"},
+		Properties: map[string]schema.Schema{
+			"EvalStage": &schema.String{
 				Enum: []string{"ignore", "init", "parse", "resolve"},
+			},
+			"Path": &schema.String{},
+			"Type": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
+				},
+				Enum: []string{"configuration", "directive", "generator", "main", "task"},
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
@@ -31,15 +41,6 @@ func init() {
 					ReadOnly: true,
 				},
 				Format: "conflow.ID",
-			},
-			"path": &schema.String{},
-			"type": &schema.String{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{
-						annotations.Value: "true",
-					},
-				},
-				Enum: []string{"configuration", "directive", "generator", "main", "task"},
 			},
 		},
 		Required: []string{"type"},
@@ -81,12 +82,12 @@ func (i BlockInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "eval_stage":
 		return b.(*Block).EvalStage
-	case "id":
-		return b.(*Block).id
 	case "path":
 		return b.(*Block).Path
 	case "type":
 		return b.(*Block).Type
+	case "id":
+		return b.(*Block).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Block", name))
 	}

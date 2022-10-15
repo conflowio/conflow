@@ -18,7 +18,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/blocks.Sleep",
 		},
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"duration": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{

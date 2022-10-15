@@ -233,7 +233,7 @@ func (m *Map) ValidateSchema(s Schema, compare bool) error {
 		return nil
 	}
 
-	o2, ok := s.(MapKind)
+	o2, ok := s.(*Map)
 	if !ok {
 		return typeError("must be map")
 	}
@@ -339,6 +339,6 @@ func (m *Map) join(elems []map[string]interface{}, sep string) string {
 	return b.String()
 }
 
-func isTypedMap(o MapKind) bool {
+func isTypedMap(o *Map) bool {
 	return o.GetAdditionalProperties().Type() != TypeUntyped
 }

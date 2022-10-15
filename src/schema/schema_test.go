@@ -192,7 +192,7 @@ var _ = Describe("Schema", func() {
 			"object",
 			&schema.Object{
 				Metadata: schema.Metadata{Description: "foo"},
-				Parameters: map[string]schema.Schema{
+				Properties: map[string]schema.Schema{
 					"foo": &schema.Integer{},
 				},
 			},

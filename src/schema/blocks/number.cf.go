@@ -19,7 +19,9 @@ func init() {
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"$id": "id", "exclusiveMaximum": "exclusive_maximum", "exclusiveMinimum": "exclusive_minimum", "multipleOf": "multiple_of", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -37,26 +39,25 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"exclusive_maximum": &schema.Number{
+			"exclusiveMaximum": &schema.Number{
 				Nullable: true,
 			},
-			"exclusive_minimum": &schema.Number{
+			"exclusiveMinimum": &schema.Number{
 				Nullable: true,
 			},
-			"id": &schema.String{},
 			"maximum": &schema.Number{
 				Nullable: true,
 			},
 			"minimum": &schema.Number{
 				Nullable: true,
 			},
-			"multiple_of": &schema.Number{
+			"multipleOf": &schema.Number{
 				Nullable: true,
 			},
-			"nullable":   &schema.Boolean{},
-			"read_only":  &schema.Boolean{},
-			"title":      &schema.String{},
-			"write_only": &schema.Boolean{},
+			"nullable":  &schema.Boolean{},
+			"readOnly":  &schema.Boolean{},
+			"title":     &schema.String{},
+			"writeOnly": &schema.Boolean{},
 		},
 	})
 }
@@ -93,6 +94,8 @@ func (i NumberInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Pars
 
 func (i NumberInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Number).ID
 	case "annotations":
 		return b.(*Number).Annotations
 	case "const":
@@ -111,8 +114,6 @@ func (i NumberInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Number).ExclusiveMaximum
 	case "exclusive_minimum":
 		return b.(*Number).ExclusiveMinimum
-	case "id":
-		return b.(*Number).ID
 	case "maximum":
 		return b.(*Number).Maximum
 	case "minimum":
@@ -135,6 +136,8 @@ func (i NumberInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Number)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
@@ -159,8 +162,6 @@ func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 		b.ExclusiveMaximum = schema.Pointer(value.(float64))
 	case "exclusive_minimum":
 		b.ExclusiveMinimum = schema.Pointer(value.(float64))
-	case "id":
-		b.ID = value.(string)
 	case "maximum":
 		b.Maximum = schema.Pointer(value.(float64))
 	case "minimum":

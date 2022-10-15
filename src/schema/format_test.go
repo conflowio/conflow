@@ -80,7 +80,7 @@ var _ = Describe("Format", func() {
 							annotations.Type: conflow.BlockTypeConfiguration,
 						},
 					},
-					Parameters: map[string]schema.Schema{
+					Properties: map[string]schema.Schema{
 						"v": &schema.String{
 							Format: "test",
 						},

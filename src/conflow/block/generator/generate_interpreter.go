@@ -68,18 +68,21 @@ func GenerateInterpreter(
 				return s.DefaultValue() != nil
 			})
 		},
+		"getParameterName": func(name string) string {
+			return params.Schema.(*schema.Object).ParameterName(name)
+		},
 		"getFieldName": func(name string) string {
-			return params.Schema.(schema.ObjectKind).GetFieldName(name)
+			return params.Schema.(*schema.Object).FieldName(name)
 		},
 		"getType": func(s schema.Schema) string {
 			return s.GoType(params.Imports)
 		},
 		"isArray": func(s schema.Schema) bool {
-			_, ok := s.(schema.ArrayKind)
+			_, ok := s.(*schema.Array)
 			return ok
 		},
 		"isMap": func(s schema.Schema) bool {
-			_, ok := s.(schema.MapKind)
+			_, ok := s.(*schema.Map)
 			return ok
 		},
 		"title": func(s string) string {
@@ -149,12 +152,14 @@ func generateTemplateParams(
 	}
 
 	var idPropertyName, valuePropertyName string
-	for name, property := range s.Schema.(schema.ObjectKind).GetParameters() {
+	o := s.Schema.(*schema.Object)
+	for jsonPropertyName, property := range o.Properties {
+		parameterName := o.ParameterName(jsonPropertyName)
 		switch {
 		case property.GetAnnotation(annotations.ID) == "true":
-			idPropertyName = name
+			idPropertyName = parameterName
 		case property.GetAnnotation(annotations.Value) == "true":
-			valuePropertyName = name
+			valuePropertyName = parameterName
 		}
 	}
 

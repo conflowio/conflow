@@ -155,7 +155,7 @@ func (c *Container) Value() (interface{}, parsley.Error) {
 // Param returns with the parameter value
 func (c *Container) Param(name conflow.ID) interface{} {
 	s := c.node.Interpreter().Schema()
-	if p, ok := s.(schema.ObjectKind).GetParameters()[string(name)]; ok {
+	if p, ok := s.(*schema.Object).PropertyByParameterName(string(name)); ok {
 		if !IsBlockSchema(p) {
 			return c.node.Interpreter().Param(c.block, name)
 		}
@@ -507,7 +507,7 @@ func (c *Container) setChild(result conflow.Container) parsley.Error {
 		name := node.Name()
 
 		s := c.node.Interpreter().Schema()
-		if _, ok := s.(schema.ObjectKind).GetParameters()[string(name)]; ok {
+		if _, ok := s.(*schema.Object).PropertyByParameterName(string(name)); ok {
 			if err := c.node.Interpreter().SetParam(c.block, node.Name(), value); err != nil {
 				return parsley.NewError(r.Node().Pos(), err)
 			}
@@ -553,8 +553,9 @@ func (c *Container) PublishBlock(block conflow.Block, f func() error) (bool, err
 	blockID := b.ID()
 
 	nodeContainer, ok := c.children[blockID]
-	propertyName := string(nodeContainer.Node().(conflow.BlockNode).ParameterName())
-	if !ok || c.Node().Schema().(*schema.Object).Parameters[propertyName].GetAnnotation(annotations.Generated) != "true" {
+	parameterName := string(nodeContainer.Node().(conflow.BlockNode).ParameterName())
+	s := c.Node().Schema().(*schema.Object)
+	if !ok || s.Properties[s.JSONPropertyName(parameterName)].GetAnnotation(annotations.Generated) != "true" {
 		return false, fmt.Errorf("%q block does not exist or is not marked as generated", blockID)
 	}
 

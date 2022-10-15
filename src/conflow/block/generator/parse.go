@@ -48,7 +48,7 @@ func ParseStruct(
 			ID:          fmt.Sprintf("%s.%s", pkg, name),
 			Description: metadata.Description,
 		},
-		Parameters: map[string]schema.Schema{},
+		Properties: map[string]schema.Schema{},
 	}
 
 	if strings.HasPrefix(s.Metadata.Description, name+" ") {
@@ -98,17 +98,18 @@ func ParseStruct(
 
 			fieldStrSchema := fieldStr.Schema.(*schema.Object)
 
-			for parameterName, parameter := range fieldStrSchema.Parameters {
-				if parameter.GetAnnotation(annotations.ID) == "true" {
+			for jsonPropertyName, property := range fieldStrSchema.Properties {
+				parameterName := fieldStrSchema.ParameterName(jsonPropertyName)
+				if property.GetAnnotation(annotations.ID) == "true" {
 					continue
 				}
 
 				f := parser.Field{
-					Name:             fieldStrSchema.GetFieldName(parameterName),
+					Name:             fieldStrSchema.FieldName(parameterName),
 					ParameterName:    parameterName,
-					Required:         fieldStrSchema.IsParameterRequired(parameterName),
-					Schema:           parameter,
-					JSONPropertyName: fieldStrSchema.GetJSONPropertyName(parameterName),
+					Required:         fieldStrSchema.IsPropertyRequired(jsonPropertyName),
+					Schema:           property,
+					JSONPropertyName: jsonPropertyName,
 				}
 
 				if err := addField(s, &idField, &valueField, &keyField, f); err != nil {
@@ -124,7 +125,7 @@ func ParseStruct(
 
 	if s.GetAnnotation(annotations.Type) == conflow.BlockTypeGenerator {
 		hasGeneratedField := false
-		for _, p := range s.Parameters {
+		for _, p := range s.Properties {
 			if p.GetAnnotation(annotations.Generated) == "true" {
 				hasGeneratedField = true
 				break
@@ -203,8 +204,8 @@ func ParseEmbeddedField(
 }
 
 func addField(s *schema.Object, idField, valueField, keyField *string, field parser.Field) error {
-	if _, exists := s.Parameters[field.ParameterName]; exists {
-		return fmt.Errorf("multiple fields has the same property name: %s", field.ParameterName)
+	if _, exists := s.Properties[field.JSONPropertyName]; exists {
+		return fmt.Errorf("multiple fields has the same JSON property name: %s", field.JSONPropertyName)
 	}
 
 	if field.Schema.GetAnnotation(annotations.ID) == "true" {
@@ -232,13 +233,18 @@ func addField(s *schema.Object, idField, valueField, keyField *string, field par
 		s.Required = append(s.Required, field.ParameterName)
 	}
 
-	s.Parameters[field.ParameterName] = field.Schema
+	s.Properties[field.JSONPropertyName] = field.Schema
 
 	if field.ParameterName != field.JSONPropertyName {
 		if s.JSONPropertyNames == nil {
 			s.JSONPropertyNames = map[string]string{}
 		}
 		s.JSONPropertyNames[field.ParameterName] = field.JSONPropertyName
+
+		if s.ParameterNames == nil {
+			s.ParameterNames = map[string]string{}
+		}
+		s.ParameterNames[field.JSONPropertyName] = field.ParameterName
 	}
 
 	if field.Name != field.JSONPropertyName {

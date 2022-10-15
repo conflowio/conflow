@@ -42,32 +42,34 @@ func NewInterpreter(uri string) (conflow.BlockInterpreter, error) {
 	interpreterRegistry := InterpreterRegistry{}
 
 	var valueParamName string
-	for name, p := range o.Parameters {
+	for jsonPropertyName, p := range o.Properties {
+		parameterName := o.ParameterName(jsonPropertyName)
+
 		if p.GetAnnotation(annotations.Value) == "true" {
-			valueParamName = name
+			valueParamName = parameterName
 		}
 
 		switch pt := p.(type) {
 		case *schema.Object:
-			id := fmt.Sprintf("%s/%s", s.GetID(), name)
+			id := fmt.Sprintf("%s/%s", s.GetID(), parameterName)
 			pt.SetID(id)
 			schema.Register(pt)
-			o.Parameters[name] = &schema.Reference{Ref: id}
+			o.Properties[jsonPropertyName] = &schema.Reference{Ref: id}
 
 			var err error
-			interpreterRegistry[name], err = NewInterpreter(id)
+			interpreterRegistry[parameterName], err = NewInterpreter(id)
 			if err != nil {
 				return nil, err
 			}
 		case *schema.Array:
 			if po, ok := pt.Items.(*schema.Object); ok {
-				id := fmt.Sprintf("%s/%s", s.GetID(), name)
+				id := fmt.Sprintf("%s/%s", s.GetID(), parameterName)
 				po.SetID(id)
 				schema.Register(po)
 				pt.Items = &schema.Reference{Ref: id}
 
 				var err error
-				interpreterRegistry[name], err = NewInterpreter(id)
+				interpreterRegistry[parameterName], err = NewInterpreter(id)
 				if err != nil {
 					return nil, err
 				}
@@ -107,7 +109,7 @@ func (g interpreter) SetParam(b conflow.Block, name conflow.ID, value interface{
 }
 
 func (g interpreter) SetBlock(b conflow.Block, name conflow.ID, key string, value interface{}) error {
-	s := g.schema.GetParameters()[string(name)]
+	s, _ := g.schema.PropertyByParameterName(string(name))
 	if s.Type() == schema.TypeArray {
 		if b.(*block).blocks[name] == nil {
 			b.(*block).blocks[name] = []interface{}{}

@@ -18,8 +18,9 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithDefault",
 		},
 		JSONPropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
-		Parameters: map[string]schema.Schema{
-			"id_field": &schema.String{
+		ParameterNames:    map[string]string{"IDField": "id_field", "Value": "value"},
+		Properties: map[string]schema.Schema{
+			"IDField": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.ID: "true",
@@ -28,7 +29,7 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"value": &schema.String{
+			"Value": &schema.String{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.Value: "true",

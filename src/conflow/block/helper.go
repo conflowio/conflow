@@ -16,13 +16,13 @@ func IsBlockSchema(s schema.Schema) bool {
 		return true
 	}
 
-	if a, ok := s.(schema.ArrayKind); ok {
+	if a, ok := s.(*schema.Array); ok {
 		if _, ok := a.GetItems().(*schema.Reference); ok {
 			return true
 		}
 	}
 
-	if a, ok := s.(schema.MapKind); ok {
+	if a, ok := s.(*schema.Map); ok {
 		if _, ok := a.GetAdditionalProperties().(*schema.Reference); ok {
 			return true
 		}
@@ -32,11 +32,11 @@ func IsBlockSchema(s schema.Schema) bool {
 }
 
 func getNameSchemaForChildBlock(s *schema.Object, node conflow.BlockNode) (conflow.ID, schema.Schema) {
-	if p, ok := s.Parameters[string(node.ID())]; ok {
+	if p, ok := s.PropertyByParameterName(string(node.ID())); ok {
 		return node.ID(), p
 	}
 
-	if p, ok := s.Parameters[string(node.ParameterName())]; ok {
+	if p, ok := s.PropertyByParameterName(string(node.ParameterName())); ok {
 		return node.ParameterName(), p
 	}
 

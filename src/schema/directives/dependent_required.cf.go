@@ -18,17 +18,9 @@ func init() {
 			ID: "github.com/conflowio/conflow/src/schema/directives.DependentRequired",
 		},
 		JSONPropertyNames: map[string]string{"value": "Value"},
-		Parameters: map[string]schema.Schema{
-			"id": &schema.String{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{
-						annotations.ID: "true",
-					},
-					ReadOnly: true,
-				},
-				Format: "conflow.ID",
-			},
-			"value": &schema.Map{
+		ParameterNames:    map[string]string{"Value": "value"},
+		Properties: map[string]schema.Schema{
+			"Value": &schema.Map{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.Value: "true",
@@ -41,6 +33,15 @@ func init() {
 					MinItems:    1,
 					UniqueItems: true,
 				},
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
+				},
+				Format: "conflow.ID",
 			},
 		},
 		Required: []string{"value"},
@@ -80,10 +81,10 @@ func (i DependentRequiredInterpreter) ParseContext(ctx *conflow.ParseContext) *c
 
 func (i DependentRequiredInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*DependentRequired).id
 	case "value":
 		return b.(*DependentRequired).Value
+	case "id":
+		return b.(*DependentRequired).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in DependentRequired", name))
 	}

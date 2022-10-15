@@ -210,12 +210,12 @@ func (a *Array) ValidateSchema(s Schema, compare bool) error {
 		return nil
 	}
 
-	a2, ok := s.(ArrayKind)
+	a2, ok := s.(*Array)
 	if !ok {
 		return typeErrorf("must be %s", a.TypeString())
 	}
 
-	if err := a.Items.ValidateSchema(a2.GetItems(), compare); err != nil {
+	if err := a.Items.ValidateSchema(a2.Items, compare); err != nil {
 		if _, ok := err.(typeError); ok {
 			return typeErrorf("must be %s", a.TypeString())
 		}

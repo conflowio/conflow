@@ -20,7 +20,9 @@ func init() {
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "write_only": "writeOnly"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"$id": "id", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -38,11 +40,10 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"id":         &schema.String{},
-			"nullable":   &schema.Boolean{},
-			"read_only":  &schema.Boolean{},
-			"title":      &schema.String{},
-			"write_only": &schema.Boolean{},
+			"nullable":  &schema.Boolean{},
+			"readOnly":  &schema.Boolean{},
+			"title":     &schema.String{},
+			"writeOnly": &schema.Boolean{},
 		},
 	})
 }
@@ -79,6 +80,8 @@ func (i BooleanInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Par
 
 func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Boolean).ID
 	case "annotations":
 		return b.(*Boolean).Annotations
 	case "const":
@@ -93,8 +96,6 @@ func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 		return b.(*Boolean).Enum
 	case "examples":
 		return b.(*Boolean).Examples
-	case "id":
-		return b.(*Boolean).ID
 	case "nullable":
 		return b.(*Boolean).Nullable
 	case "read_only":
@@ -111,6 +112,8 @@ func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Boolean)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
@@ -131,8 +134,6 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
-	case "id":
-		b.ID = value.(string)
 	case "nullable":
 		b.Nullable = value.(bool)
 	case "read_only":

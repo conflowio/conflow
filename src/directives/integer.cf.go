@@ -20,7 +20,9 @@ func init() {
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "format": "Format", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"$id": "id", "exclusiveMaximum": "exclusive_maximum", "exclusiveMinimum": "exclusive_minimum", "multipleOf": "multiple_of", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -38,29 +40,28 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"exclusive_maximum": &schema.Integer{
+			"exclusiveMaximum": &schema.Integer{
 				Nullable: true,
 			},
-			"exclusive_minimum": &schema.Integer{
+			"exclusiveMinimum": &schema.Integer{
 				Nullable: true,
 			},
 			"format": &schema.String{
 				Enum: []string{"int32", "int64"},
 			},
-			"id": &schema.String{},
 			"maximum": &schema.Integer{
 				Nullable: true,
 			},
 			"minimum": &schema.Integer{
 				Nullable: true,
 			},
-			"multiple_of": &schema.Integer{
+			"multipleOf": &schema.Integer{
 				Nullable: true,
 			},
-			"nullable":   &schema.Boolean{},
-			"read_only":  &schema.Boolean{},
-			"title":      &schema.String{},
-			"write_only": &schema.Boolean{},
+			"nullable":  &schema.Boolean{},
+			"readOnly":  &schema.Boolean{},
+			"title":     &schema.String{},
+			"writeOnly": &schema.Boolean{},
 		},
 	})
 }
@@ -97,6 +98,8 @@ func (i IntegerInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Par
 
 func (i IntegerInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Integer).ID
 	case "annotations":
 		return b.(*Integer).Annotations
 	case "const":
@@ -117,8 +120,6 @@ func (i IntegerInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 		return b.(*Integer).ExclusiveMinimum
 	case "format":
 		return b.(*Integer).Format
-	case "id":
-		return b.(*Integer).ID
 	case "maximum":
 		return b.(*Integer).Maximum
 	case "minimum":
@@ -141,6 +142,8 @@ func (i IntegerInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 func (i IntegerInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Integer)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
@@ -167,8 +170,6 @@ func (i IntegerInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 		b.ExclusiveMinimum = schema.Pointer(value.(int64))
 	case "format":
 		b.Format = value.(string)
-	case "id":
-		b.ID = value.(string)
 	case "maximum":
 		b.Maximum = schema.Pointer(value.(int64))
 	case "minimum":
