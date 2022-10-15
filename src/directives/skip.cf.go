@@ -34,7 +34,7 @@ func init() {
 						annotations.Value: "true",
 					},
 				},
-				Default: schema.BooleanPtr(true),
+				Default: schema.Pointer(true),
 			},
 		},
 	})

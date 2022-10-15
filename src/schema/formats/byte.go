@@ -44,11 +44,3 @@ func (b Binary) StringValue(input interface{}) (string, bool) {
 func (b Binary) Type() (reflect.Type, bool) {
 	return reflect.TypeOf([]byte(nil)), b.Default
 }
-
-func (b Binary) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.BinaryPtr"
-}
-
-func BinaryPtr(v []byte) *[]byte {
-	return &v
-}

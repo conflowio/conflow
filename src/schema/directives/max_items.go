@@ -29,7 +29,7 @@ func (m *MaxItems) ID() conflow.ID {
 func (m *MaxItems) ApplyToSchema(s schema.Schema) error {
 	switch st := s.(type) {
 	case *schema.Array:
-		st.MaxItems = schema.IntegerPtr(m.value)
+		st.MaxItems = schema.Pointer(m.value)
 		return nil
 	default:
 		return fmt.Errorf("max_items directive can not be applied to %T", s)

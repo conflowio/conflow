@@ -13,8 +13,6 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
-
-	"github.com/conflowio/conflow/src/internal/utils"
 )
 
 type Boolean struct {
@@ -28,8 +26,7 @@ type Boolean struct {
 
 func (b *Boolean) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if b.Nullable {
-		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/src/schema")
-		return fmt.Sprintf("%s = %s.BooleanPtr(%s.(bool))", resultName, schemaPackageName, valueName)
+		return fmt.Sprintf("%s = schema.Pointer(%s.(bool))", resultName, valueName)
 	}
 
 	return fmt.Sprintf("%s = %s.(bool)", resultName, valueName)
@@ -88,10 +85,10 @@ func (b *Boolean) GoString(imports map[string]string) string {
 		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString(imports)))
 	}
 	if b.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: schema.BooleanPtr(%#v),\n", *b.Const)
+		_, _ = fmt.Fprintf(buf, "\tConst: schema.Pointer(%#v),\n", *b.Const)
 	}
 	if b.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: schema.BooleanPtr(%#v),\n", *b.Default)
+		_, _ = fmt.Fprintf(buf, "\tDefault: schema.Pointer(%#v),\n", *b.Default)
 	}
 	if len(b.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", b.Enum)
@@ -195,8 +192,4 @@ func (b *booleanValue) Copy() Schema {
 
 func (b *booleanValue) GoString(map[string]string) string {
 	return "schema.BooleanValue()"
-}
-
-func BooleanPtr(v bool) *bool {
-	return &v
 }

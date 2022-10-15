@@ -29,10 +29,10 @@ func (m *MaxProperties) ID() conflow.ID {
 func (m *MaxProperties) ApplyToSchema(s schema.Schema) error {
 	switch st := s.(type) {
 	case *schema.Map:
-		st.MaxProperties = schema.IntegerPtr(m.value)
+		st.MaxProperties = schema.Pointer(m.value)
 		return nil
 	case *schema.Object:
-		st.MaxProperties = schema.IntegerPtr(m.value)
+		st.MaxProperties = schema.Pointer(m.value)
 		return nil
 	default:
 		return fmt.Errorf("max_properties directive can not be applied to %T", s)

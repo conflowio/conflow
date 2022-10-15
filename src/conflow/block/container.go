@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/conflowio/conflow/src/util/ptr"
+
 	"github.com/conflowio/conflow/src/conflow/annotations"
 
 	"github.com/conflowio/parsley/parsley"
@@ -525,7 +527,7 @@ func (c *Container) setChild(result conflow.Container) parsley.Error {
 		node := r.Node().(conflow.BlockNode)
 		name, p := getNameSchemaForChildBlock(c.Node().Schema().(*schema.Object), node)
 
-		if err := c.node.Interpreter().SetBlock(c.block, name, util.StringValue(node.Key()), value); err != nil {
+		if err := c.node.Interpreter().SetBlock(c.block, name, ptr.Value(node.Key()), value); err != nil {
 			return parsley.NewError(r.Node().Pos(), err)
 		}
 

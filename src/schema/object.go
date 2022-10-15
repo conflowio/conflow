@@ -169,7 +169,7 @@ func (o *Object) GoString(imports map[string]string) string {
 		_, _ = fmt.Fprintf(buf, "\tMinProperties: %d,\n", o.MinProperties)
 	}
 	if o.MaxProperties != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.IntegerPtr(%d),\n", *o.MaxProperties)
+		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.Pointer(int64(%d)),\n", *o.MaxProperties)
 	}
 	if len(o.Parameters) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tParameters: %s,\n", indent(o.parametersString(imports)))

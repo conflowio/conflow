@@ -15,8 +15,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/conflowio/conflow/src/internal/utils"
 )
 
 type Integer struct {
@@ -37,8 +35,7 @@ type Integer struct {
 
 func (i *Integer) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if i.Nullable {
-		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/src/schema")
-		return fmt.Sprintf("%s = %s.IntegerPtr(%s.(int64))", resultName, schemaPackageName, valueName)
+		return fmt.Sprintf("%s = schema.Pointer(%s.(int64))", resultName, valueName)
 	}
 
 	return fmt.Sprintf("%s = %s.(int64)", resultName, valueName)
@@ -107,10 +104,10 @@ func (i *Integer) GoString(imports map[string]string) string {
 		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(i.Metadata.GoString(imports)))
 	}
 	if i.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: schema.IntegerPtr(%#v),\n", *i.Const)
+		_, _ = fmt.Fprintf(buf, "\tConst: schema.Pointer(int64(%#v)),\n", *i.Const)
 	}
 	if i.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: schema.IntegerPtr(%#v),\n", *i.Default)
+		_, _ = fmt.Fprintf(buf, "\tDefault: schema.Pointer(int64(%#v)),\n", *i.Default)
 	}
 	if len(i.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", i.Enum)
@@ -119,19 +116,19 @@ func (i *Integer) GoString(imports map[string]string) string {
 		_, _ = fmt.Fprintf(buf, "\tFormat: %#v,\n", i.Format)
 	}
 	if i.Minimum != nil {
-		_, _ = fmt.Fprintf(buf, "\tMinimum: schema.IntegerPtr(%#v),\n", *i.Minimum)
+		_, _ = fmt.Fprintf(buf, "\tMinimum: schema.Pointer(int64(%#v)),\n", *i.Minimum)
 	}
 	if i.Maximum != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaximum: schema.IntegerPtr(%#v),\n", *i.Maximum)
+		_, _ = fmt.Fprintf(buf, "\tMaximum: schema.Pointer(int64(%#v)),\n", *i.Maximum)
 	}
 	if i.ExclusiveMinimum != nil {
-		_, _ = fmt.Fprintf(buf, "\tExclusiveMinimum: schema.IntegerPtr(%#v),\n", *i.ExclusiveMinimum)
+		_, _ = fmt.Fprintf(buf, "\tExclusiveMinimum: schema.Pointer(int64(%#v)),\n", *i.ExclusiveMinimum)
 	}
 	if i.ExclusiveMaximum != nil {
-		_, _ = fmt.Fprintf(buf, "\tExclusiveMaximum: schema.IntegerPtr(%#v),\n", *i.ExclusiveMaximum)
+		_, _ = fmt.Fprintf(buf, "\tExclusiveMaximum: schema.Pointer(int64(%#v)),\n", *i.ExclusiveMaximum)
 	}
 	if i.MultipleOf != nil {
-		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.IntegerPtr(%#v),\n", *i.MultipleOf)
+		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.Pointer(int64(%#v)),\n", *i.MultipleOf)
 	}
 	if i.Nullable {
 		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", i.Nullable)
@@ -298,8 +295,4 @@ func (i *integerValue) Copy() Schema {
 
 func (i *integerValue) GoString(map[string]string) string {
 	return "schema.IntegerValue()"
-}
-
-func IntegerPtr(v int64) *int64 {
-	return &v
 }

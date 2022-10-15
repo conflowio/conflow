@@ -38,13 +38,13 @@ func (d *Default) ApplyToSchema(s schema.Schema) error {
 	case *schema.Object:
 		st.Default = value.(map[string]interface{})
 	case *schema.Boolean:
-		st.Default = schema.BooleanPtr(value.(bool))
+		st.Default = schema.Pointer(value.(bool))
 	case *schema.Integer:
-		st.Default = schema.IntegerPtr(value.(int64))
+		st.Default = schema.Pointer(value.(int64))
 	case *schema.Number:
-		st.Default = schema.NumberPtr(value.(float64))
+		st.Default = schema.Pointer(value.(float64))
 	case *schema.String:
-		st.Default = schema.StringPtr(value.(string))
+		st.Default = schema.Pointer(value.(string))
 	default:
 		return fmt.Errorf("default directive can not be applied to %T", s)
 	}

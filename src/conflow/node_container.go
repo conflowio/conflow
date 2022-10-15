@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/conflow/src/util/ptr"
 
-	"github.com/conflowio/conflow/src/util"
+	"github.com/conflowio/parsley/parsley"
 )
 
 // NodeContainer wraps a node and registers the dependencies as they become available
@@ -199,11 +199,11 @@ func (n *NodeContainer) CreateContainer(value interface{}, wgs []WaitGroup) (Job
 		return nil, err
 	}
 
-	if util.BoolValue(n.runtimeConfig.Skip) {
+	if ptr.Value(n.runtimeConfig.Skip) {
 		return nil, nil
 	}
 
-	ctx := n.createEvalContext(util.TimeDurationValue(n.runtimeConfig.Timeout))
+	ctx := n.createEvalContext(ptr.Value(n.runtimeConfig.Timeout))
 	return n.node.CreateContainer(ctx, n.runtimeConfig, n.parent, value, wgs, n.pending), nil
 }
 

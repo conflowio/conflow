@@ -52,11 +52,3 @@ func (e Email) StringValue(input interface{}) (string, bool) {
 func (e Email) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(mail.Address{}), e.Default
 }
-
-func (e Email) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.EmailPtr"
-}
-
-func EmailPtr(v mail.Address) *mail.Address {
-	return &v
-}

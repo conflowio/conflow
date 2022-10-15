@@ -144,7 +144,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties=2, 2 elements",
 			func(s *schema.Object) {
-				s.MaxProperties = schema.IntegerPtr(2)
+				s.MaxProperties = schema.Pointer(int64(2))
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -154,7 +154,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties=2, 1 element",
 			func(s *schema.Object) {
-				s.MaxProperties = schema.IntegerPtr(2)
+				s.MaxProperties = schema.Pointer(int64(2))
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -300,7 +300,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties: 0, 1 element",
 			func(s *schema.Object) {
-				s.MaxProperties = schema.IntegerPtr(0)
+				s.MaxProperties = schema.Pointer(int64(0))
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -310,7 +310,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties: 1, 2 elements",
 			func(s *schema.Object) {
-				s.MaxProperties = schema.IntegerPtr(1)
+				s.MaxProperties = schema.Pointer(int64(1))
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -428,10 +428,10 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties",
 			&schema.Object{
-				MaxProperties: schema.IntegerPtr(1),
+				MaxProperties: schema.Pointer(int64(1)),
 			},
 			`&schema.Object{
-	MaxProperties: schema.IntegerPtr(1),
+	MaxProperties: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(

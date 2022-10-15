@@ -148,7 +148,7 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	case "id":
 		b.ID = value.(string)
 	case "max_items":
-		b.MaxItems = schema.IntegerPtr(value.(int64))
+		b.MaxItems = schema.Pointer(value.(int64))
 	case "min_items":
 		b.MinItems = value.(int64)
 	case "read_only":

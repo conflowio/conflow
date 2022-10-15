@@ -53,11 +53,3 @@ func (i IP) StringValue(input interface{}) (string, bool) {
 func (i IP) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(net.IP{}), i.Default
 }
-
-func (i IP) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.IPPtr"
-}
-
-func IPPtr(v net.IP) *net.IP {
-	return &v
-}

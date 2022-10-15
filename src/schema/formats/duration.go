@@ -83,11 +83,3 @@ func (d DurationRFC3339) StringValue(input interface{}) (string, bool) {
 func (d DurationRFC3339) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(types.RFC3339Duration{}), true
 }
-
-func (d DurationRFC3339) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.DurationRFC3339Ptr"
-}
-
-func DurationRFC3339Ptr(v types.RFC3339Duration) *types.RFC3339Duration {
-	return &v
-}

@@ -141,9 +141,9 @@ func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 			b.Annotations[valuek] = valuev.(string)
 		}
 	case "const":
-		b.Const = schema.NumberPtr(value.(float64))
+		b.Const = schema.Pointer(value.(float64))
 	case "default":
-		b.Default = schema.NumberPtr(value.(float64))
+		b.Default = schema.Pointer(value.(float64))
 	case "deprecated":
 		b.Deprecated = value.(bool)
 	case "description":
@@ -156,17 +156,17 @@ func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	case "examples":
 		b.Examples = value.([]interface{})
 	case "exclusive_maximum":
-		b.ExclusiveMaximum = schema.NumberPtr(value.(float64))
+		b.ExclusiveMaximum = schema.Pointer(value.(float64))
 	case "exclusive_minimum":
-		b.ExclusiveMinimum = schema.NumberPtr(value.(float64))
+		b.ExclusiveMinimum = schema.Pointer(value.(float64))
 	case "id":
 		b.ID = value.(string)
 	case "maximum":
-		b.Maximum = schema.NumberPtr(value.(float64))
+		b.Maximum = schema.Pointer(value.(float64))
 	case "minimum":
-		b.Minimum = schema.NumberPtr(value.(float64))
+		b.Minimum = schema.Pointer(value.(float64))
 	case "multiple_of":
-		b.MultipleOf = schema.NumberPtr(value.(float64))
+		b.MultipleOf = schema.Pointer(value.(float64))
 	case "nullable":
 		b.Nullable = value.(bool)
 	case "read_only":

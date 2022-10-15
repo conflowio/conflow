@@ -117,9 +117,9 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 			b.Annotations[valuek] = valuev.(string)
 		}
 	case "const":
-		b.Const = schema.BooleanPtr(value.(bool))
+		b.Const = schema.Pointer(value.(bool))
 	case "default":
-		b.Default = schema.BooleanPtr(value.(bool))
+		b.Default = schema.Pointer(value.(bool))
 	case "deprecated":
 		b.Deprecated = value.(bool)
 	case "description":

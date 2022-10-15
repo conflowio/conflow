@@ -135,7 +135,7 @@ func (a *Array) GoString(imports map[string]string) string {
 		_, _ = fmt.Fprintf(buf, "\tMinItems: %d,\n", a.MinItems)
 	}
 	if a.MaxItems != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxItems: schema.IntegerPtr(%d),\n", *a.MaxItems)
+		_, _ = fmt.Fprintf(buf, "\tMaxItems: schema.Pointer(int64(%d)),\n", *a.MaxItems)
 	}
 	if a.UniqueItems {
 		_, _ = fmt.Fprint(buf, "\tUniqueItems: true,\n")

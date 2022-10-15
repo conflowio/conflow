@@ -161,7 +161,7 @@ func (i ObjectInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	case "id":
 		b.ID = value.(string)
 	case "max_properties":
-		b.MaxProperties = schema.IntegerPtr(value.(int64))
+		b.MaxProperties = schema.Pointer(value.(int64))
 	case "min_properties":
 		b.MinProperties = value.(int64)
 	case "read_only":

@@ -8,13 +8,13 @@ package directives
 
 import (
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/util"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
-// @block {
-//   type = "directive"
-//   eval_stage = "init"
-// }
+//	@block {
+//	  type = "directive"
+//	  eval_stage = "init"
+//	}
 type Run struct {
 	// @id
 	id conflow.ID
@@ -28,5 +28,5 @@ func (r *Run) ID() conflow.ID {
 }
 
 func (r *Run) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
-	config.Skip = util.BoolPtr(!r.when)
+	config.Skip = ptr.To(!r.when)
 }

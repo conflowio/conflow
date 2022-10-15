@@ -9,14 +9,15 @@ package directives
 import (
 	"time"
 
+	"github.com/conflowio/conflow/src/util/ptr"
+
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/util"
 )
 
-// @block {
-//   type = "directive"
-//   eval_stage = "init"
-// }
+//	@block {
+//	  type = "directive"
+//	  eval_stage = "init"
+//	}
 type Timeout struct {
 	// @id
 	id conflow.ID
@@ -30,5 +31,5 @@ func (t *Timeout) ID() conflow.ID {
 }
 
 func (t *Timeout) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
-	config.Timeout = util.TimeDurationPtr(t.duration)
+	config.Timeout = ptr.To(t.duration)
 }

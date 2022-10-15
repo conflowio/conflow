@@ -7,7 +7,6 @@ import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
-	"github.com/conflowio/conflow/src/schema/formats"
 	"regexp"
 )
 
@@ -136,9 +135,9 @@ func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 			b.Annotations[valuek] = valuev.(string)
 		}
 	case "const":
-		b.Const = schema.StringPtr(value.(string))
+		b.Const = schema.Pointer(value.(string))
 	case "default":
-		b.Default = schema.StringPtr(value.(string))
+		b.Default = schema.Pointer(value.(string))
 	case "deprecated":
 		b.Deprecated = value.(bool)
 	case "description":
@@ -155,13 +154,13 @@ func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	case "id":
 		b.ID = value.(string)
 	case "max_length":
-		b.MaxLength = schema.IntegerPtr(value.(int64))
+		b.MaxLength = schema.Pointer(value.(int64))
 	case "min_length":
 		b.MinLength = value.(int64)
 	case "nullable":
 		b.Nullable = value.(bool)
 	case "pattern":
-		b.Pattern = formats.RegexPtr(value.(regexp.Regexp))
+		b.Pattern = schema.Pointer(value.(regexp.Regexp))
 	case "read_only":
 		b.ReadOnly = value.(bool)
 	case "title":

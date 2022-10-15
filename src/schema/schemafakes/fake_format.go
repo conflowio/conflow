@@ -9,16 +9,6 @@ import (
 )
 
 type FakeFormat struct {
-	PtrFuncStub        func() string
-	ptrFuncMutex       sync.RWMutex
-	ptrFuncArgsForCall []struct {
-	}
-	ptrFuncReturns struct {
-		result1 string
-	}
-	ptrFuncReturnsOnCall map[int]struct {
-		result1 string
-	}
 	StringValueStub        func(interface{}) (string, bool)
 	stringValueMutex       sync.RWMutex
 	stringValueArgsForCall []struct {
@@ -59,59 +49,6 @@ type FakeFormat struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
-}
-
-func (fake *FakeFormat) PtrFunc() string {
-	fake.ptrFuncMutex.Lock()
-	ret, specificReturn := fake.ptrFuncReturnsOnCall[len(fake.ptrFuncArgsForCall)]
-	fake.ptrFuncArgsForCall = append(fake.ptrFuncArgsForCall, struct {
-	}{})
-	stub := fake.PtrFuncStub
-	fakeReturns := fake.ptrFuncReturns
-	fake.recordInvocation("PtrFunc", []interface{}{})
-	fake.ptrFuncMutex.Unlock()
-	if stub != nil {
-		return stub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fakeReturns.result1
-}
-
-func (fake *FakeFormat) PtrFuncCallCount() int {
-	fake.ptrFuncMutex.RLock()
-	defer fake.ptrFuncMutex.RUnlock()
-	return len(fake.ptrFuncArgsForCall)
-}
-
-func (fake *FakeFormat) PtrFuncCalls(stub func() string) {
-	fake.ptrFuncMutex.Lock()
-	defer fake.ptrFuncMutex.Unlock()
-	fake.PtrFuncStub = stub
-}
-
-func (fake *FakeFormat) PtrFuncReturns(result1 string) {
-	fake.ptrFuncMutex.Lock()
-	defer fake.ptrFuncMutex.Unlock()
-	fake.PtrFuncStub = nil
-	fake.ptrFuncReturns = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeFormat) PtrFuncReturnsOnCall(i int, result1 string) {
-	fake.ptrFuncMutex.Lock()
-	defer fake.ptrFuncMutex.Unlock()
-	fake.PtrFuncStub = nil
-	if fake.ptrFuncReturnsOnCall == nil {
-		fake.ptrFuncReturnsOnCall = make(map[int]struct {
-			result1 string
-		})
-	}
-	fake.ptrFuncReturnsOnCall[i] = struct {
-		result1 string
-	}{result1}
 }
 
 func (fake *FakeFormat) StringValue(arg1 interface{}) (string, bool) {
@@ -301,8 +238,6 @@ func (fake *FakeFormat) ValidateValueReturnsOnCall(i int, result1 interface{}, r
 func (fake *FakeFormat) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.ptrFuncMutex.RLock()
-	defer fake.ptrFuncMutex.RUnlock()
 	fake.stringValueMutex.RLock()
 	defer fake.stringValueMutex.RUnlock()
 	fake.typeMutex.RLock()

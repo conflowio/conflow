@@ -52,7 +52,7 @@ func (t *NameNode) Schema() interface{} {
 	return schema.StringValue()
 }
 
-// Value returns with the block type
+// ValueOf returns with the block type
 func (t *NameNode) Value() interface{} {
 	if t.selector == nil {
 		return t.name.ID()

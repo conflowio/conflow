@@ -10,6 +10,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/conflowio/conflow/src/util/ptr"
+
 	"github.com/conflowio/conflow/src/conflow/annotations"
 
 	"github.com/conflowio/parsley/ast"
@@ -22,7 +24,6 @@ import (
 	"github.com/conflowio/conflow/src/conflow/job"
 	"github.com/conflowio/conflow/src/conflow/parameter"
 	"github.com/conflowio/conflow/src/schema"
-	"github.com/conflowio/conflow/src/util"
 )
 
 func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.BlockInterpreter) (parsley.Node, parsley.Error) {
@@ -269,7 +270,7 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 				return nil, err
 			}
 
-			if util.BoolValue(config.Input) || util.BoolValue(config.Output) {
+			if ptr.Value(config.Input) || ptr.Value(config.Output) {
 				if _, exists := interpreter.Schema().(schema.ObjectKind).GetParameters()[string(paramNode.Name())]; exists {
 					return nil, parsley.NewErrorf(c.Pos(), "%q parameter already exists.", paramNode.Name())
 				}
@@ -286,8 +287,8 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 			}
 
 			switch {
-			case util.BoolValue(config.Input):
-				if util.BoolValue(config.Required) {
+			case ptr.Value(config.Input):
+				if ptr.Value(config.Required) {
 					o.Required = append(o.Required, string(paramNode.Name()))
 				}
 
@@ -300,7 +301,7 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 
 				o.Parameters[string(paramNode.Name())] = config.Schema
 				paramNode.SetSchema(config.Schema)
-			case util.BoolValue(config.Output):
+			case ptr.Value(config.Output):
 				if config.Schema == nil {
 					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
 				}

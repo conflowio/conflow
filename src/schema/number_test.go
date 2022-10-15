@@ -34,26 +34,26 @@ var _ = Describe("Number", func() {
 		Entry("zero", &schema.Number{}, float64(0)),
 		Entry("non-zero value", &schema.Number{}, float64(1)),
 		Entry("integer", &schema.Number{}, int64(1)),
-		Entry("const value", &schema.Number{Const: schema.NumberPtr(1)}, float64(1)),
-		Entry("const value integer", &schema.Number{Const: schema.NumberPtr(1)}, int64(1)),
+		Entry("const value", &schema.Number{Const: schema.Pointer(float64(1))}, float64(1)),
+		Entry("const value integer", &schema.Number{Const: schema.Pointer(float64(1))}, int64(1)),
 		Entry("enum value - single", &schema.Number{Enum: []float64{1}}, float64(1)),
-		Entry("enum value - integer", &schema.Number{Enum: []float64{1}}, int64(1)),
+		Entry("enum value - integer", &schema.Number{Enum: []float64{1}}, float64(1)),
 		Entry("enum value - multiple", &schema.Number{Enum: []float64{1, 2}}, float64(1)),
 
-		Entry("enum value - minimum - equal", &schema.Number{Minimum: schema.NumberPtr(1)}, 1.0),
-		Entry("enum value - minimum - equal - eps", &schema.Number{Minimum: schema.NumberPtr(1)}, 1-schema.Epsilon*0.1),
-		Entry("enum value - minimum - greater", &schema.Number{Minimum: schema.NumberPtr(1)}, 2.0),
-		Entry("enum value - maximum - equal", &schema.Number{Maximum: schema.NumberPtr(2)}, 2.0),
-		Entry("enum value - maximum - equal + eps", &schema.Number{Maximum: schema.NumberPtr(2)}, 2.0+schema.Epsilon*0.1),
-		Entry("enum value - maximum - less", &schema.Number{Maximum: schema.NumberPtr(2)}, 1.0),
-		Entry("enum value - exclusive minimum", &schema.Number{ExclusiveMinimum: schema.NumberPtr(1)}, 2.0),
-		Entry("enum value - exclusive minimum - eps", &schema.Number{ExclusiveMinimum: schema.NumberPtr(1)}, 1.0+schema.Epsilon),
-		Entry("enum value - exclusive maximum", &schema.Number{ExclusiveMaximum: schema.NumberPtr(2)}, 1.0),
-		Entry("enum value - exclusive maximum", &schema.Number{ExclusiveMaximum: schema.NumberPtr(2)}, 2.0-schema.Epsilon),
-		Entry("enum value - multiple of", &schema.Number{MultipleOf: schema.NumberPtr(2)}, 4.0),
-		Entry("enum value - multiple of - eps 1", &schema.Number{MultipleOf: schema.NumberPtr(2)}, 4.0-schema.Epsilon*0.1),
-		Entry("enum value - multiple of - eps 2", &schema.Number{MultipleOf: schema.NumberPtr(2)}, 4.0+schema.Epsilon*0.1),
-		Entry("enum value - multiple of - big numbers", &schema.Number{MultipleOf: schema.NumberPtr(a)}, c),
+		Entry("enum value - minimum - equal", &schema.Number{Minimum: schema.Pointer(float64(1))}, 1.0),
+		Entry("enum value - minimum - equal - eps", &schema.Number{Minimum: schema.Pointer(float64(1))}, 1-schema.Epsilon*0.1),
+		Entry("enum value - minimum - greater", &schema.Number{Minimum: schema.Pointer(float64(1))}, 2.0),
+		Entry("enum value - maximum - equal", &schema.Number{Maximum: schema.Pointer(float64(2))}, 2.0),
+		Entry("enum value - maximum - equal + eps", &schema.Number{Maximum: schema.Pointer(float64(2))}, 2.0+schema.Epsilon*0.1),
+		Entry("enum value - maximum - less", &schema.Number{Maximum: schema.Pointer(float64(2))}, 1.0),
+		Entry("enum value - exclusive minimum", &schema.Number{ExclusiveMinimum: schema.Pointer(float64(1))}, 2.0),
+		Entry("enum value - exclusive minimum - eps", &schema.Number{ExclusiveMinimum: schema.Pointer(float64(1))}, 1.0+schema.Epsilon),
+		Entry("enum value - exclusive maximum", &schema.Number{ExclusiveMaximum: schema.Pointer(float64(2))}, 1.0),
+		Entry("enum value - exclusive maximum", &schema.Number{ExclusiveMaximum: schema.Pointer(float64(2))}, 2.0-schema.Epsilon),
+		Entry("enum value - multiple of", &schema.Number{MultipleOf: schema.Pointer(float64(2))}, 4.0),
+		Entry("enum value - multiple of - eps 1", &schema.Number{MultipleOf: schema.Pointer(float64(2))}, 4.0-schema.Epsilon*0.1),
+		Entry("enum value - multiple of - eps 2", &schema.Number{MultipleOf: schema.Pointer(float64(2))}, 4.0+schema.Epsilon*0.1),
+		Entry("enum value - multiple of - big numbers", &schema.Number{MultipleOf: schema.Pointer(a)}, c),
 	)
 
 	DescribeTable("Validate errors",
@@ -69,7 +69,7 @@ var _ = Describe("Number", func() {
 		),
 		Entry(
 			"const value",
-			&schema.Number{Const: schema.NumberPtr(1)},
+			&schema.Number{Const: schema.Pointer(float64(1))},
 			float64(2),
 			errors.New("must be 1"),
 		),
@@ -87,61 +87,61 @@ var _ = Describe("Number", func() {
 		),
 		Entry(
 			"minimum",
-			&schema.Number{Minimum: schema.NumberPtr(2)},
+			&schema.Number{Minimum: schema.Pointer(float64(2))},
 			1.0,
 			errors.New("must be greater than or equal to 2"),
 		),
 		Entry(
 			"minimum - eps",
-			&schema.Number{Minimum: schema.NumberPtr(2)},
+			&schema.Number{Minimum: schema.Pointer(float64(2))},
 			2.0-schema.Epsilon,
 			errors.New("must be greater than or equal to 2"),
 		),
 		Entry(
 			"exclusive minimum",
-			&schema.Number{ExclusiveMinimum: schema.NumberPtr(2)},
+			&schema.Number{ExclusiveMinimum: schema.Pointer(float64(2))},
 			1.0,
 			errors.New("must be greater than 2"),
 		),
 		Entry(
 			"exclusive minimum - equals",
-			&schema.Number{ExclusiveMinimum: schema.NumberPtr(2)},
+			&schema.Number{ExclusiveMinimum: schema.Pointer(float64(2))},
 			2.0,
 			errors.New("must be greater than 2"),
 		),
 		Entry(
 			"exclusive minimum + eps",
-			&schema.Number{ExclusiveMinimum: schema.NumberPtr(2)},
+			&schema.Number{ExclusiveMinimum: schema.Pointer(float64(2))},
 			2.0+schema.Epsilon*0.1,
 			errors.New("must be greater than 2"),
 		),
 		Entry(
 			"maximum",
-			&schema.Number{Maximum: schema.NumberPtr(1)},
+			&schema.Number{Maximum: schema.Pointer(float64(1))},
 			2.0,
 			errors.New("must be less than or equal to 1"),
 		),
 		Entry(
 			"maximum - eps",
-			&schema.Number{Maximum: schema.NumberPtr(1)},
+			&schema.Number{Maximum: schema.Pointer(float64(1))},
 			1.0+schema.Epsilon,
 			errors.New("must be less than or equal to 1"),
 		),
 		Entry(
 			"exclusive maximum",
-			&schema.Number{ExclusiveMaximum: schema.NumberPtr(1)},
+			&schema.Number{ExclusiveMaximum: schema.Pointer(float64(1))},
 			2.0,
 			errors.New("must be less than 1"),
 		),
 		Entry(
 			"exclusive maximum - equals",
-			&schema.Number{ExclusiveMaximum: schema.NumberPtr(1)},
+			&schema.Number{ExclusiveMaximum: schema.Pointer(float64(1))},
 			1.0,
 			errors.New("must be less than 1"),
 		),
 		Entry(
 			"exclusive maximum - eps",
-			&schema.Number{ExclusiveMaximum: schema.NumberPtr(1)},
+			&schema.Number{ExclusiveMaximum: schema.Pointer(float64(1))},
 			1.0-schema.Epsilon*0.1,
 			errors.New("must be less than 1"),
 		),
@@ -160,16 +160,16 @@ var _ = Describe("Number", func() {
 		),
 		Entry(
 			"const",
-			&schema.Number{Const: schema.NumberPtr(1.2)},
+			&schema.Number{Const: schema.Pointer(1.2)},
 			`&schema.Number{
-	Const: schema.NumberPtr(1.2),
+	Const: schema.Pointer(float64(1.2)),
 }`,
 		),
 		Entry(
 			"default",
-			&schema.Number{Default: schema.NumberPtr(1.2)},
+			&schema.Number{Default: schema.Pointer(1.2)},
 			`&schema.Number{
-	Default: schema.NumberPtr(1.2),
+	Default: schema.Pointer(float64(1.2)),
 }`,
 		),
 		Entry(
@@ -181,37 +181,37 @@ var _ = Describe("Number", func() {
 		),
 		Entry(
 			"minimum",
-			&schema.Number{Minimum: schema.NumberPtr(1)},
+			&schema.Number{Minimum: schema.Pointer(float64(1))},
 			`&schema.Number{
-	Minimum: schema.NumberPtr(1),
+	Minimum: schema.Pointer(float64(1)),
 }`,
 		),
 		Entry(
 			"maximum",
-			&schema.Number{Maximum: schema.NumberPtr(1)},
+			&schema.Number{Maximum: schema.Pointer(float64(1))},
 			`&schema.Number{
-	Maximum: schema.NumberPtr(1),
+	Maximum: schema.Pointer(float64(1)),
 }`,
 		),
 		Entry(
 			"exclusive minimum",
-			&schema.Number{ExclusiveMinimum: schema.NumberPtr(1)},
+			&schema.Number{ExclusiveMinimum: schema.Pointer(float64(1))},
 			`&schema.Number{
-	ExclusiveMinimum: schema.NumberPtr(1),
+	ExclusiveMinimum: schema.Pointer(float64(1)),
 }`,
 		),
 		Entry(
 			"exclusive maximum",
-			&schema.Number{ExclusiveMaximum: schema.NumberPtr(1)},
+			&schema.Number{ExclusiveMaximum: schema.Pointer(float64(1))},
 			`&schema.Number{
-	ExclusiveMaximum: schema.NumberPtr(1),
+	ExclusiveMaximum: schema.Pointer(float64(1)),
 }`,
 		),
 		Entry(
 			"multiple of",
-			&schema.Number{MultipleOf: schema.NumberPtr(1)},
+			&schema.Number{MultipleOf: schema.Pointer(float64(1))},
 			`&schema.Number{
-	MultipleOf: schema.NumberPtr(1),
+	MultipleOf: schema.Pointer(float64(1)),
 }`,
 		),
 		Entry(
@@ -225,8 +225,8 @@ var _ = Describe("Number", func() {
 
 	It("should marshal/unmarshal", func() {
 		n := &schema.Number{
-			Const:   schema.NumberPtr(1),
-			Default: schema.NumberPtr(2),
+			Const:   schema.Pointer(float64(1)),
+			Default: schema.Pointer(float64(2)),
 			Enum:    []float64{3},
 		}
 		j, err := json.Marshal(n)
