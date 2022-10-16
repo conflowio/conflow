@@ -8,6 +8,7 @@ package parsers
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -21,6 +22,7 @@ import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/block"
+	"github.com/conflowio/conflow/src/functions/strings"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)
@@ -97,7 +99,7 @@ func (m *Main) ParseFile(ctx *conflow.ParseContext, path string) error {
 	return err
 }
 
-func (m *Main) ParseDir(ctx *conflow.ParseContext, dir string) error {
+func (m *Main) ParseDir(ctx *conflow.ParseContext, dir string, recursive bool) error {
 	info, err := os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -108,9 +110,28 @@ func (m *Main) ParseDir(ctx *conflow.ParseContext, dir string) error {
 		return fmt.Errorf("path %q is not a directory", dir)
 	}
 
-	paths, err := filepath.Glob(path.Join(dir, "*.cf"))
-	if err != nil {
-		return err
+	var paths []string
+	if !recursive {
+		var err error
+		if paths, err = filepath.Glob(path.Join(dir, "*.cf")); err != nil {
+			return err
+		}
+	} else {
+		walker := func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if strings.HasSuffix(path, ".cf") {
+				paths = append(paths, path)
+			}
+
+			return nil
+		}
+
+		if err := filepath.WalkDir(dir, walker); err != nil {
+			return err
+		}
 	}
 
 	if len(paths) == 0 {
