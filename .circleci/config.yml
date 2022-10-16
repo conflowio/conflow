@@ -4,6 +4,7 @@ jobs:
     docker:
       - image: cimg/go:1.19
     working_directory: /home/circleci/go/src/github.com/conflowio/conflow
+    resource_class: large
     steps:
       - checkout
       - run: make check
