@@ -13,20 +13,13 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// @min_length 1
-type nonEmptyString = string
-
-// @min_items 1
-// @unique_items
-type uniqueNonEmptyStringList = []nonEmptyString
-
 // @block "directive"
 type DependentRequired struct {
 	// @id
 	id conflow.ID
 	// @value
 	// @required
-	Value map[string]uniqueNonEmptyStringList
+	Value map[string]schema.UniqueNonEmptyStringList
 }
 
 func (d *DependentRequired) ID() conflow.ID {
