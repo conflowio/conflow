@@ -17,6 +17,7 @@ import (
 
 	"github.com/conflowio/conflow/cmd/conflow/generate"
 	"github.com/conflowio/conflow/cmd/conflow/openapi"
+	"github.com/conflowio/conflow/src/conflow"
 )
 
 func rootCommand() *cobra.Command {
@@ -26,14 +27,28 @@ func rootCommand() *cobra.Command {
 		Args:          cobra.NoArgs,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		Version:       conflow.Version,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
 		},
 	}
 
+	cmd.AddCommand(versionCmd())
 	cmd.AddCommand(generate.Command())
 	cmd.AddCommand(openapi.Command())
 
+	return cmd
+}
+
+func versionCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "version",
+		Short: "Returns the version number",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Println(conflow.Version)
+		},
+	}
 	return cmd
 }
 

@@ -1,8 +1,14 @@
 .DEFAULT_GOAL := help
 
+VERSION := $(shell git describe --tags --always --dirty --match "v[0-9]+(\.[0-9]+)*(-.*)*")
+
 .PHONY: help
 help: ## Show help
 	@cat $(MAKEFILE_LIST) | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: version
+version:
+	@echo "${VERSION}"
 
 .PHONY: test
 test: ## Runs all tests
@@ -18,7 +24,7 @@ build: bin/conflow ## Build the conflow binary
 bin/conflow:
 	@echo "Building bin/conflow"
 	@go version
-	@GOBIN="$(PWD)/bin" go install -ldflags="-s -w" ./cmd/conflow/
+	GOBIN="$(PWD)/bin" go install -ldflags="-s -w -X github.com/conflowio/conflow/src/conflow.Version=${VERSION}" ./cmd/conflow/
 
 .PHONY: clean
 clean: ## Clean all built files
