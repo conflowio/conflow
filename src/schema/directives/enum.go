@@ -31,7 +31,7 @@ func (e *Enum) ApplyToSchema(s schema.Schema) error {
 	for i, v := range e.values {
 		nv, err := s.ValidateValue(v)
 		if err != nil {
-			return fmt.Errorf("enum value %q is invalid: %w", schema.UntypedValue().StringValue(v), err)
+			return fmt.Errorf("enum value %q is invalid: %w", schema.AnyValue().StringValue(v), err)
 		}
 		values[i] = nv
 	}

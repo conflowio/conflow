@@ -29,7 +29,7 @@ type Map struct {
 }
 
 func (m *Map) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if m.AdditionalProperties.Type() == TypeUntyped {
+	if m.AdditionalProperties.Type() == TypeAny {
 		return fmt.Sprintf("%s = %s.(map[string]interface{})", resultName, valueName)
 	}
 
@@ -120,7 +120,7 @@ func (m *Map) DefaultValue() interface{} {
 
 func (m *Map) GetAdditionalProperties() Schema {
 	if m.AdditionalProperties == nil {
-		return UntypedValue()
+		return AnyValue()
 	}
 
 	return m.AdditionalProperties
@@ -340,5 +340,5 @@ func (m *Map) join(elems []map[string]interface{}, sep string) string {
 }
 
 func isTypedMap(o *Map) bool {
-	return o.GetAdditionalProperties().Type() != TypeUntyped
+	return o.GetAdditionalProperties().Type() != TypeAny
 }

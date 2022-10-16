@@ -22,7 +22,7 @@ func init() {
 		ParameterNames:    map[string]string{"FieldArray": "field_array", "FieldBool": "field_bool", "FieldFloat": "field_float", "FieldIdentifier": "field_identifier", "FieldInteger": "field_integer", "FieldInterface": "field_interface", "FieldMap": "field_map", "FieldNumber": "field_number", "FieldString": "field_string", "FieldStringArray": "field_string_array", "FieldTime": "field_time", "FieldTimeDuration": "field_time_duration", "IDField": "id_field"},
 		Properties: map[string]schema.Schema{
 			"FieldArray": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"FieldBool":  &schema.Boolean{},
 			"FieldFloat": &schema.Number{},
@@ -36,11 +36,11 @@ func init() {
 				Format: "conflow.ID",
 			},
 			"FieldInteger":   &schema.Integer{},
-			"FieldInterface": &schema.Untyped{},
+			"FieldInterface": &schema.Any{},
 			"FieldMap": &schema.Map{
-				AdditionalProperties: &schema.Untyped{},
+				AdditionalProperties: &schema.Any{},
 			},
-			"FieldNumber": &schema.Untyped{
+			"FieldNumber": &schema.Any{
 				Types: []string{"integer", "number"},
 			},
 			"FieldString": &schema.String{},

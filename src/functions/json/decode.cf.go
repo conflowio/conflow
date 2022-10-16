@@ -18,7 +18,7 @@ func init() {
 				Schema: &schema.String{},
 			},
 		},
-		Result: &schema.Untyped{},
+		Result: &schema.Any{},
 	})
 }
 

@@ -33,7 +33,7 @@ func init() {
 						annotations.Value: "true",
 					},
 				},
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 		},
 		Required: []string{"values"},

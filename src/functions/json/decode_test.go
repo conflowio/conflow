@@ -63,7 +63,7 @@ var _ = Describe("Decode", func() {
 		test.ExpectFunctionNode(parsers.Expression(), registry)(
 			`test("")`,
 			func(userCtx interface{}, node parsley.Node) {
-				Expect(node.Schema().(schema.Schema).Type()).To(Equal(schema.TypeUntyped))
+				Expect(node.Schema().(schema.Schema).Type()).To(Equal(schema.TypeAny))
 			},
 		)
 	})

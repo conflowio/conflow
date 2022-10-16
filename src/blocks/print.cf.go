@@ -28,7 +28,7 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"value": &schema.Untyped{
+			"value": &schema.Any{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.Value: "true",

@@ -62,12 +62,12 @@ func UnmarshalJSON(b []byte) (Schema, error) {
 	case bytes.Equal(b, []byte("false")):
 		return False(), nil
 	case bytes.Equal(b, []byte("true")), bytes.Equal(b, []byte("{}")):
-		return &Untyped{}, nil
+		return &Any{}, nil
 	}
 
 	schemaType := gjson.GetBytes(b, "type")
 	if !schemaType.Exists() || schemaType.IsArray() {
-		s := &Untyped{}
+		s := &Any{}
 		if err := json.Unmarshal(b, s); err != nil {
 			return nil, err
 		}
@@ -190,87 +190,78 @@ func GetSchemaForValues(cnt int, s func(i int) (Schema, error)) (Schema, error) 
 	if err != nil {
 		return nil, err
 	}
+	if s1.Type() == TypeAny {
+		return s1, nil
+	}
 
 	for i := 1; i < cnt; i++ {
 		s2, err := s(i)
 		if err != nil {
 			return nil, err
 		}
-		s1, err = GetCommonSchema(s1, s2)
-		if err != nil {
-			return nil, err
+		s1 = GetCommonSchema(s1, s2)
+		if s1.Type() == TypeAny {
+			return s1, nil
 		}
 	}
 
 	return s1, nil
 }
 
-func GetCommonSchema(s1, s2 Schema) (Schema, error) {
+func GetCommonSchema(s1, s2 Schema) Schema {
 	switch s1.Type() {
+	case TypeAny:
+		return s1
 	case TypeArray:
 		if s2.Type() == TypeNull {
-			return s1, nil
+			return s1
 		}
 
 		if s2a, ok := s2.(*Array); ok {
-			items, err := GetCommonSchema(s1.(*Array).Items, s2a.Items)
-			if err != nil {
-				return nil, err
-			}
-
 			return &Array{
-				Items: items,
-			}, nil
+				Items: GetCommonSchema(s1.(*Array).Items, s2a.Items),
+			}
 		}
 	case TypeMap:
 		if s2.Type() == TypeNull {
-			return s1, nil
+			return s1
 		}
 
 		if s2m, ok := s2.(*Map); ok {
-			additionalProperties, err := GetCommonSchema(
-				s1.(*Map).GetAdditionalProperties(),
-				s2m.GetAdditionalProperties(),
-			)
-			if err != nil {
-				return nil, err
-			}
-
 			return &Map{
-				AdditionalProperties: additionalProperties,
-			}, nil
+				AdditionalProperties: GetCommonSchema(
+					s1.(*Map).GetAdditionalProperties(),
+					s2m.GetAdditionalProperties(),
+				),
+			}
 		}
 	case TypeObject:
 		panic("GetCommonSchema should not be called for objects")
 	case TypeInteger:
 		if s2.Type() == TypeInteger {
-			return s1, nil
+			return s1
 		}
 
 		if s2.Type() == TypeNumber {
-			return s2, nil
+			return s2
 		}
 	case TypeNumber:
 		if s2.Type() == TypeNumber || s2.Type() == TypeInteger {
-			return s1, nil
+			return s1
 		}
 	case TypeNull:
 		if s2.Type() == TypeNull {
-			return s1, nil
+			return s1
 		}
 
 		if s2.Type() == TypeArray || s2.Type() == TypeMap {
-			return s2, nil
+			return s2
 		}
 	default:
 		if s1.Type() == s2.Type() {
-			return s1, nil
+			return s1
 		}
 	}
 
-	return nil, fmt.Errorf(
-		"items must have the same type, but found %s and %s",
-		s1.TypeString(),
-		s2.TypeString(),
-	)
+	return AnyValue()
 }

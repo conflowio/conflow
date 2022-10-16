@@ -16,12 +16,12 @@ func init() {
 			schema.NamedSchema{
 				Name: "arr",
 				Schema: &schema.Array{
-					Items: &schema.Untyped{},
+					Items: &schema.Any{},
 				},
 			},
 			schema.NamedSchema{
 				Name:   "elem",
-				Schema: &schema.Untyped{},
+				Schema: &schema.Any{},
 			},
 		},
 		Result: &schema.Boolean{},

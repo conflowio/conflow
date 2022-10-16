@@ -15,12 +15,12 @@ func init() {
 		Parameters: schema.Parameters{
 			schema.NamedSchema{
 				Name: "value",
-				Schema: &schema.Untyped{
+				Schema: &schema.Any{
 					Types: []string{"integer", "number"},
 				},
 			},
 		},
-		Result:         &schema.Untyped{},
+		Result:         &schema.Any{},
 		ResultTypeFrom: "value",
 	})
 }

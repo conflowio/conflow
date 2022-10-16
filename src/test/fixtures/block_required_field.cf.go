@@ -29,7 +29,7 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"required": &schema.Untyped{},
+			"required": &schema.Any{},
 		},
 		Required: []string{"required"},
 	})

@@ -23,7 +23,7 @@ func init() {
 			},
 		},
 		Result: &schema.Array{
-			Items: &schema.Untyped{},
+			Items: &schema.Any{},
 		},
 	})
 }

@@ -55,8 +55,8 @@ func (t ternaryInterpreter) StaticCheck(ctx interface{}, node parsley.NonTermina
 		return nil, parsley.NewError(nodes[0].Pos(), errors.New("must be boolean"))
 	}
 
-	s, err := schema.GetCommonSchema(nodes[2].Schema().(schema.Schema), nodes[4].Schema().(schema.Schema))
-	if err != nil {
+	s := schema.GetCommonSchema(nodes[2].Schema().(schema.Schema), nodes[4].Schema().(schema.Schema))
+	if s.Type() == schema.TypeAny {
 		return nil, parsley.NewErrorf(
 			nodes[2].Pos(),
 			"both expressions must have the same type, but got %s and %s",

@@ -43,6 +43,7 @@ var _ = Describe("String", func() {
 		test.TableEntry(`test(["foo", "bar"])`, "[foo, bar]"),
 		test.TableEntry(`test([1s, 2s])`, "[1s, 2s]"),
 		test.TableEntry(`test([[1, 2], [3, 4]])`, "[[1, 2], [3, 4]]"),
+		test.TableEntry(`test([1, "foo"])`, `[1, foo]`),
 	)
 
 	DescribeTable("it will have a parse error",
@@ -51,7 +52,6 @@ var _ = Describe("String", func() {
 		},
 		test.TableEntry(`test()`, errors.New("test requires exactly 1 argument, but got 0 at testfile:1:1")),
 		test.TableEntry(`test(1, 2)`, errors.New("test requires exactly 1 argument, but got 2 at testfile:1:9")),
-		test.TableEntry(`test([1, "foo"])`, errors.New("items must have the same type, but found integer and string at testfile:1:6")),
 	)
 
 	It("should return with string type", func() {

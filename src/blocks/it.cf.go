@@ -27,7 +27,7 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"key": &schema.Untyped{
+			"key": &schema.Any{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.EvalStage: "close",
@@ -35,7 +35,7 @@ func init() {
 					ReadOnly: true,
 				},
 			},
-			"value": &schema.Untyped{
+			"value": &schema.Any{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.EvalStage: "close",

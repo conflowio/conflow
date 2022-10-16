@@ -9,7 +9,7 @@ package schema
 type Type string
 
 const (
-	TypeUntyped    Type = ""
+	TypeAny        Type = ""
 	TypeArray      Type = "array"
 	TypeByteStream Type = "byte_stream"
 	TypeBoolean    Type = "boolean"
@@ -25,14 +25,14 @@ const (
 )
 
 var typeSchemas = map[Type]Schema{
-	TypeUntyped:    UntypedValue(),
-	TypeArray:      &Array{Items: UntypedValue()},
+	TypeAny:        AnyValue(),
+	TypeArray:      &Array{Items: AnyValue()},
 	TypeByteStream: ByteStreamValue(),
 	TypeBoolean:    BooleanValue(),
 	TypeFalse:      False(),
 	TypeFunction:   &Function{},
 	TypeInteger:    IntegerValue(),
-	TypeMap:        &Map{AdditionalProperties: UntypedValue()},
+	TypeMap:        &Map{AdditionalProperties: AnyValue()},
 	TypeNull:       NullValue(),
 	TypeNumber:     NumberValue(),
 	TypeObject:     &Object{},

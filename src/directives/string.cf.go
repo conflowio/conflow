@@ -39,7 +39,7 @@ func init() {
 				Items: &schema.String{},
 			},
 			"examples": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"format": &schema.String{},
 			"maxLength": &schema.Integer{

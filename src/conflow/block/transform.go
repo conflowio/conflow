@@ -120,7 +120,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 			valueParamName := interpreter.ValueParamName()
 			if keyNode != nil && valueParamName != "" {
 				valueParamSchema, _ := interpreter.Schema().(*schema.Object).PropertyByParameterName(string(valueParamName))
-				if valueParamSchema.Type() == schema.TypeString || valueParamSchema.Type() == schema.TypeUntyped {
+				if valueParamSchema.Type() == schema.TypeString || valueParamSchema.Type() == schema.TypeAny {
 					children = []conflow.Node{
 						parameter.NewNode(
 							idNode.ID(),

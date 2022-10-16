@@ -14,14 +14,14 @@ func init() {
 		},
 		AdditionalParameters: &schema.NamedSchema{
 			Name: "rest",
-			Schema: &schema.Untyped{
+			Schema: &schema.Any{
 				Types: []string{"integer", "number"},
 			},
 		},
 		Parameters: schema.Parameters{
 			schema.NamedSchema{
 				Name: "min",
-				Schema: &schema.Untyped{
+				Schema: &schema.Any{
 					Types: []string{"integer", "number"},
 				},
 			},

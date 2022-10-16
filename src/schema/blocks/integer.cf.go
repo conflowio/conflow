@@ -37,7 +37,7 @@ func init() {
 				Items: &schema.Integer{},
 			},
 			"examples": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"exclusiveMaximum": &schema.Integer{
 				Nullable: true,

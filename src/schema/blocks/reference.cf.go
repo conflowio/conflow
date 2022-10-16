@@ -35,7 +35,7 @@ func init() {
 			"deprecated":  &schema.Boolean{},
 			"description": &schema.String{},
 			"examples": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"nullable":  &schema.Boolean{},
 			"readOnly":  &schema.Boolean{},

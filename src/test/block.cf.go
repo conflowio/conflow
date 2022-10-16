@@ -34,14 +34,14 @@ func init() {
 				},
 			},
 			"FieldArray": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"FieldBool":       &schema.Boolean{},
 			"FieldCustomName": &schema.String{},
 			"FieldFloat":      &schema.Number{},
 			"FieldInt":        &schema.Integer{},
 			"FieldMap": &schema.Map{
-				AdditionalProperties: &schema.Untyped{},
+				AdditionalProperties: &schema.Any{},
 			},
 			"FieldString": &schema.String{},
 			"FieldTimeDuration": &schema.String{
@@ -56,7 +56,7 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"Value": &schema.Untyped{
+			"Value": &schema.Any{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{
 						annotations.Value: "true",

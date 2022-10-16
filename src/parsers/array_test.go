@@ -47,14 +47,8 @@ var _ = Describe("Array", func() {
 			test.TableEntry("[\n1\n]", []interface{}{int64(1)}),
 			test.TableEntry("[\n1,\n]", []interface{}{int64(1)}),
 			test.TableEntry(`[1, 2.1]`, []interface{}{int64(1), 2.1}),
-		)
-
-		DescribeTable("it returns a static check error",
-			func(input string, expectedErr error) {
-				test.ExpectParserToHaveStaticCheckError(&p)(input, expectedErr)
-			},
-			test.TableEntry(`[1, "foo"]`, errors.New("items must have the same type, but found integer and string at testfile:1:1")),
-			test.TableEntry(`[[1, 2], [3, "foo"]]`, errors.New("items must have the same type, but found integer and string at testfile:1:10")),
+			test.TableEntry(`[1, "foo"]`, []interface{}{int64(1), "foo"}),
+			test.TableEntry(`[[1, 2], [3, "foo"]]`, []interface{}{[]interface{}{int64(1), int64(2)}, []interface{}{int64(3), "foo"}}),
 		)
 
 		DescribeTable("it returns a parse error",

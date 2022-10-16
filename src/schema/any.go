@@ -16,16 +16,16 @@ import (
 	"strings"
 )
 
-type Untyped struct {
+type Any struct {
 	Metadata
 	Types []string `json:"type,omitempty"`
 }
 
-func (u *Untyped) AssignValue(_ map[string]string, valueName, resultName string) string {
+func (a *Any) AssignValue(_ map[string]string, valueName, resultName string) string {
 	return fmt.Sprintf("%s = %s", resultName, valueName)
 }
 
-func (u *Untyped) CompareValues(v1, v2 interface{}) int {
+func (a *Any) CompareValues(v1, v2 interface{}) int {
 	switch {
 	case reflect.DeepEqual(v1, v2):
 		return 0
@@ -34,13 +34,13 @@ func (u *Untyped) CompareValues(v1, v2 interface{}) int {
 	}
 }
 
-func (u *Untyped) Copy() Schema {
-	j, err := json.Marshal(u)
+func (a *Any) Copy() Schema {
+	j, err := json.Marshal(a)
 	if err != nil {
 		panic(fmt.Errorf("failed to encode schema: %w", err))
 	}
 
-	cp := &Untyped{}
+	cp := &Any{}
 	if err := json.Unmarshal(j, cp); err != nil {
 		panic(fmt.Errorf("failed to decode schema: %w", err))
 	}
@@ -48,28 +48,28 @@ func (u *Untyped) Copy() Schema {
 	return cp
 }
 
-func (u *Untyped) DefaultValue() interface{} {
+func (a *Any) DefaultValue() interface{} {
 	return nil
 }
 
-func (u *Untyped) GoString(imports map[string]string) string {
+func (a *Any) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Untyped{\n")
-	if !reflect.ValueOf(u.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(u.Metadata.GoString(imports)))
+	buf.WriteString("&schema.Any{\n")
+	if !reflect.ValueOf(a.Metadata).IsZero() {
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString(imports)))
 	}
-	if len(u.Types) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tTypes: %#v,\n", u.Types)
+	if len(a.Types) > 0 {
+		_, _ = fmt.Fprintf(buf, "\tTypes: %#v,\n", a.Types)
 	}
 	buf.WriteRune('}')
 	return buf.String()
 }
 
-func (u *Untyped) GoType(_ map[string]string) string {
+func (a *Any) GoType(_ map[string]string) string {
 	return "interface{}"
 }
 
-func (u *Untyped) StringValue(value interface{}) string {
+func (a *Any) StringValue(value interface{}) string {
 	switch v := value.(type) {
 	case nil:
 		return "null"
@@ -80,7 +80,7 @@ func (u *Untyped) StringValue(value interface{}) string {
 	case float64:
 		return strconv.FormatFloat(v, 'f', -1, 64)
 	case string:
-		return strconv.Quote(v)
+		return v
 	case []interface{}:
 		if len(v) == 0 {
 			return "[]"
@@ -88,10 +88,10 @@ func (u *Untyped) StringValue(value interface{}) string {
 
 		var sb strings.Builder
 		sb.WriteRune('[')
-		sb.WriteString(u.StringValue(v[0]))
+		sb.WriteString(a.StringValue(v[0]))
 		for _, e := range v[1:] {
 			sb.WriteString(", ")
-			sb.WriteString(u.StringValue(e))
+			sb.WriteString(a.StringValue(e))
 		}
 		sb.WriteRune(']')
 		return sb.String()
@@ -106,12 +106,12 @@ func (u *Untyped) StringValue(value interface{}) string {
 		sb.WriteRune('{')
 		sb.WriteString(keys[0])
 		sb.WriteString(": ")
-		sb.WriteString(u.StringValue(v[keys[0]]))
+		sb.WriteString(a.StringValue(v[keys[0]]))
 		for _, k := range keys[1:] {
 			sb.WriteString(", ")
 			sb.WriteString(k)
 			sb.WriteString(": ")
-			sb.WriteString(u.StringValue(v[k]))
+			sb.WriteString(a.StringValue(v[k]))
 		}
 		sb.WriteRune('}')
 		return sb.String()
@@ -124,21 +124,21 @@ func (u *Untyped) StringValue(value interface{}) string {
 	}
 }
 
-func (u *Untyped) Type() Type {
-	return TypeUntyped
+func (a *Any) Type() Type {
+	return TypeAny
 }
 
-func (u *Untyped) TypeString() string {
-	return "untyped"
+func (a *Any) TypeString() string {
+	return "any"
 }
 
-func (u *Untyped) ValidateSchema(s Schema, compare bool) error {
-	if len(u.Types) == 0 {
+func (a *Any) ValidateSchema(s Schema, compare bool) error {
+	if len(a.Types) == 0 {
 		return nil
 	}
 
 	isValid := false
-	for _, t := range u.Types {
+	for _, t := range a.Types {
 		if err := typeSchemas[Type(t)].ValidateSchema(s, compare); err == nil {
 			isValid = true
 			break
@@ -146,26 +146,26 @@ func (u *Untyped) ValidateSchema(s Schema, compare bool) error {
 	}
 
 	if !isValid {
-		if len(u.Types) == 1 {
-			return fmt.Errorf("was expecting %s", u.Types[0])
+		if len(a.Types) == 1 {
+			return fmt.Errorf("was expecting %s", a.Types[0])
 		}
 		return fmt.Errorf(
 			"was expecting %s or %s",
-			strings.Join(u.Types[0:len(u.Types)-1], ", "),
-			u.Types[len(u.Types)-1],
+			strings.Join(a.Types[0:len(a.Types)-1], ", "),
+			a.Types[len(a.Types)-1],
 		)
 	}
 
 	return nil
 }
 
-func (u *Untyped) ValidateValue(v interface{}) (interface{}, error) {
-	if len(u.Types) == 0 {
+func (a *Any) ValidateValue(v interface{}) (interface{}, error) {
+	if len(a.Types) == 0 {
 		return v, nil
 	}
 
 	isValid := false
-	for _, t := range u.Types {
+	for _, t := range a.Types {
 		nv, err := typeSchemas[Type(t)].ValidateValue(v)
 		if err == nil {
 			v = nv
@@ -175,35 +175,35 @@ func (u *Untyped) ValidateValue(v interface{}) (interface{}, error) {
 	}
 
 	if !isValid {
-		if len(u.Types) == 1 {
-			return nil, fmt.Errorf("was expecting %s", u.Types[0])
+		if len(a.Types) == 1 {
+			return nil, fmt.Errorf("was expecting %s", a.Types[0])
 		}
 		return nil, fmt.Errorf(
 			"was expecting %s or %s",
-			strings.Join(u.Types[0:len(u.Types)-1], ", "),
-			u.Types[len(u.Types)-1],
+			strings.Join(a.Types[0:len(a.Types)-1], ", "),
+			a.Types[len(a.Types)-1],
 		)
 	}
 
 	return v, nil
 }
 
-func UntypedValue() Schema {
-	return untypedValueInst
+func AnyValue() Schema {
+	return anyValueInst
 }
 
-var untypedValueInst = &untypedValue{
-	Untyped: &Untyped{},
+var anyValueInst = &anyValue{
+	Any: &Any{},
 }
 
-type untypedValue struct {
-	*Untyped
+type anyValue struct {
+	*Any
 }
 
-func (u *untypedValue) Copy() Schema {
-	return untypedValueInst
+func (u *anyValue) Copy() Schema {
+	return anyValueInst
 }
 
-func (u *untypedValue) GoString(map[string]string) string {
-	return "schema.UntypedValue()"
+func (u *anyValue) GoString(map[string]string) string {
+	return "schema.AnyValue()"
 }

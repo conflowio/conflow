@@ -129,7 +129,7 @@ func ParseField(
 			switch s := fieldSchema.(type) {
 			case *schema.Reference:
 				actualType = s.Ref
-			case *schema.Untyped:
+			case *schema.Any:
 				actualType = "interface{}"
 			default:
 				actualType = s.TypeString()
@@ -319,7 +319,7 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 		}
 		return nil, false, fmt.Errorf("unexpected ast node: %T: %v", typeNode, typeNode)
 	case *ast.InterfaceType:
-		return &schema.Untyped{}, false, nil
+		return &schema.Any{}, false, nil
 	case *ast.Ellipsis:
 		return getBaseSchemaForType(parseCtx, tn.Elt, pkg)
 	default:

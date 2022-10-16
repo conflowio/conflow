@@ -27,10 +27,10 @@ func init() {
 				AdditionalProperties: &schema.String{},
 			},
 			"const": &schema.Map{
-				AdditionalProperties: &schema.Untyped{},
+				AdditionalProperties: &schema.Any{},
 			},
 			"default": &schema.Map{
-				AdditionalProperties: &schema.Untyped{},
+				AdditionalProperties: &schema.Any{},
 			},
 			"dependentRequired": &schema.Map{
 				AdditionalProperties: &schema.Array{
@@ -41,11 +41,11 @@ func init() {
 			"description": &schema.String{},
 			"enum": &schema.Array{
 				Items: &schema.Map{
-					AdditionalProperties: &schema.Untyped{},
+					AdditionalProperties: &schema.Any{},
 				},
 			},
 			"examples": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"maxProperties": &schema.Integer{
 				Nullable: true,

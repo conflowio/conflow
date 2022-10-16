@@ -31,7 +31,7 @@ type Array struct {
 }
 
 func (a *Array) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if a.Items.Type() == TypeUntyped {
+	if a.Items.Type() == TypeAny {
 		return fmt.Sprintf("%s = %s.([]interface{})", resultName, valueName)
 	}
 
@@ -181,7 +181,7 @@ func (a *Array) Type() Type {
 }
 
 func (a *Array) TypeString() string {
-	if a.Items.Type() == TypeUntyped {
+	if a.Items.Type() == TypeAny {
 		return "array"
 	}
 

@@ -27,7 +27,7 @@ func init() {
 						annotations.Value: "true",
 					},
 				},
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{

@@ -27,7 +27,7 @@ func (t *Types) ID() conflow.ID {
 }
 
 func (t *Types) ApplyToSchema(s schema.Schema) error {
-	u, ok := s.(*schema.Untyped)
+	u, ok := s.(*schema.Any)
 	if !ok {
 		return fmt.Errorf("@types can only be used on an interface{} type")
 	}
