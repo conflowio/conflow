@@ -30,6 +30,7 @@ func generateCommand() *cobra.Command {
 	var format string
 	var compact bool
 	var stdin bool
+	var recursive bool
 
 	cmd := &cobra.Command{
 		Use:     "generate",
@@ -92,7 +93,7 @@ func generateCommand() *cobra.Command {
 					return err
 				}
 				if fileInfo.IsDir() {
-					if err := p.ParseDir(parseCtx, target); err != nil {
+					if err := p.ParseDir(parseCtx, target, recursive); err != nil {
 						return err
 					}
 				} else {
@@ -153,8 +154,9 @@ func generateCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&format, "format", "json", "Output format: json, or yaml")
-	cmd.Flags().BoolVar(&compact, "compact", false, "Whether to compact output (applies to json only)")
-	cmd.Flags().BoolVar(&stdin, "stdin", false, "Whether to read from stdin")
+	cmd.Flags().BoolVar(&compact, "compact", false, "Compact output (applies to json only)")
+	cmd.Flags().BoolVar(&stdin, "stdin", false, "Read from stdin")
+	cmd.Flags().BoolVarP(&recursive, "recursive", "r", false, "Read files recursively when a directory name is given")
 
 	return cmd
 }

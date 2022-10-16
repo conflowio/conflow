@@ -49,6 +49,7 @@ func (i *Import) BlockInterpreters(parseCtx *conflow.ParseContext) (map[conflow.
 	if err := p.ParseDir(
 		parseCtx,
 		i.path,
+		false,
 	); err != nil {
 		return nil, err
 	}
