@@ -113,6 +113,10 @@ func (m *Main) ParseDir(ctx *conflow.ParseContext, dir string) error {
 		return err
 	}
 
+	if len(paths) == 0 {
+		return fmt.Errorf("there are no .cf files in %s", dir)
+	}
+
 	return m.ParseFiles(ctx, paths...)
 }
 
