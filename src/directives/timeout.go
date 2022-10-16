@@ -9,9 +9,8 @@ package directives
 import (
 	"time"
 
-	"github.com/conflowio/conflow/src/util/ptr"
-
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 //	@block {

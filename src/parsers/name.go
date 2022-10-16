@@ -16,9 +16,10 @@ import (
 )
 
 // Name parses a name expression:
-//   S  -> ID
-//         ID SEP ID
-//   ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//
+//	S  -> ID
+//	      ID SEP ID
+//	ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 func Name(sep rune) *combinator.Sequence {
 	lookup := func(i int) parsley.Parser {
 		switch i {

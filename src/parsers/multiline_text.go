@@ -21,10 +21,12 @@ import (
 
 // MultilineText parses a multiline text in the following format:
 //
-// '''
-//   first line
-//   second line
-// '''
+// ”'
+//
+//	first line
+//	second line
+//
+// ”'
 //
 // This will result in "first line\nsecond line\n".
 //

@@ -9,11 +9,10 @@ package blocks
 import (
 	"context"
 
-	"github.com/conflowio/conflow/src/conflow/annotations"
-
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 

@@ -27,6 +27,7 @@ type Block interface {
 }
 
 // BlockContainer is a simple wrapper around a block object
+//
 //counterfeiter:generate . BlockContainer
 type BlockContainer interface {
 	Container
@@ -54,8 +55,8 @@ type BlockCloser interface {
 
 // BlockPublisher defines an interface which generator blocks should use to publish generated blocks
 // The PublishBlock function will either:
-//  * return immediately with published=false if the block is not a dependency of other blocks
-//  * otherwise it will block until all other blocks depending on the published block will finish running
+//   - return immediately with published=false if the block is not a dependency of other blocks
+//   - otherwise it will block until all other blocks depending on the published block will finish running
 //
 // If the onScheduled function is not nil, it will be called after the published block was scheduled
 type BlockPublisher interface {
@@ -63,6 +64,7 @@ type BlockPublisher interface {
 }
 
 // BlockNode is the AST node for a block
+//
 //counterfeiter:generate . BlockNode
 type BlockNode interface {
 	Node
@@ -76,6 +78,7 @@ type BlockNode interface {
 }
 
 // BlockNodeRegistry is an interface for looking up named blocks
+//
 //counterfeiter:generate . BlockNodeRegistry
 type BlockNodeRegistry interface {
 	BlockNode(ID) (BlockNode, bool)
@@ -88,6 +91,7 @@ type BlockTransformerRegistryAware interface {
 }
 
 // BlockInterpreter defines an interpreter for blocks
+//
 //counterfeiter:generate . BlockInterpreter
 type BlockInterpreter interface {
 	Schema() schema.Schema

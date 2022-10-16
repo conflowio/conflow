@@ -12,8 +12,6 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/conflowio/conflow/src/conflow/annotations"
-
 	"github.com/conflowio/parsley/ast"
 	"github.com/conflowio/parsley/combinator"
 	"github.com/conflowio/parsley/data"
@@ -21,16 +19,18 @@ import (
 	"github.com/conflowio/parsley/text"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/block"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)
-//   S     -> (PARAM|BLOCK)*
-//   ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-//   PARAM -> ID ("="|":=") P
-//   VALUE -> EXPRESSION
-//         -> ARRAY
-//         -> MAP
+//
+//	S     -> (PARAM|BLOCK)*
+//	ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//	PARAM -> ID ("="|":=") P
+//	VALUE -> EXPRESSION
+//	      -> ARRAY
+//	      -> MAP
 func NewMain(id conflow.ID, interpreter conflow.BlockInterpreter) *Main {
 	blockType := interpreter.Schema().GetAnnotation(annotations.Type)
 	if blockType != conflow.BlockTypeMain && blockType != conflow.BlockTypeConfiguration {

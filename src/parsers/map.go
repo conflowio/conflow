@@ -20,10 +20,11 @@ import (
 )
 
 // Map will match an map expression defined by the following rule, where P is the input parser:
-//   S -> "map" "{" "}"
-//   S -> "map" "{"
-//           (STRING ":" P ",")*
-//        "}"
+//
+//	S -> "map" "{" "}"
+//	S -> "map" "{"
+//	        (STRING ":" P ",")*
+//	     "}"
 func Map(p parsley.Parser) parser.Func {
 	keyValue := combinator.SeqOf(
 		terminal.String(schema.StringValue(), false),

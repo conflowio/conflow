@@ -17,10 +17,11 @@ import (
 )
 
 // ProdMod will match *, /, % arithmetic operations defined by the following rule, where P is the input parser:
-//   S           -> P (PROD_MOD_OP P)*
-//   PROD_MOD_OP -> "*"
-//               -> "/"
-//               -> "%"
+//
+//	S           -> P (PROD_MOD_OP P)*
+//	PROD_MOD_OP -> "*"
+//	            -> "/"
+//	            -> "%"
 func ProdMod(p parsley.Parser) *combinator.Sequence {
 	return SepByOp(
 		p,

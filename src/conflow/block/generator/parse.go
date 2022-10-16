@@ -12,9 +12,8 @@ import (
 	"go/ast"
 	"strings"
 
-	"github.com/conflowio/conflow/src/conflow/annotations"
-
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
 	"github.com/conflowio/conflow/src/schema"
 	schemadirectives "github.com/conflowio/conflow/src/schema/directives"

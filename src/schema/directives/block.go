@@ -9,9 +9,8 @@ package directives
 import (
 	"fmt"
 
-	"github.com/conflowio/conflow/src/conflow/annotations"
-
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 

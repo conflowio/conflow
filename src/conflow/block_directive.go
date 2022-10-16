@@ -11,6 +11,7 @@ import (
 )
 
 // BlockDirective provides a way to add metadata or define alternate runtime execution for blocks
+//
 //counterfeiter:generate . BlockDirective
 type BlockDirective interface {
 	Block

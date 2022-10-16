@@ -19,8 +19,9 @@ import (
 )
 
 // TernaryIf will match a ternary if expression defined by the following rule, where P is the input parser:
-//   S -> P
-//     -> P "?" P ":" P
+//
+//	S -> P
+//	  -> P "?" P ":" P
 func TernaryIf(p parsley.Parser) *combinator.Sequence {
 	parsers := []parsley.Parser{
 		p,

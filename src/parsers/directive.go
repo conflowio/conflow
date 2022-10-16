@@ -20,13 +20,14 @@ import (
 )
 
 // Directive returns a parser for parsing directives
-//   S     -> "@" ID {
-//              (PARAMETER|BLOCK)*
-//            }
-//         -> ID VALUE
-//   VALUE -> EXPRESSION
-//         -> ARRAY
-//         -> MAP
+//
+//	S     -> "@" ID {
+//	           (PARAMETER|BLOCK)*
+//	         }
+//	      -> ID VALUE
+//	VALUE -> EXPRESSION
+//	      -> ARRAY
+//	      -> MAP
 func Directive(expr parsley.Parser) *combinator.Sequence {
 	paramOrBlock := combinator.Choice(
 		Parameter(expr, false, false),

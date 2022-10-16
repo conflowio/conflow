@@ -10,13 +10,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/conflowio/conflow/src/util/ptr"
-
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/parameter"
 	"github.com/conflowio/conflow/src/schema"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 // StaticContainer is a container for blocks where there is no dynamic child evaluation required

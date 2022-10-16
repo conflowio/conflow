@@ -17,7 +17,8 @@ import (
 )
 
 // And will match a logical and expression defined by the following rule, where P is the input parser:
-//   S -> P ("&&" P)*
+//
+//	S -> P ("&&" P)*
 func And(p parsley.Parser) *combinator.Sequence {
 	return SepByOp(
 		p,

@@ -11,6 +11,7 @@ import (
 )
 
 // Node is an identifiable node which has dependencies and has an evaluation stage
+//
 //counterfeiter:generate . Node
 type Node interface {
 	parsley.Node

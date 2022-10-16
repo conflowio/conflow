@@ -9,6 +9,7 @@ package conflow
 import "github.com/conflowio/parsley/parsley"
 
 // VariableNode stores a variable reference. It always refers to a named block's parameter.
+//
 //counterfeiter:generate . VariableNode
 type VariableNode interface {
 	parsley.Node

@@ -22,17 +22,17 @@ import (
 
 // Block returns a parser for parsing blocks
 //
-//   S     -> ID? TYPE KEY? {
-//              (ATTR|S)*
-//            }
-//         -> ID? TYPE KEY? VALUE
-//   ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-//   TYPE  -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-//   KEY   -> STRING LITERAL
-//   ATTR  -> ID ("="|":=") P
-//   VALUE -> EXPRESSION
-//         -> ARRAY
-//         -> MAP
+//	S     -> ID? TYPE KEY? {
+//	           (ATTR|S)*
+//	         }
+//	      -> ID? TYPE KEY? VALUE
+//	ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//	TYPE  -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//	KEY   -> STRING LITERAL
+//	ATTR  -> ID ("="|":=") P
+//	VALUE -> EXPRESSION
+//	      -> ARRAY
+//	      -> MAP
 func Block(expr parsley.Parser) *combinator.Sequence {
 	return blockWithOptions(expr, true, true, true, true)
 }

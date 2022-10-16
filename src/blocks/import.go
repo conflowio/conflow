@@ -15,10 +15,10 @@ import (
 	"github.com/conflowio/conflow/src/parsers"
 )
 
-// @block {
-//   type = "task"
-//   eval_stage = "parse"
-// }
+//	@block {
+//	  type = "task"
+//	  eval_stage = "parse"
+//	}
 type Import struct {
 	// @id
 	id conflow.ID

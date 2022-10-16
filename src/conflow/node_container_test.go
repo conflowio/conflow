@@ -11,8 +11,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/conflowio/conflow/src/util/ptr"
-
 	"github.com/conflowio/parsley/parsley"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -20,6 +18,7 @@ import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/conflowfakes"
 	"github.com/conflowio/conflow/src/loggers/zerolog"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 var _ = Describe("NodeContainer", func() {

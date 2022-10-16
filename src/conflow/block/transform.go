@@ -10,20 +10,18 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/conflowio/conflow/src/util/ptr"
-
-	"github.com/conflowio/conflow/src/conflow/annotations"
-
 	"github.com/conflowio/parsley/ast"
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/dependency"
 	"github.com/conflowio/conflow/src/conflow/directive"
 	"github.com/conflowio/conflow/src/conflow/job"
 	"github.com/conflowio/conflow/src/conflow/parameter"
 	"github.com/conflowio/conflow/src/schema"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.BlockInterpreter) (parsley.Node, parsley.Error) {

@@ -12,9 +12,8 @@ import (
 	"strings"
 	"text/template"
 
-	"golang.org/x/text/language"
-
 	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/block"

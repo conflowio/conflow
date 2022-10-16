@@ -16,7 +16,6 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/src/conflow/annotations"
-
 	"github.com/conflowio/conflow/src/internal/utils"
 	"github.com/conflowio/conflow/src/schema"
 	schemadirectives "github.com/conflowio/conflow/src/schema/directives"

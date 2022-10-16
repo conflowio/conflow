@@ -9,12 +9,11 @@ package block
 import (
 	"fmt"
 
-	"github.com/conflowio/conflow/src/conflow/annotations"
-
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 

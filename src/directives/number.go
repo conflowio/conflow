@@ -11,10 +11,10 @@ import (
 	"github.com/conflowio/conflow/src/schema"
 )
 
-// @block {
-//   type = "directive"
-//   eval_stage = "parse"
-// }
+//	@block {
+//	  type = "directive"
+//	  eval_stage = "parse"
+//	}
 type Number struct {
 	schema.Number
 }

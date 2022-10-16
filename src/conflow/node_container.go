@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/conflowio/conflow/src/util/ptr"
-
 	"github.com/conflowio/parsley/parsley"
+
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 // NodeContainer wraps a node and registers the dependencies as they become available

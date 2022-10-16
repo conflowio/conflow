@@ -14,9 +14,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/conflowio/conflow/src/util"
-
 	"github.com/conflowio/conflow/src/internal/utils"
+	"github.com/conflowio/conflow/src/util"
 )
 
 type Object struct {

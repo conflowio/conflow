@@ -8,10 +8,10 @@ package directives
 
 import "github.com/conflowio/conflow/src/conflow"
 
-// @block {
-//   type = "directive"
-//   eval_stage = "init"
-// }
+//	@block {
+//	  type = "directive"
+//	  eval_stage = "init"
+//	}
 type Retry struct {
 	// @id
 	id conflow.ID

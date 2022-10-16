@@ -11,9 +11,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/conflowio/conflow/src/util"
-
 	"github.com/conflowio/conflow/src/conflow/annotations"
+	"github.com/conflowio/conflow/src/util"
 )
 
 var ErrMetadataReadOnly = errors.New("metadata is read-only")

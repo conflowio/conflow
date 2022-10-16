@@ -17,7 +17,8 @@ import (
 )
 
 // Or will match a logical or expression defined by the following rule, where P is the input parser:
-//   S -> P ("||" P)*
+//
+//	S -> P ("||" P)*
 func Or(p parsley.Parser) *combinator.Sequence {
 	return SepByOp(
 		p,

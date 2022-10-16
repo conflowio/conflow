@@ -12,17 +12,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/conflowio/conflow/src/util/ptr"
-
-	"github.com/conflowio/conflow/src/conflow/annotations"
-
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/job"
 	"github.com/conflowio/conflow/src/conflow/parameter"
 	"github.com/conflowio/conflow/src/schema"
 	"github.com/conflowio/conflow/src/util"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 const (
