@@ -37,7 +37,7 @@ func init() {
 				Nullable: true,
 				Ref:      "github.com/conflowio/conflow/src/blocks.It",
 			},
-			"value": &schema.Untyped{},
+			"value": &schema.Any{},
 		},
 		Required: []string{"it"},
 	})

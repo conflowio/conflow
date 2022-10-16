@@ -104,16 +104,16 @@ var _ = Describe("Metadata", func() {
 })
 
 var _ = Describe("Schema", func() {
-	It("should unmarshal an empty schema into an untyped schema", func() {
+	It("should unmarshal an empty schema into an any schema", func() {
 		s, err := schema.UnmarshalJSON([]byte("{}"))
 		Expect(err).ToNot(HaveOccurred())
-		Expect(s).To(Equal(&schema.Untyped{}))
+		Expect(s).To(Equal(&schema.Any{}))
 	})
 
-	It("should unmarshal an empty schema into an untyped schema - whitespaces", func() {
+	It("should unmarshal an empty schema into an any schema - whitespaces", func() {
 		s, err := schema.UnmarshalJSON([]byte("{\n}"))
 		Expect(err).ToNot(HaveOccurred())
-		Expect(s).To(Equal(&schema.Untyped{}))
+		Expect(s).To(Equal(&schema.Any{}))
 	})
 
 	DescribeTable(
@@ -151,14 +151,14 @@ var _ = Describe("Schema", func() {
 			},
 		),
 		Entry(
-			"untyped",
-			&schema.Untyped{
+			"any",
+			&schema.Any{
 				Metadata: schema.Metadata{Description: "foo"},
 			},
 		),
 		Entry(
-			"untyped with multiple types",
-			&schema.Untyped{
+			"any with multiple types",
+			&schema.Any{
 				Metadata: schema.Metadata{Description: "foo"},
 				Types:    []string{string(schema.TypeString), string(schema.TypeBoolean)},
 			},
@@ -277,7 +277,7 @@ var _ = Describe("Schema", func() {
 		Entry(
 			"mixed types in array",
 			[]interface{}{int64(1), "foo"},
-			nil, fmt.Errorf("items must have the same type, but found integer and string"),
+			&schema.Array{Items: schema.AnyValue()}, nil,
 		),
 		Entry(
 			"unknown value in array",
@@ -333,7 +333,7 @@ var _ = Describe("Schema", func() {
 		Entry(
 			"mixed types in map",
 			map[string]interface{}{"a": int64(1), "b": "foo"},
-			nil, fmt.Errorf("items must have the same type, but found integer and string"),
+			&schema.Map{AdditionalProperties: schema.AnyValue()}, nil,
 		),
 		Entry(
 			"unknown value in map",

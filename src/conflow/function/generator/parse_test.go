@@ -160,9 +160,9 @@ var _ = Describe("ParseArguments", func() {
 					ID: "test.Foo",
 				},
 				Parameters: []schema.NamedSchema{
-					{Name: "a", Schema: &schema.Untyped{}},
+					{Name: "a", Schema: &schema.Any{}},
 				},
-				Result:         &schema.Untyped{},
+				Result:         &schema.Any{},
 				ResultTypeFrom: "a",
 			}))
 		})
@@ -190,12 +190,12 @@ var _ = Describe("ParseArguments", func() {
 				Parameters: []schema.NamedSchema{
 					{
 						Name: "a",
-						Schema: &schema.Untyped{
+						Schema: &schema.Any{
 							Types: []string{"integer", "number"},
 						},
 					},
 				},
-				Result: &schema.Untyped{},
+				Result: &schema.Any{},
 			}))
 		})
 	})

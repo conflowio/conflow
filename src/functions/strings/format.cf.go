@@ -14,7 +14,7 @@ func init() {
 		},
 		AdditionalParameters: &schema.NamedSchema{
 			Name:   "values",
-			Schema: &schema.Untyped{},
+			Schema: &schema.Any{},
 		},
 		Parameters: schema.Parameters{
 			schema.NamedSchema{

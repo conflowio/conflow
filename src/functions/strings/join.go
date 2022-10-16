@@ -8,7 +8,7 @@ package strings
 
 import "strings"
 
-// Join concatenates the elements of a to create a single string. The separator string
+// Join concatenates the elements of an array to create a single string. The separator string
 // sep is placed between elements in the resulting string.
 // @function
 func Join(a []string, sep string) string {

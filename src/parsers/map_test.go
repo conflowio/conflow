@@ -25,7 +25,7 @@ var _ = Describe("Map", func() {
 		terminal.String(schema.StringValue(), false),
 		terminal.Integer(schema.IntegerValue()),
 		terminal.Nil(schema.NullValue(), "NULL"),
-		test.EvalErrorParser(schema.UntypedValue(), "ERR"),
+		test.EvalErrorParser(schema.AnyValue(), "ERR"),
 	).Name("value")
 
 	p := parsers.Map(q)
@@ -97,6 +97,16 @@ var _ = Describe("Map", func() {
 				"a": nil,
 			},
 		),
+		test.TableEntry(
+			`map{
+				"a": "b",
+				"c": 1,
+			}`,
+			map[string]interface{}{
+				"a": "b",
+				"c": int64(1),
+			},
+		),
 	)
 
 	DescribeTable("it returns a parse error",
@@ -127,19 +137,6 @@ var _ = Describe("Map", func() {
 				"a": "b",
 			}`,
 			errors.New("was expecting map at testfile:1:1"),
-		),
-	)
-
-	DescribeTable("it returns a static check error",
-		func(input string, expectedErr error) {
-			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
-		},
-		test.TableEntry(
-			`map{
-				"a": "b",
-				"c": 1,
-			}`,
-			errors.New("items must have the same type, but found string and integer at testfile:1:1"),
 		),
 	)
 

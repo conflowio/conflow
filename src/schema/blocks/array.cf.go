@@ -26,20 +26,20 @@ func init() {
 				AdditionalProperties: &schema.String{},
 			},
 			"const": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"default": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"deprecated":  &schema.Boolean{},
 			"description": &schema.String{},
 			"enum": &schema.Array{
 				Items: &schema.Array{
-					Items: &schema.Untyped{},
+					Items: &schema.Any{},
 				},
 			},
 			"examples": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"items": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/src/schema.Schema",

@@ -37,7 +37,7 @@ func init() {
 				Items: &schema.Boolean{},
 			},
 			"examples": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"nullable":  &schema.Boolean{},
 			"readOnly":  &schema.Boolean{},

@@ -9,7 +9,7 @@ import (
 func init() {
 	schema.Register(&schema.Function{
 		Metadata: schema.Metadata{
-			Description: "It concatenates the elements of a to create a single string. The separator string\nsep is placed between elements in the resulting string.",
+			Description: "It concatenates the elements of an array to create a single string. The separator string\nsep is placed between elements in the resulting string.",
 			ID:          "github.com/conflowio/conflow/src/functions/strings.Join",
 		},
 		Parameters: schema.Parameters{

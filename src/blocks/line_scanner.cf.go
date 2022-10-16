@@ -27,7 +27,7 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"input": &schema.Untyped{},
+			"input": &schema.Any{},
 			"line": &schema.Reference{
 				Metadata: schema.Metadata{
 					Annotations: map[string]string{

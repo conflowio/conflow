@@ -28,7 +28,7 @@ func init() {
 				Format: "conflow.ID",
 			},
 			"items": &schema.Array{
-				Items: &schema.Untyped{},
+				Items: &schema.Any{},
 			},
 			"result": &schema.Reference{
 				Metadata: schema.Metadata{

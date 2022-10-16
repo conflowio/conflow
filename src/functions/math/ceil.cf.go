@@ -15,7 +15,7 @@ func init() {
 		Parameters: schema.Parameters{
 			schema.NamedSchema{
 				Name: "number",
-				Schema: &schema.Untyped{
+				Schema: &schema.Any{
 					Types: []string{"integer", "number"},
 				},
 			},

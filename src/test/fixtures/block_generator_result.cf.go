@@ -27,7 +27,7 @@ func init() {
 				},
 				Format: "conflow.ID",
 			},
-			"value": &schema.Untyped{},
+			"value": &schema.Any{},
 		},
 	})
 }

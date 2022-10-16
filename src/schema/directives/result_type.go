@@ -24,7 +24,7 @@ func (r *ResultType) ID() conflow.ID {
 }
 
 func (r *ResultType) ApplyToSchema(s schema.Schema) error {
-	if s.Type() != schema.TypeUntyped {
+	if s.Type() != schema.TypeAny {
 		return errors.New("@result_type can only be set on an interface{} parameter")
 	}
 	return nil
