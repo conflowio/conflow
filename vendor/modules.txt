@@ -713,7 +713,7 @@ golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+# golang.org/x/term v0.0.0-20220919170432-7a66f970e087
 ## explicit; go 1.17
 golang.org/x/term
 # golang.org/x/text v0.3.8
@@ -812,8 +812,6 @@ golang.org/x/tools/internal/imports
 golang.org/x/tools/internal/packagesinternal
 golang.org/x/tools/internal/typeparams
 golang.org/x/tools/internal/typesinternal
-# golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df
-## explicit; go 1.17
 # google.golang.org/protobuf v1.28.0
 ## explicit; go 1.11
 google.golang.org/protobuf/encoding/prototext
