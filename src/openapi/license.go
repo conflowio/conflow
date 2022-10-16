@@ -9,6 +9,8 @@ package openapi
 import (
 	"encoding/json"
 	"net/url"
+
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // @block "configuration"
@@ -29,4 +31,8 @@ func (l License) MarshalJSON() ([]byte, error) {
 		Identifier: l.Identifier,
 		URL:        l.URL.String(),
 	})
+}
+
+func (l *License) Validate(*schema.Context) error {
+	return nil
 }

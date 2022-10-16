@@ -30,11 +30,16 @@ func (v *ValidationError) AddErrorf(field, format string, a ...interface{}) {
 }
 
 func (v ValidationError) Error() string {
+	if len(v.Errors) == 1 {
+		return v.Errors[0].Error()
+	}
+
 	var sb strings.Builder
-	for _, err := range v.Errors {
-		sb.WriteString(" * ")
+	for i, err := range v.Errors {
+		if i > 0 {
+			sb.WriteString(", ")
+		}
 		sb.WriteString(err.Error())
-		sb.WriteRune('\n')
 	}
 	return sb.String()
 }

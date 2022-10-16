@@ -98,6 +98,10 @@ func (a *AllOf) UnmarshalJSON(j []byte) error {
 	return nil
 }
 
+func (a *AllOf) Validate(ctx *Context) error {
+	return a.getSchema().Validate(ctx)
+}
+
 func (a *AllOf) ValidateSchema(s Schema, compare bool) error {
 	return a.getSchema().ValidateSchema(s, compare)
 }

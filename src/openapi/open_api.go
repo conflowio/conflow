@@ -7,7 +7,9 @@
 package openapi
 
 import (
+	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/schema"
@@ -72,4 +74,29 @@ func (o *OpenAPI) MarshalJSON() ([]byte, error) {
 			RequestBodies: o.RequestBodies,
 		},
 	})
+}
+
+func (o *OpenAPI) Validate(ctx *schema.Context) error {
+	return schema.ValidateAll(
+		ctx,
+		schema.Validate("info", o.Info),
+		schema.ValidateArray("servers", o.Servers),
+		schema.ValidateMap("paths", o.Paths),
+		schema.ValidateMap("schemas", o.Schemas),
+		schema.ValidateMap("responses", o.Responses),
+		schema.ValidateMap("parameters", o.Parameters),
+		schema.ValidateMap("requestBodies", o.RequestBodies),
+	)
+}
+
+func (o *OpenAPI) Run(context.Context) (conflow.Result, error) {
+	return nil, o.Validate(schema.NewContext().WithResolver(o))
+}
+
+func (o *OpenAPI) ResolveSchema(uri string) (schema.Schema, error) {
+	if strings.HasPrefix(uri, "#/components/schemas/") {
+		name := strings.TrimPrefix(uri, "#/components/schemas/")
+		return o.Schemas[name], nil
+	}
+	return nil, nil
 }

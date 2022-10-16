@@ -22,3 +22,7 @@ func (m *MediaType) ParseContextOverride() conflow.ParseContextOverride {
 		BlockTransformerRegistry: blocks.InterpreterRegistry(),
 	}
 }
+
+func (m *MediaType) Validate(ctx *schema.Context) error {
+	return schema.Validate("schema", m.Schema)(ctx)
+}

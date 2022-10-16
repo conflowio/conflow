@@ -25,7 +25,8 @@ func init() {
 			"allowReserved":   &schema.Boolean{},
 			"content": &schema.Map{
 				AdditionalProperties: &schema.Reference{
-					Ref: "github.com/conflowio/conflow/src/openapi.MediaType",
+					Nullable: true,
+					Ref:      "github.com/conflowio/conflow/src/openapi.MediaType",
 				},
 			},
 			"deprecated":  &schema.Boolean{},
@@ -57,7 +58,7 @@ func (i ParameterInterpreter) Schema() schema.Schema {
 // Create creates a new Parameter block
 func (i ParameterInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	b := &Parameter{}
-	b.Content = map[string]MediaType{}
+	b.Content = map[string]*MediaType{}
 	return b
 }
 
@@ -130,7 +131,7 @@ func (i ParameterInterpreter) SetBlock(block conflow.Block, name conflow.ID, key
 	b := block.(*Parameter)
 	switch name {
 	case "content":
-		b.Content[key] = value.(MediaType)
+		b.Content[key] = value.(*MediaType)
 	case "schema":
 		b.Schema = value.(schema.Schema)
 	}

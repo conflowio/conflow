@@ -9,6 +9,7 @@ package openapi
 import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/block"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // @block "configuration"
@@ -37,4 +38,14 @@ func (o *Operation) ParseContextOverride() conflow.ParseContextOverride {
 			"server":       ServerInterpreter{},
 		},
 	}
+}
+
+func (o *Operation) Validate(ctx *schema.Context) error {
+	return schema.ValidateAll(
+		ctx,
+		schema.ValidateArray("parameters", o.Parameters),
+		schema.Validate("requestBody", o.RequestBody),
+		schema.ValidateMap("responses", o.Responses),
+		schema.ValidateArray("servers", o.Servers),
+	)
 }

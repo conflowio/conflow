@@ -166,6 +166,10 @@ func (s *String) SetNullable(nullable bool) {
 }
 
 func (s *String) StringValue(value interface{}) string {
+	if s, ok := value.(string); ok {
+		return s
+	}
+
 	res, ok := s.format().StringValue(value)
 	if !ok {
 		panic(fmt.Errorf("invalid value %T in StringValue", value))
@@ -203,6 +207,10 @@ func (s *String) UnmarshalJSON(input []byte) error {
 	}
 
 	return nil
+}
+
+func (s *String) Validate(ctx *Context) error {
+	return validateCommonFields(s, s.Const, s.Default, s.Enum)(ctx)
 }
 
 func (s *String) ValidateSchema(s2 Schema, _ bool) error {

@@ -228,6 +228,14 @@ func (m *Map) UnmarshalJSON(j []byte) error {
 	return nil
 }
 
+func (m *Map) Validate(ctx *Context) error {
+	return ValidateAll(
+		ctx,
+		validateCommonFields(m, m.Const, m.Default, m.Enum),
+		Validate("additionalProperties", m.AdditionalProperties),
+	)
+}
+
 func (m *Map) ValidateSchema(s Schema, compare bool) error {
 	if s.Type() == TypeNull {
 		return nil

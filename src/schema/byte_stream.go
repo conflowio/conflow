@@ -86,6 +86,10 @@ func (b *ByteStream) TypeString() string {
 	return string(TypeByteStream)
 }
 
+func (b *ByteStream) Validate(*Context) error {
+	return nil
+}
+
 func (b *ByteStream) ValidateSchema(s2 Schema, compare bool) error {
 	if compare {
 		return fmt.Errorf("byte streams are not comparable")

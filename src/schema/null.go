@@ -84,6 +84,10 @@ func (n *Null) TypeString() string {
 	return string(TypeNull)
 }
 
+func (n *Null) Validate(*Context) error {
+	return nil
+}
+
 func (n *Null) ValidateSchema(n2 Schema, _ bool) error {
 	if n2.Type() != TypeNull && n2.Type() != TypeArray && n2.Type() != TypeMap {
 		return typeError("must be null, array or map")
