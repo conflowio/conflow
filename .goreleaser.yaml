@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+project_name: conflow
+
+release:
+  prerelease: auto
+  name_template: "conflow v{{.Version}}"
+
+builds:
+  - main: ./cmd/conflow
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/conflowio/conflow/src/conflow.Version={{.Version}}
+    goos:
+      - linux
+      - darwin
+    mod_timestamp: '{{ .CommitTimestamp }}'

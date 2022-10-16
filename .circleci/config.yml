@@ -1,4 +1,17 @@
-version: 2
+version: 2.1
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - test
+      - release:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+
 jobs:
   test:
     docker:
@@ -10,8 +23,11 @@ jobs:
       - run: make check
       - run: make test
 
-workflows:
-  version: 2
-  test:
-    jobs:
-      - test
+  release:
+    docker:
+      - image: cimg/go:1.19
+    resource_class: large
+    steps:
+      - checkout
+      - run: go install github.com/goreleaser/goreleaser@latest
+      - run: goreleaser
