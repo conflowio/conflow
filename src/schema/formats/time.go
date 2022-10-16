@@ -56,11 +56,3 @@ func (t Time) StringValue(input interface{}) (string, bool) {
 func (t Time) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(types.Time{}), true
 }
-
-func (t Time) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.TimePtr"
-}
-
-func TimePtr(v types.Time) *types.Time {
-	return &v
-}

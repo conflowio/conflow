@@ -36,17 +36,17 @@ func (c *Const) ApplyToSchema(s schema.Schema) error {
 	case *schema.Array:
 		st.Const = value.([]interface{})
 	case *schema.Boolean:
-		st.Const = schema.BooleanPtr(value.(bool))
+		st.Const = schema.Pointer(value.(bool))
 	case *schema.Integer:
-		st.Const = schema.IntegerPtr(value.(int64))
+		st.Const = schema.Pointer(value.(int64))
 	case *schema.Map:
 		st.Const = value.(map[string]interface{})
 	case *schema.Number:
-		st.Const = schema.NumberPtr(value.(float64))
+		st.Const = schema.Pointer(value.(float64))
 	case *schema.String:
-		st.Const = schema.StringPtr(value.(string))
+		st.Const = schema.Pointer(value.(string))
 	case *schema.Object:
-		st.Const = schema.ObjectPtr(value.(map[string]interface{}))
+		st.Const = value.(map[string]interface{})
 	default:
 		return fmt.Errorf("const directive can not be applied to %T", s)
 	}

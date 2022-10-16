@@ -43,11 +43,3 @@ func (d Date) StringValue(input interface{}) (string, bool) {
 func (d Date) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(time.Time{}), false
 }
-
-func (d Date) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.DatePtr"
-}
-
-func DatePtr(v time.Time) *time.Time {
-	return &v
-}

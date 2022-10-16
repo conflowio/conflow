@@ -12,14 +12,16 @@ import (
 
 	"github.com/conflowio/parsley/ast"
 	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/dependency"
 	"github.com/conflowio/conflow/src/conflow/directive"
 	"github.com/conflowio/conflow/src/conflow/job"
 	"github.com/conflowio/conflow/src/conflow/parameter"
 	"github.com/conflowio/conflow/src/schema"
-	"github.com/conflowio/conflow/src/util"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.BlockInterpreter) (parsley.Node, parsley.Error) {
@@ -40,6 +42,7 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 
 	var idNode *conflow.IDNode
 	var nameNode *conflow.NameNode
+	var keyNode *terminal.StringNode
 	switch n := nodes[1].(type) {
 	case parsley.NonTerminalNode:
 		if _, isEmpty := n.Children()[0].(ast.EmptyNode); !isEmpty {
@@ -50,6 +53,10 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 		}
 
 		nameNode = n.Children()[1].(*conflow.NameNode)
+		if _, isEmpty := n.Children()[2].(ast.EmptyNode); !isEmpty {
+			keyNode = n.Children()[2].(*terminal.StringNode)
+		}
+
 	case *conflow.NameNode:
 		nameNode = n
 	case *conflow.IDNode:
@@ -100,7 +107,8 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 				false,
 				nil,
 			)
-			paramNode.SetSchema(interpreter.Schema().(*schema.Object).Parameters[string(valueParamName)])
+			s, _ := interpreter.Schema().(*schema.Object).PropertyByParameterName(string(valueParamName))
+			paramNode.SetSchema(s)
 
 			var deps conflow.Dependencies
 			children, deps, err = dependency.NewResolver(idNode.ID(), paramNode).Resolve()
@@ -108,12 +116,30 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 				return nil, err
 			}
 			dependencies.Add(deps)
+		} else { // If there is no body, we'll check if there is a key, as value takes precedence
+			valueParamName := interpreter.ValueParamName()
+			if keyNode != nil && valueParamName != "" {
+				valueParamSchema, _ := interpreter.Schema().(*schema.Object).PropertyByParameterName(string(valueParamName))
+				if valueParamSchema.Type() == schema.TypeString || valueParamSchema.Type() == schema.TypeUntyped {
+					children = []conflow.Node{
+						parameter.NewNode(
+							idNode.ID(),
+							conflow.NewIDNode(valueParamName, conflow.ClassifierNone, keyNode.Pos(), keyNode.Pos()),
+							keyNode,
+							false,
+							nil,
+						),
+					}
+					keyNode = nil
+				}
+			}
 		}
 	}
 
 	res := NewNode(
 		idNode,
 		nameNode,
+		keyNode,
 		children,
 		node.Token(),
 		directives,
@@ -164,6 +190,7 @@ func TransformMainNode(ctx interface{}, node parsley.Node, id conflow.ID, interp
 	res := NewNode(
 		conflow.NewIDNode(id, conflow.ClassifierNone, node.Pos(), node.Pos()),
 		conflow.NewNameNode(nil, nil, conflow.NewIDNode(conflow.ID("main"), conflow.ClassifierNone, node.Pos(), node.Pos())),
+		nil,
 		children,
 		TokenBlock,
 		nil,
@@ -200,9 +227,9 @@ func TransformChildren(
 			}
 			blockNode := res.(conflow.BlockNode)
 
-			if blockSchema, ok := interpreter.Schema().(*schema.Object).Parameters[string(blockNode.ID())]; ok {
+			if blockSchema, ok := interpreter.Schema().(*schema.Object).PropertyByParameterName(string(blockNode.ID())); ok {
 				blockNode.SetSchema(blockSchema)
-			} else if blockSchema, ok := interpreter.Schema().(*schema.Object).Parameters[string(blockNode.ParameterName())]; ok {
+			} else if blockSchema, ok := interpreter.Schema().(*schema.Object).PropertyByParameterName(string(blockNode.ParameterName())); ok {
 				blockNode.SetSchema(blockSchema)
 			}
 
@@ -219,7 +246,8 @@ func TransformChildren(
 				return nil, nil, err
 			}
 
-			if paramSchema, ok := interpreter.Schema().(*schema.Object).Parameters[string(paramNode.Name())]; ok {
+			s := interpreter.Schema().(*schema.Object)
+			if paramSchema, ok := s.PropertyByParameterName(string(paramNode.Name())); ok {
 				paramNode.SetSchema(paramSchema)
 			}
 
@@ -242,8 +270,8 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 				return nil, err
 			}
 
-			if util.BoolValue(config.Input) || util.BoolValue(config.Output) {
-				if _, exists := interpreter.Schema().(schema.ObjectKind).GetParameters()[string(paramNode.Name())]; exists {
+			if ptr.Value(config.Input) || ptr.Value(config.Output) {
+				if _, exists := interpreter.Schema().(*schema.Object).PropertyByParameterName(string(paramNode.Name())); exists {
 					return nil, parsley.NewErrorf(c.Pos(), "%q parameter already exists.", paramNode.Name())
 				}
 			} else {
@@ -254,13 +282,13 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 				s = interpreter.Schema().Copy()
 			}
 			o := s.(*schema.Object)
-			if o.Parameters == nil {
-				o.Parameters = map[string]schema.Schema{}
+			if o.Properties == nil {
+				o.Properties = map[string]schema.Schema{}
 			}
 
 			switch {
-			case util.BoolValue(config.Input):
-				if util.BoolValue(config.Required) {
+			case ptr.Value(config.Input):
+				if ptr.Value(config.Required) {
 					o.Required = append(o.Required, string(paramNode.Name()))
 				}
 
@@ -268,21 +296,21 @@ func getModuleSchema(children []conflow.Node, interpreter conflow.BlockInterpret
 					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
 				}
 
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, conflow.EvalStageInit.String())
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "true")
+				config.Schema.(schema.MetadataAccessor).SetAnnotation(annotations.EvalStage, conflow.EvalStageInit.String())
+				config.Schema.(schema.MetadataAccessor).SetAnnotation(annotations.UserDefined, "true")
 
-				o.Parameters[string(paramNode.Name())] = config.Schema
+				o.Properties[string(paramNode.Name())] = config.Schema
 				paramNode.SetSchema(config.Schema)
-			case util.BoolValue(config.Output):
+			case ptr.Value(config.Output):
 				if config.Schema == nil {
 					return nil, parsley.NewErrorf(paramNode.Pos(), "must have a schema")
 				}
 
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, conflow.EvalStageInit.String())
-				config.Schema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "true")
+				config.Schema.(schema.MetadataAccessor).SetAnnotation(annotations.EvalStage, conflow.EvalStageInit.String())
+				config.Schema.(schema.MetadataAccessor).SetAnnotation(annotations.UserDefined, "true")
 				config.Schema.(schema.MetadataAccessor).SetReadOnly(true)
 
-				o.Parameters[string(paramNode.Name())] = config.Schema
+				o.Properties[string(paramNode.Name())] = config.Schema
 				paramNode.SetSchema(config.Schema)
 			}
 		}

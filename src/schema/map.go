@@ -145,7 +145,7 @@ func (m *Map) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Map{\n")
 	if !reflect.ValueOf(m.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(m.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(m.Metadata.GoString(imports)))
 	}
 	if m.AdditionalProperties != nil {
 		_, _ = fmt.Fprintf(buf, "\tAdditionalProperties: %s,\n", indent(m.AdditionalProperties.GoString(imports)))
@@ -163,7 +163,7 @@ func (m *Map) GoString(imports map[string]string) string {
 		_, _ = fmt.Fprintf(buf, "\tMinProperties: %d,\n", m.MinProperties)
 	}
 	if m.MaxProperties != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.IntegerPtr(%d),\n", *m.MaxProperties)
+		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.Pointer(int64(%d)),\n", *m.MaxProperties)
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -233,7 +233,7 @@ func (m *Map) ValidateSchema(s Schema, compare bool) error {
 		return nil
 	}
 
-	o2, ok := s.(MapKind)
+	o2, ok := s.(*Map)
 	if !ok {
 		return typeError("must be map")
 	}
@@ -339,6 +339,6 @@ func (m *Map) join(elems []map[string]interface{}, sep string) string {
 	return b.String()
 }
 
-func isTypedMap(o MapKind) bool {
+func isTypedMap(o *Map) bool {
 	return o.GetAdditionalProperties().Type() != TypeUntyped
 }

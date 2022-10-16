@@ -52,11 +52,3 @@ func (d DateTime) StringValue(input interface{}) (string, bool) {
 func (d DateTime) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(time.Time{}), true
 }
-
-func (d DateTime) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.DateTimePtr"
-}
-
-func DateTimePtr(v time.Time) *time.Time {
-	return &v
-}

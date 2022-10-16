@@ -9,10 +9,9 @@ package blocks
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os/exec"
 	"syscall"
-
-	"golang.org/x/xerrors"
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/block"
@@ -56,15 +55,15 @@ func (e *Exec) Run(ctx context.Context) (conflow.Result, error) {
 	var err error
 	e.stdout.Stream, err = cmd.StdoutPipe()
 	if err != nil {
-		return nil, xerrors.Errorf("failed to create stdout reader: %v", err)
+		return nil, fmt.Errorf("failed to create stdout reader: %w", err)
 	}
 	e.stderr.Stream, err = cmd.StderrPipe()
 	if err != nil {
-		return nil, xerrors.Errorf("failed to create stderr reader: %v", err)
+		return nil, fmt.Errorf("failed to create stderr reader: %w", err)
 	}
 
 	if startErr := cmd.Start(); startErr != nil {
-		return nil, xerrors.Errorf("Failed to start command: %v", startErr)
+		return nil, fmt.Errorf("Failed to start command: %w", startErr)
 	}
 
 	wg := &util.WaitGroup{}

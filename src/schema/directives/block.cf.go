@@ -5,35 +5,42 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
 			Description: "It is the directive for marking structs as conflow blocks",
 			ID:          "github.com/conflowio/conflow/src/schema/directives.Block",
 		},
 		JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path", "type": "Type"},
-		Name:              "Block",
-		Parameters: map[string]schema.Schema{
-			"eval_stage": &schema.String{
+		ParameterNames:    map[string]string{"EvalStage": "eval_stage", "Path": "path", "Type": "type"},
+		Properties: map[string]schema.Schema{
+			"EvalStage": &schema.String{
 				Enum: []string{"ignore", "init", "parse", "resolve"},
+			},
+			"Path": &schema.String{},
+			"Type": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
+				},
+				Enum: []string{"configuration", "directive", "generator", "main", "task"},
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
-			},
-			"path": &schema.String{},
-			"type": &schema.String{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
-				},
-				Enum: []string{"configuration", "directive", "generator", "main", "task"},
 			},
 		},
 		Required: []string{"type"},
@@ -51,9 +58,9 @@ func (i BlockInterpreter) Schema() schema.Schema {
 
 // Create creates a new Block block
 func (i BlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Block{
-		id: id,
-	}
+	b := &Block{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -75,12 +82,12 @@ func (i BlockInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "eval_stage":
 		return b.(*Block).EvalStage
-	case "id":
-		return b.(*Block).id
 	case "path":
 		return b.(*Block).Path
 	case "type":
 		return b.(*Block).Type
+	case "id":
+		return b.(*Block).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Block", name))
 	}
@@ -99,6 +106,6 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i BlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

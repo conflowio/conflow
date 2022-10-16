@@ -8,6 +8,7 @@ package schema_test
 
 import (
 	"errors"
+	"fmt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -18,16 +19,15 @@ import (
 )
 
 var _ schema.Schema = &schema.Object{}
-var _ schema.ObjectKind = &schema.Object{}
 
 var _ = Describe("Object", func() {
 	defaultSchema := func() *schema.Object {
 		return &schema.Object{
-			Parameters: map[string]schema.Schema{
+			Properties: map[string]schema.Schema{
 				"foo": &schema.Integer{},
 				"bar": &schema.String{},
 				"baz": &schema.Object{
-					Parameters: map[string]schema.Schema{
+					Properties: map[string]schema.Schema{
 						"qux": &schema.Boolean{},
 					},
 				},
@@ -77,7 +77,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const value",
 			func(s *schema.Object) {
-				s.Const = &map[string]interface{}{
+				s.Const = map[string]interface{}{
 					"foo": int64(1),
 				}
 			},
@@ -88,7 +88,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const value - empty object",
 			func(s *schema.Object) {
-				s.Const = &map[string]interface{}{}
+				s.Const = map[string]interface{}{}
 			},
 			map[string]interface{}{},
 		),
@@ -144,7 +144,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties=2, 2 elements",
 			func(s *schema.Object) {
-				s.MaxProperties = schema.IntegerPtr(2)
+				s.MaxProperties = schema.Pointer(int64(2))
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -154,7 +154,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties=2, 1 element",
 			func(s *schema.Object) {
-				s.MaxProperties = schema.IntegerPtr(2)
+				s.MaxProperties = schema.Pointer(int64(2))
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -225,7 +225,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const value",
 			func(s *schema.Object) {
-				s.Const = &map[string]interface{}{
+				s.Const = map[string]interface{}{
 					"foo": int64(1),
 				}
 			},
@@ -237,7 +237,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const value - empty object",
 			func(s *schema.Object) {
-				s.Const = &map[string]interface{}{}
+				s.Const = map[string]interface{}{}
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -300,7 +300,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties: 0, 1 element",
 			func(s *schema.Object) {
-				s.MaxProperties = schema.IntegerPtr(0)
+				s.MaxProperties = schema.Pointer(int64(0))
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -310,7 +310,7 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties: 1, 2 elements",
 			func(s *schema.Object) {
-				s.MaxProperties = schema.IntegerPtr(1)
+				s.MaxProperties = schema.Pointer(int64(1))
 			},
 			map[string]interface{}{
 				"foo": int64(1),
@@ -346,19 +346,19 @@ var _ = Describe("Object", func() {
 		Entry(
 			"const",
 			&schema.Object{
-				Const: &map[string]interface{}{"foo": "bar"},
+				Const: map[string]interface{}{"foo": "bar"},
 			},
 			`&schema.Object{
-	Const: &map[string]interface {}{"foo":"bar"},
+	Const: map[string]interface {}{"foo":"bar"},
 }`,
 		),
 		Entry(
 			"default",
 			&schema.Object{
-				Default: &map[string]interface{}{"foo": "bar"},
+				Default: map[string]interface{}{"foo": "bar"},
 			},
 			`&schema.Object{
-	Default: &map[string]interface {}{"foo":"bar"},
+	Default: map[string]interface {}{"foo":"bar"},
 }`,
 		),
 		Entry(
@@ -371,15 +371,15 @@ var _ = Describe("Object", func() {
 }`,
 		),
 		Entry(
-			"parameters",
+			"properties",
 			&schema.Object{
-				Parameters: map[string]schema.Schema{
+				Properties: map[string]schema.Schema{
 					"bar": &schema.String{Format: "f1"},
 					"foo": &schema.String{Format: "f2"},
 				},
 			},
 			`&schema.Object{
-	Parameters: map[string]schema.Schema{
+	Properties: map[string]schema.Schema{
 		"bar": &schema.String{
 			Format: "f1",
 		},
@@ -408,6 +408,15 @@ var _ = Describe("Object", func() {
 }`,
 		),
 		Entry(
+			"parameterNames",
+			&schema.Object{
+				ParameterNames: map[string]string{"myField": "my_field"},
+			},
+			`&schema.Object{
+	ParameterNames: map[string]string{"myField":"my_field"},
+}`,
+		),
+		Entry(
 			"JSON property names",
 			&schema.Object{
 				JSONPropertyNames: map[string]string{"my_field": "myField"},
@@ -428,10 +437,10 @@ var _ = Describe("Object", func() {
 		Entry(
 			"maxProperties",
 			&schema.Object{
-				MaxProperties: schema.IntegerPtr(1),
+				MaxProperties: schema.Pointer(int64(1)),
 			},
 			`&schema.Object{
-	MaxProperties: schema.IntegerPtr(1),
+	MaxProperties: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(
@@ -485,7 +494,7 @@ var _ = Describe("Object", func() {
 		)
 	})
 
-	It("should ignore an invalid parameter name", func() {
+	It("should error on an invalid parameter name", func() {
 		input := `{
 			"type": "object",
 			"properties": {
@@ -497,45 +506,30 @@ var _ = Describe("Object", func() {
 				"myField": "MyField"
 			}
 		}`
-		s, err := schema.UnmarshalJSON([]byte(input))
-		Expect(err).ToNot(HaveOccurred())
-		Expect(s).To(Equal(&schema.Object{
-			JSONPropertyNames: map[string]string{
-				"my_field": "myField",
-			},
-			Parameters: map[string]schema.Schema{
-				"my_field": &schema.String{},
-			},
-		}))
+		_, err := schema.UnmarshalJSON([]byte(input))
+		Expect(err).To(HaveOccurred())
+		Expect(err).To(MatchError(fmt.Errorf("invalid parameter name \"MyField\", must match %s", schema.NameRegExp.String())))
 	})
 
 	It("should ignore an invalid field name", func() {
 		input := `{
 			"type": "object",
 			"properties": {
-				"my_field": {
+				"myField": {
 					"type": "string"
 				},
-				"my_field_2": {
+				"myField2": {
 					"type": "string"
 				}
 			},
 			"fieldNames": {
-				"my_field": "field name",
-				"my_field_2": "myField2"
+				"myField": "fielName",
+				"myField2": "invalid field name"
 			}
 		}`
-		s, err := schema.UnmarshalJSON([]byte(input))
-		Expect(err).ToNot(HaveOccurred())
-		Expect(s).To(Equal(&schema.Object{
-			Parameters: map[string]schema.Schema{
-				"my_field":   &schema.String{},
-				"my_field_2": &schema.String{},
-			},
-			FieldNames: map[string]string{
-				"my_field_2": "myField2",
-			},
-		}))
+		_, err := schema.UnmarshalJSON([]byte(input))
+		Expect(err).To(HaveOccurred())
+		Expect(err).To(MatchError(fmt.Errorf("invalid field name \"invalid field name\", must match %s", schema.FieldNameRegexp.String())))
 	})
 
 })

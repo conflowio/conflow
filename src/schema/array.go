@@ -117,7 +117,7 @@ func (a *Array) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Array{\n")
 	if !reflect.ValueOf(a.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString(imports)))
 	}
 	if a.Const != nil {
 		_, _ = fmt.Fprintf(buf, "\tConst: %#v,\n", a.Const)
@@ -135,7 +135,7 @@ func (a *Array) GoString(imports map[string]string) string {
 		_, _ = fmt.Fprintf(buf, "\tMinItems: %d,\n", a.MinItems)
 	}
 	if a.MaxItems != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxItems: schema.IntegerPtr(%d),\n", *a.MaxItems)
+		_, _ = fmt.Fprintf(buf, "\tMaxItems: schema.Pointer(int64(%d)),\n", *a.MaxItems)
 	}
 	if a.UniqueItems {
 		_, _ = fmt.Fprint(buf, "\tUniqueItems: true,\n")
@@ -210,12 +210,12 @@ func (a *Array) ValidateSchema(s Schema, compare bool) error {
 		return nil
 	}
 
-	a2, ok := s.(ArrayKind)
+	a2, ok := s.(*Array)
 	if !ok {
 		return typeErrorf("must be %s", a.TypeString())
 	}
 
-	if err := a.Items.ValidateSchema(a2.GetItems(), compare); err != nil {
+	if err := a.Items.ValidateSchema(a2.Items, compare); err != nil {
 		if _, ok := err.(typeError); ok {
 			return typeErrorf("must be %s", a.TypeString())
 		}

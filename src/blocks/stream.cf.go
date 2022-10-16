@@ -5,6 +5,7 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 	"io"
 )
@@ -12,20 +13,24 @@ import (
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/blocks.Stream",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/blocks.Stream",
 		},
 		JSONPropertyNames: map[string]string{"stream": "Stream"},
-		Name:              "Stream",
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"Stream": "stream"},
+		Properties: map[string]schema.Schema{
+			"Stream": &schema.ByteStream{},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
-			"stream": &schema.ByteStream{},
 		},
 	})
 }
@@ -41,9 +46,9 @@ func (i StreamInterpreter) Schema() schema.Schema {
 
 // Create creates a new Stream block
 func (i StreamInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Stream{
-		id: id,
-	}
+	b := &Stream{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -63,10 +68,10 @@ func (i StreamInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Pars
 
 func (i StreamInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*Stream).id
 	case "stream":
 		return b.(*Stream).Stream
+	case "id":
+		return b.(*Stream).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Stream", name))
 	}
@@ -81,6 +86,6 @@ func (i StreamInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	return nil
 }
 
-func (i StreamInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i StreamInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

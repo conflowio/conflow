@@ -5,28 +5,33 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/test/fixtures.BlockWithManyBlock",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/test/fixtures.BlockWithManyBlock",
 		},
 		JSONPropertyNames: map[string]string{"block": "Block", "id_field": "IDField"},
-		Name:              "BlockWithManyBlock",
-		Parameters: map[string]schema.Schema{
-			"block": &schema.Array{
+		ParameterNames:    map[string]string{"Block": "block", "IDField": "id_field"},
+		Properties: map[string]schema.Schema{
+			"Block": &schema.Array{
 				Items: &schema.Reference{
 					Nullable: true,
 					Ref:      "github.com/conflowio/conflow/src/test/fixtures.Block",
 				},
 			},
-			"id_field": &schema.String{
+			"IDField": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -45,9 +50,9 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockWithManyBlock block
 func (i BlockWithManyBlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BlockWithManyBlock{
-		IDField: id,
-	}
+	b := &BlockWithManyBlock{}
+	b.IDField = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -78,7 +83,7 @@ func (i BlockWithManyBlockInterpreter) SetParam(block conflow.Block, name conflo
 	return nil
 }
 
-func (i BlockWithManyBlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockWithManyBlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*BlockWithManyBlock)
 	switch name {
 	case "block":

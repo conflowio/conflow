@@ -13,6 +13,7 @@ import (
 )
 
 // ParameterNode is the AST node for a parameter
+//
 //counterfeiter:generate . ParameterNode
 type ParameterNode interface {
 	Node
@@ -24,6 +25,7 @@ type ParameterNode interface {
 }
 
 // ParameterContainer is a parameter container
+//
 //counterfeiter:generate . ParameterContainer
 type ParameterContainer interface {
 	Container

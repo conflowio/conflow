@@ -17,20 +17,24 @@ import (
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/block"
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // Block returns a parser for parsing blocks
-//   S     -> ID? TYPE? {
-//              (ATTR|S)*
-//            }
-//         -> ID? TYPE VALUE
-//   ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-//   ATTR  -> ID ("="|":=") P
-//   VALUE -> EXPRESSION
-//         -> ARRAY
-//         -> MAP
+//
+//	S     -> ID? TYPE KEY? {
+//	           (ATTR|S)*
+//	         }
+//	      -> ID? TYPE KEY? VALUE
+//	ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//	TYPE  -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//	KEY   -> STRING LITERAL
+//	ATTR  -> ID ("="|":=") P
+//	VALUE -> EXPRESSION
+//	      -> ARRAY
+//	      -> MAP
 func Block(expr parsley.Parser) *combinator.Sequence {
-	return blockWithOptions(expr, true, true, true)
+	return blockWithOptions(expr, true, true, true, true)
 }
 
 func blockWithOptions(
@@ -38,6 +42,7 @@ func blockWithOptions(
 	allowID bool,
 	allowCustomParameters bool,
 	allowDirectives bool,
+	allowKey bool,
 ) *combinator.Sequence {
 	var p combinator.Sequence
 
@@ -72,14 +77,19 @@ func blockWithOptions(
 		Map(expr),
 	).Name("block value")
 
-	var idName parsley.Parser
+	var idParsers []parsley.Parser
 	if allowID {
-		idName = combinator.SeqOf(
-			combinator.Optional(ID()),
-			text.LeftTrim(Name(':'), text.WsSpaces),
-		)
+		idParsers = append(idParsers, combinator.Optional(ID()))
+	}
+	idParsers = append(idParsers, text.LeftTrim(Name(':'), text.WsSpaces))
+	if allowKey {
+		idParsers = append(idParsers, combinator.Optional(text.LeftTrim(terminal.String(schema.StringValue(), false), text.WsSpaces)))
+	}
+	var idName parsley.Parser
+	if len(idParsers) == 1 {
+		idName = idParsers[0]
 	} else {
-		idName = Name(':')
+		idName = combinator.SeqOf(idParsers...)
 	}
 
 	p = *combinator.SeqOf(

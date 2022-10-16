@@ -5,19 +5,24 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Number",
+			Annotations: map[string]string{
+				annotations.EvalStage: "parse",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Number",
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"exclusive_maximum": "exclusiveMaximum", "exclusive_minimum": "exclusiveMinimum", "id": "$id", "multiple_of": "multipleOf", "read_only": "readOnly", "write_only": "writeOnly"},
-		Name:              "Number",
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"$id": "id", "exclusiveMaximum": "exclusive_maximum", "exclusiveMinimum": "exclusive_minimum", "multipleOf": "multiple_of", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -35,26 +40,25 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"exclusive_maximum": &schema.Number{
+			"exclusiveMaximum": &schema.Number{
 				Nullable: true,
 			},
-			"exclusive_minimum": &schema.Number{
+			"exclusiveMinimum": &schema.Number{
 				Nullable: true,
 			},
-			"id": &schema.String{},
 			"maximum": &schema.Number{
 				Nullable: true,
 			},
 			"minimum": &schema.Number{
 				Nullable: true,
 			},
-			"multiple_of": &schema.Number{
+			"multipleOf": &schema.Number{
 				Nullable: true,
 			},
-			"nullable":   &schema.Boolean{},
-			"read_only":  &schema.Boolean{},
-			"title":      &schema.String{},
-			"write_only": &schema.Boolean{},
+			"nullable":  &schema.Boolean{},
+			"readOnly":  &schema.Boolean{},
+			"title":     &schema.String{},
+			"writeOnly": &schema.Boolean{},
 		},
 	})
 }
@@ -70,7 +74,8 @@ func (i NumberInterpreter) Schema() schema.Schema {
 
 // Create creates a new Number block
 func (i NumberInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Number{}
+	b := &Number{}
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -90,6 +95,8 @@ func (i NumberInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Pars
 
 func (i NumberInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Number).ID
 	case "annotations":
 		return b.(*Number).Annotations
 	case "const":
@@ -108,8 +115,6 @@ func (i NumberInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Number).ExclusiveMaximum
 	case "exclusive_minimum":
 		return b.(*Number).ExclusiveMinimum
-	case "id":
-		return b.(*Number).ID
 	case "maximum":
 		return b.(*Number).Maximum
 	case "minimum":
@@ -132,15 +137,17 @@ func (i NumberInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Number)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
 			b.Annotations[valuek] = valuev.(string)
 		}
 	case "const":
-		b.Const = schema.NumberPtr(value.(float64))
+		b.Const = schema.Pointer(value.(float64))
 	case "default":
-		b.Default = schema.NumberPtr(value.(float64))
+		b.Default = schema.Pointer(value.(float64))
 	case "deprecated":
 		b.Deprecated = value.(bool)
 	case "description":
@@ -153,17 +160,15 @@ func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	case "examples":
 		b.Examples = value.([]interface{})
 	case "exclusive_maximum":
-		b.ExclusiveMaximum = schema.NumberPtr(value.(float64))
+		b.ExclusiveMaximum = schema.Pointer(value.(float64))
 	case "exclusive_minimum":
-		b.ExclusiveMinimum = schema.NumberPtr(value.(float64))
-	case "id":
-		b.ID = value.(string)
+		b.ExclusiveMinimum = schema.Pointer(value.(float64))
 	case "maximum":
-		b.Maximum = schema.NumberPtr(value.(float64))
+		b.Maximum = schema.Pointer(value.(float64))
 	case "minimum":
-		b.Minimum = schema.NumberPtr(value.(float64))
+		b.Minimum = schema.Pointer(value.(float64))
 	case "multiple_of":
-		b.MultipleOf = schema.NumberPtr(value.(float64))
+		b.MultipleOf = schema.Pointer(value.(float64))
 	case "nullable":
 		b.Nullable = value.(bool)
 	case "read_only":
@@ -176,6 +181,6 @@ func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	return nil
 }
 
-func (i NumberInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i NumberInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

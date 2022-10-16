@@ -9,13 +9,13 @@ package directives
 import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/schema"
-	"github.com/conflowio/conflow/src/util"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
-// @block {
-//   type = "directive"
-//   eval_stage = "parse"
-// }
+//	@block {
+//	  type = "directive"
+//	  eval_stage = "parse"
+//	}
 type Input struct {
 	// @id
 	id       conflow.ID
@@ -30,8 +30,8 @@ func (i *Input) ID() conflow.ID {
 }
 
 func (i *Input) ApplyToParameterConfig(config *conflow.ParameterConfig) {
-	config.Input = util.BoolPtr(true)
-	config.Required = util.BoolPtr(i.required)
+	config.Input = ptr.To(true)
+	config.Required = ptr.To(i.required)
 	config.Schema = i.schema
 }
 

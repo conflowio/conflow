@@ -15,8 +15,6 @@ import (
 	"runtime"
 	"strings"
 
-	"golang.org/x/xerrors"
-
 	"github.com/conflowio/conflow/src/internal/utils"
 )
 
@@ -37,7 +35,7 @@ func writeFile(dir, name string, content []byte) error {
 
 	err := os.WriteFile(filepath, content, 0644)
 	if err != nil {
-		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
+		return fmt.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
 	}
 
 	formatted, err := format.Source(content)
@@ -47,7 +45,7 @@ func writeFile(dir, name string, content []byte) error {
 
 	err = os.WriteFile(filepath, formatted, 0644)
 	if err != nil {
-		return xerrors.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
+		return fmt.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
 	}
 
 	fmt.Printf("Wrote `%s` to `%s`\n", name, getRelativePath(filepath))

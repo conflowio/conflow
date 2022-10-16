@@ -47,7 +47,3 @@ func (h Hostname) StringValue(input interface{}) (string, bool) {
 func (h Hostname) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(""), false
 }
-
-func (h Hostname) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/StringPtr"
-}

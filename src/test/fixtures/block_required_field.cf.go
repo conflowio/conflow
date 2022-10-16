@@ -5,22 +5,27 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/test/fixtures.BlockRequiredField",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/test/fixtures.BlockRequiredField",
 		},
 		JSONPropertyNames: map[string]string{"id_field": "IDField"},
-		Name:              "BlockRequiredField",
-		Parameters: map[string]schema.Schema{
-			"id_field": &schema.String{
+		ParameterNames:    map[string]string{"IDField": "id_field"},
+		Properties: map[string]schema.Schema{
+			"IDField": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -41,9 +46,9 @@ func (i BlockRequiredFieldInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockRequiredField block
 func (i BlockRequiredFieldInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BlockRequiredField{
-		IDField: id,
-	}
+	b := &BlockRequiredField{}
+	b.IDField = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -81,6 +86,6 @@ func (i BlockRequiredFieldInterpreter) SetParam(block conflow.Block, name conflo
 	return nil
 }
 
-func (i BlockRequiredFieldInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockRequiredFieldInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

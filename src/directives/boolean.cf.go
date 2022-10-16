@@ -5,19 +5,24 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Boolean",
+			Annotations: map[string]string{
+				annotations.EvalStage: "parse",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Boolean",
 		},
 		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "write_only": "writeOnly"},
-		Name:              "Boolean",
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"$id": "id", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
 			"annotations": &schema.Map{
 				AdditionalProperties: &schema.String{},
 			},
@@ -35,11 +40,10 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"id":         &schema.String{},
-			"nullable":   &schema.Boolean{},
-			"read_only":  &schema.Boolean{},
-			"title":      &schema.String{},
-			"write_only": &schema.Boolean{},
+			"nullable":  &schema.Boolean{},
+			"readOnly":  &schema.Boolean{},
+			"title":     &schema.String{},
+			"writeOnly": &schema.Boolean{},
 		},
 	})
 }
@@ -55,7 +59,8 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 
 // Create creates a new Boolean block
 func (i BooleanInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Boolean{}
+	b := &Boolean{}
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -75,6 +80,8 @@ func (i BooleanInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Par
 
 func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Boolean).ID
 	case "annotations":
 		return b.(*Boolean).Annotations
 	case "const":
@@ -89,8 +96,6 @@ func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 		return b.(*Boolean).Enum
 	case "examples":
 		return b.(*Boolean).Examples
-	case "id":
-		return b.(*Boolean).ID
 	case "nullable":
 		return b.(*Boolean).Nullable
 	case "read_only":
@@ -107,15 +112,17 @@ func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Boolean)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
 			b.Annotations[valuek] = valuev.(string)
 		}
 	case "const":
-		b.Const = schema.BooleanPtr(value.(bool))
+		b.Const = schema.Pointer(value.(bool))
 	case "default":
-		b.Default = schema.BooleanPtr(value.(bool))
+		b.Default = schema.Pointer(value.(bool))
 	case "deprecated":
 		b.Deprecated = value.(bool)
 	case "description":
@@ -127,8 +134,6 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
-	case "id":
-		b.ID = value.(string)
 	case "nullable":
 		b.Nullable = value.(bool)
 	case "read_only":
@@ -141,6 +146,6 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	return nil
 }
 
-func (i BooleanInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BooleanInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

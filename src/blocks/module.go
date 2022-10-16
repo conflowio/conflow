@@ -12,6 +12,7 @@ import (
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
@@ -43,9 +44,11 @@ func (m *module) Run(ctx context.Context) (conflow.Result, error) {
 		return nil, err
 	}
 
-	for propertyName, property := range m.interpreter.Schema().(schema.ObjectKind).GetParameters() {
+	s := m.interpreter.Schema().(*schema.Object)
+	for jsonPropertyName, property := range s.Properties {
 		if property.GetReadOnly() {
-			m.params[conflow.ID(propertyName)] = m.interpreter.Param(value.(conflow.Block), conflow.ID(propertyName))
+			parameterName := s.JSONPropertyName(jsonPropertyName)
+			m.params[conflow.ID(parameterName)] = m.interpreter.Param(value.(conflow.Block), conflow.ID(parameterName))
 		}
 	}
 
@@ -58,8 +61,8 @@ func NewModuleInterpreter(
 	node parsley.Node,
 ) conflow.BlockInterpreter {
 	s := interpreter.Schema().Copy().(*schema.Object)
-	for _, p := range s.Parameters {
-		p.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationUserDefined, "")
+	for _, p := range s.Properties {
+		p.(schema.MetadataAccessor).SetAnnotation(annotations.UserDefined, "")
 	}
 
 	return &moduleInterpreter{
@@ -96,7 +99,7 @@ func (m *moduleInterpreter) SetParam(b conflow.Block, name conflow.ID, value int
 	return nil
 }
 
-func (m *moduleInterpreter) SetBlock(b conflow.Block, name conflow.ID, value interface{}) error {
+func (m *moduleInterpreter) SetBlock(b conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }
 

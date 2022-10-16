@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/internal/testhelper"
 	"github.com/conflowio/conflow/src/schema"
 	"github.com/conflowio/conflow/src/schema/formats"
@@ -72,14 +73,13 @@ var _ = Describe("Format", func() {
 					}
 				`
 				testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-					Name: "Foo",
 					Metadata: schema.Metadata{
 						ID: "test.Foo",
 						Annotations: map[string]string{
-							conflow.AnnotationType: conflow.BlockTypeConfiguration,
+							annotations.Type: conflow.BlockTypeConfiguration,
 						},
 					},
-					Parameters: map[string]schema.Schema{
+					Properties: map[string]schema.Schema{
 						"v": &schema.String{
 							Format: "test",
 						},

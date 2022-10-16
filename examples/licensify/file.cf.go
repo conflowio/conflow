@@ -5,21 +5,25 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/examples/licensify.File",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/examples/licensify.File",
 		},
-		Name: "File",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -39,9 +43,9 @@ func (i FileInterpreter) Schema() schema.Schema {
 
 // Create creates a new File block
 func (i FileInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &File{
-		id: id,
-	}
+	b := &File{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -79,6 +83,6 @@ func (i FileInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i FileInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i FileInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

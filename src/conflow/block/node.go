@@ -10,8 +10,10 @@ import (
 	"fmt"
 
 	"github.com/conflowio/parsley/parsley"
+	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
@@ -29,6 +31,7 @@ var _ conflow.BlockNode = &Node{}
 type Node struct {
 	idNode       *conflow.IDNode
 	nameNode     *conflow.NameNode
+	keyNode      *terminal.StringNode
 	children     []conflow.Node
 	token        string
 	directives   []conflow.BlockNode
@@ -44,6 +47,7 @@ type Node struct {
 func NewNode(
 	idNode *conflow.IDNode,
 	nameNode *conflow.NameNode,
+	keyNode *terminal.StringNode,
 	children []conflow.Node,
 	token string,
 	directives []conflow.BlockNode,
@@ -55,7 +59,7 @@ func NewNode(
 	var generates []conflow.ID
 	for _, c := range children {
 		if b, ok := c.(conflow.BlockNode); ok {
-			if b.Schema().(schema.Schema).GetAnnotation(conflow.AnnotationGenerated) == "true" {
+			if b.Schema().(schema.Schema).GetAnnotation(annotations.Generated) == "true" {
 				generates = append(generates, b.ID())
 				generates = append(generates, b.Provides()...)
 			} else {
@@ -69,6 +73,7 @@ func NewNode(
 	return &Node{
 		idNode:       idNode,
 		nameNode:     nameNode,
+		keyNode:      keyNode,
 		children:     children,
 		token:        token,
 		directives:   directives,
@@ -100,6 +105,14 @@ func (n *Node) BlockType() conflow.ID {
 	return n.nameNode.NameNode().ID()
 }
 
+func (n *Node) Key() *string {
+	if n.keyNode != nil {
+		key := n.keyNode.Value().(string)
+		return &key
+	}
+	return nil
+}
+
 // Token returns with the node's token
 func (n *Node) Token() string {
 	return n.token
@@ -115,6 +128,8 @@ func (n *Node) SetSchema(s schema.Schema) {
 	switch st := s.(type) {
 	case *schema.Array:
 		n.schema.Metadata.Merge(st.Items.(*schema.Reference).Metadata)
+	case *schema.Map:
+		n.schema.Metadata.Merge(st.AdditionalProperties.(*schema.Reference).Metadata)
 	case *schema.Reference:
 		n.schema.Metadata.Merge(st.Metadata)
 	default:
@@ -123,7 +138,7 @@ func (n *Node) SetSchema(s schema.Schema) {
 }
 
 func (n *Node) GetPropertySchema(name conflow.ID) (schema.Schema, bool) {
-	s, ok := n.schema.Parameters[string(name)]
+	s, ok := n.schema.PropertyByParameterName(string(name))
 	if ok {
 		return s, true
 	}
@@ -141,7 +156,7 @@ func (n *Node) GetPropertySchema(name conflow.ID) (schema.Schema, bool) {
 
 // EvalStage returns with the evaluation stage
 func (n *Node) EvalStage() conflow.EvalStage {
-	evalStageStr := n.schema.GetAnnotation(conflow.AnnotationEvalStage)
+	evalStageStr := n.schema.GetAnnotation(annotations.EvalStage)
 	if evalStageStr != "" {
 		return conflow.EvalStages[evalStageStr]
 	}
@@ -176,7 +191,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	for _, child := range n.Children() {
 		switch c := child.(type) {
 		case conflow.BlockNode:
-			property, exists := n.schema.Parameters[string(c.ParameterName())]
+			property, exists := n.schema.PropertyByParameterName(string(c.ParameterName()))
 
 			if !exists && c.ParameterName() != c.BlockType() {
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.ParameterName())
@@ -184,21 +199,21 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 
 			if exists {
 				blockCounts[c.ParameterName()] = blockCounts[c.ParameterName()] + 1
-				if blockCounts[c.ParameterName()] > 1 && property.Type() != schema.TypeArray {
+				if blockCounts[c.ParameterName()] > 1 && property.Type() != schema.TypeArray && property.Type() != schema.TypeMap {
 					return parsley.NewError(c.Pos(), fmt.Errorf("%q block can only be defined once", c.ParameterName()))
 				}
 			}
 		case conflow.ParameterNode:
-			property, exists := n.schema.Parameters[string(c.Name())]
+			property, exists := n.schema.PropertyByParameterName(string(c.Name()))
 
 			switch {
-			case exists && c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true":
+			case exists && c.IsDeclaration() && property.GetAnnotation(annotations.UserDefined) != "true":
 				return parsley.NewErrorf(c.Pos(), "%q parameter already exists. Use \"=\" to set the parameter value or use a different name", c.Name())
-			case exists && !c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) == "true":
+			case exists && !c.IsDeclaration() && property.GetAnnotation(annotations.UserDefined) == "true":
 				return parsley.NewErrorf(c.Pos(), "%q must be defined as a new variable using \":=\"", c.Name())
 			case !exists && !c.IsDeclaration():
 				return parsley.NewErrorf(c.Pos(), "%q parameter does not exist", c.Name())
-			case !c.IsDeclaration() && property.GetAnnotation(conflow.AnnotationUserDefined) != "true" && property.GetReadOnly():
+			case !c.IsDeclaration() && property.GetAnnotation(annotations.UserDefined) != "true" && property.GetReadOnly():
 				return parsley.NewErrorf(c.Pos(), "%q is a read-only parameter and can not be set", c.Name())
 			}
 		default:
@@ -207,15 +222,16 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	}
 
 	for _, required := range n.schema.Required {
+		requiredParameterName := n.schema.ParameterName(required)
 		found := func() bool {
 			for _, child := range n.Children() {
 				switch c := child.(type) {
 				case conflow.BlockNode:
-					if string(c.ParameterName()) == required {
+					if string(c.ParameterName()) == requiredParameterName {
 						return true
 					}
 				case conflow.ParameterNode:
-					if string(c.Name()) == required && c.ValueNode().Schema().(schema.Schema).Type() != schema.TypeNull {
+					if string(c.Name()) == requiredParameterName && c.ValueNode().Schema().(schema.Schema).Type() != schema.TypeNull {
 						return true
 					}
 				}
@@ -223,7 +239,7 @@ func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 			return false
 		}()
 		if !found {
-			if IsBlockSchema(n.schema.Parameters[required]) {
+			if IsBlockSchema(n.schema.Properties[required]) {
 				return parsley.NewError(n.Pos(), fmt.Errorf("%q block is required", required))
 			} else {
 				return parsley.NewError(n.Pos(), fmt.Errorf("%q parameter is required", required))

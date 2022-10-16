@@ -34,9 +34,9 @@ func (m *MultipleOf) ApplyToSchema(s schema.Schema) error {
 
 	switch st := s.(type) {
 	case *schema.Integer:
-		st.MultipleOf = schema.IntegerPtr(value.(int64))
+		st.MultipleOf = schema.Pointer(value.(int64))
 	case *schema.Number:
-		st.MultipleOf = schema.NumberPtr(value.(float64))
+		st.MultipleOf = schema.Pointer(value.(float64))
 	default:
 		return fmt.Errorf("multiple_of directive can not be applied to %T", s)
 	}

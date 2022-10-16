@@ -5,28 +5,35 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockSimple",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockSimple",
 		},
 		JSONPropertyNames: map[string]string{"id_field": "IDField", "value": "Value"},
-		Name:              "BlockSimple",
-		Parameters: map[string]schema.Schema{
-			"id_field": &schema.String{
+		ParameterNames:    map[string]string{"IDField": "id_field", "Value": "value"},
+		Properties: map[string]schema.Schema{
+			"IDField": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
-			"value": &schema.String{
+			"Value": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 			},
 		},
@@ -44,9 +51,9 @@ func (i BlockSimpleInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockSimple block
 func (i BlockSimpleInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BlockSimple{
-		IDField: id,
-	}
+	b := &BlockSimple{}
+	b.IDField = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -84,6 +91,6 @@ func (i BlockSimpleInterpreter) SetParam(block conflow.Block, name conflow.ID, v
 	return nil
 }
 
-func (i BlockSimpleInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockSimpleInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

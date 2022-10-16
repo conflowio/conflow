@@ -5,21 +5,25 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "task"},
-			ID:          "github.com/conflowio/conflow/examples/licensify.Licensify",
+			Annotations: map[string]string{
+				annotations.Type: "task",
+			},
+			ID: "github.com/conflowio/conflow/examples/licensify.Licensify",
 		},
-		Name: "Licensify",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -41,9 +45,9 @@ func (i LicensifyInterpreter) Schema() schema.Schema {
 
 // Create creates a new Licensify block
 func (i LicensifyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Licensify{
-		id: id,
-	}
+	b := &Licensify{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -85,6 +89,6 @@ func (i LicensifyInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	return nil
 }
 
-func (i LicensifyInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i LicensifyInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

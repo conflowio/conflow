@@ -5,28 +5,34 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/blocks.Tick",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/blocks.Tick",
 		},
-		Name: "Tick",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"time": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.EvalStage: "close",
+					},
+					ReadOnly: true,
 				},
 				Format: "date-time",
 			},
@@ -45,9 +51,9 @@ func (i TickInterpreter) Schema() schema.Schema {
 
 // Create creates a new Tick block
 func (i TickInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Tick{
-		id: id,
-	}
+	b := &Tick{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -80,6 +86,6 @@ func (i TickInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i TickInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i TickInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

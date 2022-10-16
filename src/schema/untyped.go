@@ -52,11 +52,11 @@ func (u *Untyped) DefaultValue() interface{} {
 	return nil
 }
 
-func (u *Untyped) GoString(map[string]string) string {
+func (u *Untyped) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Untyped{\n")
 	if !reflect.ValueOf(u.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(u.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(u.Metadata.GoString(imports)))
 	}
 	if len(u.Types) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tTypes: %#v,\n", u.Types)

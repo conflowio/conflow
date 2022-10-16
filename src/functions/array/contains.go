@@ -18,7 +18,7 @@ func Contains(arr []interface{}, elem interface{}) (bool, error) {
 		return false, err
 	}
 
-	itemSchema := s.(schema.ArrayKind).GetItems()
+	itemSchema := s.(*schema.Array).Items
 	for _, e := range arr {
 		if itemSchema.CompareValues(e, elem) == 0 {
 			return true, nil

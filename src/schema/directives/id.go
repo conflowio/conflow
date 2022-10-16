@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
@@ -34,7 +35,7 @@ func (i *ID) ApplyToSchema(s schema.Schema) error {
 	}
 
 	return schema.UpdateMetadata(s, func(meta schema.MetadataAccessor) error {
-		meta.SetAnnotation(conflow.AnnotationID, "true")
+		meta.SetAnnotation(annotations.ID, "true")
 		return nil
 	})
 }

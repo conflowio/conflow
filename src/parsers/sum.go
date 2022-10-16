@@ -17,9 +17,10 @@ import (
 )
 
 // Sum will match +, - arithmetic operations defined by the following rule, where P is the input parser:
-//   S      -> P (SUM_OP P)*
-//   SUM_OP -> "+"
-//          -> "-"
+//
+//	S      -> P (SUM_OP P)*
+//	SUM_OP -> "+"
+//	       -> "-"
 func Sum(p parsley.Parser) *combinator.Sequence {
 	return SepByOp(
 		p,

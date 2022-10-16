@@ -5,6 +5,7 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 	"time"
 )
@@ -12,21 +13,26 @@ import (
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "task"},
-			ID:          "github.com/conflowio/conflow/src/blocks.Sleep",
+			Annotations: map[string]string{
+				annotations.Type: "task",
+			},
+			ID: "github.com/conflowio/conflow/src/blocks.Sleep",
 		},
-		Name: "Sleep",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"duration": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 				Format: "duration-go",
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -46,9 +52,9 @@ func (i SleepInterpreter) Schema() schema.Schema {
 
 // Create creates a new Sleep block
 func (i SleepInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Sleep{
-		id: id,
-	}
+	b := &Sleep{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -86,6 +92,6 @@ func (i SleepInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i SleepInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i SleepInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

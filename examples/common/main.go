@@ -28,7 +28,7 @@ func NewParseContext() *conflow.ParseContext {
 	return conflow.NewParseContext(parsley.NewFileSet(), idRegistry, directives.DefaultRegistry())
 }
 
-func Main(ctx context.Context, parseCtx *conflow.ParseContext, inputParams map[conflow.ID]interface{}) {
+func Main(ctx context.Context, parseCtx *conflow.ParseContext, inputParams map[conflow.ID]interface{}) interface{} {
 	level := uzerolog.InfoLevel
 	if envLevel := os.Getenv("CONFLOW_LOG"); envLevel != "" {
 		var err error
@@ -49,7 +49,7 @@ func Main(ctx context.Context, parseCtx *conflow.ParseContext, inputParams map[c
 		logger.Debug().Err(err).Msg("http server stopped")
 	}()
 
-	if _, err := conflow.Evaluate(
+	res, err := conflow.Evaluate(
 		parseCtx,
 		ctx,
 		nil,
@@ -57,8 +57,11 @@ func Main(ctx context.Context, parseCtx *conflow.ParseContext, inputParams map[c
 		scheduler,
 		"main",
 		inputParams,
-	); err != nil {
+	)
+	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		os.Exit(1)
 	}
+
+	return res
 }

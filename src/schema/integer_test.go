@@ -8,6 +8,8 @@ package schema_test
 
 import (
 	"errors"
+	"fmt"
+	"math"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -27,16 +29,18 @@ var _ = Describe("Integer", func() {
 		},
 		Entry("zero", &schema.Integer{}, int64(0)),
 		Entry("non-zero value", &schema.Integer{}, int64(1)),
-		Entry("const value", &schema.Integer{Const: schema.IntegerPtr(1)}, int64(1)),
+		Entry("const value", &schema.Integer{Const: schema.Pointer(int64(1))}, int64(1)),
 		Entry("enum value - single", &schema.Integer{Enum: []int64{1}}, int64(1)),
 		Entry("enum value - multiple", &schema.Integer{Enum: []int64{1, 2}}, int64(1)),
-		Entry("enum value - minimum - equal", &schema.Integer{Minimum: schema.IntegerPtr(1)}, int64(1)),
-		Entry("enum value - minimum - greater", &schema.Integer{Minimum: schema.IntegerPtr(1)}, int64(2)),
-		Entry("enum value - maximum - equal", &schema.Integer{Maximum: schema.IntegerPtr(2)}, int64(2)),
-		Entry("enum value - maximum - less", &schema.Integer{Maximum: schema.IntegerPtr(2)}, int64(1)),
-		Entry("enum value - exclusive minimum", &schema.Integer{ExclusiveMinimum: schema.IntegerPtr(1)}, int64(2)),
-		Entry("enum value - exclusive maximum", &schema.Integer{ExclusiveMaximum: schema.IntegerPtr(2)}, int64(1)),
-		Entry("enum value - multiple of", &schema.Integer{MultipleOf: schema.IntegerPtr(2)}, int64(4)),
+		Entry("enum value - minimum - equal", &schema.Integer{Minimum: schema.Pointer(int64(1))}, int64(1)),
+		Entry("enum value - minimum - greater", &schema.Integer{Minimum: schema.Pointer(int64(1))}, int64(2)),
+		Entry("enum value - maximum - equal", &schema.Integer{Maximum: schema.Pointer(int64(2))}, int64(2)),
+		Entry("enum value - maximum - less", &schema.Integer{Maximum: schema.Pointer(int64(2))}, int64(1)),
+		Entry("enum value - exclusive minimum", &schema.Integer{ExclusiveMinimum: schema.Pointer(int64(1))}, int64(2)),
+		Entry("enum value - exclusive maximum", &schema.Integer{ExclusiveMaximum: schema.Pointer(int64(2))}, int64(1)),
+		Entry("enum value - multiple of", &schema.Integer{MultipleOf: schema.Pointer(int64(2))}, int64(4)),
+		Entry("int32 with maximum valid value", &schema.Integer{Format: "int32"}, int64(math.MaxInt32)),
+		Entry("int32 with minimum valid value", &schema.Integer{Format: "int32"}, int64(math.MinInt32)),
 	)
 
 	DescribeTable("Validate errors",
@@ -52,7 +56,7 @@ var _ = Describe("Integer", func() {
 		),
 		Entry(
 			"const value",
-			&schema.Integer{Const: schema.IntegerPtr(1)},
+			&schema.Integer{Const: schema.Pointer(int64(1))},
 			int64(2),
 			errors.New("must be 1"),
 		),
@@ -70,45 +74,57 @@ var _ = Describe("Integer", func() {
 		),
 		Entry(
 			"minimum",
-			&schema.Integer{Minimum: schema.IntegerPtr(2)},
+			&schema.Integer{Minimum: schema.Pointer(int64(2))},
 			int64(1),
 			errors.New("must be greater than or equal to 2"),
 		),
 		Entry(
 			"maximum",
-			&schema.Integer{Maximum: schema.IntegerPtr(2)},
+			&schema.Integer{Maximum: schema.Pointer(int64(2))},
 			int64(3),
 			errors.New("must be less than or equal to 2"),
 		),
 		Entry(
 			"exclusive minimum - equal",
-			&schema.Integer{ExclusiveMinimum: schema.IntegerPtr(2)},
+			&schema.Integer{ExclusiveMinimum: schema.Pointer(int64(2))},
 			int64(2),
 			errors.New("must be greater than 2"),
 		),
 		Entry(
 			"exclusive minimum - less",
-			&schema.Integer{ExclusiveMinimum: schema.IntegerPtr(2)},
+			&schema.Integer{ExclusiveMinimum: schema.Pointer(int64(2))},
 			int64(1),
 			errors.New("must be greater than 2"),
 		),
 		Entry(
 			"exclusive maximum - equal",
-			&schema.Integer{ExclusiveMaximum: schema.IntegerPtr(2)},
+			&schema.Integer{ExclusiveMaximum: schema.Pointer(int64(2))},
 			int64(2),
 			errors.New("must be less than 2"),
 		),
 		Entry(
 			"exclusive maximum - greater",
-			&schema.Integer{ExclusiveMaximum: schema.IntegerPtr(2)},
+			&schema.Integer{ExclusiveMaximum: schema.Pointer(int64(2))},
 			int64(3),
 			errors.New("must be less than 2"),
 		),
 		Entry(
 			"multiple of",
-			&schema.Integer{MultipleOf: schema.IntegerPtr(2)},
+			&schema.Integer{MultipleOf: schema.Pointer(int64(2))},
 			int64(3),
 			errors.New("must be multiple of 2"),
+		),
+		Entry(
+			"int32 minimum",
+			&schema.Integer{Format: "int32"},
+			int64(math.MinInt32-1),
+			fmt.Errorf("must be greater than or equal to %d", math.MinInt32),
+		),
+		Entry(
+			"int32 maximum",
+			&schema.Integer{Format: "int32"},
+			int64(math.MaxInt32+1),
+			fmt.Errorf("must be less than or equal to %d", math.MaxInt32),
 		),
 	)
 
@@ -125,16 +141,16 @@ var _ = Describe("Integer", func() {
 		),
 		Entry(
 			"const",
-			&schema.Integer{Const: schema.IntegerPtr(1)},
+			&schema.Integer{Const: schema.Pointer(int64(1))},
 			`&schema.Integer{
-	Const: schema.IntegerPtr(1),
+	Const: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(
 			"default",
-			&schema.Integer{Default: schema.IntegerPtr(1)},
+			&schema.Integer{Default: schema.Pointer(int64(1))},
 			`&schema.Integer{
-	Default: schema.IntegerPtr(1),
+	Default: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(
@@ -145,38 +161,45 @@ var _ = Describe("Integer", func() {
 }`,
 		),
 		Entry(
-			"minimum",
-			&schema.Integer{Minimum: schema.IntegerPtr(1)},
+			"format",
+			&schema.Integer{Format: "int32"},
 			`&schema.Integer{
-	Minimum: schema.IntegerPtr(1),
+	Format: "int32",
+}`,
+		),
+		Entry(
+			"minimum",
+			&schema.Integer{Minimum: schema.Pointer(int64(1))},
+			`&schema.Integer{
+	Minimum: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(
 			"maximum",
-			&schema.Integer{Maximum: schema.IntegerPtr(1)},
+			&schema.Integer{Maximum: schema.Pointer(int64(1))},
 			`&schema.Integer{
-	Maximum: schema.IntegerPtr(1),
+	Maximum: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(
 			"exclusive minimum",
-			&schema.Integer{ExclusiveMinimum: schema.IntegerPtr(1)},
+			&schema.Integer{ExclusiveMinimum: schema.Pointer(int64(1))},
 			`&schema.Integer{
-	ExclusiveMinimum: schema.IntegerPtr(1),
+	ExclusiveMinimum: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(
 			"exclusive maximum",
-			&schema.Integer{ExclusiveMaximum: schema.IntegerPtr(1)},
+			&schema.Integer{ExclusiveMaximum: schema.Pointer(int64(1))},
 			`&schema.Integer{
-	ExclusiveMaximum: schema.IntegerPtr(1),
+	ExclusiveMaximum: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(
 			"multiple of",
-			&schema.Integer{MultipleOf: schema.IntegerPtr(1)},
+			&schema.Integer{MultipleOf: schema.Pointer(int64(1))},
 			`&schema.Integer{
-	MultipleOf: schema.IntegerPtr(1),
+	MultipleOf: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(
@@ -196,6 +219,7 @@ var _ = Describe("Integer", func() {
 				"enum": [3, 4],
 				"exclusiveMinimum": 5,
 				"exclusiveMaximum": 6,
+				"format": "int32",
 				"maximum": 7,
 				"minimum": 8,
 				"multipleOf": 9,

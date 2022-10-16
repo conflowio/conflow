@@ -5,21 +5,25 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "main"},
-			ID:          "github.com/conflowio/conflow/examples/timeout.Main",
+			Annotations: map[string]string{
+				annotations.Type: "main",
+			},
+			ID: "github.com/conflowio/conflow/examples/timeout.Main",
 		},
-		Name: "Main",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -38,9 +42,9 @@ func (i MainInterpreter) Schema() schema.Schema {
 
 // Create creates a new Main block
 func (i MainInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Main{
-		id: id,
-	}
+	b := &Main{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -71,6 +75,6 @@ func (i MainInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i MainInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i MainInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

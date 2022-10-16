@@ -42,17 +42,9 @@ func (s *String) AssignValue(imports map[string]string, valueName, resultName st
 	goType := utils.GoType(imports, formatType, false)
 
 	if s.Nullable {
-		ptr := s.format().PtrFunc()
-		lastDot := strings.LastIndex(ptr, ".")
-		if lastDot == -1 || strings.Contains(ptr[lastDot+1:], "/") {
-			panic(fmt.Errorf("PtrFunc() in %T must use the following format: PACKAGE_NAME.FUNCTION_NAME", s.format()))
-		}
-		ptrPkg := utils.EnsureUniqueGoPackageName(imports, ptr[0:lastDot])
-		ptrFunc := fmt.Sprintf("%s.%s", ptrPkg, ptr[lastDot+1:])
 		return fmt.Sprintf(
-			"%s = %s(%s.(%s))",
+			"%s = schema.Pointer(%s.(%s))",
 			resultName,
-			ptrFunc,
 			valueName,
 			goType,
 		)
@@ -116,13 +108,13 @@ func (s *String) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.String{\n")
 	if !reflect.ValueOf(s.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(s.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(s.Metadata.GoString(imports)))
 	}
 	if s.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: schema.StringPtr(%#v),\n", *s.Const)
+		_, _ = fmt.Fprintf(buf, "\tConst: schema.Pointer(%#v),\n", *s.Const)
 	}
 	if s.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: schema.StringPtr(%#v),\n", *s.Default)
+		_, _ = fmt.Fprintf(buf, "\tDefault: schema.Pointer(%#v),\n", *s.Default)
 	}
 	if len(s.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", s.Enum)
@@ -134,7 +126,7 @@ func (s *String) GoString(imports map[string]string) string {
 		_, _ = fmt.Fprintf(buf, "\tMinLength: %d,\n", s.MinLength)
 	}
 	if s.MaxLength != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxLength: schema.IntegerPtr(%d),\n", *s.MaxLength)
+		_, _ = fmt.Fprintf(buf, "\tMaxLength: schema.Pointer(int64(%d)),\n", *s.MaxLength)
 	}
 	if s.Nullable {
 		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", s.Nullable)
@@ -334,8 +326,4 @@ func (s *stringValue) Copy() Schema {
 
 func (s *stringValue) GoString(map[string]string) string {
 	return "schema.StringValue()"
-}
-
-func StringPtr(v string) *string {
-	return &v
 }

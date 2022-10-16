@@ -31,11 +31,3 @@ func (d DurationGo) StringValue(input interface{}) (string, bool) {
 func (d DurationGo) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(time.Duration(0)), true
 }
-
-func (d DurationGo) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.DurationGoPtr"
-}
-
-func DurationGoPtr(v time.Duration) *time.Duration {
-	return &v
-}

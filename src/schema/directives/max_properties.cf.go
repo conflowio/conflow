@@ -5,27 +5,33 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/schema/directives.MaxProperties",
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/schema/directives.MaxProperties",
 		},
-		Name: "MaxProperties",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"value": &schema.Integer{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 			},
 		},
@@ -44,9 +50,9 @@ func (i MaxPropertiesInterpreter) Schema() schema.Schema {
 
 // Create creates a new MaxProperties block
 func (i MaxPropertiesInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &MaxProperties{
-		id: id,
-	}
+	b := &MaxProperties{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -84,6 +90,6 @@ func (i MaxPropertiesInterpreter) SetParam(block conflow.Block, name conflow.ID,
 	return nil
 }
 
-func (i MaxPropertiesInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i MaxPropertiesInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

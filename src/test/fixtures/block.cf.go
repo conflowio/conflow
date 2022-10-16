@@ -5,6 +5,7 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 	"time"
 )
@@ -12,46 +13,52 @@ import (
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/test/fixtures.Block",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/test/fixtures.Block",
 		},
 		JSONPropertyNames: map[string]string{"field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_identifier": "FieldIdentifier", "field_integer": "FieldInteger", "field_interface": "FieldInterface", "field_map": "FieldMap", "field_number": "FieldNumber", "field_string": "FieldString", "field_string_array": "FieldStringArray", "field_time": "FieldTime", "field_time_duration": "FieldTimeDuration", "id_field": "IDField"},
-		Name:              "Block",
-		Parameters: map[string]schema.Schema{
-			"field_array": &schema.Array{
+		ParameterNames:    map[string]string{"FieldArray": "field_array", "FieldBool": "field_bool", "FieldFloat": "field_float", "FieldIdentifier": "field_identifier", "FieldInteger": "field_integer", "FieldInterface": "field_interface", "FieldMap": "field_map", "FieldNumber": "field_number", "FieldString": "field_string", "FieldStringArray": "field_string_array", "FieldTime": "field_time", "FieldTimeDuration": "field_time_duration", "IDField": "id_field"},
+		Properties: map[string]schema.Schema{
+			"FieldArray": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"field_bool":  &schema.Boolean{},
-			"field_float": &schema.Number{},
-			"field_identifier": &schema.String{
+			"FieldBool":  &schema.Boolean{},
+			"FieldFloat": &schema.Number{},
+			"FieldIdentifier": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.EvalStage: "close",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
-			"field_integer":   &schema.Integer{},
-			"field_interface": &schema.Untyped{},
-			"field_map": &schema.Map{
+			"FieldInteger":   &schema.Integer{},
+			"FieldInterface": &schema.Untyped{},
+			"FieldMap": &schema.Map{
 				AdditionalProperties: &schema.Untyped{},
 			},
-			"field_number": &schema.Untyped{
+			"FieldNumber": &schema.Untyped{
 				Types: []string{"integer", "number"},
 			},
-			"field_string": &schema.String{},
-			"field_string_array": &schema.Array{
+			"FieldString": &schema.String{},
+			"FieldStringArray": &schema.Array{
 				Items: &schema.String{},
 			},
-			"field_time": &schema.String{
+			"FieldTime": &schema.String{
 				Format: "date-time",
 			},
-			"field_time_duration": &schema.String{
+			"FieldTimeDuration": &schema.String{
 				Format: "duration-go",
 			},
-			"id_field": &schema.String{
+			"IDField": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -70,9 +77,9 @@ func (i BlockInterpreter) Schema() schema.Schema {
 
 // Create creates a new Block block
 func (i BlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Block{
-		IDField: id,
-	}
+	b := &Block{}
+	b.IDField = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -155,6 +162,6 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i BlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

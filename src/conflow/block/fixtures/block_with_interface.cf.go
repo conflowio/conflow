@@ -5,30 +5,35 @@ package fixtures
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithInterface",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithInterface",
 		},
 		JSONPropertyNames: map[string]string{"block": "Block", "blocks": "Blocks", "id_field": "IDField"},
-		Name:              "BlockWithInterface",
-		Parameters: map[string]schema.Schema{
-			"block": &schema.Reference{
+		ParameterNames:    map[string]string{"Block": "block", "Blocks": "blocks", "IDField": "id_field"},
+		Properties: map[string]schema.Schema{
+			"Block": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/src/conflow.Block",
 			},
-			"blocks": &schema.Array{
+			"Blocks": &schema.Array{
 				Items: &schema.Reference{
 					Ref: "github.com/conflowio/conflow/src/conflow.Block",
 				},
 			},
-			"id_field": &schema.String{
+			"IDField": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -47,9 +52,9 @@ func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockWithInterface block
 func (i BlockWithInterfaceInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BlockWithInterface{
-		IDField: id,
-	}
+	b := &BlockWithInterface{}
+	b.IDField = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -80,7 +85,7 @@ func (i BlockWithInterfaceInterpreter) SetParam(block conflow.Block, name conflo
 	return nil
 }
 
-func (i BlockWithInterfaceInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockWithInterfaceInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*BlockWithInterface)
 	switch name {
 	case "block":

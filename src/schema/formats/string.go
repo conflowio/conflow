@@ -28,7 +28,3 @@ func (s String) StringValue(input interface{}) (string, bool) {
 func (s String) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(""), true
 }
-
-func (s String) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema.StringPtr"
-}

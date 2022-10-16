@@ -41,6 +41,7 @@ func ParseCtx(
 		conflow.NewIDNode("test", conflow.ClassifierNone, parsley.NilPos, parsley.NilPos),
 		conflow.NewNameNode(nil, nil, conflow.NewIDNode("testblock", conflow.ClassifierNone, parsley.NilPos, parsley.NilPos)),
 		nil,
+		nil,
 		"TESTBLOCK",
 		nil,
 		parsley.NilPos,

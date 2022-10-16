@@ -20,7 +20,8 @@ import (
 )
 
 // ID parses an identifier:
-//   S -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//
+//	S -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //
 // An identifier can only contain lowercase letters, numbers and underscore characters.
 // It must start with a letter, must end with a letter or number, and no duplicate underscores are allowed.

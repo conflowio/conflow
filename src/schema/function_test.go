@@ -17,7 +17,6 @@ import (
 )
 
 var _ schema.Schema = &schema.Function{}
-var _ schema.FunctionKind = &schema.Function{}
 
 var _ = Describe("Function", func() {
 

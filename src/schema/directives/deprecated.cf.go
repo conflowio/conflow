@@ -5,21 +5,25 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/schema/directives.Deprecated",
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/schema/directives.Deprecated",
 		},
-		Name: "Deprecated",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -38,9 +42,9 @@ func (i DeprecatedInterpreter) Schema() schema.Schema {
 
 // Create creates a new Deprecated block
 func (i DeprecatedInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Deprecated{
-		id: id,
-	}
+	b := &Deprecated{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -71,6 +75,6 @@ func (i DeprecatedInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	return nil
 }
 
-func (i DeprecatedInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i DeprecatedInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

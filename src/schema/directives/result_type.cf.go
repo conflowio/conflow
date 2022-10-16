@@ -5,21 +5,25 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/schema/directives.ResultType",
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/schema/directives.ResultType",
 		},
-		Name: "ResultType",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -38,9 +42,9 @@ func (i ResultTypeInterpreter) Schema() schema.Schema {
 
 // Create creates a new ResultType block
 func (i ResultTypeInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &ResultType{
-		id: id,
-	}
+	b := &ResultType{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -71,6 +75,6 @@ func (i ResultTypeInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	return nil
 }
 
-func (i ResultTypeInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i ResultTypeInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

@@ -5,6 +5,7 @@ package test
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 	"time"
 )
@@ -12,42 +13,54 @@ import (
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/src/test.Block",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/src/test.Block",
 		},
-		JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "Blocks", "value": "Value"},
-		Name:              "Block",
-		Parameters: map[string]schema.Schema{
-			"custom_field": &schema.String{},
-			"field_array": &schema.Array{
-				Items: &schema.Untyped{},
-			},
-			"field_bool":  &schema.Boolean{},
-			"field_float": &schema.Number{},
-			"field_int":   &schema.Integer{},
-			"field_map": &schema.Map{
-				AdditionalProperties: &schema.Untyped{},
-			},
-			"field_string": &schema.String{},
-			"field_time_duration": &schema.String{
-				Format: "duration-go",
-			},
-			"id_field": &schema.String{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
-				},
-				Format: "conflow.ID",
-			},
-			"testblock": &schema.Array{
+		JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "BlockArray", "testblockmap": "BlockMap", "value": "Value"},
+		ParameterNames:    map[string]string{"BlockArray": "testblock", "BlockMap": "testblockmap", "FieldArray": "field_array", "FieldBool": "field_bool", "FieldCustomName": "custom_field", "FieldFloat": "field_float", "FieldInt": "field_int", "FieldMap": "field_map", "FieldString": "field_string", "FieldTimeDuration": "field_time_duration", "IDField": "id_field", "Value": "value"},
+		Properties: map[string]schema.Schema{
+			"BlockArray": &schema.Array{
 				Items: &schema.Reference{
 					Nullable: true,
 					Ref:      "github.com/conflowio/conflow/src/test.Block",
 				},
 			},
-			"value": &schema.Untyped{
+			"BlockMap": &schema.Map{
+				AdditionalProperties: &schema.Reference{
+					Nullable: true,
+					Ref:      "github.com/conflowio/conflow/src/test.Block",
+				},
+			},
+			"FieldArray": &schema.Array{
+				Items: &schema.Untyped{},
+			},
+			"FieldBool":       &schema.Boolean{},
+			"FieldCustomName": &schema.String{},
+			"FieldFloat":      &schema.Number{},
+			"FieldInt":        &schema.Integer{},
+			"FieldMap": &schema.Map{
+				AdditionalProperties: &schema.Untyped{},
+			},
+			"FieldString": &schema.String{},
+			"FieldTimeDuration": &schema.String{
+				Format: "duration-go",
+			},
+			"IDField": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
+				},
+				Format: "conflow.ID",
+			},
+			"Value": &schema.Untyped{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 			},
 		},
@@ -65,9 +78,10 @@ func (i BlockInterpreter) Schema() schema.Schema {
 
 // Create creates a new Block block
 func (i BlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Block{
-		IDField: id,
-	}
+	b := &Block{}
+	b.IDField = id
+	b.BlockMap = map[string]*Block{}
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -87,12 +101,12 @@ func (i BlockInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Parse
 
 func (i BlockInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "custom_field":
-		return b.(*Block).FieldCustomName
 	case "field_array":
 		return b.(*Block).FieldArray
 	case "field_bool":
 		return b.(*Block).FieldBool
+	case "custom_field":
+		return b.(*Block).FieldCustomName
 	case "field_float":
 		return b.(*Block).FieldFloat
 	case "field_int":
@@ -115,12 +129,12 @@ func (i BlockInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Block)
 	switch name {
-	case "custom_field":
-		b.FieldCustomName = value.(string)
 	case "field_array":
 		b.FieldArray = value.([]interface{})
 	case "field_bool":
 		b.FieldBool = value.(bool)
+	case "custom_field":
+		b.FieldCustomName = value.(string)
 	case "field_float":
 		b.FieldFloat = value.(float64)
 	case "field_int":
@@ -137,11 +151,13 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i BlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BlockInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Block)
 	switch name {
 	case "testblock":
-		b.Blocks = append(b.Blocks, value.(*Block))
+		b.BlockArray = append(b.BlockArray, value.(*Block))
+	case "testblockmap":
+		b.BlockMap[key] = value.(*Block)
 	}
 	return nil
 }

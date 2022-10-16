@@ -5,27 +5,33 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/schema/directives.Format",
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/schema/directives.Format",
 		},
-		Name: "Format",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"value": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 				Enum: []string{"date", "date-time", "duration", "email", "hostname", "idn-email", "idn-hostname", "ip", "ip-cidr", "ipv4", "ipv4-cidr", "ipv6", "ipv6-cidr", "iri", "iri-reference", "regex", "time", "uri", "uri-reference", "uri-template", "uuid"},
 			},
@@ -45,9 +51,9 @@ func (i FormatInterpreter) Schema() schema.Schema {
 
 // Create creates a new Format block
 func (i FormatInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Format{
-		id: id,
-	}
+	b := &Format{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -85,6 +91,6 @@ func (i FormatInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	return nil
 }
 
-func (i FormatInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i FormatInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

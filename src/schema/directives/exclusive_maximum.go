@@ -34,9 +34,9 @@ func (e *ExclusiveMaximum) ApplyToSchema(s schema.Schema) error {
 
 	switch st := s.(type) {
 	case *schema.Integer:
-		st.ExclusiveMaximum = schema.IntegerPtr(value.(int64))
+		st.ExclusiveMaximum = schema.Pointer(value.(int64))
 	case *schema.Number:
-		st.ExclusiveMaximum = schema.NumberPtr(value.(float64))
+		st.ExclusiveMaximum = schema.Pointer(value.(float64))
 	default:
 		return fmt.Errorf("exclusive_maximum directive can not be applied to %T", s)
 	}

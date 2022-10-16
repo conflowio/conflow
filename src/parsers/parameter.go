@@ -18,8 +18,9 @@ import (
 
 // Parameter returns with a parameter parser
 // If allowNewAssignment is false then only "=" will be allowed
-//   S  -> ID ("="|":=") P
-//   ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//
+//	S  -> ID ("="|":=") P
+//	ID -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 func Parameter(expr parsley.Parser, allowNewAssignment bool, allowDirectives bool) *combinator.Sequence {
 	var directives parsley.Parser
 	if allowDirectives {

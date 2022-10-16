@@ -5,6 +5,7 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 	"time"
 )
@@ -12,15 +13,18 @@ import (
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			ID:          "github.com/conflowio/conflow/src/blocks.Ticker",
+			Annotations: map[string]string{
+				annotations.Type: "generator",
+			},
+			ID: "github.com/conflowio/conflow/src/blocks.Ticker",
 		},
-		Name: "Ticker",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -29,7 +33,10 @@ func init() {
 			},
 			"tick": &schema.Reference{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+					Annotations: map[string]string{
+						annotations.EvalStage: "init",
+						annotations.Generated: "true",
+					},
 				},
 				Nullable: true,
 				Ref:      "github.com/conflowio/conflow/src/blocks.Tick",
@@ -50,10 +57,10 @@ func (i TickerInterpreter) Schema() schema.Schema {
 
 // Create creates a new Ticker block
 func (i TickerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Ticker{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &Ticker{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -91,7 +98,7 @@ func (i TickerInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	return nil
 }
 
-func (i TickerInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i TickerInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Ticker)
 	switch name {
 	case "tick":

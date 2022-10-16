@@ -5,27 +5,34 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "task"},
-			ID:          "github.com/conflowio/conflow/src/blocks.Import",
+			Annotations: map[string]string{
+				annotations.EvalStage: "parse",
+				annotations.Type:      "task",
+			},
+			ID: "github.com/conflowio/conflow/src/blocks.Import",
 		},
-		Name: "Import",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"path": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 			},
 		},
@@ -44,9 +51,9 @@ func (i ImportInterpreter) Schema() schema.Schema {
 
 // Create creates a new Import block
 func (i ImportInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Import{
-		id: id,
-	}
+	b := &Import{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -84,6 +91,6 @@ func (i ImportInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	return nil
 }
 
-func (i ImportInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i ImportInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

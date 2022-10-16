@@ -5,27 +5,33 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/schema/directives.EvalStage",
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/schema/directives.EvalStage",
 		},
-		Name: "EvalStage",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"value": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 				Enum: []string{"init", "main", "close"},
 			},
@@ -45,9 +51,9 @@ func (i EvalStageInterpreter) Schema() schema.Schema {
 
 // Create creates a new EvalStage block
 func (i EvalStageInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &EvalStage{
-		id: id,
-	}
+	b := &EvalStage{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -85,6 +91,6 @@ func (i EvalStageInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	return nil
 }
 
-func (i EvalStageInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i EvalStageInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

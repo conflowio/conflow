@@ -19,23 +19,24 @@ import (
 	"github.com/conflowio/parsley/text"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/block"
-	"github.com/conflowio/conflow/src/schema"
 )
 
 // NewMain returns a parser for parsing a main block (a block body)
-//   S     -> (PARAM|BLOCK)*
-//   ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-//   PARAM -> ID ("="|":=") P
-//   VALUE -> EXPRESSION
-//         -> ARRAY
-//         -> MAP
+//
+//	S     -> (PARAM|BLOCK)*
+//	ID    -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//	PARAM -> ID ("="|":=") P
+//	VALUE -> EXPRESSION
+//	      -> ARRAY
+//	      -> MAP
 func NewMain(id conflow.ID, interpreter conflow.BlockInterpreter) *Main {
-	blockType := interpreter.Schema().GetAnnotation(conflow.AnnotationType)
+	blockType := interpreter.Schema().GetAnnotation(annotations.Type)
 	if blockType != conflow.BlockTypeMain && blockType != conflow.BlockTypeConfiguration {
 		panic(fmt.Errorf(
 			"%T can not be used as a main block, as it is a %s block",
-			interpreter.Schema().(schema.ObjectKind).GetName(),
+			interpreter.Schema().GetAnnotation(annotations.ID),
 			blockType,
 		))
 	}

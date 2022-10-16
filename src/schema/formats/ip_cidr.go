@@ -60,11 +60,3 @@ func (i IPCIDR) StringValue(input interface{}) (string, bool) {
 func (i IPCIDR) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(types.CIDR{}), i.Default
 }
-
-func (i IPCIDR) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.IPCIDRPtr"
-}
-
-func IPCIDRPtr(v types.CIDR) *types.CIDR {
-	return &v
-}

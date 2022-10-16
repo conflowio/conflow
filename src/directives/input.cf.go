@@ -5,27 +5,33 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Input",
+			Annotations: map[string]string{
+				annotations.EvalStage: "parse",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Input",
 		},
 		JSONPropertyNames: map[string]string{"type": "schema"},
-		Name:              "Input",
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"schema": "type"},
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"required": &schema.Boolean{},
-			"type": &schema.Reference{
+			"schema": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/src/schema.Schema",
 			},
 		},
@@ -44,9 +50,9 @@ func (i InputInterpreter) Schema() schema.Schema {
 
 // Create creates a new Input block
 func (i InputInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Input{
-		id: id,
-	}
+	b := &Input{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -84,7 +90,7 @@ func (i InputInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i InputInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i InputInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Input)
 	switch name {
 	case "type":

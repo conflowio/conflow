@@ -45,11 +45,3 @@ func (u URI) StringValue(input interface{}) (string, bool) {
 func (u URI) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(url.URL{}), u.Default
 }
-
-func (u URI) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.URIPtr"
-}
-
-func URIPtr(v url.URL) *url.URL {
-	return &v
-}

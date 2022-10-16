@@ -47,11 +47,3 @@ func (r Regex) StringValue(input interface{}) (string, bool) {
 func (r Regex) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(regexp.Regexp{}), true
 }
-
-func (r Regex) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.RegexPtr"
-}
-
-func RegexPtr(v regexp.Regexp) *regexp.Regexp {
-	return &v
-}

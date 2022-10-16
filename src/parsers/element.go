@@ -19,10 +19,11 @@ import (
 )
 
 // Element will match a variable expression defined by the following rule, where P is the input parser:
-//   S         -> P (VAR_INDEX)*
-//   VAR_INDEX -> "." ID
-//             -> "[" P "]"
-//   ID        -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//
+//	S         -> P (VAR_INDEX)*
+//	VAR_INDEX -> "." ID
+//	          -> "[" P "]"
+//	ID        -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 func Element(p parsley.Parser, index parsley.Parser) *combinator.Sequence {
 	arrayIndex := combinator.SeqOf(
 		terminal.Rune('['),
@@ -53,13 +54,13 @@ func (a elementInterpreter) StaticCheck(ctx interface{}, node parsley.NonTermina
 		}
 
 		switch st := s.(type) {
-		case schema.ArrayKind:
+		case *schema.Array:
 			if err := schema.IntegerValue().ValidateSchema(nodes[0].Schema().(schema.Schema), false); err != nil {
 				indexNode := nodes[0].(parsley.NonTerminalNode).Children()[1]
 				return nil, parsley.NewError(indexNode.Pos(), err)
 			}
 			s = st.GetItems()
-		case schema.MapKind:
+		case *schema.Map:
 			if err := schema.StringValue().ValidateSchema(nodes[0].Schema().(schema.Schema), false); err != nil {
 				indexNode := nodes[0].(parsley.NonTerminalNode).Children()[1]
 				return nil, parsley.NewError(indexNode.Pos(), err)

@@ -13,9 +13,9 @@ import (
 	"github.com/conflowio/conflow/src/conflow/block"
 )
 
-// @block {
-//    type = "generator"
-// }
+//	@block {
+//	   type = "generator"
+//	}
 type Iterator struct {
 	// @id
 	id conflow.ID

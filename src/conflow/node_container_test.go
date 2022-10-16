@@ -18,7 +18,7 @@ import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/conflowfakes"
 	"github.com/conflowio/conflow/src/loggers/zerolog"
-	"github.com/conflowio/conflow/src/util"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 var _ = Describe("NodeContainer", func() {
@@ -190,7 +190,7 @@ var _ = Describe("NodeContainer", func() {
 			BeforeEach(func() {
 				directive := &conflowfakes.FakeBlockDirective{}
 				directive.ApplyToRuntimeConfigStub = func(config *conflow.RuntimeConfig) {
-					config.Skip = util.BoolPtr(true)
+					config.Skip = ptr.To(true)
 				}
 				directiveBlock := &conflowfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(directive, nil)
@@ -213,7 +213,7 @@ var _ = Describe("NodeContainer", func() {
 			BeforeEach(func() {
 				directive := &conflowfakes.FakeBlockDirective{}
 				directive.ApplyToRuntimeConfigStub = func(config *conflow.RuntimeConfig) {
-					config.Timeout = util.TimeDurationPtr(1 * time.Second)
+					config.Timeout = ptr.To(1 * time.Second)
 				}
 				directiveBlock := &conflowfakes.FakeBlockNode{}
 				directiveBlock.ValueReturns(directive, nil)

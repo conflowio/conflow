@@ -34,9 +34,9 @@ func (e *ExclusiveMinimum) ApplyToSchema(s schema.Schema) error {
 
 	switch st := s.(type) {
 	case *schema.Integer:
-		st.ExclusiveMinimum = schema.IntegerPtr(value.(int64))
+		st.ExclusiveMinimum = schema.Pointer(value.(int64))
 	case *schema.Number:
-		st.ExclusiveMinimum = schema.NumberPtr(value.(float64))
+		st.ExclusiveMinimum = schema.Pointer(value.(float64))
 	default:
 		return fmt.Errorf("exclusive_minimum directive can not be applied to %T", s)
 	}

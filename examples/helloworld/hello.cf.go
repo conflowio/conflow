@@ -5,28 +5,34 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "task"},
+			Annotations: map[string]string{
+				annotations.Type: "task",
+			},
 			Description: "It is capable to print some greetings",
 			ID:          "github.com/conflowio/conflow/examples/helloworld.Hello",
 		},
-		Name: "Hello",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"greeting": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.EvalStage: "close",
+					},
+					ReadOnly: true,
 				},
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -47,9 +53,9 @@ func (i HelloInterpreter) Schema() schema.Schema {
 
 // Create creates a new Hello block
 func (i HelloInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Hello{
-		id: id,
-	}
+	b := &Hello{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -89,6 +95,6 @@ func (i HelloInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i HelloInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i HelloInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

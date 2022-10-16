@@ -6,11 +6,14 @@
 
 package strings
 
-import "strings"
+import (
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
 
 // Title returns a copy of the string s with all Unicode letters that begin words
 // mapped to their title case.
 // @function
 func Title(s string) string {
-	return strings.Title(s)
+	return cases.Title(language.English).String(s)
 }

@@ -5,27 +5,34 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			ID:          "github.com/conflowio/conflow/src/blocks.Iterator",
+			Annotations: map[string]string{
+				annotations.Type: "generator",
+			},
+			ID: "github.com/conflowio/conflow/src/blocks.Iterator",
 		},
-		Name: "Iterator",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"it": &schema.Reference{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+					Annotations: map[string]string{
+						annotations.EvalStage: "init",
+						annotations.Generated: "true",
+					},
 				},
 				Nullable: true,
 				Ref:      "github.com/conflowio/conflow/src/blocks.It",
@@ -47,10 +54,10 @@ func (i IteratorInterpreter) Schema() schema.Schema {
 
 // Create creates a new Iterator block
 func (i IteratorInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Iterator{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &Iterator{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -88,7 +95,7 @@ func (i IteratorInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	return nil
 }
 
-func (i IteratorInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i IteratorInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Iterator)
 	switch name {
 	case "it":

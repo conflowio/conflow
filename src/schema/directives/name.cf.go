@@ -5,29 +5,36 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/schema/directives.Name",
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/schema/directives.Name",
 		},
 		JSONPropertyNames: map[string]string{"value": "Value"},
-		Name:              "Name",
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"Value": "value"},
+		Properties: map[string]schema.Schema{
+			"Value": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
+				},
+			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
-			},
-			"value": &schema.String{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
-				},
 			},
 		},
 		Required: []string{"value"},
@@ -45,9 +52,9 @@ func (i NameInterpreter) Schema() schema.Schema {
 
 // Create creates a new Name block
 func (i NameInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Name{
-		id: id,
-	}
+	b := &Name{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -67,10 +74,10 @@ func (i NameInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseC
 
 func (i NameInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*Name).id
 	case "value":
 		return b.(*Name).Value
+	case "id":
+		return b.(*Name).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Name", name))
 	}
@@ -85,6 +92,6 @@ func (i NameInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i NameInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i NameInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

@@ -16,8 +16,9 @@ import (
 )
 
 // Variable will match a variable expression defined by the following rule, where P is the input parser:
-//   S         -> ID "." ID
-//   ID        -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//
+//	S         -> ID "." ID
+//	ID        -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
 //
 // Variable refers to a named block's parameter, in the format of `<block ID>.<parameter ID>`.
 func Variable() *combinator.Sequence {

@@ -62,7 +62,7 @@ func (i *IDNode) Schema() interface{} {
 	return schema.StringValue()
 }
 
-// Value returns with the id of the node
+// ValueOf returns with the id of the node
 func (i *IDNode) Value() interface{} {
 	return i.id
 }

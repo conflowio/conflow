@@ -18,8 +18,9 @@ import (
 )
 
 // Array will match an array expression defined by the following rule, where P is the input parser:
-//   S -> "[" "]"
-//   S -> "[" P ("," P)* "]"
+//
+//	S -> "[" "]"
+//	S -> "[" P ("," P)* "]"
 func Array(p parsley.Parser) *combinator.Sequence {
 	return combinator.SeqOf(
 		terminal.Rune('['),

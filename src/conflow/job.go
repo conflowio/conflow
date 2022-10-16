@@ -7,12 +7,14 @@
 package conflow
 
 // JobScheduler is the job scheduler
+//
 //counterfeiter:generate . JobScheduler
 type JobScheduler interface {
 	ScheduleJob(job Job) error
 }
 
 // Job is a unit of work the scheduler can schedule and run
+//
 //counterfeiter:generate . Job
 type Job interface {
 	JobName() ID

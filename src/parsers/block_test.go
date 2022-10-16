@@ -166,6 +166,55 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{IDField: "0", FieldString: "foobar"},
 		),
+		Entry(
+			"no id, key, empty block",
+			`testblock "key" {}`,
+			&test.Block{IDField: "0"},
+		),
+		Entry(
+			"id, key, empty block",
+			`foo testblock "key" {}`,
+			&test.Block{IDField: "foo"},
+		),
+		Entry(
+			"id, key, block with values",
+			`foo testblock "key" {
+				value = 123
+			}`,
+			&test.Block{IDField: "foo", Value: int64(123)},
+		),
+		Entry(
+			"no id, key, block with values",
+			`testblock "key" {
+				value = 123
+			}`,
+			&test.Block{IDField: "0", Value: int64(123)},
+		),
+		Entry(
+			"no id, key, short format",
+			`testblock "key" "value"`,
+			&test.Block{IDField: "0", Value: "value"},
+		),
+		Entry(
+			"id, key, short format",
+			`foo testblock "key" "value"`,
+			&test.Block{IDField: "foo", Value: "value"},
+		),
+		Entry(
+			"map of blocks",
+			`testblock {
+				testblockmap:testblock "a" {
+					value = 123
+				}
+				testblockmap:testblock "b" {
+					value = 234
+				}
+			}`,
+			&test.Block{IDField: "0", BlockMap: map[string]*test.Block{
+				"a": {IDField: "1", Value: int64(123)},
+				"b": {IDField: "2", Value: int64(234)},
+			}},
+		),
 	)
 
 	DescribeTable("it evaluates a child block correctly",
@@ -181,7 +230,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{
 				IDField: "0",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "1"},
 				},
 			},
@@ -193,7 +242,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{
 				IDField: "0",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "foo"},
 				},
 			},
@@ -205,7 +254,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{
 				IDField: "0",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "1"},
 				},
 			},
@@ -217,7 +266,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{
 				IDField: "0",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "foo"},
 				},
 			},
@@ -230,7 +279,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{
 				IDField: "0",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "1"},
 				},
 			},
@@ -244,7 +293,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{
 				IDField: "0",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "1", Value: int64(1)},
 				},
 			},
@@ -261,7 +310,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{
 				IDField: "0",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "1", Value: int64(1)},
 					{IDField: "2", Value: int64(2)},
 				},
@@ -279,7 +328,7 @@ var _ = Describe("Block parser", func() {
 			}`,
 			&test.Block{
 				IDField: "0",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "b1", FieldInt: int64(1)},
 					{IDField: "b2", FieldInt: int64(2)},
 				},

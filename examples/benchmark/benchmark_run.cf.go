@@ -5,27 +5,33 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "configuration"},
-			ID:          "github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
+			Annotations: map[string]string{
+				annotations.Type: "configuration",
+			},
+			ID: "github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
 		},
-		Name: "BenchmarkRun",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"cnt": &schema.Integer{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.EvalStage: "close",
+					},
+					ReadOnly: true,
 				},
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -44,9 +50,9 @@ func (i BenchmarkRunInterpreter) Schema() schema.Schema {
 
 // Create creates a new BenchmarkRun block
 func (i BenchmarkRunInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &BenchmarkRun{
-		id: id,
-	}
+	b := &BenchmarkRun{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -79,6 +85,6 @@ func (i BenchmarkRunInterpreter) SetParam(block conflow.Block, name conflow.ID, 
 	return nil
 }
 
-func (i BenchmarkRunInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BenchmarkRunInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

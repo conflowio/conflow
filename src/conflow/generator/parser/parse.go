@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/internal/utils"
 	"github.com/conflowio/conflow/src/schema"
 	schemadirectives "github.com/conflowio/conflow/src/schema/directives"
@@ -51,11 +51,6 @@ func ParseField(
 		return nil, err
 	}
 
-	parameterName := fieldName
-	if parameterName != "" && !schema.NameRegExp.MatchString(parameterName) {
-		parameterName = utils.ToSnakeCase(parameterName)
-	}
-
 	jsonPropertyName := fieldName
 	if astField.Tag != nil {
 		tag, err := strconv.Unquote(astField.Tag.Value)
@@ -66,12 +61,23 @@ func ParseField(
 		jsonTagParts := strings.Split(jsonTags, ",")
 		jsonName := strings.TrimSpace(jsonTagParts[0])
 
-		if jsonName == "-" {
-			return nil, nil
-		}
-
-		if jsonName != "" {
+		if jsonName != "" && jsonName != "-" {
 			jsonPropertyName = jsonName
+		}
+	}
+
+	var parameterName string
+	if jsonPropertyName != "" && schema.NameRegExp.MatchString(jsonPropertyName) {
+		parameterName = jsonPropertyName
+	}
+	if parameterName == "" && fieldName != "" {
+		if schema.NameRegExp.MatchString(fieldName) {
+			parameterName = fieldName
+		} else {
+			parameterName = utils.ToSnakeCase(fieldName)
+			if !schema.NameRegExp.MatchString(parameterName) {
+				return nil, fmt.Errorf("unable to generate a valid parameter name from field %q, please use @name to define one", fieldName)
+			}
 		}
 	}
 
@@ -148,17 +154,17 @@ func ParseField(
 		}
 	}
 
-	if fieldSchema.GetAnnotation(conflow.AnnotationID) == "true" &&
-		fieldSchema.GetAnnotation(conflow.AnnotationValue) == "true" {
+	if fieldSchema.GetAnnotation(annotations.ID) == "true" &&
+		fieldSchema.GetAnnotation(annotations.Value) == "true" {
 		return nil, errors.New("the id field can not be marked as the value field")
 	}
 
-	if fieldSchema.GetReadOnly() && fieldSchema.GetAnnotation(conflow.AnnotationID) != "true" {
-		fieldSchema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, "close")
+	if fieldSchema.GetReadOnly() && fieldSchema.GetAnnotation(annotations.ID) != "true" {
+		fieldSchema.(schema.MetadataAccessor).SetAnnotation(annotations.EvalStage, "close")
 	}
 
-	if fieldSchema.GetAnnotation(conflow.AnnotationGenerated) == "true" {
-		fieldSchema.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationEvalStage, "init")
+	if fieldSchema.GetAnnotation(annotations.Generated) == "true" {
+		fieldSchema.(schema.MetadataAccessor).SetAnnotation(annotations.EvalStage, "init")
 		required = true
 	}
 
@@ -257,13 +263,10 @@ func getBaseSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string) (sch
 		if err != nil {
 			return nil, false, err
 		}
-		if isRef {
-			return nil, false, fmt.Errorf("only single blocks or slice of blocks are supported")
-		}
 
 		return &schema.Map{
 			AdditionalProperties: propertiesSchema,
-		}, false, nil
+		}, isRef, nil
 	case *ast.StarExpr:
 		res, isRef, err := getBaseSchemaForType(parseCtx, tn.X, pkg)
 		if err != nil {

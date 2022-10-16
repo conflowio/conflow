@@ -5,33 +5,40 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "task"},
+			Annotations: map[string]string{
+				annotations.Type: "task",
+			},
 			Description: "It will error for the given tries",
 			ID:          "github.com/conflowio/conflow/examples/retry.Fail",
 		},
 		JSONPropertyNames: map[string]string{"tries_required": "triesRequired"},
-		Name:              "Fail",
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"triesRequired": "tries_required"},
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"tries": &schema.Integer{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.EvalStage: "close",
+					},
+					ReadOnly: true,
 				},
 			},
-			"tries_required": &schema.Integer{},
+			"triesRequired": &schema.Integer{},
 		},
 		Required: []string{"tries_required"},
 	})
@@ -48,9 +55,9 @@ func (i FailInterpreter) Schema() schema.Schema {
 
 // Create creates a new Fail block
 func (i FailInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Fail{
-		id: id,
-	}
+	b := &Fail{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -90,6 +97,6 @@ func (i FailInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i FailInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i FailInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

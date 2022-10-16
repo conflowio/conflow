@@ -19,13 +19,14 @@ import (
 )
 
 // Compare will match comparison expressions defined by the following rule, where P is the input parser:
-//  S       -> P (COMP_OP P)*
-//  COMP_OP -> "=="
-//          -> "!="
-//          -> "<"
-//          -> "<="
-//          -> ">"
-//          -> ">="
+//
+//	S       -> P (COMP_OP P)*
+//	COMP_OP -> "=="
+//	        -> "!="
+//	        -> "<"
+//	        -> "<="
+//	        -> ">"
+//	        -> ">="
 func Compare(p parsley.Parser) *combinator.Sequence {
 	return SepByOp(
 		p,
@@ -67,11 +68,11 @@ func (a compareInterpreter) StaticCheck(ctx interface{}, node parsley.NonTermina
 
 			if op != "==" && op != "!=" {
 				switch resultSchema.(type) {
-				case schema.ArrayKind:
+				case *schema.Array:
 					return "", parsley.NewErrorf(opPos, "%q operator is invalid for arrays", op)
-				case schema.MapKind:
+				case *schema.Map:
 					return "", parsley.NewErrorf(opPos, "%q operator is invalid for maps", op)
-				case schema.ObjectKind:
+				case *schema.Object:
 					return "", parsley.NewErrorf(opPos, "%q operator is invalid for objects", op)
 				}
 			}

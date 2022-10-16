@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
 	"github.com/conflowio/conflow/src/schema"
 	schemadirectives "github.com/conflowio/conflow/src/schema/directives"
@@ -46,8 +47,7 @@ func ParseStruct(
 			ID:          fmt.Sprintf("%s.%s", pkg, name),
 			Description: metadata.Description,
 		},
-		Name:       name,
-		Parameters: map[string]schema.Schema{},
+		Properties: map[string]schema.Schema{},
 	}
 
 	if strings.HasPrefix(s.Metadata.Description, name+" ") {
@@ -60,17 +60,16 @@ func ParseStruct(
 		}
 	}
 
-	var idField string
-	var valueField string
+	var idField, valueField, keyField string
 	var dependencies []parser.Dependency
 
 	parseCtx = parseCtx.WithParent(str)
 
-	for _, field := range str.Fields.List {
-		if len(field.Names) > 0 {
-			fieldName := field.Names[0].String()
+	for _, strField := range str.Fields.List {
+		if len(strField.Names) > 0 {
+			fieldName := strField.Names[0].String()
 
-			field, err := parser.ParseField(parseCtx, fieldName, field, pkg)
+			field, err := parser.ParseField(parseCtx, fieldName, strField, pkg)
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse field %q: %w", fieldName, err)
 			}
@@ -87,45 +86,46 @@ func ParseStruct(
 				continue
 			}
 
-			if err := addField(s, &idField, &valueField, *field); err != nil {
+			if err := addField(s, &idField, &valueField, &keyField, *field); err != nil {
 				return nil, err
 			}
 		} else {
-			fieldStr, err := ParseEmbeddedField(parseCtx, pkg, field)
+			fieldStr, err := ParseEmbeddedField(parseCtx, pkg, strField)
 			if err != nil {
-				return nil, fmt.Errorf("failed to parse embedded struct %q: %w", field.Type, err)
+				return nil, fmt.Errorf("failed to parse embedded struct %q: %w", strField.Type, err)
 			}
 
 			fieldStrSchema := fieldStr.Schema.(*schema.Object)
 
-			for parameterName, parameter := range fieldStrSchema.Parameters {
-				if parameter.GetAnnotation(conflow.AnnotationID) == "true" {
+			for jsonPropertyName, property := range fieldStrSchema.Properties {
+				parameterName := fieldStrSchema.ParameterName(jsonPropertyName)
+				if property.GetAnnotation(annotations.ID) == "true" {
 					continue
 				}
 
-				if parameter.GetAnnotation(conflow.AnnotationValue) == "true" {
-					parameter.(schema.MetadataAccessor).SetAnnotation(conflow.AnnotationValue, "")
-				}
-
 				f := parser.Field{
-					Name:             fieldStrSchema.GetFieldName(parameterName),
+					Name:             fieldStrSchema.FieldName(parameterName),
 					ParameterName:    parameterName,
-					Required:         fieldStrSchema.IsParameterRequired(parameterName),
-					Schema:           parameter,
-					JSONPropertyName: fieldStrSchema.GetJSONPropertyName(parameterName),
+					Required:         fieldStrSchema.IsPropertyRequired(jsonPropertyName),
+					Schema:           property,
+					JSONPropertyName: jsonPropertyName,
 				}
 
-				if err := addField(s, &idField, &valueField, f); err != nil {
+				if err := addField(s, &idField, &valueField, &keyField, f); err != nil {
 					return nil, err
 				}
 			}
 		}
 	}
 
-	if s.GetAnnotation(conflow.AnnotationType) == conflow.BlockTypeGenerator {
+	if valueField != "" && len(s.Required) > 0 && (len(s.Required) > 1 || s.Required[0] != valueField) {
+		return nil, errors.New("when setting a value field then no other fields can be required")
+	}
+
+	if s.GetAnnotation(annotations.Type) == conflow.BlockTypeGenerator {
 		hasGeneratedField := false
-		for _, p := range s.Parameters {
-			if p.GetAnnotation(conflow.AnnotationGenerated) == "true" {
+		for _, p := range s.Properties {
+			if p.GetAnnotation(annotations.Generated) == "true" {
 				hasGeneratedField = true
 				break
 			}
@@ -202,39 +202,48 @@ func ParseEmbeddedField(
 	}
 }
 
-func addField(s *schema.Object, idField, valueField *string, field parser.Field) error {
-	if _, exists := s.Parameters[field.ParameterName]; exists {
-		return fmt.Errorf("multiple fields has the same property name: %s", field.ParameterName)
+func addField(s *schema.Object, idField, valueField, keyField *string, field parser.Field) error {
+	if _, exists := s.Properties[field.JSONPropertyName]; exists {
+		return fmt.Errorf("multiple fields has the same JSON property name: %s", field.JSONPropertyName)
 	}
 
-	if field.Schema.GetAnnotation(conflow.AnnotationID) == "true" {
+	if field.Schema.GetAnnotation(annotations.ID) == "true" {
 		if *idField != "" {
-			return fmt.Errorf("multiple id fields were found: %s, %s", *idField, field.Name)
+			return fmt.Errorf("multiple id fields were found: %s, %s", *idField, field.ParameterName)
 		}
-		*idField = field.Name
+		*idField = field.ParameterName
 	}
 
-	if field.Schema.GetAnnotation(conflow.AnnotationValue) == "true" {
+	if field.Schema.GetAnnotation(annotations.Value) == "true" {
 		if *valueField != "" {
-			return fmt.Errorf("multiple value fields were found: %s, %s", *valueField, field.Name)
+			return fmt.Errorf("multiple value fields were found: %s, %s", *valueField, field.ParameterName)
 		}
-		*valueField = field.Name
+		*valueField = field.ParameterName
+	}
+
+	if field.Schema.GetAnnotation(annotations.Key) == "true" {
+		if *keyField != "" {
+			return fmt.Errorf("multiple key fields were found: %s, %s", *keyField, field.ParameterName)
+		}
+		*keyField = field.ParameterName
 	}
 
 	if field.Required {
-		if *valueField != "" && *valueField != field.Name {
-			return errors.New("when setting a value field then no other fields can be required")
-		}
 		s.Required = append(s.Required, field.ParameterName)
 	}
 
-	s.Parameters[field.ParameterName] = field.Schema
+	s.Properties[field.JSONPropertyName] = field.Schema
 
 	if field.ParameterName != field.JSONPropertyName {
 		if s.JSONPropertyNames == nil {
 			s.JSONPropertyNames = map[string]string{}
 		}
 		s.JSONPropertyNames[field.ParameterName] = field.JSONPropertyName
+
+		if s.ParameterNames == nil {
+			s.ParameterNames = map[string]string{}
+		}
+		s.ParameterNames[field.JSONPropertyName] = field.ParameterName
 	}
 
 	if field.Name != field.JSONPropertyName {

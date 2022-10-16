@@ -5,27 +5,32 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
 			Description: "It is the directive for marking functions as conflow functions",
 			ID:          "github.com/conflowio/conflow/src/schema/directives.Function",
 		},
 		JSONPropertyNames: map[string]string{"path": "Path"},
-		Name:              "Function",
-		Parameters: map[string]schema.Schema{
+		ParameterNames:    map[string]string{"Path": "path"},
+		Properties: map[string]schema.Schema{
+			"Path": &schema.String{},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
-			"path": &schema.String{},
 		},
 	})
 }
@@ -41,9 +46,9 @@ func (i FunctionInterpreter) Schema() schema.Schema {
 
 // Create creates a new Function block
 func (i FunctionInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Function{
-		id: id,
-	}
+	b := &Function{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -63,10 +68,10 @@ func (i FunctionInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Pa
 
 func (i FunctionInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*Function).id
 	case "path":
 		return b.(*Function).Path
+	case "id":
+		return b.(*Function).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Function", name))
 	}
@@ -81,6 +86,6 @@ func (i FunctionInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	return nil
 }
 
-func (i FunctionInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i FunctionInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

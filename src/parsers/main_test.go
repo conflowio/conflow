@@ -62,7 +62,7 @@ var _ = Describe("Main block parser", func() {
 			`,
 			&test.Block{
 				IDField: "main",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "c", Value: int64(1)},
 				},
 			},
@@ -78,7 +78,7 @@ var _ = Describe("Main block parser", func() {
 			&test.Block{
 				IDField: "main",
 				Value:   int64(1),
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "c", Value: int64(2)},
 				},
 			},
@@ -126,7 +126,7 @@ var _ = Describe("Main block parser", func() {
 			`,
 			&test.Block{
 				IDField: "main",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "c2", FieldInt: int64(1)},
 					{IDField: "c1", FieldInt: int64(2)},
 				},
@@ -143,7 +143,7 @@ var _ = Describe("Main block parser", func() {
 			&test.Block{
 				IDField:  "main",
 				FieldInt: int64(2),
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "c", FieldInt: int64(1)},
 				},
 			},
@@ -159,7 +159,7 @@ var _ = Describe("Main block parser", func() {
 			&test.Block{
 				IDField:  "main",
 				FieldInt: int64(2),
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "c"},
 				},
 			},
@@ -175,7 +175,7 @@ var _ = Describe("Main block parser", func() {
 			&test.Block{
 				IDField:  "main",
 				FieldInt: int64(1),
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "c", FieldInt: int64(2)},
 				},
 			},
@@ -193,10 +193,10 @@ var _ = Describe("Main block parser", func() {
 			&test.Block{
 				IDField:  "main",
 				FieldInt: int64(2),
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{
 						IDField: "c1",
-						Blocks: []*test.Block{
+						BlockArray: []*test.Block{
 							{
 								IDField:  "c2",
 								FieldInt: int64(1),
@@ -222,10 +222,10 @@ var _ = Describe("Main block parser", func() {
 			`,
 			&test.Block{
 				IDField: "main",
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{
 						IDField: "c3",
-						Blocks: []*test.Block{
+						BlockArray: []*test.Block{
 							{
 								IDField:  "c4",
 								FieldInt: int64(1),
@@ -234,7 +234,7 @@ var _ = Describe("Main block parser", func() {
 					},
 					{
 						IDField: "c1",
-						Blocks: []*test.Block{
+						BlockArray: []*test.Block{
 							{
 								IDField:  "c2",
 								FieldInt: int64(2),
@@ -260,7 +260,7 @@ var _ = Describe("Main block parser", func() {
 			&test.Block{
 				IDField:  "main",
 				FieldInt: int64(6),
-				Blocks: []*test.Block{
+				BlockArray: []*test.Block{
 					{IDField: "c1", FieldInt: int64(2)},
 					{IDField: "c2", FieldInt: int64(4)},
 				},

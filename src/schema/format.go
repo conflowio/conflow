@@ -22,7 +22,6 @@ func init() {
 //counterfeiter:generate . Format
 type Format interface {
 	Type() (reflect.Type, bool)
-	PtrFunc() string
 	StringValue(input interface{}) (string, bool)
 	ValidateValue(input string) (interface{}, error)
 }

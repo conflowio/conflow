@@ -5,28 +5,26 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/schema/directives.DependentRequired",
+			Annotations: map[string]string{
+				annotations.Type: "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/schema/directives.DependentRequired",
 		},
 		JSONPropertyNames: map[string]string{"value": "Value"},
-		Name:              "DependentRequired",
-		Parameters: map[string]schema.Schema{
-			"id": &schema.String{
+		ParameterNames:    map[string]string{"Value": "value"},
+		Properties: map[string]schema.Schema{
+			"Value": &schema.Map{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
-				},
-				Format: "conflow.ID",
-			},
-			"value": &schema.Map{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 				AdditionalProperties: &schema.Array{
 					Items: &schema.String{
@@ -35,6 +33,15 @@ func init() {
 					MinItems:    1,
 					UniqueItems: true,
 				},
+			},
+			"id": &schema.String{
+				Metadata: schema.Metadata{
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
+				},
+				Format: "conflow.ID",
 			},
 		},
 		Required: []string{"value"},
@@ -52,9 +59,9 @@ func (i DependentRequiredInterpreter) Schema() schema.Schema {
 
 // Create creates a new DependentRequired block
 func (i DependentRequiredInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &DependentRequired{
-		id: id,
-	}
+	b := &DependentRequired{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -74,10 +81,10 @@ func (i DependentRequiredInterpreter) ParseContext(ctx *conflow.ParseContext) *c
 
 func (i DependentRequiredInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "id":
-		return b.(*DependentRequired).id
 	case "value":
 		return b.(*DependentRequired).Value
+	case "id":
+		return b.(*DependentRequired).id
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in DependentRequired", name))
 	}
@@ -98,6 +105,6 @@ func (i DependentRequiredInterpreter) SetParam(block conflow.Block, name conflow
 	return nil
 }
 
-func (i DependentRequiredInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i DependentRequiredInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

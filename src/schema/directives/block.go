@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
@@ -37,10 +38,10 @@ func (b *Block) ApplyToSchema(s schema.Schema) error {
 		return fmt.Errorf("@block can only be used on a struct")
 	}
 
-	s.(*schema.Object).SetAnnotation(conflow.AnnotationType, b.Type)
+	s.(*schema.Object).SetAnnotation(annotations.Type, b.Type)
 
 	if b.EvalStage != "" {
-		s.(*schema.Object).SetAnnotation(conflow.AnnotationEvalStage, b.EvalStage)
+		s.(*schema.Object).SetAnnotation(annotations.EvalStage, b.EvalStage)
 	}
 
 	return nil

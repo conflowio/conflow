@@ -5,28 +5,35 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			ID:          "github.com/conflowio/conflow/src/blocks.LineScanner",
+			Annotations: map[string]string{
+				annotations.Type: "generator",
+			},
+			ID: "github.com/conflowio/conflow/src/blocks.LineScanner",
 		},
-		Name: "LineScanner",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"input": &schema.Untyped{},
 			"line": &schema.Reference{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+					Annotations: map[string]string{
+						annotations.EvalStage: "init",
+						annotations.Generated: "true",
+					},
 				},
 				Nullable: true,
 				Ref:      "github.com/conflowio/conflow/src/blocks.Line",
@@ -47,10 +54,10 @@ func (i LineScannerInterpreter) Schema() schema.Schema {
 
 // Create creates a new LineScanner block
 func (i LineScannerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &LineScanner{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &LineScanner{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -88,7 +95,7 @@ func (i LineScannerInterpreter) SetParam(block conflow.Block, name conflow.ID, v
 	return nil
 }
 
-func (i LineScannerInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i LineScannerInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*LineScanner)
 	switch name {
 	case "line":

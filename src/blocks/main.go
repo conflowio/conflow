@@ -10,6 +10,7 @@ import (
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
@@ -30,7 +31,7 @@ func (m MainInterpreter) Schema() schema.Schema {
 	return &schema.Object{
 		Metadata: schema.Metadata{
 			Annotations: map[string]string{
-				conflow.AnnotationType: conflow.BlockTypeMain,
+				annotations.Type: conflow.BlockTypeMain,
 			},
 		},
 	}
@@ -47,7 +48,7 @@ func (m MainInterpreter) SetParam(b conflow.Block, name conflow.ID, value interf
 	return nil
 }
 
-func (m MainInterpreter) SetBlock(b conflow.Block, name conflow.ID, value interface{}) error {
+func (m MainInterpreter) SetBlock(b conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }
 

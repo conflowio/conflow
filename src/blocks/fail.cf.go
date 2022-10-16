@@ -5,27 +5,33 @@ package blocks
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "task"},
-			ID:          "github.com/conflowio/conflow/src/blocks.Fail",
+			Annotations: map[string]string{
+				annotations.Type: "task",
+			},
+			ID: "github.com/conflowio/conflow/src/blocks.Fail",
 		},
-		Name: "Fail",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"msg": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 			},
 		},
@@ -44,9 +50,9 @@ func (i FailInterpreter) Schema() schema.Schema {
 
 // Create creates a new Fail block
 func (i FailInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Fail{
-		id: id,
-	}
+	b := &Fail{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -84,6 +90,6 @@ func (i FailInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i FailInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i FailInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

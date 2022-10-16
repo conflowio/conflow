@@ -5,31 +5,38 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Retry",
+			Annotations: map[string]string{
+				annotations.EvalStage: "init",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Retry",
 		},
-		Name: "Retry",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"limit": &schema.Integer{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
-				Default: schema.IntegerPtr(-1),
-				Minimum: schema.IntegerPtr(-1),
-				Maximum: schema.IntegerPtr(2147483647),
+				Default: schema.Pointer(int64(-1)),
+				Minimum: schema.Pointer(int64(-1)),
+				Maximum: schema.Pointer(int64(2147483647)),
 			},
 		},
 		Required: []string{"limit"},
@@ -47,10 +54,10 @@ func (i RetryInterpreter) Schema() schema.Schema {
 
 // Create creates a new Retry block
 func (i RetryInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Retry{
-		id:    id,
-		limit: -1,
-	}
+	b := &Retry{}
+	b.id = id
+	b.limit = -1
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -88,6 +95,6 @@ func (i RetryInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	return nil
 }
 
-func (i RetryInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i RetryInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

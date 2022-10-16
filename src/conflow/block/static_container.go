@@ -15,6 +15,7 @@ import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/conflow/parameter"
 	"github.com/conflowio/conflow/src/schema"
+	"github.com/conflowio/conflow/src/util/ptr"
 )
 
 // StaticContainer is a container for blocks where there is no dynamic child evaluation required
@@ -129,8 +130,7 @@ func (s *StaticContainer) evaluateChild(node conflow.Node) parsley.Error {
 	case *StaticContainer:
 		node := r.Node().(conflow.BlockNode)
 		name, _ := getNameSchemaForChildBlock(s.Node().Schema().(*schema.Object), node)
-
-		if err := s.node.Interpreter().SetBlock(s.block, name, value); err != nil {
+		if err := s.node.Interpreter().SetBlock(s.block, name, ptr.Value(node.Key()), value); err != nil {
 			return parsley.NewError(r.Node().Pos(), err)
 		}
 	default:

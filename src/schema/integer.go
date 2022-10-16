@@ -11,11 +11,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/conflowio/conflow/src/internal/utils"
 )
 
 type Integer struct {
@@ -26,16 +25,17 @@ type Integer struct {
 	Enum             []int64 `json:"enum,omitempty"`
 	ExclusiveMinimum *int64  `json:"exclusiveMinimum,omitempty"`
 	ExclusiveMaximum *int64  `json:"exclusiveMaximum,omitempty"`
-	Maximum          *int64  `json:"maximum,omitempty"`
-	Minimum          *int64  `json:"minimum,omitempty"`
-	Nullable         bool    `json:"nullable,omitempty"`
-	MultipleOf       *int64  `json:"multipleOf,omitempty"`
+	// @enum ["int32", "int64"]
+	Format     string `json:"format,omitempty"`
+	Maximum    *int64 `json:"maximum,omitempty"`
+	Minimum    *int64 `json:"minimum,omitempty"`
+	Nullable   bool   `json:"nullable,omitempty"`
+	MultipleOf *int64 `json:"multipleOf,omitempty"`
 }
 
 func (i *Integer) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if i.Nullable {
-		schemaPackageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/src/schema")
-		return fmt.Sprintf("%s = %s.IntegerPtr(%s.(int64))", resultName, schemaPackageName, valueName)
+		return fmt.Sprintf("%s = schema.Pointer(%s.(int64))", resultName, valueName)
 	}
 
 	return fmt.Sprintf("%s = %s.(int64)", resultName, valueName)
@@ -49,7 +49,7 @@ func (i *Integer) CompareValues(v1, v2 interface{}) int {
 	case float64:
 		f1 = v
 	default:
-		return -1
+		panic(fmt.Errorf("unexpected type when comparing numbers: %T", v))
 	}
 
 	var f2 float64
@@ -59,7 +59,7 @@ func (i *Integer) CompareValues(v1, v2 interface{}) int {
 	case float64:
 		f2 = v
 	default:
-		return -1
+		panic(fmt.Errorf("unexpected type when comparing numbers: %T", v))
 	}
 
 	switch {
@@ -97,35 +97,38 @@ func (i *Integer) GetNullable() bool {
 	return i.Nullable
 }
 
-func (i *Integer) GoString(map[string]string) string {
+func (i *Integer) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
 	buf.WriteString("&schema.Integer{\n")
 	if !reflect.ValueOf(i.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(i.Metadata.GoString()))
+		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(i.Metadata.GoString(imports)))
 	}
 	if i.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: schema.IntegerPtr(%#v),\n", *i.Const)
+		_, _ = fmt.Fprintf(buf, "\tConst: schema.Pointer(int64(%#v)),\n", *i.Const)
 	}
 	if i.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: schema.IntegerPtr(%#v),\n", *i.Default)
+		_, _ = fmt.Fprintf(buf, "\tDefault: schema.Pointer(int64(%#v)),\n", *i.Default)
 	}
 	if len(i.Enum) > 0 {
 		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", i.Enum)
 	}
+	if len(i.Format) > 0 {
+		_, _ = fmt.Fprintf(buf, "\tFormat: %#v,\n", i.Format)
+	}
 	if i.Minimum != nil {
-		_, _ = fmt.Fprintf(buf, "\tMinimum: schema.IntegerPtr(%#v),\n", *i.Minimum)
+		_, _ = fmt.Fprintf(buf, "\tMinimum: schema.Pointer(int64(%#v)),\n", *i.Minimum)
 	}
 	if i.Maximum != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaximum: schema.IntegerPtr(%#v),\n", *i.Maximum)
+		_, _ = fmt.Fprintf(buf, "\tMaximum: schema.Pointer(int64(%#v)),\n", *i.Maximum)
 	}
 	if i.ExclusiveMinimum != nil {
-		_, _ = fmt.Fprintf(buf, "\tExclusiveMinimum: schema.IntegerPtr(%#v),\n", *i.ExclusiveMinimum)
+		_, _ = fmt.Fprintf(buf, "\tExclusiveMinimum: schema.Pointer(int64(%#v)),\n", *i.ExclusiveMinimum)
 	}
 	if i.ExclusiveMaximum != nil {
-		_, _ = fmt.Fprintf(buf, "\tExclusiveMaximum: schema.IntegerPtr(%#v),\n", *i.ExclusiveMaximum)
+		_, _ = fmt.Fprintf(buf, "\tExclusiveMaximum: schema.Pointer(int64(%#v)),\n", *i.ExclusiveMaximum)
 	}
 	if i.MultipleOf != nil {
-		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.IntegerPtr(%#v),\n", *i.MultipleOf)
+		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.Pointer(int64(%#v)),\n", *i.MultipleOf)
 	}
 	if i.Nullable {
 		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", i.Nullable)
@@ -157,12 +160,12 @@ func (i *Integer) SetNullable(nullable bool) {
 }
 
 func (i *Integer) StringValue(value interface{}) string {
-	v, ok := value.(int64)
-	if !ok {
-		return ""
+	switch v := value.(type) {
+	case int64:
+		return strconv.FormatInt(v, 10)
+	default:
+		panic(fmt.Errorf("unexpected type when converting number to string: %T", v))
 	}
-
-	return strconv.FormatInt(v, 10)
 }
 
 func (i *Integer) Type() Type {
@@ -230,12 +233,20 @@ func (i *Integer) ValidateValue(value interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("must be greater than or equal to %d", *i.Minimum)
 	}
 
+	if i.Format == "int32" && v < math.MinInt32 {
+		return nil, fmt.Errorf("must be greater than or equal to %d", math.MinInt32)
+	}
+
 	if i.ExclusiveMinimum != nil && v <= *i.ExclusiveMinimum {
 		return nil, fmt.Errorf("must be greater than %d", *i.ExclusiveMinimum)
 	}
 
 	if i.Maximum != nil && v > *i.Maximum {
 		return nil, fmt.Errorf("must be less than or equal to %d", *i.Maximum)
+	}
+
+	if i.Format == "int32" && v > math.MaxInt32 {
+		return nil, fmt.Errorf("must be less than or equal to %d", math.MaxInt32)
 	}
 
 	if i.ExclusiveMaximum != nil && v >= *i.ExclusiveMaximum {
@@ -284,8 +295,4 @@ func (i *integerValue) Copy() Schema {
 
 func (i *integerValue) GoString(map[string]string) string {
 	return "schema.IntegerValue()"
-}
-
-func IntegerPtr(v int64) *int64 {
-	return &v
 }

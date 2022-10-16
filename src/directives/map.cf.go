@@ -5,20 +5,25 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "parse", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Map",
+			Annotations: map[string]string{
+				annotations.EvalStage: "parse",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Map",
 		},
 		FieldNames:        map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
 		JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "read_only": "readOnly", "write_only": "writeOnly"},
-		Name:              "Map",
-		Parameters: map[string]schema.Schema{
-			"additional_properties": &schema.Reference{
+		ParameterNames:    map[string]string{"$id": "id", "additionalProperties": "additional_properties", "maxProperties": "max_properties", "minProperties": "min_properties", "readOnly": "read_only", "writeOnly": "write_only"},
+		Properties: map[string]schema.Schema{
+			"$id": &schema.String{},
+			"additionalProperties": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/src/schema.Schema",
 			},
 			"annotations": &schema.Map{
@@ -40,16 +45,14 @@ func init() {
 			"examples": &schema.Array{
 				Items: &schema.Untyped{},
 			},
-			"id": &schema.String{},
-			"max_properties": &schema.Integer{
+			"maxProperties": &schema.Integer{
 				Nullable: true,
 			},
-			"min_properties": &schema.Integer{},
-			"read_only":      &schema.Boolean{},
-			"title":          &schema.String{},
-			"write_only":     &schema.Boolean{},
+			"minProperties": &schema.Integer{},
+			"readOnly":      &schema.Boolean{},
+			"title":         &schema.String{},
+			"writeOnly":     &schema.Boolean{},
 		},
-		Required: []string{"additional_properties"},
 	})
 }
 
@@ -64,7 +67,8 @@ func (i MapInterpreter) Schema() schema.Schema {
 
 // Create creates a new Map block
 func (i MapInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Map{}
+	b := &Map{}
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -84,6 +88,8 @@ func (i MapInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseCo
 
 func (i MapInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "id":
+		return b.(*Map).ID
 	case "annotations":
 		return b.(*Map).Annotations
 	case "const":
@@ -98,8 +104,6 @@ func (i MapInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Map).Enum
 	case "examples":
 		return b.(*Map).Examples
-	case "id":
-		return b.(*Map).ID
 	case "max_properties":
 		return b.(*Map).MaxProperties
 	case "min_properties":
@@ -118,6 +122,8 @@ func (i MapInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 func (i MapInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Map)
 	switch name {
+	case "id":
+		b.ID = value.(string)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
@@ -138,10 +144,8 @@ func (i MapInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
-	case "id":
-		b.ID = value.(string)
 	case "max_properties":
-		b.MaxProperties = schema.IntegerPtr(value.(int64))
+		b.MaxProperties = schema.Pointer(value.(int64))
 	case "min_properties":
 		b.MinProperties = value.(int64)
 	case "read_only":
@@ -154,7 +158,7 @@ func (i MapInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	return nil
 }
 
-func (i MapInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i MapInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Map)
 	switch name {
 	case "additional_properties":

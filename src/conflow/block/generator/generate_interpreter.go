@@ -12,7 +12,10 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/conflowio/conflow/src/conflow"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/block"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
 	"github.com/conflowio/conflow/src/internal/utils"
@@ -59,7 +62,7 @@ func GenerateInterpreter(
 		},
 		"filterNonID": func(props map[string]schema.Schema) map[string]schema.Schema {
 			return filterSchemaProperties(props, func(s schema.Schema) bool {
-				return s.GetAnnotation(conflow.AnnotationID) != "true"
+				return s.GetAnnotation(annotations.ID) != "true"
 			})
 		},
 		"filterDefaults": func(props map[string]schema.Schema) map[string]schema.Schema {
@@ -67,18 +70,25 @@ func GenerateInterpreter(
 				return s.DefaultValue() != nil
 			})
 		},
+		"getParameterName": func(name string) string {
+			return params.Schema.(*schema.Object).ParameterName(name)
+		},
 		"getFieldName": func(name string) string {
-			return params.Schema.(schema.ObjectKind).GetFieldName(name)
+			return params.Schema.(*schema.Object).FieldName(name)
 		},
 		"getType": func(s schema.Schema) string {
 			return s.GoType(params.Imports)
 		},
 		"isArray": func(s schema.Schema) bool {
-			_, ok := s.(schema.ArrayKind)
+			_, ok := s.(*schema.Array)
+			return ok
+		},
+		"isMap": func(s schema.Schema) bool {
+			_, ok := s.(*schema.Map)
 			return ok
 		},
 		"title": func(s string) string {
-			return strings.Title(s)
+			return cases.Title(language.English, cases.NoLower).String(s)
 		},
 	})
 	if _, parseErr := bodyTmpl.Parse(interpreterTemplate); parseErr != nil {
@@ -144,12 +154,14 @@ func generateTemplateParams(
 	}
 
 	var idPropertyName, valuePropertyName string
-	for name, property := range s.Schema.(schema.ObjectKind).GetParameters() {
+	o := s.Schema.(*schema.Object)
+	for jsonPropertyName, property := range o.Properties {
+		parameterName := o.ParameterName(jsonPropertyName)
 		switch {
-		case property.GetAnnotation(conflow.AnnotationID) == "true":
-			idPropertyName = name
-		case property.GetAnnotation(conflow.AnnotationValue) == "true":
-			valuePropertyName = name
+		case property.GetAnnotation(annotations.ID) == "true":
+			idPropertyName = parameterName
+		case property.GetAnnotation(annotations.Value) == "true":
+			valuePropertyName = parameterName
 		}
 	}
 

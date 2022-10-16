@@ -5,26 +5,33 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "ignore", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Todo",
+			Annotations: map[string]string{
+				annotations.EvalStage: "ignore",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Todo",
 		},
-		Name: "Todo",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"description": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -44,9 +51,9 @@ func (i TodoInterpreter) Schema() schema.Schema {
 
 // Create creates a new Todo block
 func (i TodoInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Todo{
-		id: id,
-	}
+	b := &Todo{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -84,6 +91,6 @@ func (i TodoInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i TodoInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i TodoInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

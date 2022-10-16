@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/internal/testhelper"
 	"github.com/conflowio/conflow/src/schema"
 )
@@ -27,14 +28,13 @@ func expectFormatToParse(format schema.Format) func(string, interface{}, string)
 
 func expectGoStructToHaveStringSchema(source string, format string, nullable bool) {
 	testhelper.ExpectGoStructToHaveSchema(source, &schema.Object{
-		Name: "Foo",
 		Metadata: schema.Metadata{
 			ID: "test.Foo",
 			Annotations: map[string]string{
-				conflow.AnnotationType: conflow.BlockTypeConfiguration,
+				annotations.Type: conflow.BlockTypeConfiguration,
 			},
 		},
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"v": &schema.String{
 				Format:   format,
 				Nullable: nullable,

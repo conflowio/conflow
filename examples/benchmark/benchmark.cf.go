@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 	"time"
 )
@@ -12,15 +13,18 @@ import (
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "task"},
-			ID:          "github.com/conflowio/conflow/examples/benchmark.Benchmark",
+			Annotations: map[string]string{
+				annotations.Type: "task",
+			},
+			ID: "github.com/conflowio/conflow/examples/benchmark.Benchmark",
 		},
-		Name: "Benchmark",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"counter": &schema.Integer{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "close"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.EvalStage: "close",
+					},
+					ReadOnly: true,
 				},
 			},
 			"duration": &schema.String{
@@ -31,14 +35,19 @@ func init() {
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"run": &schema.Reference{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+					Annotations: map[string]string{
+						annotations.EvalStage: "init",
+						annotations.Generated: "true",
+					},
 				},
 				Nullable: true,
 				Ref:      "github.com/conflowio/conflow/examples/benchmark.BenchmarkRun",
@@ -59,10 +68,10 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 
 // Create creates a new Benchmark block
 func (i BenchmarkInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Benchmark{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &Benchmark{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -106,7 +115,7 @@ func (i BenchmarkInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	return nil
 }
 
-func (i BenchmarkInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BenchmarkInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Benchmark)
 	switch name {
 	case "run":

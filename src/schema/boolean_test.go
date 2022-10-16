@@ -27,7 +27,7 @@ var _ = Describe("Boolean", func() {
 		},
 		Entry("true", &schema.Boolean{}, true),
 		Entry("false", &schema.Boolean{}, false),
-		Entry("const value", &schema.Boolean{Const: schema.BooleanPtr(true)}, true),
+		Entry("const value", &schema.Boolean{Const: schema.Pointer(true)}, true),
 		Entry("enum value - single", &schema.Boolean{Enum: []bool{true}}, true),
 	)
 
@@ -44,7 +44,7 @@ var _ = Describe("Boolean", func() {
 		),
 		Entry(
 			"const value",
-			&schema.Boolean{Const: schema.BooleanPtr(true)},
+			&schema.Boolean{Const: schema.Pointer(true)},
 			false,
 			errors.New("must be true"),
 		),
@@ -69,16 +69,16 @@ var _ = Describe("Boolean", func() {
 		),
 		Entry(
 			"const",
-			&schema.Boolean{Const: schema.BooleanPtr(true)},
+			&schema.Boolean{Const: schema.Pointer(true)},
 			`&schema.Boolean{
-	Const: schema.BooleanPtr(true),
+	Const: schema.Pointer(true),
 }`,
 		),
 		Entry(
 			"default",
-			&schema.Boolean{Default: schema.BooleanPtr(true)},
+			&schema.Boolean{Default: schema.Pointer(true)},
 			`&schema.Boolean{
-	Default: schema.BooleanPtr(true),
+	Default: schema.Pointer(true),
 }`,
 		),
 		Entry(

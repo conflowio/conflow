@@ -16,6 +16,7 @@ import (
 const FunctionNameRegExpPattern = schema.NameRegExpPattern + "(?:\\." + schema.NameRegExpPattern + ")?"
 
 // FunctionNode is the AST node for a function
+//
 //counterfeiter:generate . FunctionNode
 type FunctionNode interface {
 	parsley.Node
@@ -30,6 +31,7 @@ type FunctionTransformerRegistryAware interface {
 }
 
 // FunctionInterpreter defines an interpreter for functions
+//
 //counterfeiter:generate . FunctionInterpreter
 type FunctionInterpreter interface {
 	Schema() schema.Schema

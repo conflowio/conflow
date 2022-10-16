@@ -12,6 +12,7 @@ import (
 
 	"github.com/conflowio/parsley/parsley"
 
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
@@ -30,20 +31,19 @@ func Evaluate(
 		return nil, fmt.Errorf("block %q does not exist", id)
 	}
 
-	o := node.Interpreter().Schema().(schema.ObjectKind)
-	for paramName, param := range o.GetParameters() {
-		if param.GetAnnotation(AnnotationUserDefined) == "true" && o.IsParameterRequired(paramName) {
-			if _, isDefined := inputParams[ID(paramName)]; !isDefined {
-				return nil, fmt.Errorf("%q input parameter must be defined", paramName)
+	o := node.Interpreter().Schema().(*schema.Object)
+	for jsonPropertyName, property := range o.Properties {
+		if property.GetAnnotation(annotations.UserDefined) == "true" && o.IsPropertyRequired(jsonPropertyName) {
+			parameterName := o.ParameterName(jsonPropertyName)
+			if _, isDefined := inputParams[ID(parameterName)]; !isDefined {
+				return nil, fmt.Errorf("%q input parameter must be defined", parameterName)
 			}
 		}
 	}
 
 	for k, v := range inputParams {
-		property := o.GetParameters()[string(k)]
-		if property != nil &&
-			property.GetAnnotation(AnnotationUserDefined) == "true" &&
-			!property.GetReadOnly() {
+		property, ok := o.PropertyByParameterName(string(k))
+		if ok && property.GetAnnotation(annotations.UserDefined) == "true" && !property.GetReadOnly() {
 			nv, err := property.ValidateValue(v)
 			if err != nil {
 				return nil, fmt.Errorf("invalid input parameter %q: %w", k, err)

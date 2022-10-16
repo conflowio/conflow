@@ -5,29 +5,36 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Skip",
+			Annotations: map[string]string{
+				annotations.EvalStage: "init",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Skip",
 		},
-		Name: "Skip",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
 			"when": &schema.Boolean{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
-				Default: schema.BooleanPtr(true),
+				Default: schema.Pointer(true),
 			},
 		},
 	})
@@ -44,10 +51,10 @@ func (i SkipInterpreter) Schema() schema.Schema {
 
 // Create creates a new Skip block
 func (i SkipInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Skip{
-		id:   id,
-		when: true,
-	}
+	b := &Skip{}
+	b.id = id
+	b.when = true
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -85,6 +92,6 @@ func (i SkipInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	return nil
 }
 
-func (i SkipInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i SkipInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

@@ -34,9 +34,9 @@ func (m *Maximum) ApplyToSchema(s schema.Schema) error {
 
 	switch st := s.(type) {
 	case *schema.Integer:
-		st.Maximum = schema.IntegerPtr(value.(int64))
+		st.Maximum = schema.Pointer(value.(int64))
 	case *schema.Number:
-		st.Maximum = schema.NumberPtr(value.(float64))
+		st.Maximum = schema.Pointer(value.(float64))
 	default:
 		return fmt.Errorf("maximum directive can not be applied to %T", s)
 	}

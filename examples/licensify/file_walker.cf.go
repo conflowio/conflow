@@ -5,31 +5,38 @@ package main
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/type": "generator"},
-			ID:          "github.com/conflowio/conflow/examples/licensify.FileWalker",
+			Annotations: map[string]string{
+				annotations.Type: "generator",
+			},
+			ID: "github.com/conflowio/conflow/examples/licensify.FileWalker",
 		},
-		Name: "FileWalker",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"exclude": &schema.Array{
 				Items: &schema.String{},
 			},
 			"file": &schema.Reference{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/eval_stage": "init", "block.conflow.io/generated": "true"},
+					Annotations: map[string]string{
+						annotations.EvalStage: "init",
+						annotations.Generated: "true",
+					},
 				},
 				Nullable: true,
 				Ref:      "github.com/conflowio/conflow/examples/licensify.File",
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -53,10 +60,10 @@ func (i FileWalkerInterpreter) Schema() schema.Schema {
 
 // Create creates a new FileWalker block
 func (i FileWalkerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &FileWalker{
-		id:             id,
-		blockPublisher: blockCtx.BlockPublisher(),
-	}
+	b := &FileWalker{}
+	b.id = id
+	b.blockPublisher = blockCtx.BlockPublisher()
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -108,7 +115,7 @@ func (i FileWalkerInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	return nil
 }
 
-func (i FileWalkerInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i FileWalkerInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*FileWalker)
 	switch name {
 	case "file":

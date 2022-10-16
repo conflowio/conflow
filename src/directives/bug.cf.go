@@ -5,26 +5,33 @@ package directives
 import (
 	"fmt"
 	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/schema"
 )
 
 func init() {
 	schema.Register(&schema.Object{
 		Metadata: schema.Metadata{
-			Annotations: map[string]string{"block.conflow.io/eval_stage": "ignore", "block.conflow.io/type": "directive"},
-			ID:          "github.com/conflowio/conflow/src/directives.Bug",
+			Annotations: map[string]string{
+				annotations.EvalStage: "ignore",
+				annotations.Type:      "directive",
+			},
+			ID: "github.com/conflowio/conflow/src/directives.Bug",
 		},
-		Name: "Bug",
-		Parameters: map[string]schema.Schema{
+		Properties: map[string]schema.Schema{
 			"description": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/value": "true"},
+					Annotations: map[string]string{
+						annotations.Value: "true",
+					},
 				},
 			},
 			"id": &schema.String{
 				Metadata: schema.Metadata{
-					Annotations: map[string]string{"block.conflow.io/id": "true"},
-					ReadOnly:    true,
+					Annotations: map[string]string{
+						annotations.ID: "true",
+					},
+					ReadOnly: true,
 				},
 				Format: "conflow.ID",
 			},
@@ -44,9 +51,9 @@ func (i BugInterpreter) Schema() schema.Schema {
 
 // Create creates a new Bug block
 func (i BugInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	return &Bug{
-		id: id,
-	}
+	b := &Bug{}
+	b.id = id
+	return b
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
@@ -84,6 +91,6 @@ func (i BugInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	return nil
 }
 
-func (i BugInterpreter) SetBlock(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i BugInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	return nil
 }

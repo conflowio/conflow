@@ -18,7 +18,6 @@ import (
 )
 
 var _ schema.Schema = &schema.Array{}
-var _ schema.ArrayKind = &schema.Array{}
 
 var _ = Describe("Array", func() {
 
@@ -154,7 +153,7 @@ var _ = Describe("Array", func() {
 			"enum value - max length",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MaxItems: schema.IntegerPtr(1),
+				MaxItems: schema.Pointer(int64(1)),
 			},
 			[]interface{}{int64(1)},
 		),
@@ -162,7 +161,7 @@ var _ = Describe("Array", func() {
 			"enum value - max length zero",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MaxItems: schema.IntegerPtr(0),
+				MaxItems: schema.Pointer(int64(0)),
 			},
 			[]interface{}{},
 		),
@@ -171,7 +170,7 @@ var _ = Describe("Array", func() {
 			&schema.Array{
 				Items:    schema.IntegerValue(),
 				MinItems: 1,
-				MaxItems: schema.IntegerPtr(2),
+				MaxItems: schema.Pointer(int64(2)),
 			},
 			[]interface{}{int64(1)},
 		),
@@ -311,7 +310,7 @@ var _ = Describe("Array", func() {
 			"max length zero, 1 item",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MaxItems: schema.IntegerPtr(0),
+				MaxItems: schema.Pointer(int64(0)),
 			},
 			[]interface{}{int64(1)},
 			errors.New("must be empty"),
@@ -320,7 +319,7 @@ var _ = Describe("Array", func() {
 			"max length 1, 2 items",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MaxItems: schema.IntegerPtr(1),
+				MaxItems: schema.Pointer(int64(1)),
 			},
 			[]interface{}{int64(1), int64(2)},
 			errors.New("must not contain more than one element"),
@@ -329,7 +328,7 @@ var _ = Describe("Array", func() {
 			"max length 2, 3 items",
 			&schema.Array{
 				Items:    schema.IntegerValue(),
-				MaxItems: schema.IntegerPtr(2),
+				MaxItems: schema.Pointer(int64(2)),
 			},
 			[]interface{}{int64(1), int64(2), int64(3)},
 			errors.New("must not contain more than 2 elements"),
@@ -339,7 +338,7 @@ var _ = Describe("Array", func() {
 			&schema.Array{
 				Items:    schema.IntegerValue(),
 				MinItems: 2,
-				MaxItems: schema.IntegerPtr(2),
+				MaxItems: schema.Pointer(int64(2)),
 			},
 			[]interface{}{int64(1), int64(2), int64(3)},
 			errors.New("must have exactly 2 elements"),
@@ -428,10 +427,10 @@ var _ = Describe("Array", func() {
 		Entry(
 			"MaxItems",
 			&schema.Array{
-				MaxItems: schema.IntegerPtr(1),
+				MaxItems: schema.Pointer(int64(1)),
 			},
 			`&schema.Array{
-	MaxItems: schema.IntegerPtr(1),
+	MaxItems: schema.Pointer(int64(1)),
 }`,
 		),
 		Entry(

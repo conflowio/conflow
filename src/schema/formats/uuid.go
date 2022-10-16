@@ -42,11 +42,3 @@ func (u UUID) StringValue(input interface{}) (string, bool) {
 func (u UUID) Type() (reflect.Type, bool) {
 	return reflect.TypeOf(uuid.UUID{}), true
 }
-
-func (u UUID) PtrFunc() string {
-	return "github.com/conflowio/conflow/src/schema/formats.UUIDPtr"
-}
-
-func UUIDPtr(v uuid.UUID) *uuid.UUID {
-	return &v
-}

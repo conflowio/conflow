@@ -11,6 +11,7 @@ import (
 )
 
 // Container is a conflow object container
+//
 //counterfeiter:generate . Container
 type Container interface {
 	Node() Node

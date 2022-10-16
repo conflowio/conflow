@@ -18,10 +18,11 @@ import (
 )
 
 // Function will match a function call defined by the following rule, where P is the input parser:
-//   S      -> ID "(" PARAMS ")"
-//   ID     -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
-//   PARAMS -> EMPTY
-//          -> P ("," P)*
+//
+//	S      -> ID "(" PARAMS ")"
+//	ID     -> /[a-z][a-z0-9]*(?:_[a-z0-9]+)*/
+//	PARAMS -> EMPTY
+//	       -> P ("," P)*
 func Function(p parsley.Parser) *combinator.Sequence {
 	return combinator.SeqOf(
 		Name('.'),
