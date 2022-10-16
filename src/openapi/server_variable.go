@@ -6,6 +6,8 @@
 
 package openapi
 
+import "github.com/conflowio/conflow/src/schema"
+
 // @block "configuration"
 type ServerVariable struct {
 	// @min_items 1
@@ -13,4 +15,8 @@ type ServerVariable struct {
 	// @required
 	Default     string `json:"default"`
 	Description string `json:"description,omitempty"`
+}
+
+func (s *ServerVariable) Validate(*schema.Context) error {
+	return nil
 }

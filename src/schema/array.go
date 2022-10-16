@@ -205,6 +205,14 @@ func (a *Array) UnmarshalJSON(j []byte) error {
 	return nil
 }
 
+func (a *Array) Validate(ctx *Context) error {
+	return ValidateAll(
+		ctx,
+		validateCommonFields(a, a.Const, a.Default, a.Enum),
+		Validate("items", a.Items),
+	)
+}
+
 func (a *Array) ValidateSchema(s Schema, compare bool) error {
 	if s.Type() == TypeNull {
 		return nil

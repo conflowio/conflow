@@ -11,6 +11,8 @@ import (
 	"net/mail"
 	"net/url"
 	"strings"
+
+	"github.com/conflowio/conflow/src/schema"
 )
 
 // @block "configuration"
@@ -35,4 +37,8 @@ func (c Contact) MarshalJSON() ([]byte, error) {
 		URL:   c.URL.String(),
 		Email: email,
 	})
+}
+
+func (c *Contact) Validate(*schema.Context) error {
+	return nil
 }

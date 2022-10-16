@@ -42,6 +42,7 @@ type Schema interface {
 	StringValue(interface{}) string
 	Type() Type
 	TypeString() string
+	Validate(*Context) error
 	ValidateValue(interface{}) (interface{}, error)
 	ValidateSchema(s Schema, compare bool) error
 }

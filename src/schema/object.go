@@ -321,6 +321,14 @@ func (o *Object) UnmarshalJSON(j []byte) error {
 	return nil
 }
 
+func (o *Object) Validate(ctx *Context) error {
+	return ValidateAll(
+		ctx,
+		validateCommonFields(o, o.Const, o.Default, o.Enum),
+		ValidateMap("properties", o.Properties),
+	)
+}
+
 func (o *Object) ValidateSchema(s Schema, compare bool) error {
 	if s.Type() == TypeNull {
 		return nil

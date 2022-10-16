@@ -17,20 +17,28 @@ type Parameter struct {
 	// @required
 	Name string `json:"name"`
 	// @enum ["query", "header", "path", "cookie"]
-	In              string               `json:"in"`
-	Description     string               `json:"description,omitempty"`
-	Required        bool                 `json:"required,omitempty"`
-	Deprecated      bool                 `json:"deprecated,omitempty"`
-	AllowEmptyValue bool                 `json:"allowEmptyValue,omitempty"`
-	Style           string               `json:"style,omitempty"`
-	Explode         bool                 `json:"explode,omitempty"`
-	AllowReserved   bool                 `json:"allowReserved,omitempty"`
-	Schema          schema.Schema        `json:"schema,omitempty"`
-	Content         map[string]MediaType `json:"content,omitempty"`
+	In              string                `json:"in"`
+	Description     string                `json:"description,omitempty"`
+	Required        bool                  `json:"required,omitempty"`
+	Deprecated      bool                  `json:"deprecated,omitempty"`
+	AllowEmptyValue bool                  `json:"allowEmptyValue,omitempty"`
+	Style           string                `json:"style,omitempty"`
+	Explode         bool                  `json:"explode,omitempty"`
+	AllowReserved   bool                  `json:"allowReserved,omitempty"`
+	Schema          schema.Schema         `json:"schema,omitempty"`
+	Content         map[string]*MediaType `json:"content,omitempty"`
 }
 
 func (p *Parameter) ParseContextOverride() conflow.ParseContextOverride {
 	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: blocks.InterpreterRegistry(),
 	}
+}
+
+func (p *Parameter) Validate(ctx *schema.Context) error {
+	return schema.ValidateAll(
+		ctx,
+		schema.Validate("schema", p.Schema),
+		schema.ValidateMap("content", p.Content),
+	)
 }

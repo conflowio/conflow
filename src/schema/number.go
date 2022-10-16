@@ -186,6 +186,10 @@ func (n *Number) UnmarshalJSON(input []byte) error {
 	})
 }
 
+func (n *Number) Validate(ctx *Context) error {
+	return validateCommonFields(n, n.Const, n.Default, n.Enum)(ctx)
+}
+
 func (n *Number) ValidateSchema(n2 Schema, _ bool) error {
 	if n2.Type() != TypeNumber && n2.Type() != TypeInteger {
 		return typeError("must be number")

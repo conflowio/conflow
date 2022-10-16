@@ -60,6 +60,10 @@ func (f falseImpl) TypeString() string {
 	return ""
 }
 
+func (f falseImpl) Validate(*Context) error {
+	return nil
+}
+
 func (f falseImpl) ValidateSchema(Schema, bool) error {
 	return errors.New("no value is allowed")
 }

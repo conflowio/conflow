@@ -194,6 +194,15 @@ func (f *Function) UnmarshalJSON(j []byte) error {
 	return nil
 }
 
+func (f *Function) Validate(ctx *Context) error {
+	return ValidateAll(
+		ctx,
+		Validate("additionalParameters", f.AdditionalParameters),
+		ValidateArray("parameters", f.Parameters),
+		Validate("result", f.Result),
+	)
+}
+
 func (f *Function) ValidateSchema(s Schema, compare bool) error {
 	panic("ValidateSchema on functions should not be called")
 }
