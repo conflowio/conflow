@@ -10,6 +10,7 @@ import "github.com/conflowio/conflow/src/conflow/block"
 
 func InterpreterRegistry() block.InterpreterRegistry {
 	return block.InterpreterRegistry{
+		"all_of":  AllOfInterpreter{},
 		"array":   ArrayInterpreter{},
 		"boolean": BooleanInterpreter{},
 		"integer": IntegerInterpreter{},
