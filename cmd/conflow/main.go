@@ -16,6 +16,7 @@ import (
 	"golang.org/x/term"
 
 	"github.com/conflowio/conflow/cmd/conflow/generate"
+	"github.com/conflowio/conflow/cmd/conflow/openapi"
 )
 
 func rootCommand() *cobra.Command {
@@ -31,6 +32,7 @@ func rootCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(generate.Command())
+	cmd.AddCommand(openapi.Command())
 
 	return cmd
 }

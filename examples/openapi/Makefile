@@ -1,7 +1,11 @@
-.PHONY: run
-run:
-	@go run *.go
+.PHONY: json
+json:
+	@conflow openapi generate --format json
 
-.PHONY: generate
-generate:
-	@go generate
+.PHONY: json-compact
+json-compact:
+	@conflow openapi generate --format json --compact
+
+.PHONY: yaml
+yaml:
+	@conflow openapi generate --format yaml
