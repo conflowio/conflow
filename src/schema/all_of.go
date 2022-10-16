@@ -84,14 +84,14 @@ func (a *AllOf) TypeString() string {
 
 func (a *AllOf) UnmarshalJSON(j []byte) error {
 	allOf := struct {
-		schemas []*SchemaUnmarshaler `json:"allOf"`
+		Schemas []*SchemaUnmarshaler `json:"allOf"`
 	}{}
 	if err := json.Unmarshal(j, &allOf); err != nil {
 		return err
 	}
 
-	a.Schemas = make([]Schema, len(allOf.schemas))
-	for _, s := range allOf.schemas {
+	a.Schemas = make([]Schema, len(allOf.Schemas))
+	for _, s := range allOf.Schemas {
 		a.Schemas = append(a.Schemas, s.Schema)
 	}
 

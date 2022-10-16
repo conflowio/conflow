@@ -12,8 +12,11 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/conflowio/conflow/src/conflow/annotations"
+	"golang.org/x/text/language"
 
+	"golang.org/x/text/cases"
+
+	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/conflow/block"
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
 	"github.com/conflowio/conflow/src/internal/utils"
@@ -86,7 +89,7 @@ func GenerateInterpreter(
 			return ok
 		},
 		"title": func(s string) string {
-			return strings.Title(s)
+			return cases.Title(language.English, cases.NoLower).String(s)
 		},
 	})
 	if _, parseErr := bodyTmpl.Parse(interpreterTemplate); parseErr != nil {
