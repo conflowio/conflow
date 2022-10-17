@@ -19,7 +19,7 @@ var _ conflow.FunctionNode = &Node{}
 
 // Node is a function node
 type Node struct {
-	nameNode      parsley.Node
+	nameNode      *conflow.NameNode
 	argumentNodes []parsley.Node
 	readerPos     parsley.Pos
 	interpreter   conflow.FunctionInterpreter
@@ -28,15 +28,7 @@ type Node struct {
 
 // Name returns with the function name
 func (n *Node) Name() conflow.ID {
-	value, _ := parsley.EvaluateNode(nil, n.nameNode)
-	switch v := value.(type) {
-	case conflow.ID:
-		return v
-	case []conflow.ID:
-		return conflow.ID(fmt.Sprintf("%s.%s", v[0], v[1]))
-	default:
-		panic(fmt.Errorf("unexpected name node value: %T", v))
-	}
+	return n.nameNode.Value().(conflow.ID)
 }
 
 // Token returns with the node's token

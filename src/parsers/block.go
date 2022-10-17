@@ -124,6 +124,10 @@ func (b blockInterpreter) TransformNode(userCtx interface{}, node parsley.Node) 
 		panic(fmt.Errorf("unexpected node type: %T", nodes[1]))
 	}
 
+	if err := nameNode.StaticCheck(userCtx); err != nil {
+		return nil, err
+	}
+
 	transformer, exists := registry.NodeTransformer(string(nameNode.NameNode().ID()))
 	if !exists {
 		return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q block is unknown or not allowed", nameNode.NameNode().ID()))

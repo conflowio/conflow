@@ -188,6 +188,15 @@ func ExpectBlockToHaveParseError(p parsley.Parser, registry parsley.NodeTransfor
 	}
 }
 
+func ExpectBlockToHaveStaticCheckError(p parsley.Parser, registry parsley.NodeTransformerRegistry) func(string, types.GomegaMatcher) {
+	return func(input string, errMatcher types.GomegaMatcher) {
+		node, parseErr := parsley.Parse(ParseCtx(input, registry, nil), combinator.Sentence(p))
+		Expect(parseErr).To(HaveOccurred(), "input: %s", input)
+		Expect(parseErr).To(errMatcher, "input: %s", input)
+		Expect(node).To(BeNil(), "input: %s", input)
+	}
+}
+
 func ExpectBlockToHaveEvalError(p parsley.Parser, registry parsley.NodeTransformerRegistry) func(string, types.GomegaMatcher) {
 	return func(input string, errMatcher types.GomegaMatcher) {
 		parseCtx := ParseCtx(input, registry, nil)

@@ -35,11 +35,17 @@ var _ = Describe("ID", func() {
 			test.ExpectParserToHaveParseError(p)(input, expectedErr)
 		},
 		test.TableEntry(`testkeyword`, errors.New("testkeyword is a reserved keyword at testfile:1:1")),
-		test.TableEntry(`a__b`, errors.New("invalid identifier at testfile:1:1")),
-		test.TableEntry(`_b`, errors.New("invalid identifier at testfile:1:1")),
-		test.TableEntry(`b_`, errors.New("invalid identifier at testfile:1:1")),
-		test.TableEntry(`UPPER`, errors.New("invalid identifier (did you mean \"upper\"?) at testfile:1:1")),
 		test.TableEntry(`0ab`, errors.New("was expecting identifier at testfile:1:1")),
+	)
+
+	DescribeTable("it returns a static check error",
+		func(input string, expectedErr error) {
+			test.ExpectParserToHaveStaticCheckError(p)(input, expectedErr)
+		},
+		test.TableEntry(`a__b`, errors.New("invalid identifier \"a__b\" (did you mean \"a_b\"?) at testfile:1:1")),
+		test.TableEntry(`_b`, errors.New("invalid identifier \"_b\" (did you mean \"b\"?) at testfile:1:1")),
+		test.TableEntry(`b_`, errors.New("invalid identifier \"b_\" (did you mean \"b\"?) at testfile:1:1")),
+		test.TableEntry(`UPPER`, errors.New("invalid identifier \"UPPER\" (did you mean \"upper\"?) at testfile:1:1")),
 	)
 
 })

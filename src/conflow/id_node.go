@@ -8,9 +8,11 @@ package conflow
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/conflowio/parsley/parsley"
 
+	"github.com/conflowio/conflow/src/internal/utils"
 	"github.com/conflowio/conflow/src/schema"
 )
 
@@ -85,4 +87,20 @@ func (i *IDNode) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 // String returns with a string representation of the node
 func (i *IDNode) String() string {
 	return fmt.Sprintf("ID{%v, %d..%d}", i.id, i.pos, i.readerPos)
+}
+
+func (i *IDNode) StaticCheck(userCtx interface{}) parsley.Error {
+	if !schema.NameRegExp.MatchString(string(i.id)) {
+		// Let's suggest a valid identifier, if we can
+		expected := utils.ToSnakeCase(string(i.id))
+		expected = strings.ReplaceAll(expected, "__", "_")
+		expected = strings.Trim(expected, "_")
+		if expected != "" && schema.NameRegExp.MatchString(expected) {
+			return parsley.NewErrorf(i.pos, "invalid identifier %q (did you mean %q?)", string(i.id), expected)
+		} else {
+			return parsley.NewError(i.pos, fmt.Errorf("invalid identifier %q", string(i.id)))
+		}
+	}
+
+	return nil
 }

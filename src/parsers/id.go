@@ -7,16 +7,12 @@
 package parsers
 
 import (
-	"errors"
-
 	"github.com/conflowio/parsley/data"
 	"github.com/conflowio/parsley/parser"
 	"github.com/conflowio/parsley/parsley"
 	"github.com/conflowio/parsley/text"
 
 	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/internal/utils"
-	"github.com/conflowio/conflow/src/schema"
 )
 
 // ID parses an identifier:
@@ -50,19 +46,10 @@ func id(classifier rune) parser.Func {
 		if readerPos, match := tr.ReadRegexp(pos, "[a-zA-Z_][a-zA-Z0-9_]*"); match != nil {
 			id := string(match)
 
-			if !schema.NameRegExp.MatchString(id) {
-				// Let's suggest a valid identifier, if we can
-				expected := utils.ToSnakeCase(id)
-				if schema.NameRegExp.MatchString(expected) {
-					return nil, data.EmptyIntSet, parsley.NewErrorf(pos, "invalid identifier (did you mean %q?)", expected)
-				} else {
-					return nil, data.EmptyIntSet, parsley.NewError(pos, errors.New("invalid identifier"))
-				}
-			}
-
 			if ctx.IsKeyword(id) {
 				return nil, data.EmptyIntSet, parsley.NewErrorf(pos, "%s is a reserved keyword", id)
 			}
+
 			return conflow.NewIDNode(conflow.ID(id), classifier, idPos, readerPos), data.EmptyIntSet, nil
 		}
 		return nil, data.EmptyIntSet, parsley.NewError(pos, notFoundErr)

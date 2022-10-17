@@ -36,6 +36,11 @@ func TransformNode(
 	}
 
 	nameNode := nodes[1].(*conflow.IDNode)
+
+	if err := nameNode.StaticCheck(parseCtx); err != nil {
+		return nil, err
+	}
+
 	if _, exists := paramNames[nameNode.ID()]; exists {
 		return nil, parsley.NewErrorf(
 			nodes[0].Pos(),

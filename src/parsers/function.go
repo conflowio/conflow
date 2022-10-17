@@ -42,12 +42,15 @@ func (f functionInterpreter) TransformNode(userCtx interface{}, node parsley.Nod
 	registry := userCtx.(conflow.FunctionTransformerRegistryAware).FunctionTransformerRegistry()
 
 	nodes := node.(parsley.NonTerminalNode).Children()
-	nameNode := nodes[0]
-	name, _ := parsley.EvaluateNode(nil, nameNode)
+	nameNode := nodes[0].(*conflow.NameNode)
+	if err := nameNode.StaticCheck(userCtx); err != nil {
+		return nil, err
+	}
+	name := nameNode.Value().(conflow.ID)
 
-	transformer, exists := registry.NodeTransformer(string(name.(conflow.ID)))
+	transformer, exists := registry.NodeTransformer(string(name))
 	if !exists {
-		return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q function does not exist", name))
+		return nil, parsley.NewError(nameNode.Pos(), fmt.Errorf("%q function does not exist", string(name)))
 	}
 
 	return transformer.TransformNode(userCtx, node)

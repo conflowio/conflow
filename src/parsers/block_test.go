@@ -510,4 +510,32 @@ var _ = Describe("Block parser", func() {
 		),
 	)
 
+	DescribeTable("it returns an static check error",
+		func(input string, expectedErr error) {
+			test.ExpectBlockToHaveParseError(p, registry)(input, MatchError(expectedErr))
+		},
+		Entry(
+			"invalid block name",
+			`TESTBLOCK {}`,
+			errors.New("invalid identifier \"TESTBLOCK\" (did you mean \"testblock\"?) at testfile:1:1"),
+		),
+		Entry(
+			"invalid block id",
+			`TESTID testblock {}`,
+			errors.New("invalid identifier \"TESTID\" (did you mean \"testid\"?) at testfile:1:1"),
+		),
+		Entry(
+			"invalid block name with ID",
+			`testid TESTBLOCK {}`,
+			errors.New("invalid identifier \"TESTBLOCK\" (did you mean \"testblock\"?) at testfile:1:8"),
+		),
+		Entry(
+			"invalid parameter id",
+			`testid testblock {
+	INVALIDPARAM = 5
+}`,
+			errors.New("invalid identifier \"INVALIDPARAM\" (did you mean \"invalidparam\"?) at testfile:2:2"),
+		),
+	)
+
 })
