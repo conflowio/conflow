@@ -18,7 +18,7 @@ func transformNode(
 	interpreter conflow.FunctionInterpreter,
 ) (parsley.Node, parsley.Error) {
 	nodes := node.(parsley.NonTerminalNode).Children()
-	nameNode := nodes[0]
+	nameNode := nodes[0].(*conflow.NameNode)
 
 	var argumentNodes []parsley.Node
 

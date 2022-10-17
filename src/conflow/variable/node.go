@@ -64,6 +64,14 @@ func (n *Node) Schema() interface{} {
 func (n *Node) StaticCheck(ctx interface{}) parsley.Error {
 	parseCtx := ctx.(*conflow.ParseContext)
 
+	if err := n.blockIDNode.StaticCheck(ctx); err != nil {
+		return err
+	}
+
+	if err := n.paramNameNode.StaticCheck(ctx); err != nil {
+		return err
+	}
+
 	blockNode, exists := parseCtx.BlockNode(n.blockIDNode.ID())
 	if !exists {
 		return parsley.NewErrorf(n.blockIDNode.Pos(), "block %q does not exist", n.blockIDNode.ID())

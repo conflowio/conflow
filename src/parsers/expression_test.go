@@ -129,10 +129,6 @@ var _ = Describe("Expression", func() {
 		// Function
 		test.TableEntry(`floor(`, errors.New("was expecting \")\" at testfile:1:7")),
 		test.TableEntry(`floor(1,`, errors.New("was expecting \")\" at testfile:1:9")),
-		test.TableEntry("FLOOR()", errors.New("invalid identifier (did you mean \"floor\"?) at testfile:1:1")),
-
-		// Variables
-		test.TableEntry("VAR", errors.New("invalid identifier (did you mean \"var\"?) at testfile:1:1")),
 
 		// Boolean not
 		test.TableEntry("!", errors.New("was expecting value at testfile:1:2")),
@@ -171,6 +167,10 @@ var _ = Describe("Expression", func() {
 		// Index
 		test.TableEntry(`([0, 1])[1]`, errors.New("was expecting the end of input at testfile:1:9")),
 		test.TableEntry(`1[1]`, errors.New("was expecting the end of input at testfile:1:2")),
+
+		// Variable
+		test.TableEntry("var", errors.New("was expecting \".\" at testfile:1:4")),
+		test.TableEntry("VAR", errors.New("was expecting \".\" at testfile:1:4")),
 	)
 
 	DescribeTable("it returns an static check error",
@@ -188,6 +188,7 @@ var _ = Describe("Expression", func() {
 		test.TableEntry(`test.nonexisting`, errors.New("parameter \"nonexisting\" does not exist at testfile:1:6")),
 
 		// Functions
+		test.TableEntry("FLOOR()", errors.New("invalid identifier \"FLOOR\" (did you mean \"floor\"?) at testfile:1:1")),
 		test.TableEntry(`non_existing()`, errors.New("\"non_existing\" function does not exist at testfile:1:1")),
 
 		// Compare
@@ -216,6 +217,8 @@ var _ = Describe("Expression", func() {
 		// Variable
 		test.TableEntry(`test.field_array["key"]`, errors.New("must be integer at testfile:1:18")),
 		test.TableEntry(`test.field_map[1]`, errors.New("must be string at testfile:1:16")),
+		test.TableEntry("test.VAR", errors.New("invalid identifier \"VAR\" (did you mean \"var\"?) at testfile:1:6")),
+		test.TableEntry("TEST.var", errors.New("invalid identifier \"TEST\" (did you mean \"test\"?) at testfile:1:1")),
 	)
 
 	DescribeTable("it returns an eval error",

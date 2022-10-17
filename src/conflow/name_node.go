@@ -94,3 +94,18 @@ func (t *NameNode) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
 func (t *NameNode) String() string {
 	return fmt.Sprintf("NAME{%s, %d..%d}", t.Value(), t.Pos(), t.ReaderPos())
 }
+
+func (t *NameNode) StaticCheck(userCtx interface{}) parsley.Error {
+	if t.selector != nil {
+		if err := t.selector.StaticCheck(userCtx); err != nil {
+			return err
+		}
+	}
+	if t.name != nil {
+		if err := t.name.StaticCheck(userCtx); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

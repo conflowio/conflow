@@ -65,7 +65,11 @@ func TransformNode(ctx interface{}, node parsley.Node, interpreter conflow.Block
 		panic(fmt.Errorf("unexpected identifier node: %T", nodes[1]))
 	}
 
-	if idNode == nil {
+	if idNode != nil {
+		if err := idNode.StaticCheck(ctx); err != nil {
+			return nil, err
+		}
+	} else {
 		id := parseCtx.GenerateID()
 		idNode = conflow.NewIDNode(id, conflow.ClassifierNone, nameNode.Pos(), nameNode.Pos())
 	}
