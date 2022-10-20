@@ -22,9 +22,7 @@ type ByteStream struct {
 }
 
 func (b *ByteStream) AssignValue(imports map[string]string, valueName, resultName string) string {
-	ioPackageName := utils.EnsureUniqueGoPackageName(imports, "io")
-
-	return fmt.Sprintf("%s = %s.(%s.ReadCloser)", resultName, valueName, ioPackageName)
+	return fmt.Sprintf("%s = %s.(%sReadCloser)", resultName, valueName, utils.EnsureUniqueGoPackageSelector(imports, "io"))
 }
 
 func (b *ByteStream) CompareValues(v1, v2 interface{}) int {

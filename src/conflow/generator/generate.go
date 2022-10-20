@@ -142,7 +142,7 @@ func processFile(parseCtx *parser.Context, filePath string) error {
 				return fmt.Errorf("failed to generate interpreter for struct %s: %w", name, err)
 			}
 
-			if err := writeFile(path.Join(path.Dir(filePath), data.InterpreterPath), name, res); err != nil {
+			if err := WriteGeneratedFile(path.Join(path.Dir(filePath), data.InterpreterPath), name, res); err != nil {
 				return fmt.Errorf("failed to generate interpreter for struct %s: %w", name, err)
 			}
 		case *goast.FuncDecl:
@@ -166,7 +166,7 @@ func processFile(parseCtx *parser.Context, filePath string) error {
 				return fmt.Errorf("failed to generate interpreter for function %s: %w", name, err)
 			}
 
-			if err := writeFile(path.Join(path.Dir(filePath), data.InterpreterPath), name, res); err != nil {
+			if err := WriteGeneratedFile(path.Join(path.Dir(filePath), data.InterpreterPath), name, res); err != nil {
 				return fmt.Errorf("failed to generate interpreter for function %s, %w", name, err)
 			}
 		}

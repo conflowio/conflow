@@ -12,23 +12,38 @@ import (
 	"strings"
 )
 
-func EnsureUniqueGoPackageName(imports map[string]string, path string) string {
-	packageParts := strings.Split(path, "/")
-	packageName := packageParts[len(packageParts)-1]
+func EnsureUniqueGoPackageSelector(imports map[string]string, path string) string {
+	selector, ok := imports[path]
 
-	n := 1
-	for {
-		if p, ok := imports[packageName]; !ok || p == path {
-			break
+	if !ok {
+		packageParts := strings.Split(path, "/")
+		selector = packageParts[len(packageParts)-1]
+
+		n := 1
+		for {
+			var found bool
+			for _, s := range imports {
+				if s == selector {
+					found = true
+					break
+				}
+			}
+			if !found {
+				break
+			}
+
+			n++
+			selector = fmt.Sprintf("%s%d", packageParts[len(packageParts)-1], n)
 		}
 
-		n++
-		packageName = fmt.Sprintf("%s%d", packageParts[len(packageParts)-1], n)
+		imports[path] = selector
 	}
 
-	imports[packageName] = path
+	if selector == "" || selector == "." {
+		return ""
+	}
 
-	return packageName
+	return fmt.Sprintf("%s.", selector)
 }
 
 func GoType(imports map[string]string, t reflect.Type, nullable bool) string {
@@ -40,10 +55,10 @@ func GoType(imports map[string]string, t reflect.Type, nullable bool) string {
 		return t.Name()
 	}
 
-	packageName := EnsureUniqueGoPackageName(imports, pkgPath)
+	sel := EnsureUniqueGoPackageSelector(imports, pkgPath)
 	if nullable {
-		return fmt.Sprintf("*%s.%s", packageName, t.Name())
+		return fmt.Sprintf("*%s%s", sel, t.Name())
 	}
 
-	return fmt.Sprintf("%s.%s", packageName, t.Name())
+	return fmt.Sprintf("%s%s", sel, t.Name())
 }

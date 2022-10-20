@@ -18,7 +18,7 @@ import (
 	"github.com/conflowio/conflow/src/internal/utils"
 )
 
-func writeFile(dir, name string, content []byte) error {
+func WriteGeneratedFile(dir, name string, content []byte) error {
 	conflowFile := utils.ToSnakeCase(name) + ".cf.go"
 	filepath := path.Join(dir, conflowFile)
 

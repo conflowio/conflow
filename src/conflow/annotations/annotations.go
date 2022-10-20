@@ -35,8 +35,8 @@ var annotations = map[string]string{
 
 func GoString(value string, imports map[string]string) string {
 	if k, ok := annotations[value]; ok {
-		packageName := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/src/conflow/annotations")
-		return fmt.Sprintf("%s.%s", packageName, k)
+		sel := utils.EnsureUniqueGoPackageSelector(imports, "github.com/conflowio/conflow/src/conflow/annotations")
+		return fmt.Sprintf("%s%s", sel, k)
 	}
 	return strconv.Quote(value)
 }

@@ -13,6 +13,7 @@ import (
 	"text/template"
 
 	"github.com/conflowio/conflow/src/conflow/generator/parser"
+	generatortemplate "github.com/conflowio/conflow/src/conflow/generator/template"
 	"github.com/conflowio/conflow/src/internal/utils"
 	"github.com/conflowio/conflow/src/schema"
 )
@@ -41,7 +42,7 @@ func GenerateInterpreter(
 
 	params := generateTemplateParams(parseCtx, f, pkg)
 
-	bodyTmpl := template.New("block_interpreter_body")
+	bodyTmpl := template.New("body")
 	bodyTmpl.Funcs(map[string]interface{}{
 		"assignValue": func(s schema.Schema, valueName, resultName string) string {
 			return s.AssignValue(params.Imports, valueName, resultName)
@@ -62,20 +63,10 @@ func GenerateInterpreter(
 
 	body := res.Bytes()
 
-	headerTmpl := template.New("block_interpreter_header")
-	headerTmpl.Funcs(map[string]interface{}{
-		"last": func(path string) string {
-			parts := strings.Split(path, "/")
-			return parts[len(parts)-1]
-		},
-		"sortedImportKeys": parser.SortedImportKeys,
+	res, err = generatortemplate.GenerateHeader(generatortemplate.HeaderParams{
+		Package: params.Package,
+		Imports: params.Imports,
 	})
-	if _, parseErr := headerTmpl.Parse(interpreterHeaderTemplate); parseErr != nil {
-		return nil, nil, parseErr
-	}
-
-	res = &bytes.Buffer{}
-	err = headerTmpl.Execute(res, params)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -91,13 +82,12 @@ func generateTemplateParams(
 	pkg string,
 ) *InterpreterTemplateParams {
 	imports := map[string]string{
-		".":      pkg,
-		"schema": "github.com/conflowio/conflow/src/schema",
+		pkg: "",
 	}
 
 	var nameSelector string
 	if f.InterpreterPath != "" {
-		nameSelector = utils.EnsureUniqueGoPackageName(imports, pkg) + "."
+		nameSelector = utils.EnsureUniqueGoPackageSelector(imports, pkg)
 	}
 
 	pkgName := parseCtx.File.Name.Name
@@ -107,12 +97,13 @@ func generateTemplateParams(
 	}
 
 	return &InterpreterTemplateParams{
-		Package:          pkgName,
-		Name:             strings.ToUpper(string(f.Name[0])) + f.Name[1:],
-		FuncNameSelector: nameSelector,
-		FuncName:         f.Name,
-		Schema:           f.Schema,
-		Imports:          imports,
-		ReturnsError:     f.ReturnsError,
+		Package:               pkgName,
+		Name:                  strings.ToUpper(string(f.Name[0])) + f.Name[1:],
+		FuncNameSelector:      nameSelector,
+		FuncName:              f.Name,
+		Schema:                f.Schema,
+		Imports:               imports,
+		ReturnsError:          f.ReturnsError,
+		SchemaPackageSelector: utils.EnsureUniqueGoPackageSelector(imports, "github.com/conflowio/conflow/src/schema"),
 	}
 }

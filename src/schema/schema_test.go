@@ -98,8 +98,8 @@ var _ = Describe("Metadata", func() {
 	},
 }`))
 		Expect(imports).To(Equal(map[string]string{
-			"schema":      "github.com/conflowio/conflow/src/schema",
-			"annotations": "github.com/conflowio/conflow/src/conflow/annotations",
+			"github.com/conflowio/conflow/src/schema":              "schema",
+			"github.com/conflowio/conflow/src/conflow/annotations": "annotations",
 		}))
 	})
 })

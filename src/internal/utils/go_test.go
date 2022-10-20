@@ -48,51 +48,51 @@ var _ = Describe("GoType", func() {
 
 	It("should handle a built in type - another import with same name", func() {
 		imports := map[string]string{
-			"time": "other/time",
+			"other/time": "time",
 		}
 		res := utils.GoType(imports, reflect.TypeOf(time.Time{}), false)
 		Expect(res).To(Equal("time2.Time"))
-		Expect(imports["time2"]).To(Equal("time"))
+		Expect(imports["time"]).To(Equal("time2"))
 	})
 
 	It("should handle a built in type pointer - another import with same name", func() {
 		imports := map[string]string{
-			"time": "other/time",
+			"other/time": "time",
 		}
 		res := utils.GoType(imports, reflect.TypeOf(time.Time{}), true)
 		Expect(res).To(Equal("*time2.Time"))
-		Expect(imports["time2"]).To(Equal("time"))
+		Expect(imports["time"]).To(Equal("time2"))
 	})
 
 	It("should handle a user type", func() {
 		imports := map[string]string{}
 		res := utils.GoType(imports, reflect.TypeOf(testhelper.CustomStruct{}), false)
 		Expect(res).To(Equal("testhelper.CustomStruct"))
-		Expect(imports["testhelper"]).To(Equal("github.com/conflowio/conflow/src/internal/testhelper"))
+		Expect(imports["github.com/conflowio/conflow/src/internal/testhelper"]).To(Equal("testhelper"))
 	})
 
 	It("should handle a user type pointer", func() {
 		imports := map[string]string{}
 		res := utils.GoType(imports, reflect.TypeOf(testhelper.CustomStruct{}), true)
 		Expect(res).To(Equal("*testhelper.CustomStruct"))
-		Expect(imports["testhelper"]).To(Equal("github.com/conflowio/conflow/src/internal/testhelper"))
+		Expect(imports["github.com/conflowio/conflow/src/internal/testhelper"]).To(Equal("testhelper"))
 	})
 
 	It("should handle a user type - another import with same name", func() {
 		imports := map[string]string{
-			"testhelper": "other/testhelper",
+			"other/testhelper": "testhelper",
 		}
 		res := utils.GoType(imports, reflect.TypeOf(testhelper.CustomStruct{}), false)
 		Expect(res).To(Equal("testhelper2.CustomStruct"))
-		Expect(imports["testhelper2"]).To(Equal("github.com/conflowio/conflow/src/internal/testhelper"))
+		Expect(imports["github.com/conflowio/conflow/src/internal/testhelper"]).To(Equal("testhelper2"))
 	})
 
 	It("should handle a user type pointer - another import with same name", func() {
 		imports := map[string]string{
-			"testhelper": "other/testhelper",
+			"other/testhelper": "testhelper",
 		}
 		res := utils.GoType(imports, reflect.TypeOf(testhelper.CustomStruct{}), true)
 		Expect(res).To(Equal("*testhelper2.CustomStruct"))
-		Expect(imports["testhelper2"]).To(Equal("github.com/conflowio/conflow/src/internal/testhelper"))
+		Expect(imports["github.com/conflowio/conflow/src/internal/testhelper"]).To(Equal("testhelper2"))
 	})
 })

@@ -36,9 +36,5 @@ func fprintf(w io.Writer, format string, a ...any) {
 }
 
 func schemaPkg(imports map[string]string) string {
-	pkg := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/src/schema")
-	if pkg == "." {
-		return ""
-	}
-	return fmt.Sprintf("%s.", pkg)
+	return utils.EnsureUniqueGoPackageSelector(imports, "github.com/conflowio/conflow/src/schema")
 }
