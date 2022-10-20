@@ -18,8 +18,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/test/fixtures.Block",
 		},
-		JSONPropertyNames: map[string]string{"field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_identifier": "FieldIdentifier", "field_integer": "FieldInteger", "field_interface": "FieldInterface", "field_map": "FieldMap", "field_number": "FieldNumber", "field_string": "FieldString", "field_string_array": "FieldStringArray", "field_time": "FieldTime", "field_time_duration": "FieldTimeDuration", "id_field": "IDField"},
-		ParameterNames:    map[string]string{"FieldArray": "field_array", "FieldBool": "field_bool", "FieldFloat": "field_float", "FieldIdentifier": "field_identifier", "FieldInteger": "field_integer", "FieldInterface": "field_interface", "FieldMap": "field_map", "FieldNumber": "field_number", "FieldString": "field_string", "FieldStringArray": "field_string_array", "FieldTime": "field_time", "FieldTimeDuration": "field_time_duration", "IDField": "id_field"},
+		ParameterNames: map[string]string{"FieldArray": "field_array", "FieldBool": "field_bool", "FieldFloat": "field_float", "FieldIdentifier": "field_identifier", "FieldInteger": "field_integer", "FieldInterface": "field_interface", "FieldMap": "field_map", "FieldNumber": "field_number", "FieldString": "field_string", "FieldStringArray": "field_string_array", "FieldTime": "field_time", "FieldTimeDuration": "field_time_duration", "IDField": "id_field"},
 		Properties: map[string]schema.Schema{
 			"FieldArray": &schema.Array{
 				Items: &schema.Any{},

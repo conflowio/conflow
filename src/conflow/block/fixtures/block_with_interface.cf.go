@@ -17,8 +17,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/conflow/block/fixtures.BlockWithInterface",
 		},
-		JSONPropertyNames: map[string]string{"block": "Block", "blocks": "Blocks", "id_field": "IDField"},
-		ParameterNames:    map[string]string{"Block": "block", "Blocks": "blocks", "IDField": "id_field"},
+		ParameterNames: map[string]string{"Block": "block", "Blocks": "blocks", "IDField": "id_field"},
 		Properties: map[string]schema.Schema{
 			"Block": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/src/conflow.Block",

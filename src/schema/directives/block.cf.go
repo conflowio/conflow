@@ -18,8 +18,7 @@ func init() {
 			Description: "It is the directive for marking structs as conflow blocks",
 			ID:          "github.com/conflowio/conflow/src/schema/directives.Block",
 		},
-		JSONPropertyNames: map[string]string{"eval_stage": "EvalStage", "path": "Path", "type": "Type"},
-		ParameterNames:    map[string]string{"EvalStage": "eval_stage", "Path": "path", "Type": "type"},
+		ParameterNames: map[string]string{"EvalStage": "eval_stage", "Path": "path", "Type": "type"},
 		Properties: map[string]schema.Schema{
 			"EvalStage": &schema.String{
 				Enum: []string{"ignore", "init", "parse", "resolve"},

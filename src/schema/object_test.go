@@ -9,6 +9,7 @@ package schema_test
 import (
 	"errors"
 	"fmt"
+	"go/format"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
@@ -417,15 +418,6 @@ var _ = Describe("Object", func() {
 }`,
 		),
 		Entry(
-			"JSON property names",
-			&schema.Object{
-				JSONPropertyNames: map[string]string{"my_field": "myField"},
-			},
-			`&schema.Object{
-	JSONPropertyNames: map[string]string{"my_field":"myField"},
-}`,
-		),
-		Entry(
 			"minProperties",
 			&schema.Object{
 				MinProperties: 1,
@@ -480,12 +472,12 @@ var _ = Describe("Object", func() {
 						"type": "string"
 					}
 				},
-				"fieldNames": {
+				"x-conflow-fields": {
 					"myField": "MyField"
 				},
 				"minProperties": 1,
 				"maxProperties": 2,
-				"parameterNames": {
+				"x-conflow-parameters": {
 					"myField": "my_field"
 				},
 				"required": ["myField"]
@@ -502,7 +494,7 @@ var _ = Describe("Object", func() {
 					"type": "string"
 				}
 			},
-			"parameterNames": {
+			"x-conflow-parameters": {
 				"myField": "MyField"
 			}
 		}`
@@ -522,7 +514,7 @@ var _ = Describe("Object", func() {
 					"type": "string"
 				}
 			},
-			"fieldNames": {
+			"x-conflow-fields": {
 				"myField": "fielName",
 				"myField2": "invalid field name"
 			}
@@ -531,5 +523,217 @@ var _ = Describe("Object", func() {
 		Expect(err).To(HaveOccurred())
 		Expect(err).To(MatchError(fmt.Errorf("invalid field name \"invalid field name\", must match %s", schema.FieldNameRegexp.String())))
 	})
+
+	structWithField := func(def string) string {
+		return fmt.Sprintf("struct {\n\t%s\n}", def)
+	}
+
+	DescribeTable("GoType prints a valid Go struct",
+		func(s *schema.Object, expected string, expectedImports ...map[string]string) {
+			imports := map[string]string{
+				"github.com/test/test/pkg": "",
+			}
+
+			var actual string
+			Expect(func() {
+				actual = s.GoType(imports)
+			}).ToNot(Panic())
+
+			actualFormatted, err := format.Source([]byte("type Test " + actual))
+			Expect(err).ToNot(HaveOccurred(), "formatting actual failed, content:\n%s", actual)
+
+			expectedFormatted, err := format.Source([]byte("type Test " + expected))
+			Expect(err).ToNot(HaveOccurred(), "formatting expected failed")
+
+			Expect(string(actualFormatted)).To(Equal(string(expectedFormatted)), "Expected\n%s\nActual:\n%s\n", string(expectedFormatted), string(actualFormatted))
+
+			if len(expectedImports) > 0 {
+				Expect(imports).To(Equal(expectedImports[0]))
+			} else {
+				Expect(imports).To(Equal(map[string]string{
+					"github.com/test/test/pkg": "",
+				}))
+			}
+		},
+		Entry(
+			"empty object",
+			&schema.Object{},
+			`struct {
+}`,
+		),
+		Entry(
+			"generates a field correctly, all names are the same",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Boolean{},
+				},
+			},
+			structWithField("testField bool"),
+		),
+		Entry(
+			"sets the parameter name",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Boolean{},
+				},
+				ParameterNames: map[string]string{
+					"testField": "test_field",
+				},
+			},
+			structWithField("// @name \"test_field\"\n\ttestField bool"),
+		),
+		Entry(
+			"sets the json property name",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Boolean{},
+				},
+				ParameterNames: map[string]string{"testField": "test_field"},
+				FieldNames:     map[string]string{"testField": "TestField"},
+			},
+			structWithField("// @name \"test_field\"\n\tTestField bool `json:\"testField,omitempty\"`"),
+		),
+		Entry(
+			"leaves of omitempty if the field is required",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Boolean{},
+				},
+				ParameterNames: map[string]string{"testField": "test_field"},
+				FieldNames:     map[string]string{"testField": "TestField"},
+				Required:       []string{"testField"},
+			},
+			structWithField("// @name \"test_field\"\n\tTestField bool `json:\"testField\"`"),
+		),
+		Entry(
+			"generates a bool field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Boolean{},
+				},
+			},
+			structWithField("testField bool"),
+		),
+		Entry(
+			"generates a bool pointer field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Boolean{Nullable: true},
+				},
+			},
+			structWithField("testField *bool"),
+		),
+		Entry(
+			"generates an integer field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Integer{},
+				},
+			},
+			structWithField("testField int64"),
+		),
+		Entry(
+			"generates an integer pointer field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Integer{Nullable: true},
+				},
+			},
+			structWithField("testField *int64"),
+		),
+		Entry(
+			"generates a number field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Number{},
+				},
+			},
+			structWithField("testField float64"),
+		),
+		Entry(
+			"generates a number pointer field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Number{Nullable: true},
+				},
+			},
+			structWithField("testField *float64"),
+		),
+		Entry(
+			"generates a string field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.String{},
+				},
+			},
+			structWithField("testField string"),
+		),
+		Entry(
+			"generates a string pointer field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.String{Nullable: true},
+				},
+			},
+			structWithField("testField *string"),
+		),
+		Entry(
+			"generates an array field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Array{
+						Items: schema.StringValue(),
+					},
+				},
+			},
+			structWithField("testField []string"),
+		),
+		Entry(
+			"generates a map field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Map{
+						AdditionalProperties: schema.IntegerValue(),
+					},
+				},
+			},
+			structWithField("testField map[string]int64"),
+		),
+		Entry(
+			"generates an object field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Reference{
+						Ref: "github.com/test/test/somepackage.Foo",
+					},
+				},
+			},
+			`struct {
+	testField somepackage.Foo
+}`,
+			map[string]string{
+				"github.com/test/test/pkg":         "",
+				"github.com/test/test/somepackage": "somepackage",
+			},
+		),
+		Entry(
+			"generates an object pointer field correctly",
+			&schema.Object{
+				Properties: map[string]schema.Schema{
+					"testField": &schema.Reference{
+						Ref:      "github.com/test/test/somepackage.Foo",
+						Nullable: true,
+					},
+				},
+			},
+			`struct {
+	testField *somepackage.Foo
+}`,
+			map[string]string{
+				"github.com/test/test/pkg":         "",
+				"github.com/test/test/somepackage": "somepackage",
+			},
+		),
+	)
 
 })

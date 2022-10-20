@@ -47,7 +47,7 @@ func (m *module) Run(ctx context.Context) (conflow.Result, error) {
 	s := m.interpreter.Schema().(*schema.Object)
 	for jsonPropertyName, property := range s.Properties {
 		if property.GetReadOnly() {
-			parameterName := s.JSONPropertyName(jsonPropertyName)
+			parameterName := s.ParameterName(jsonPropertyName)
 			m.params[conflow.ID(parameterName)] = m.interpreter.Param(value.(conflow.Block), conflow.ID(parameterName))
 		}
 	}

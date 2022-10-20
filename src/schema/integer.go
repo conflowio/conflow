@@ -17,6 +17,10 @@ import (
 	"strings"
 )
 
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type Integer struct {
 	Metadata
 

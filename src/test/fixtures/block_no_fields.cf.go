@@ -17,8 +17,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/test/fixtures.BlockNoFields",
 		},
-		JSONPropertyNames: map[string]string{"id_field": "IDField"},
-		ParameterNames:    map[string]string{"IDField": "id_field"},
+		ParameterNames: map[string]string{"IDField": "id_field"},
 		Properties: map[string]schema.Schema{
 			"IDField": &schema.String{
 				Metadata: schema.Metadata{

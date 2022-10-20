@@ -17,9 +17,8 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/openapi.PathItem",
 		},
-		FieldNames:        map[string]string{"delete": "Delete", "description": "Description", "get": "Get", "head": "Head", "options": "Options", "parameters": "Parameters", "patch": "Patch", "post": "Post", "put": "Put", "servers": "Servers", "summary": "Summary", "trace": "Trace"},
-		JSONPropertyNames: map[string]string{"parameter": "parameters", "server": "servers"},
-		ParameterNames:    map[string]string{"parameters": "parameter", "servers": "server"},
+		FieldNames:     map[string]string{"delete": "Delete", "description": "Description", "get": "Get", "head": "Head", "options": "Options", "parameters": "Parameters", "patch": "Patch", "post": "Post", "put": "Put", "servers": "Servers", "summary": "Summary", "trace": "Trace"},
+		ParameterNames: map[string]string{"parameters": "parameter", "servers": "server"},
 		Properties: map[string]schema.Schema{
 			"delete": &schema.Reference{
 				Nullable: true,

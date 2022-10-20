@@ -18,14 +18,10 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Array",
 		},
-		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly"},
-		JSONPropertyNames: map[string]string{"id": "$id", "max_items": "maxItems", "min_items": "minItems", "read_only": "readOnly", "unique_items": "uniqueItems", "write_only": "writeOnly"},
-		ParameterNames:    map[string]string{"$id": "id", "maxItems": "max_items", "minItems": "min_items", "readOnly": "read_only", "uniqueItems": "unique_items", "writeOnly": "write_only"},
+		FieldNames:     map[string]string{"$id": "ID", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
+		ParameterNames: map[string]string{"$id": "id", "maxItems": "max_items", "minItems": "min_items", "readOnly": "read_only", "uniqueItems": "unique_items", "writeOnly": "write_only", "x-annotations": "annotations"},
 		Properties: map[string]schema.Schema{
 			"$id": &schema.String{},
-			"annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
 			"const": &schema.Array{
 				Items: &schema.Any{},
 			},
@@ -53,6 +49,9 @@ func init() {
 			"title":       &schema.String{},
 			"uniqueItems": &schema.Boolean{},
 			"writeOnly":   &schema.Boolean{},
+			"x-annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
 		},
 		Required: []string{"items"},
 	})
@@ -92,8 +91,6 @@ func (i ArrayInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*Array).ID
-	case "annotations":
-		return b.(*Array).Annotations
 	case "const":
 		return b.(*Array).Const
 	case "default":
@@ -118,6 +115,8 @@ func (i ArrayInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Array).UniqueItems
 	case "write_only":
 		return b.(*Array).WriteOnly
+	case "annotations":
+		return b.(*Array).Annotations
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Array", name))
 	}
@@ -128,11 +127,6 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	switch name {
 	case "id":
 		b.ID = value.(string)
-	case "annotations":
-		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = valuev.(string)
-		}
 	case "const":
 		b.Const = value.([]interface{})
 	case "default":
@@ -160,6 +154,11 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 		b.UniqueItems = value.(bool)
 	case "write_only":
 		b.WriteOnly = value.(bool)
+	case "annotations":
+		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
+		for valuek, valuev := range value.(map[string]interface{}) {
+			b.Annotations[valuek] = valuev.(string)
+		}
 	}
 	return nil
 }

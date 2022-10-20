@@ -14,6 +14,7 @@ import (
 
 // @block "configuration"
 type Response struct {
+	// @required
 	Description string                `json:"description,omitempty"`
 	Content     map[string]*MediaType `json:"content,omitempty"`
 }

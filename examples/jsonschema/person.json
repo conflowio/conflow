@@ -32,7 +32,7 @@
       "required": ["name"]
     }
   },
-  "parameterNames": {
+  "x-conflow-parameters": {
     "pets": "pet"
   },
   "required": ["name", "spouse"]

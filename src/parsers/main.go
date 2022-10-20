@@ -38,7 +38,7 @@ func NewMain(id conflow.ID, interpreter conflow.BlockInterpreter) *Main {
 	if blockType != conflow.BlockTypeMain && blockType != conflow.BlockTypeConfiguration {
 		panic(fmt.Errorf(
 			"%T can not be used as a main block, as it is a %s block",
-			interpreter.Schema().GetAnnotation(annotations.ID),
+			interpreter.Schema().GetID(),
 			blockType,
 		))
 	}

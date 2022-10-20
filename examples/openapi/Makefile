@@ -1,11 +1,11 @@
 .PHONY: json
 json:
-	@conflow openapi generate --format json
+	@conflow openapi generate json
 
 .PHONY: json-compact
 json-compact:
-	@conflow openapi generate --format json --compact
+	@conflow openapi generate json --compact
 
 .PHONY: yaml
 yaml:
-	@conflow openapi generate --format yaml
+	@conflow openapi generate yaml

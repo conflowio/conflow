@@ -55,15 +55,13 @@ func GenerateInterpreter(
 		return nil, nil, parseErr
 	}
 
-	res := &bytes.Buffer{}
-	err = bodyTmpl.Execute(res, params)
+	body := &bytes.Buffer{}
+	err = bodyTmpl.Execute(body, params)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	body := res.Bytes()
-
-	res, err = generatortemplate.GenerateHeader(generatortemplate.HeaderParams{
+	header, err := generatortemplate.GenerateHeader(generatortemplate.HeaderParams{
 		Package: params.Package,
 		Imports: params.Imports,
 	})
@@ -71,9 +69,7 @@ func GenerateInterpreter(
 		return nil, nil, err
 	}
 
-	res.Write(body)
-
-	return res.Bytes(), f, nil
+	return append(header, body.Bytes()...), f, nil
 }
 
 func generateTemplateParams(

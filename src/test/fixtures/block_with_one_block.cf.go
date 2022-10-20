@@ -17,8 +17,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/test/fixtures.BlockWithOneBlock",
 		},
-		JSONPropertyNames: map[string]string{"block": "Block", "id_field": "IDField"},
-		ParameterNames:    map[string]string{"Block": "block", "IDField": "id_field"},
+		ParameterNames: map[string]string{"Block": "block", "IDField": "id_field"},
 		Properties: map[string]schema.Schema{
 			"Block": &schema.Reference{
 				Nullable: true,

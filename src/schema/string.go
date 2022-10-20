@@ -24,6 +24,10 @@ const (
 	FormatConflowID = "conflow.ID"
 )
 
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type String struct {
 	Metadata
 

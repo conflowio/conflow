@@ -11,10 +11,55 @@ import (
 	"time"
 
 	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/src/internal/testhelper"
 	"github.com/conflowio/conflow/src/internal/utils"
+)
+
+var _ = DescribeTable(
+	"EnsureUniqueGoPackageSelector",
+	func(imports map[string]string, pkg string, expectedImports map[string]string, expectedSel string) {
+		sel := utils.EnsureUniqueGoPackageSelector(imports, pkg)
+		Expect(sel).To(Equal(expectedSel))
+		Expect(imports).To(Equal(expectedImports))
+	},
+	Entry(
+		"adds a package with no alias",
+		map[string]string{},
+		"github.com/foo/bar",
+		map[string]string{"github.com/foo/bar": "bar"},
+		"bar.",
+	),
+	Entry(
+		"adds a standard lib",
+		map[string]string{},
+		"fmt",
+		map[string]string{"fmt": "fmt"},
+		"fmt.",
+	),
+	Entry(
+		"adds an alias if the selector is already taken",
+		map[string]string{"github.com/foo/bar": "bar"},
+		"github.com/baz/bar",
+		map[string]string{"github.com/foo/bar": "bar", "github.com/baz/bar": "bar2"},
+		"bar2.",
+	),
+	Entry(
+		"returns empty string for the current package",
+		map[string]string{"github.com/foo/bar": ""},
+		"github.com/foo/bar",
+		map[string]string{"github.com/foo/bar": ""},
+		"",
+	),
+	Entry(
+		"returns the real package name for version packages",
+		map[string]string{},
+		"github.com/foo/bar/v1",
+		map[string]string{"github.com/foo/bar/v1": "bar"},
+		"bar.",
+	),
 )
 
 var _ = Describe("GoType", func() {

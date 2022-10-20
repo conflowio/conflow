@@ -17,9 +17,8 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/openapi.Operation",
 		},
-		FieldNames:        map[string]string{"deprecated": "Deprecated", "description": "Description", "operationId": "OperationID", "parameters": "Parameters", "requestBody": "RequestBody", "responses": "Responses", "servers": "Servers", "summary": "Summary", "tags": "Tags"},
-		JSONPropertyNames: map[string]string{"operation_id": "operationId", "parameter": "parameters", "request_body": "requestBody", "response": "responses", "server": "servers"},
-		ParameterNames:    map[string]string{"operationId": "operation_id", "parameters": "parameter", "requestBody": "request_body", "responses": "response", "servers": "server"},
+		FieldNames:     map[string]string{"deprecated": "Deprecated", "description": "Description", "operationId": "OperationID", "parameters": "Parameters", "requestBody": "RequestBody", "responses": "Responses", "servers": "Servers", "summary": "Summary", "tags": "Tags"},
+		ParameterNames: map[string]string{"operationId": "operation_id", "parameters": "parameter", "requestBody": "request_body", "responses": "response", "servers": "server"},
 		Properties: map[string]schema.Schema{
 			"deprecated":  &schema.Boolean{},
 			"description": &schema.String{},

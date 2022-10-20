@@ -27,6 +27,7 @@ func init() {
 			},
 			"description": &schema.String{},
 		},
+		Required: []string{"description"},
 	})
 }
 

@@ -17,8 +17,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/schema/directives.Dependency",
 		},
-		JSONPropertyNames: map[string]string{"name": "Name"},
-		ParameterNames:    map[string]string{"Name": "name"},
+		ParameterNames: map[string]string{"Name": "name"},
 		Properties: map[string]schema.Schema{
 			"Name": &schema.String{
 				Metadata: schema.Metadata{

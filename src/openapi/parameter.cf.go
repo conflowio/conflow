@@ -17,32 +17,31 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/openapi.Parameter",
 		},
-		FieldNames:        map[string]string{"allowEmptyValue": "AllowEmptyValue", "allowReserved": "AllowReserved", "content": "Content", "deprecated": "Deprecated", "description": "Description", "explode": "Explode", "in": "In", "name": "Name", "required": "Required", "schema": "Schema", "style": "Style"},
-		JSONPropertyNames: map[string]string{"allow_empty_value": "allowEmptyValue", "allow_reserved": "allowReserved"},
-		ParameterNames:    map[string]string{"allowEmptyValue": "allow_empty_value", "allowReserved": "allow_reserved"},
+		FieldNames:     map[string]string{"allowReserved": "AllowReserved", "deprecated": "Deprecated", "description": "Description", "explode": "Explode", "in": "In", "name": "Name", "required": "Required", "schema": "Schema", "style": "Style"},
+		ParameterNames: map[string]string{"allowReserved": "allow_reserved"},
 		Properties: map[string]schema.Schema{
-			"allowEmptyValue": &schema.Boolean{},
-			"allowReserved":   &schema.Boolean{},
-			"content": &schema.Map{
-				AdditionalProperties: &schema.Reference{
-					Nullable: true,
-					Ref:      "github.com/conflowio/conflow/src/openapi.MediaType",
-				},
+			"allowReserved": &schema.Boolean{},
+			"deprecated":    &schema.Boolean{},
+			"description":   &schema.String{},
+			"explode": &schema.Boolean{
+				Nullable: true,
 			},
-			"deprecated":  &schema.Boolean{},
-			"description": &schema.String{},
-			"explode":     &schema.Boolean{},
 			"in": &schema.String{
+				Metadata: schema.Metadata{
+					Description: "$required",
+				},
 				Enum: []string{"query", "header", "path", "cookie"},
 			},
-			"name":     &schema.String{},
-			"required": &schema.Boolean{},
+			"name": &schema.String{},
+			"required": &schema.Boolean{
+				Nullable: true,
+			},
 			"schema": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/src/schema.Schema",
 			},
 			"style": &schema.String{},
 		},
-		Required: []string{"name"},
+		Required: []string{"name", "schema"},
 	})
 }
 
@@ -58,7 +57,6 @@ func (i ParameterInterpreter) Schema() schema.Schema {
 // Create creates a new Parameter block
 func (i ParameterInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	b := &Parameter{}
-	b.Content = map[string]*MediaType{}
 	return b
 }
 
@@ -79,8 +77,6 @@ func (i ParameterInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.P
 
 func (i ParameterInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "allow_empty_value":
-		return b.(*Parameter).AllowEmptyValue
 	case "allow_reserved":
 		return b.(*Parameter).AllowReserved
 	case "deprecated":
@@ -105,8 +101,6 @@ func (i ParameterInterpreter) Param(b conflow.Block, name conflow.ID) interface{
 func (i ParameterInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Parameter)
 	switch name {
-	case "allow_empty_value":
-		b.AllowEmptyValue = value.(bool)
 	case "allow_reserved":
 		b.AllowReserved = value.(bool)
 	case "deprecated":
@@ -114,13 +108,13 @@ func (i ParameterInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	case "description":
 		b.Description = value.(string)
 	case "explode":
-		b.Explode = value.(bool)
+		b.Explode = schema.Pointer(value.(bool))
 	case "in":
 		b.In = value.(string)
 	case "name":
 		b.Name = value.(string)
 	case "required":
-		b.Required = value.(bool)
+		b.Required = schema.Pointer(value.(bool))
 	case "style":
 		b.Style = value.(string)
 	}
@@ -130,8 +124,6 @@ func (i ParameterInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 func (i ParameterInterpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
 	b := block.(*Parameter)
 	switch name {
-	case "content":
-		b.Content[key] = value.(*MediaType)
 	case "schema":
 		b.Schema = value.(schema.Schema)
 	}

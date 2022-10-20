@@ -23,6 +23,7 @@ func init() {
 				Ref: "github.com/conflowio/conflow/src/schema.Schema",
 			},
 		},
+		Required: []string{"schema"},
 	})
 }
 

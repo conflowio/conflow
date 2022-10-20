@@ -20,6 +20,10 @@ import (
 // Epsilon is used as a float64 comparison tolerance
 const Epsilon = 0.000000001
 
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type Number struct {
 	Metadata
 

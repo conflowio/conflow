@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"path"
 	"strings"
 
 	"github.com/conflowio/conflow/src/conflow"
@@ -22,6 +23,7 @@ import (
 type Struct struct {
 	Name            string
 	InterpreterPath string
+	InterpreterPkg  string
 	Schema          schema.Schema
 	Dependencies    []parser.Dependency
 }
@@ -40,6 +42,13 @@ func ParseStruct(
 			bd = v
 			break
 		}
+	}
+
+	var interpreterPath string
+	interpreterPkg := pkg
+	if bd != nil && bd.Path != "" {
+		interpreterPath = bd.Path
+		interpreterPkg = path.Clean(path.Join(interpreterPkg, bd.Path))
 	}
 
 	s := &schema.Object{
@@ -136,14 +145,10 @@ func ParseStruct(
 		}
 	}
 
-	var interpreterPath string
-	if bd != nil {
-		interpreterPath = bd.Path
-	}
-
 	return &Struct{
 		Name:            name,
 		InterpreterPath: interpreterPath,
+		InterpreterPkg:  interpreterPkg,
 		Schema:          s,
 		Dependencies:    dependencies,
 	}, nil
@@ -235,11 +240,6 @@ func addField(s *schema.Object, idField, valueField, keyField *string, field par
 	s.Properties[field.JSONPropertyName] = field.Schema
 
 	if field.ParameterName != field.JSONPropertyName {
-		if s.JSONPropertyNames == nil {
-			s.JSONPropertyNames = map[string]string{}
-		}
-		s.JSONPropertyNames[field.ParameterName] = field.JSONPropertyName
-
 		if s.ParameterNames == nil {
 			s.ParameterNames = map[string]string{}
 		}

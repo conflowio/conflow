@@ -18,14 +18,10 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Boolean",
 		},
-		FieldNames:        map[string]string{"$id": "ID", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-		JSONPropertyNames: map[string]string{"id": "$id", "read_only": "readOnly", "write_only": "writeOnly"},
-		ParameterNames:    map[string]string{"$id": "id", "readOnly": "read_only", "writeOnly": "write_only"},
+		FieldNames:     map[string]string{"$id": "ID", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
+		ParameterNames: map[string]string{"$id": "id", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations"},
 		Properties: map[string]schema.Schema{
 			"$id": &schema.String{},
-			"annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
 			"const": &schema.Boolean{
 				Nullable: true,
 			},
@@ -44,6 +40,9 @@ func init() {
 			"readOnly":  &schema.Boolean{},
 			"title":     &schema.String{},
 			"writeOnly": &schema.Boolean{},
+			"x-annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
 		},
 	})
 }
@@ -82,8 +81,6 @@ func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 	switch name {
 	case "id":
 		return b.(*Boolean).ID
-	case "annotations":
-		return b.(*Boolean).Annotations
 	case "const":
 		return b.(*Boolean).Const
 	case "default":
@@ -104,6 +101,8 @@ func (i BooleanInterpreter) Param(b conflow.Block, name conflow.ID) interface{} 
 		return b.(*Boolean).Title
 	case "write_only":
 		return b.(*Boolean).WriteOnly
+	case "annotations":
+		return b.(*Boolean).Annotations
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Boolean", name))
 	}
@@ -114,11 +113,6 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	switch name {
 	case "id":
 		b.ID = value.(string)
-	case "annotations":
-		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = valuev.(string)
-		}
 	case "const":
 		b.Const = schema.Pointer(value.(bool))
 	case "default":
@@ -142,6 +136,11 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 		b.Title = value.(string)
 	case "write_only":
 		b.WriteOnly = value.(bool)
+	case "annotations":
+		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
+		for valuek, valuev := range value.(map[string]interface{}) {
+			b.Annotations[valuek] = valuev.(string)
+		}
 	}
 	return nil
 }

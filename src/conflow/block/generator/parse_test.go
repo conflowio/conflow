@@ -178,7 +178,6 @@ var _ = Describe("ParseStruct", func() {
 			"// @name \"custom_field_name\"\nfield string",
 			func(s schema.Schema) {
 				s.(*schema.Object).Properties["field"] = &schema.String{}
-				s.(*schema.Object).JSONPropertyNames = map[string]string{"custom_field_name": "field"}
 				s.(*schema.Object).ParameterNames = map[string]string{"field": "custom_field_name"}
 			},
 		),
@@ -188,7 +187,6 @@ var _ = Describe("ParseStruct", func() {
 			"fieldName string",
 			func(s schema.Schema) {
 				s.(*schema.Object).Properties["fieldName"] = &schema.String{}
-				s.(*schema.Object).JSONPropertyNames = map[string]string{"field_name": "fieldName"}
 				s.(*schema.Object).ParameterNames = map[string]string{"fieldName": "field_name"}
 			},
 		),
@@ -198,7 +196,6 @@ var _ = Describe("ParseStruct", func() {
 			"fieldName string `json:\"-\"`",
 			func(s schema.Schema) {
 				s.(*schema.Object).Properties["fieldName"] = &schema.String{}
-				s.(*schema.Object).JSONPropertyNames = map[string]string{"field_name": "fieldName"}
 				s.(*schema.Object).ParameterNames = map[string]string{"fieldName": "field_name"}
 			},
 		),
