@@ -51,9 +51,9 @@ func (b *ByteStream) DefaultValue() interface{} {
 
 func (b *ByteStream) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.ByteStream{\n")
+	fprintf(buf, "&%sByteStream{\n", schemaPkg(imports))
 	if !reflect.ValueOf(b.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString(imports)))
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -127,6 +127,6 @@ func (u *byteStreamValue) Copy() Schema {
 	return byteStreamValueInst
 }
 
-func (u *byteStreamValue) GoString(map[string]string) string {
-	return "schema.ByteStreamValue()"
+func (u *byteStreamValue) GoString(imports map[string]string) string {
+	return fmt.Sprintf("%sByteStreamValue()", schemaPkg(imports))
 }

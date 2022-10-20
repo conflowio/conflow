@@ -26,7 +26,7 @@ type Boolean struct {
 
 func (b *Boolean) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if b.Nullable {
-		return fmt.Sprintf("%s = schema.Pointer(%s.(bool))", resultName, valueName)
+		return fmt.Sprintf("%s = %sPointer(%s.(bool))", resultName, schemaPkg(imports), valueName)
 	}
 
 	return fmt.Sprintf("%s = %s.(bool)", resultName, valueName)
@@ -79,22 +79,23 @@ func (b *Boolean) GetNullable() bool {
 }
 
 func (b *Boolean) GoString(imports map[string]string) string {
+	pkg := schemaPkg(imports)
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Boolean{\n")
+	fprintf(buf, "&%sBoolean{\n", pkg)
 	if !reflect.ValueOf(b.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(b.Metadata.GoString(imports)))
 	}
 	if b.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: schema.Pointer(%#v),\n", *b.Const)
+		fprintf(buf, "\tConst: %sPointer(%#v),\n", pkg, *b.Const)
 	}
 	if b.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: schema.Pointer(%#v),\n", *b.Default)
+		fprintf(buf, "\tDefault: %sPointer(%#v),\n", pkg, *b.Default)
 	}
 	if len(b.Enum) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", b.Enum)
+		fprintf(buf, "\tEnum: %#v,\n", b.Enum)
 	}
 	if b.Nullable {
-		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", b.Nullable)
+		fprintf(buf, "\tNullable: %#v,\n", b.Nullable)
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -194,6 +195,6 @@ func (b *booleanValue) Copy() Schema {
 	return booleanValueInst
 }
 
-func (b *booleanValue) GoString(map[string]string) string {
-	return "schema.BooleanValue()"
+func (b *booleanValue) GoString(imports map[string]string) string {
+	return fmt.Sprintf("%sBooleanValue()", schemaPkg(imports))
 }

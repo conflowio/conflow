@@ -59,13 +59,14 @@ func (a *AllOf) GoType(imports map[string]string) string {
 }
 
 func (a *AllOf) GoString(imports map[string]string) string {
+	pkg := schemaPkg(imports)
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.AllOf{\n")
-	_, _ = fmt.Fprintf(buf, "\tSchemas: []schema.Schema{\n")
+	fprintf(buf, "&%sAllOf{\n", pkg)
+	fprintf(buf, "\tSchemas: []%sSchema{\n", pkg)
 	for _, s := range a.Schemas {
-		_, _ = fmt.Fprintf(buf, "\t\t%s,\n", indent(s.GoString(imports)))
+		fprintf(buf, "\t\t%s,\n", indent(s.GoString(imports)))
 	}
-	_, _ = fmt.Fprintf(buf, "\t},\n")
+	fprintf(buf, "\t},\n")
 	buf.WriteRune('}')
 	return buf.String()
 }

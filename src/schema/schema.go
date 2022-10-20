@@ -130,9 +130,9 @@ type NamedSchema struct {
 
 func (n NamedSchema) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("schema.NamedSchema{\n")
-	_, _ = fmt.Fprintf(buf, "\tName: %q,\n", n.Name)
-	_, _ = fmt.Fprintf(buf, "\tSchema: %s,\n", indent(n.Schema.GoString(imports)))
+	fprintf(buf, "%sNamedSchema{\n", schemaPkg(imports))
+	fprintf(buf, "\tName: %q,\n", n.Name)
+	fprintf(buf, "\tSchema: %s,\n", indent(n.Schema.GoString(imports)))
 	buf.WriteRune('}')
 	return buf.String()
 }

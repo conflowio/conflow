@@ -54,12 +54,12 @@ func (a *Any) DefaultValue() interface{} {
 
 func (a *Any) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Any{\n")
+	fprintf(buf, "&%sAny{\n", schemaPkg(imports))
 	if !reflect.ValueOf(a.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString(imports)))
 	}
 	if len(a.Types) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tTypes: %#v,\n", a.Types)
+		fprintf(buf, "\tTypes: %#v,\n", a.Types)
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -208,6 +208,6 @@ func (u *anyValue) Copy() Schema {
 	return anyValueInst
 }
 
-func (u *anyValue) GoString(map[string]string) string {
-	return "schema.AnyValue()"
+func (u *anyValue) GoString(imports map[string]string) string {
+	return fmt.Sprintf("%sAnyValue()", schemaPkg(imports))
 }

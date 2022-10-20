@@ -29,7 +29,7 @@ import (
 var _ = Describe("Metadata", func() {
 	DescribeTable("GoString prints a valid Go struct",
 		func(b schema.Metadata, expected string) {
-			str := b.GoString(nil)
+			str := b.GoString(map[string]string{})
 			Expect(str).To(Equal(expected))
 		},
 		Entry(
@@ -98,6 +98,7 @@ var _ = Describe("Metadata", func() {
 	},
 }`))
 		Expect(imports).To(Equal(map[string]string{
+			"schema":      "github.com/conflowio/conflow/src/schema",
 			"annotations": "github.com/conflowio/conflow/src/conflow/annotations",
 		}))
 	})

@@ -8,6 +8,7 @@ package schema
 
 import (
 	"errors"
+	"fmt"
 )
 
 func False() Schema {
@@ -40,8 +41,8 @@ func (f falseImpl) MarshalJSON() ([]byte, error) {
 	return []byte("false"), nil
 }
 
-func (f falseImpl) GoString(map[string]string) string {
-	return "schema.False()"
+func (f falseImpl) GoString(imports map[string]string) string {
+	return fmt.Sprintf("%sFalse()", schemaPkg(imports))
 }
 
 func (f falseImpl) GoType(_ map[string]string) string {

@@ -114,28 +114,29 @@ func (a *Array) GoType(imports map[string]string) string {
 }
 
 func (a *Array) GoString(imports map[string]string) string {
+	pkg := schemaPkg(imports)
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Array{\n")
+	fprintf(buf, "&%sArray{\n", pkg)
 	if !reflect.ValueOf(a.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString(imports)))
 	}
 	if a.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: %#v,\n", a.Const)
+		fprintf(buf, "\tConst: %#v,\n", a.Const)
 	}
 	if a.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: %#v,\n", a.Default)
+		fprintf(buf, "\tDefault: %#v,\n", a.Default)
 	}
 	if len(a.Enum) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", a.Enum)
+		fprintf(buf, "\tEnum: %#v,\n", a.Enum)
 	}
 	if a.Items != nil {
-		_, _ = fmt.Fprintf(buf, "\tItems: %s,\n", indent(a.Items.GoString(imports)))
+		fprintf(buf, "\tItems: %s,\n", indent(a.Items.GoString(imports)))
 	}
 	if a.MinItems != 0 {
-		_, _ = fmt.Fprintf(buf, "\tMinItems: %d,\n", a.MinItems)
+		fprintf(buf, "\tMinItems: %d,\n", a.MinItems)
 	}
 	if a.MaxItems != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxItems: schema.Pointer(int64(%d)),\n", *a.MaxItems)
+		fprintf(buf, "\tMaxItems: %sPointer(int64(%d)),\n", pkg, *a.MaxItems)
 	}
 	if a.UniqueItems {
 		_, _ = fmt.Fprint(buf, "\tUniqueItems: true,\n")

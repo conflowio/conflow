@@ -43,8 +43,9 @@ func (s *String) AssignValue(imports map[string]string, valueName, resultName st
 
 	if s.Nullable {
 		return fmt.Sprintf(
-			"%s = schema.Pointer(%s.(%s))",
+			"%s = %sPointer(%s.(%s))",
 			resultName,
+			schemaPkg(imports),
 			valueName,
 			goType,
 		)
@@ -105,35 +106,36 @@ func (s *String) GetNullable() bool {
 }
 
 func (s *String) GoString(imports map[string]string) string {
+	pkg := schemaPkg(imports)
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.String{\n")
+	fprintf(buf, "&%sString{\n", pkg)
 	if !reflect.ValueOf(s.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(s.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(s.Metadata.GoString(imports)))
 	}
 	if s.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: schema.Pointer(%#v),\n", *s.Const)
+		fprintf(buf, "\tConst: %sPointer(%#v),\n", pkg, *s.Const)
 	}
 	if s.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: schema.Pointer(%#v),\n", *s.Default)
+		fprintf(buf, "\tDefault: %sPointer(%#v),\n", pkg, *s.Default)
 	}
 	if len(s.Enum) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", s.Enum)
+		fprintf(buf, "\tEnum: %#v,\n", s.Enum)
 	}
 	if len(s.Format) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tFormat: %#v,\n", s.Format)
+		fprintf(buf, "\tFormat: %#v,\n", s.Format)
 	}
 	if s.MinLength > 0 {
-		_, _ = fmt.Fprintf(buf, "\tMinLength: %d,\n", s.MinLength)
+		fprintf(buf, "\tMinLength: %d,\n", s.MinLength)
 	}
 	if s.MaxLength != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxLength: schema.Pointer(int64(%d)),\n", *s.MaxLength)
+		fprintf(buf, "\tMaxLength: %sPointer(int64(%d)),\n", pkg, *s.MaxLength)
 	}
 	if s.Nullable {
-		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", s.Nullable)
+		fprintf(buf, "\tNullable: %#v,\n", s.Nullable)
 	}
 	if s.Pattern != nil {
 		pkgName := utils.EnsureUniqueGoPackageName(imports, "regexp")
-		_, _ = fmt.Fprintf(buf, "\tPattern: %s.MustCompile(%q),\n", pkgName, s.Pattern.String())
+		fprintf(buf, "\tPattern: %s.MustCompile(%q),\n", pkgName, s.Pattern.String())
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -332,6 +334,6 @@ func (s *stringValue) Copy() Schema {
 	return stringValueInst
 }
 
-func (s *stringValue) GoString(map[string]string) string {
-	return "schema.StringValue()"
+func (s *stringValue) GoString(imports map[string]string) string {
+	return fmt.Sprintf("%sStringValue()", schemaPkg(imports))
 }
