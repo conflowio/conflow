@@ -83,20 +83,13 @@ func (r *Reference) GoType(imports map[string]string) string {
 		}
 	}
 
-	if path == "" || imports["."] == path {
-		if r.Nullable {
-			return fmt.Sprintf("*%s", typeName)
-		}
-		return typeName
-	}
-
-	packageName := utils.EnsureUniqueGoPackageName(imports, path)
+	sel := utils.EnsureUniqueGoPackageSelector(imports, path)
 
 	if r.Nullable {
-		return fmt.Sprintf("*%s.%s", packageName, typeName)
+		return fmt.Sprintf("*%s%s", sel, typeName)
 	}
 
-	return fmt.Sprintf("%s.%s", packageName, typeName)
+	return fmt.Sprintf("%s%s", sel, typeName)
 }
 
 func (r *Reference) SetNullable(nullable bool) {

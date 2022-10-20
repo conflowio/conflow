@@ -134,8 +134,7 @@ func (s *String) GoString(imports map[string]string) string {
 		fprintf(buf, "\tNullable: %#v,\n", s.Nullable)
 	}
 	if s.Pattern != nil {
-		pkgName := utils.EnsureUniqueGoPackageName(imports, "regexp")
-		fprintf(buf, "\tPattern: %s.MustCompile(%q),\n", pkgName, s.Pattern.String())
+		fprintf(buf, "\tPattern: %sMustCompile(%q),\n", utils.EnsureUniqueGoPackageSelector(imports, "regexp"), s.Pattern.String())
 	}
 	buf.WriteRune('}')
 	return buf.String()
