@@ -18,8 +18,7 @@ func init() {
 			Description: "It is the directive for marking functions as conflow functions",
 			ID:          "github.com/conflowio/conflow/src/schema/directives.Function",
 		},
-		JSONPropertyNames: map[string]string{"path": "Path"},
-		ParameterNames:    map[string]string{"Path": "path"},
+		ParameterNames: map[string]string{"Path": "path"},
 		Properties: map[string]schema.Schema{
 			"Path": &schema.String{},
 			"id": &schema.String{

@@ -18,8 +18,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/blocks.Stream",
 		},
-		JSONPropertyNames: map[string]string{"stream": "Stream"},
-		ParameterNames:    map[string]string{"Stream": "stream"},
+		ParameterNames: map[string]string{"Stream": "stream"},
 		Properties: map[string]schema.Schema{
 			"Stream": &schema.ByteStream{},
 			"id": &schema.String{

@@ -18,6 +18,10 @@ import (
 
 var _ Schema = &Reference{}
 
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type Reference struct {
 	Metadata
 
@@ -31,11 +35,11 @@ type Reference struct {
 }
 
 func (r *Reference) AssignValue(imports map[string]string, valueName, resultName string) string {
-	return r.getSchema().AssignValue(imports, valueName, resultName)
+	return r.schema.AssignValue(imports, valueName, resultName)
 }
 
 func (r *Reference) CompareValues(a, b interface{}) int {
-	return r.getSchema().CompareValues(a, b)
+	return r.schema.CompareValues(a, b)
 }
 
 func (r *Reference) Copy() Schema {
@@ -45,10 +49,15 @@ func (r *Reference) Copy() Schema {
 }
 
 func (r *Reference) DefaultValue() interface{} {
-	return r.getSchema().DefaultValue()
+	return r.schema.DefaultValue()
 }
 
 func (r *Reference) GetNullable() bool {
+	if r.schema != nil {
+		if n, ok := r.schema.(Nullable); ok && n.GetNullable() {
+			return true
+		}
+	}
 	return r.Nullable
 }
 
@@ -67,6 +76,10 @@ func (r *Reference) GoString(imports map[string]string) string {
 }
 
 func (r *Reference) GoType(imports map[string]string) string {
+	if r.schema != nil {
+		return r.schema.GoType(imports)
+	}
+
 	u, err := url.Parse(r.Ref)
 	if err != nil {
 		panic(fmt.Errorf("reference %q is invalid: %w", r.Ref, err))
@@ -97,23 +110,27 @@ func (r *Reference) SetNullable(nullable bool) {
 }
 
 func (r *Reference) StringValue(value interface{}) string {
-	return r.getSchema().StringValue(value)
+	return r.schema.StringValue(value)
 }
 
 func (r *Reference) Type() Type {
-	return r.getSchema().Type()
+	return r.schema.Type()
 }
 
 func (r *Reference) TypeString() string {
-	return r.getSchema().TypeString()
+	return r.schema.TypeString()
 }
 
 func (r *Reference) Validate(ctx *Context) error {
+	return r.Resolve(ctx)
+}
+
+func (r *Reference) Resolve(ctx *Context) error {
 	if r.schema != nil {
 		return nil
 	}
 
-	s, err := ctx.resolver.ResolveSchema(r.Ref)
+	s, err := ctx.ResolveSchema(r.Ref)
 	if err != nil {
 		return fmt.Errorf("failed to resolve schema %q: %w", r.Ref, err)
 	}
@@ -128,16 +145,9 @@ func (r *Reference) Validate(ctx *Context) error {
 }
 
 func (r *Reference) ValidateSchema(s Schema, compare bool) error {
-	return r.getSchema().ValidateSchema(s, compare)
+	return r.schema.ValidateSchema(s, compare)
 }
 
 func (r *Reference) ValidateValue(value interface{}) (interface{}, error) {
-	return r.getSchema().ValidateValue(value)
-}
-
-func (r *Reference) getSchema() Schema {
-	if err := r.Validate(nil); err != nil {
-		panic(err)
-	}
-	return r.schema
+	return r.schema.ValidateValue(value)
 }

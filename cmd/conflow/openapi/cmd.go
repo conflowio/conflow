@@ -8,6 +8,8 @@ package openapi
 
 import (
 	"github.com/spf13/cobra"
+
+	"github.com/conflowio/conflow/cmd/conflow/openapi/generate"
 )
 
 func Command() *cobra.Command {
@@ -20,7 +22,7 @@ func Command() *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(generateCommand())
+	cmd.AddCommand(generate.Command())
 
 	return cmd
 }

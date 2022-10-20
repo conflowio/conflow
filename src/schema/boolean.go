@@ -15,6 +15,10 @@ import (
 	"strconv"
 )
 
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type Boolean struct {
 	Metadata
 

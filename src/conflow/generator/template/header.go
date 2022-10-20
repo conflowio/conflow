@@ -8,6 +8,7 @@ package template
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"text/template"
 
@@ -17,6 +18,7 @@ import (
 type HeaderParams struct {
 	Package string
 	Imports map[string]string
+	Init    []string
 }
 
 const headerTemplate = `
@@ -35,9 +37,17 @@ import (
 	{{ end -}}
 )
 {{ end -}}
+
+{{ if .Init -}}
+func init() {
+{{ range $init := .Init -}}
+{{ indent . }}
+{{ end -}}
+}
+{{ end -}}
 `
 
-func GenerateHeader(params HeaderParams) (*bytes.Buffer, error) {
+func GenerateHeader(params HeaderParams) ([]byte, error) {
 	headerTmpl := template.New("header")
 	headerTmpl.Funcs(map[string]interface{}{
 		"importsNotEmpty": func() bool {
@@ -55,6 +65,9 @@ func GenerateHeader(params HeaderParams) (*bytes.Buffer, error) {
 			parts := strings.Split(path, "/")
 			return parts[len(parts)-1]
 		},
+		"indent": func(s string) string {
+			return fmt.Sprintf("\t%s", strings.ReplaceAll(s, "\n", "\n\t"))
+		},
 	})
 	if _, parseErr := headerTmpl.Parse(headerTemplate); parseErr != nil {
 		return nil, parseErr
@@ -66,5 +79,5 @@ func GenerateHeader(params HeaderParams) (*bytes.Buffer, error) {
 		return nil, err
 	}
 
-	return res, nil
+	return res.Bytes(), nil
 }

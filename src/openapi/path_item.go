@@ -30,6 +30,28 @@ type PathItem struct {
 	Parameters []*Parameter `json:"parameters,omitempty"`
 }
 
+func (p *PathItem) IterateOperations(f func(method string, op *Operation) error) error {
+	ops := map[string]*Operation{
+		"GET":     p.Get,
+		"PUT":     p.Put,
+		"POST":    p.Post,
+		"DELETE":  p.Delete,
+		"OPTIONS": p.Options,
+		"HEAD":    p.Head,
+		"PATCH":   p.Patch,
+		"TRACE":   p.Trace,
+	}
+	for _, method := range []string{"GET", "PUT", "POST", "DELETE", "OPTIONS", "HEAD", "PATCH", "TRACE"} {
+		if o := ops[method]; o != nil {
+			if err := f(method, o); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (p *PathItem) ParseContextOverride() conflow.ParseContextOverride {
 	return conflow.ParseContextOverride{
 		BlockTransformerRegistry: block.InterpreterRegistry{

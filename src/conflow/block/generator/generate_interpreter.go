@@ -96,15 +96,13 @@ func GenerateInterpreter(
 		return nil, nil, parseErr
 	}
 
-	res := &bytes.Buffer{}
-	err = bodyTmpl.Execute(res, params)
+	body := &bytes.Buffer{}
+	err = bodyTmpl.Execute(body, params)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	body := res.Bytes()
-
-	res, err = generatortemplate.GenerateHeader(generatortemplate.HeaderParams{
+	header, err := generatortemplate.GenerateHeader(generatortemplate.HeaderParams{
 		Package: params.Package,
 		Imports: params.Imports,
 	})
@@ -112,9 +110,7 @@ func GenerateInterpreter(
 		return nil, nil, err
 	}
 
-	res.Write(body)
-
-	return res.Bytes(), s, nil
+	return append(header, body.Bytes()...), s, nil
 }
 
 func filterSchemaProperties(props map[string]schema.Schema, f func(p schema.Schema) bool) map[string]schema.Schema {
@@ -133,15 +129,12 @@ func generateTemplateParams(
 	pkg string,
 ) *InterpreterTemplateParams {
 	imports := map[string]string{
-		pkg:   "",
-		"fmt": "fmt",
+		s.InterpreterPkg: "",
+		"fmt":            "fmt",
 		"github.com/conflowio/conflow/src/conflow": "conflow",
 	}
 
-	var nameSelector string
-	if s.InterpreterPath != "" {
-		nameSelector = utils.EnsureUniqueGoPackageSelector(imports, pkg)
-	}
+	nameSelector := utils.EnsureUniqueGoPackageSelector(imports, pkg)
 
 	var idPropertyName, valuePropertyName string
 	o := s.Schema.(*schema.Object)

@@ -17,9 +17,8 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/openapi.Info",
 		},
-		FieldNames:        map[string]string{"contact": "Contact", "description": "Description", "license": "License", "summary": "Summary", "termsOfService": "TermsOfService", "title": "Title", "version": "Version"},
-		JSONPropertyNames: map[string]string{"terms_of_service": "termsOfService"},
-		ParameterNames:    map[string]string{"termsOfService": "terms_of_service"},
+		FieldNames:     map[string]string{"contact": "Contact", "description": "Description", "license": "License", "summary": "Summary", "termsOfService": "TermsOfService", "title": "Title", "version": "Version"},
+		ParameterNames: map[string]string{"termsOfService": "terms_of_service"},
 		Properties: map[string]schema.Schema{
 			"contact": &schema.Reference{
 				Nullable: true,

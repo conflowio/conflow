@@ -12,6 +12,10 @@ import (
 	"fmt"
 )
 
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type AllOf struct {
 	// @name "schema"
 	// @required

@@ -16,6 +16,10 @@ import (
 	"strings"
 )
 
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type Map struct {
 	Metadata
 

@@ -18,7 +18,7 @@ var ErrMetadataReadOnly = errors.New("metadata is read-only")
 
 // Metadata contains common metadata for schemas
 type Metadata struct {
-	Annotations map[string]string `json:"annotations,omitempty"`
+	Annotations map[string]string `json:"x-annotations,omitempty"`
 	Deprecated  bool              `json:"deprecated,omitempty"`
 	Description string            `json:"description,omitempty"`
 	Examples    []interface{}     `json:"examples,omitempty"`

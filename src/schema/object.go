@@ -13,11 +13,32 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"text/template"
 
 	"github.com/conflowio/conflow/src/internal/utils"
 	"github.com/conflowio/conflow/src/util"
 )
 
+type structTemplateParams struct {
+	Name    string
+	Object  *Object
+	Imports map[string]string
+}
+
+const structTemplate = `{{ $root := . -}}
+struct {
+{{ range $jsonPropertyName, $p := .Object.Properties -}}
+	{{ with $root.Object.ParameterName $jsonPropertyName }}{{ if not (eq . $jsonPropertyName) }}// @name "{{ . }}"
+{{ end }}{{ end -}}
+	{{ with description ($root.Object.FieldName $jsonPropertyName) $p }}{{ . }}{{ end -}}
+	{{ $root.Object.FieldName $jsonPropertyName}} {{ $p.GoType $root.Imports }}{{ with structTags $jsonPropertyName}} {{ . }}{{ end }}
+{{ end -}}
+}`
+
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type Object struct {
 	Metadata
 
@@ -26,20 +47,19 @@ type Object struct {
 	DependentRequired map[string][]string      `json:"dependentRequired,omitempty"`
 	Enum              []map[string]interface{} `json:"enum,omitempty"`
 	// FieldNames will contain the json property name -> field name mapping, if they are different
-	// @ignore
-	FieldNames map[string]string `json:"fieldNames,omitempty"`
+	FieldNames map[string]string `json:"x-conflow-fields,omitempty"`
 	// ParameterNames will contain the json property name -> parameter name mapping, if they are different
-	// @ignore
-	ParameterNames map[string]string `json:"parameterNames,omitempty"`
-	// JSONPropertyNames will contain the parameter name -> json property name mapping, if they are different
-	// @ignore
-	JSONPropertyNames map[string]string `json:"-"`
-	MinProperties     int64             `json:"minProperties,omitempty"`
-	MaxProperties     *int64            `json:"maxProperties,omitempty"`
+	ParameterNames map[string]string `json:"x-conflow-parameters,omitempty"`
+	MinProperties  int64             `json:"minProperties,omitempty"`
+	MaxProperties  *int64            `json:"maxProperties,omitempty"`
+	Nullable       bool              `json:"nullable,omitempty"`
 	// @name "property"
 	Properties map[string]Schema `json:"properties,omitempty"`
 	// Required will contain the required parameter names
 	Required []string `json:"required,omitempty"`
+
+	// @ignore
+	jsonPropertyNames map[string]string
 }
 
 func (o *Object) AssignValue(_ map[string]string, _, _ string) string {
@@ -113,10 +133,21 @@ func (o *Object) FieldName(parameterName string) string {
 	return fieldName
 }
 
+func (o *Object) GetNullable() bool {
+	return o.Nullable
+}
+
 // JSONPropertyName returns the JSON property name for the given parameter name
 func (o *Object) JSONPropertyName(parameterName string) string {
+	if o.jsonPropertyNames == nil {
+		o.jsonPropertyNames = make(map[string]string, len(o.ParameterNames))
+		for prop, param := range o.ParameterNames {
+			o.jsonPropertyNames[param] = prop
+		}
+	}
+
 	jsonPropertyName := parameterName
-	if name, ok := o.JSONPropertyNames[parameterName]; ok {
+	if name, ok := o.jsonPropertyNames[parameterName]; ok {
 		jsonPropertyName = name
 	}
 	return jsonPropertyName
@@ -136,8 +167,64 @@ func (o *Object) PropertyByParameterName(parameterName string) (Schema, bool) {
 	return s, ok
 }
 
+func (o *Object) SetNullable(nullable bool) {
+	o.Nullable = nullable
+}
+
 func (o *Object) GoType(imports map[string]string) string {
-	panic("GoType should not be called on object types")
+	id := o.GetID()
+	if id != "" {
+		parts := strings.Split(id, ".")
+		name := parts[len(parts)-1]
+		pkg := strings.Join(parts[0:len(parts)-1], ".")
+		sel := utils.EnsureUniqueGoPackageSelector(imports, pkg)
+		if o.Nullable {
+			return fmt.Sprintf("*%s%s", sel, name)
+		}
+		return fmt.Sprintf("%s%s", sel, name)
+	}
+
+	res, err := o.GenerateStruct(imports)
+	if err != nil {
+		panic(fmt.Errorf("failed to generate struct for object: %w", err))
+	}
+	return string(res)
+}
+
+func (o *Object) GenerateStruct(imports map[string]string) ([]byte, error) {
+	return util.GenerateTemplate(
+		structTemplate,
+		structTemplateParams{
+			Object:  o,
+			Imports: imports,
+		},
+		template.FuncMap{
+			"description": func(name string, s Schema) string {
+				description := s.GetDescription()
+				if description == "" {
+					return ""
+				}
+				if strings.HasPrefix(description, "It ") {
+					description = strings.Replace(description, "It ", "", 1)
+				}
+				return fmt.Sprintf("// %s %s\n", name, strings.ReplaceAll(description, "\n", "\n//"))
+			},
+			"structTags": func(propertyName string) string {
+				fieldName, ok := o.FieldNames[propertyName]
+				if !ok {
+					fieldName = propertyName
+				}
+				if fieldName == propertyName {
+					return ""
+				}
+				omitEmptyStr := ",omitempty"
+				if o.IsPropertyRequired(propertyName) {
+					omitEmptyStr = ""
+				}
+				return fmt.Sprintf("`json:\"%s%s\"`", propertyName, omitEmptyStr)
+			},
+		},
+	)
 }
 
 func (o *Object) IsPropertyRequired(jsonPropertyName string) bool {
@@ -170,9 +257,6 @@ func (o *Object) GoString(imports map[string]string) string {
 	}
 	if len(o.FieldNames) > 0 {
 		fprintf(buf, "\tFieldNames: %#v,\n", o.FieldNames)
-	}
-	if len(o.JSONPropertyNames) > 0 {
-		fprintf(buf, "\tJSONPropertyNames: %#v,\n", o.JSONPropertyNames)
 	}
 	if o.MinProperties > 0 {
 		fprintf(buf, "\tMinProperties: %d,\n", o.MinProperties)
@@ -297,13 +381,6 @@ func (o *Object) UnmarshalJSON(j []byte) error {
 				return fmt.Errorf("multiple properties are using the %q parameter name", parameterName)
 			}
 			allParameterNames[parameterName] = true
-
-			if parameterName != jsonPropertyName {
-				if o.JSONPropertyNames == nil {
-					o.JSONPropertyNames = map[string]string{}
-				}
-				o.JSONPropertyNames[parameterName] = jsonPropertyName
-			}
 
 			fieldName := v.FieldNames[jsonPropertyName]
 			if fieldName == "" {

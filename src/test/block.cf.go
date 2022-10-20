@@ -18,8 +18,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/test.Block",
 		},
-		JSONPropertyNames: map[string]string{"custom_field": "FieldCustomName", "field_array": "FieldArray", "field_bool": "FieldBool", "field_float": "FieldFloat", "field_int": "FieldInt", "field_map": "FieldMap", "field_string": "FieldString", "field_time_duration": "FieldTimeDuration", "id_field": "IDField", "testblock": "BlockArray", "testblockmap": "BlockMap", "value": "Value"},
-		ParameterNames:    map[string]string{"BlockArray": "testblock", "BlockMap": "testblockmap", "FieldArray": "field_array", "FieldBool": "field_bool", "FieldCustomName": "custom_field", "FieldFloat": "field_float", "FieldInt": "field_int", "FieldMap": "field_map", "FieldString": "field_string", "FieldTimeDuration": "field_time_duration", "IDField": "id_field", "Value": "value"},
+		ParameterNames: map[string]string{"BlockArray": "testblock", "BlockMap": "testblockmap", "FieldArray": "field_array", "FieldBool": "field_bool", "FieldCustomName": "custom_field", "FieldFloat": "field_float", "FieldInt": "field_int", "FieldMap": "field_map", "FieldString": "field_string", "FieldTimeDuration": "field_time_duration", "IDField": "id_field", "Value": "value"},
 		Properties: map[string]schema.Schema{
 			"BlockArray": &schema.Array{
 				Items: &schema.Reference{

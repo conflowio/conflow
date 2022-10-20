@@ -17,9 +17,8 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/openapi.OpenAPI",
 		},
-		FieldNames:        map[string]string{"info": "Info", "openapi": "OpenAPI", "paths": "Paths", "servers": "Servers", "tags": "Tags"},
-		JSONPropertyNames: map[string]string{"parameter": "Parameters", "path": "paths", "request_body": "RequestBodies", "response": "Responses", "schema": "Schemas", "server": "servers"},
-		ParameterNames:    map[string]string{"Parameters": "parameter", "RequestBodies": "request_body", "Responses": "response", "Schemas": "schema", "paths": "path", "servers": "server"},
+		FieldNames:     map[string]string{"info": "Info", "openapi": "OpenAPI", "paths": "Paths", "servers": "Servers", "tags": "Tags"},
+		ParameterNames: map[string]string{"Parameters": "parameter", "RequestBodies": "request_body", "Responses": "response", "Schemas": "schema", "paths": "path", "servers": "server"},
 		Properties: map[string]schema.Schema{
 			"Parameters": &schema.Map{
 				AdditionalProperties: &schema.Reference{

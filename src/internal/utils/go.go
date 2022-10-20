@@ -9,15 +9,22 @@ package utils
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 )
+
+var versionRegex = regexp.MustCompile(`^v\d+$`)
 
 func EnsureUniqueGoPackageSelector(imports map[string]string, path string) string {
 	selector, ok := imports[path]
 
 	if !ok {
 		packageParts := strings.Split(path, "/")
-		selector = packageParts[len(packageParts)-1]
+		selectorBase := packageParts[len(packageParts)-1]
+		if versionRegex.MatchString(selectorBase) && len(packageParts) > 1 {
+			selectorBase = packageParts[len(packageParts)-2]
+		}
+		selector = selectorBase
 
 		n := 1
 		for {
@@ -33,7 +40,7 @@ func EnsureUniqueGoPackageSelector(imports map[string]string, path string) strin
 			}
 
 			n++
-			selector = fmt.Sprintf("%s%d", packageParts[len(packageParts)-1], n)
+			selector = fmt.Sprintf("%s%d", selectorBase, n)
 		}
 
 		imports[path] = selector

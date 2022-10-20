@@ -18,16 +18,12 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/directives.Map",
 		},
-		FieldNames:        map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "annotations": "Annotations", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly"},
-		JSONPropertyNames: map[string]string{"additional_properties": "additionalProperties", "id": "$id", "max_properties": "maxProperties", "min_properties": "minProperties", "read_only": "readOnly", "write_only": "writeOnly"},
-		ParameterNames:    map[string]string{"$id": "id", "additionalProperties": "additional_properties", "maxProperties": "max_properties", "minProperties": "min_properties", "readOnly": "read_only", "writeOnly": "write_only"},
+		FieldNames:     map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
+		ParameterNames: map[string]string{"$id": "id", "additionalProperties": "additional_properties", "maxProperties": "max_properties", "minProperties": "min_properties", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations"},
 		Properties: map[string]schema.Schema{
 			"$id": &schema.String{},
 			"additionalProperties": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/src/schema.Schema",
-			},
-			"annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
 			},
 			"const": &schema.Map{
 				AdditionalProperties: &schema.Any{},
@@ -52,6 +48,9 @@ func init() {
 			"readOnly":      &schema.Boolean{},
 			"title":         &schema.String{},
 			"writeOnly":     &schema.Boolean{},
+			"x-annotations": &schema.Map{
+				AdditionalProperties: &schema.String{},
+			},
 		},
 	})
 }
@@ -90,8 +89,6 @@ func (i MapInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
 	case "id":
 		return b.(*Map).ID
-	case "annotations":
-		return b.(*Map).Annotations
 	case "const":
 		return b.(*Map).Const
 	case "default":
@@ -114,6 +111,8 @@ func (i MapInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 		return b.(*Map).Title
 	case "write_only":
 		return b.(*Map).WriteOnly
+	case "annotations":
+		return b.(*Map).Annotations
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in Map", name))
 	}
@@ -124,11 +123,6 @@ func (i MapInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	switch name {
 	case "id":
 		b.ID = value.(string)
-	case "annotations":
-		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = valuev.(string)
-		}
 	case "const":
 		b.Const = value.(map[string]interface{})
 	case "default":
@@ -154,6 +148,11 @@ func (i MapInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 		b.Title = value.(string)
 	case "write_only":
 		b.WriteOnly = value.(bool)
+	case "annotations":
+		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
+		for valuek, valuev := range value.(map[string]interface{}) {
+			b.Annotations[valuek] = valuev.(string)
+		}
 	}
 	return nil
 }

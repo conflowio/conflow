@@ -9,17 +9,18 @@ package openapi
 import (
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/schema"
-	"github.com/conflowio/conflow/src/schema/blocks"
+	schemainterpreters "github.com/conflowio/conflow/src/schema/interpreters"
 )
 
 // @block "configuration"
 type MediaType struct {
+	// @required
 	Schema schema.Schema `json:"schema,omitempty"`
 }
 
 func (m *MediaType) ParseContextOverride() conflow.ParseContextOverride {
 	return conflow.ParseContextOverride{
-		BlockTransformerRegistry: blocks.InterpreterRegistry(),
+		BlockTransformerRegistry: schemainterpreters.Registry(),
 	}
 }
 

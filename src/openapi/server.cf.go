@@ -18,9 +18,8 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/src/openapi.Server",
 		},
-		FieldNames:        map[string]string{"description": "Description", "url": "URL", "variables": "Variables"},
-		JSONPropertyNames: map[string]string{"variable": "variables"},
-		ParameterNames:    map[string]string{"variables": "variable"},
+		FieldNames:     map[string]string{"description": "Description", "url": "URL", "variables": "Variables"},
+		ParameterNames: map[string]string{"variables": "variable"},
 		Properties: map[string]schema.Schema{
 			"description": &schema.String{},
 			"url": &schema.String{

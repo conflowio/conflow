@@ -13,7 +13,7 @@ import (
 
 	"github.com/conflowio/conflow/src/conflow"
 	"github.com/conflowio/conflow/src/schema"
-	"github.com/conflowio/conflow/src/schema/blocks"
+	schemainterpreters "github.com/conflowio/conflow/src/schema/interpreters"
 )
 
 // @block "main"
@@ -40,7 +40,7 @@ type OpenAPI struct {
 }
 
 func (o *OpenAPI) ParseContextOverride() conflow.ParseContextOverride {
-	registry := blocks.InterpreterRegistry()
+	registry := schemainterpreters.Registry()
 	registry["info"] = InfoInterpreter{}
 	registry["server"] = ServerInterpreter{}
 	registry["response"] = ResponseInterpreter{}
