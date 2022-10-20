@@ -9,7 +9,6 @@ package schema
 import (
 	"bytes"
 	"errors"
-	"fmt"
 
 	"github.com/conflowio/conflow/src/conflow/annotations"
 	"github.com/conflowio/conflow/src/util"
@@ -146,31 +145,31 @@ func (m *Metadata) SetWriteOnly(writeOnly bool) {
 
 func (m *Metadata) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("schema.Metadata{\n")
+	fprintf(buf, "%sMetadata{\n", schemaPkg(imports))
 	if len(m.Annotations) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tAnnotations: map[string]string{\n")
+		fprintf(buf, "\tAnnotations: map[string]string{\n")
 		for _, k := range util.SortedMapKeys(m.Annotations) {
-			_, _ = fmt.Fprintf(buf, "\t\t%s: %q,\n", annotations.GoString(k, imports), m.Annotations[k])
+			fprintf(buf, "\t\t%s: %q,\n", annotations.GoString(k, imports), m.Annotations[k])
 		}
-		_, _ = fmt.Fprintf(buf, "\t},\n")
+		fprintf(buf, "\t},\n")
 	}
 	if m.Deprecated {
-		_, _ = fmt.Fprintf(buf, "\tDeprecated: %#v,\n", m.Deprecated)
+		fprintf(buf, "\tDeprecated: %#v,\n", m.Deprecated)
 	}
 	if len(m.Description) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tDescription: %#v,\n", m.Description)
+		fprintf(buf, "\tDescription: %#v,\n", m.Description)
 	}
 	if len(m.Examples) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tExamples: %#v,\n", m.Examples)
+		fprintf(buf, "\tExamples: %#v,\n", m.Examples)
 	}
 	if len(m.ID) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tID: %q,\n", m.ID)
+		fprintf(buf, "\tID: %q,\n", m.ID)
 	}
 	if m.ReadOnly {
 		buf.WriteString("\tReadOnly: true,\n")
 	}
 	if len(m.Title) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tTitle: %#v,\n", m.Title)
+		fprintf(buf, "\tTitle: %#v,\n", m.Title)
 	}
 	if m.WriteOnly {
 		buf.WriteString("\tWriteOnly: true,\n")

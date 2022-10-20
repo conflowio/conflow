@@ -54,14 +54,14 @@ func (r *Reference) GetNullable() bool {
 
 func (r *Reference) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Reference{\n")
+	fprintf(buf, "&%sReference{\n", schemaPkg(imports))
 	if !reflect.ValueOf(r.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(r.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(r.Metadata.GoString(imports)))
 	}
 	if r.Nullable {
-		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", r.Nullable)
+		fprintf(buf, "\tNullable: %#v,\n", r.Nullable)
 	}
-	_, _ = fmt.Fprintf(buf, "\tRef: %q,\n", r.Ref)
+	fprintf(buf, "\tRef: %q,\n", r.Ref)
 	buf.WriteRune('}')
 	return buf.String()
 }

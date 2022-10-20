@@ -35,7 +35,7 @@ type Integer struct {
 
 func (i *Integer) AssignValue(imports map[string]string, valueName, resultName string) string {
 	if i.Nullable {
-		return fmt.Sprintf("%s = schema.Pointer(%s.(int64))", resultName, valueName)
+		return fmt.Sprintf("%s = %sPointer(%s.(int64))", resultName, schemaPkg(imports), valueName)
 	}
 
 	return fmt.Sprintf("%s = %s.(int64)", resultName, valueName)
@@ -98,40 +98,41 @@ func (i *Integer) GetNullable() bool {
 }
 
 func (i *Integer) GoString(imports map[string]string) string {
+	pkg := schemaPkg(imports)
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Integer{\n")
+	fprintf(buf, "&%sInteger{\n", pkg)
 	if !reflect.ValueOf(i.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(i.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(i.Metadata.GoString(imports)))
 	}
 	if i.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: schema.Pointer(int64(%#v)),\n", *i.Const)
+		fprintf(buf, "\tConst: %sPointer(int64(%#v)),\n", pkg, *i.Const)
 	}
 	if i.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: schema.Pointer(int64(%#v)),\n", *i.Default)
+		fprintf(buf, "\tDefault: %sPointer(int64(%#v)),\n", pkg, *i.Default)
 	}
 	if len(i.Enum) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", i.Enum)
+		fprintf(buf, "\tEnum: %#v,\n", i.Enum)
 	}
 	if len(i.Format) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tFormat: %#v,\n", i.Format)
+		fprintf(buf, "\tFormat: %#v,\n", i.Format)
 	}
 	if i.Minimum != nil {
-		_, _ = fmt.Fprintf(buf, "\tMinimum: schema.Pointer(int64(%#v)),\n", *i.Minimum)
+		fprintf(buf, "\tMinimum: %sPointer(int64(%#v)),\n", pkg, *i.Minimum)
 	}
 	if i.Maximum != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaximum: schema.Pointer(int64(%#v)),\n", *i.Maximum)
+		fprintf(buf, "\tMaximum: %sPointer(int64(%#v)),\n", pkg, *i.Maximum)
 	}
 	if i.ExclusiveMinimum != nil {
-		_, _ = fmt.Fprintf(buf, "\tExclusiveMinimum: schema.Pointer(int64(%#v)),\n", *i.ExclusiveMinimum)
+		fprintf(buf, "\tExclusiveMinimum: %sPointer(int64(%#v)),\n", pkg, *i.ExclusiveMinimum)
 	}
 	if i.ExclusiveMaximum != nil {
-		_, _ = fmt.Fprintf(buf, "\tExclusiveMaximum: schema.Pointer(int64(%#v)),\n", *i.ExclusiveMaximum)
+		fprintf(buf, "\tExclusiveMaximum: %sPointer(int64(%#v)),\n", pkg, *i.ExclusiveMaximum)
 	}
 	if i.MultipleOf != nil {
-		_, _ = fmt.Fprintf(buf, "\tMultipleOf: schema.Pointer(int64(%#v)),\n", *i.MultipleOf)
+		fprintf(buf, "\tMultipleOf: %sPointer(int64(%#v)),\n", pkg, *i.MultipleOf)
 	}
 	if i.Nullable {
-		_, _ = fmt.Fprintf(buf, "\tNullable: %#v,\n", i.Nullable)
+		fprintf(buf, "\tNullable: %#v,\n", i.Nullable)
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -297,6 +298,6 @@ func (i *integerValue) Copy() Schema {
 	return integerValueInst
 }
 
-func (i *integerValue) GoString(map[string]string) string {
-	return "schema.IntegerValue()"
+func (i *integerValue) GoString(imports map[string]string) string {
+	return fmt.Sprintf("%sIntegerValue()", schemaPkg(imports))
 }

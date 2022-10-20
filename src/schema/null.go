@@ -60,9 +60,9 @@ func (n *Null) MarshalJSON() ([]byte, error) {
 
 func (n *Null) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Null{\n")
+	fprintf(buf, "&%sNull{\n", schemaPkg(imports))
 	if !reflect.ValueOf(n.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(n.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(n.Metadata.GoString(imports)))
 	}
 	buf.WriteRune('}')
 	return buf.String()

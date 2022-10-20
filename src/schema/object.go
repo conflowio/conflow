@@ -150,43 +150,44 @@ func (o *Object) IsPropertyRequired(jsonPropertyName string) bool {
 }
 
 func (o *Object) GoString(imports map[string]string) string {
+	pkg := schemaPkg(imports)
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Object{\n")
+	fprintf(buf, "&%sObject{\n", pkg)
 	if !reflect.ValueOf(o.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(o.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(o.Metadata.GoString(imports)))
 	}
 	if o.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: %#v,\n", o.Const)
+		fprintf(buf, "\tConst: %#v,\n", o.Const)
 	}
 	if o.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: %#v,\n", o.Default)
+		fprintf(buf, "\tDefault: %#v,\n", o.Default)
 	}
 	if o.DependentRequired != nil {
-		_, _ = fmt.Fprintf(buf, "\tDependentRequired: %#v,\n", o.DependentRequired)
+		fprintf(buf, "\tDependentRequired: %#v,\n", o.DependentRequired)
 	}
 	if len(o.Enum) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", o.Enum)
+		fprintf(buf, "\tEnum: %#v,\n", o.Enum)
 	}
 	if len(o.FieldNames) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tFieldNames: %#v,\n", o.FieldNames)
+		fprintf(buf, "\tFieldNames: %#v,\n", o.FieldNames)
 	}
 	if len(o.JSONPropertyNames) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tJSONPropertyNames: %#v,\n", o.JSONPropertyNames)
+		fprintf(buf, "\tJSONPropertyNames: %#v,\n", o.JSONPropertyNames)
 	}
 	if o.MinProperties > 0 {
-		_, _ = fmt.Fprintf(buf, "\tMinProperties: %d,\n", o.MinProperties)
+		fprintf(buf, "\tMinProperties: %d,\n", o.MinProperties)
 	}
 	if o.MaxProperties != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.Pointer(int64(%d)),\n", *o.MaxProperties)
+		fprintf(buf, "\tMaxProperties: %sPointer(int64(%d)),\n", pkg, *o.MaxProperties)
 	}
 	if len(o.ParameterNames) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tParameterNames: %#v,\n", o.ParameterNames)
+		fprintf(buf, "\tParameterNames: %#v,\n", o.ParameterNames)
 	}
 	if len(o.Properties) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tProperties: %s,\n", indent(o.propertiesString(imports)))
+		fprintf(buf, "\tProperties: %s,\n", indent(o.propertiesString(imports)))
 	}
 	if len(o.Required) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tRequired: %#v,\n", o.Required)
+		fprintf(buf, "\tRequired: %#v,\n", o.Required)
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -241,7 +242,7 @@ func (o *Object) TypeString() string {
 		if i > 0 {
 			sb.WriteString(", ")
 		}
-		_, _ = fmt.Fprintf(sb, "%s: %s", p, o.Properties[p].TypeString())
+		fprintf(sb, "%s: %s", p, o.Properties[p].TypeString())
 	}
 	sb.WriteRune(')')
 	return sb.String()
@@ -476,10 +477,10 @@ func (o *Object) join(elems []map[string]interface{}, sep string) string {
 
 func (o *Object) propertiesString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("map[string]schema.Schema{\n")
+	fprintf(buf, "map[string]%sSchema{\n", schemaPkg(imports))
 	for _, k := range util.SortedMapKeys(o.Properties) {
 		if p := o.Properties[k]; p != nil {
-			_, _ = fmt.Fprintf(buf, "\t%#v: %s,\n", k, indent(p.GoString(imports)))
+			fprintf(buf, "\t%#v: %s,\n", k, indent(p.GoString(imports)))
 		}
 	}
 	buf.WriteRune('}')

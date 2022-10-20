@@ -7,8 +7,12 @@
 package schema
 
 import (
+	"fmt"
+	"io"
 	"sort"
 	"strings"
+
+	"github.com/conflowio/conflow/src/internal/utils"
 )
 
 func getSortedMapKeys(v map[string]interface{}) []string {
@@ -22,4 +26,19 @@ func getSortedMapKeys(v map[string]interface{}) []string {
 
 func indent(s string) string {
 	return strings.ReplaceAll(s, "\n", "\n\t")
+}
+
+func fprintf(w io.Writer, format string, a ...any) {
+	_, err := fmt.Fprintf(w, format, a...)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func schemaPkg(imports map[string]string) string {
+	pkg := utils.EnsureUniqueGoPackageName(imports, "github.com/conflowio/conflow/src/schema")
+	if pkg == "." {
+		return ""
+	}
+	return fmt.Sprintf("%s.", pkg)
 }

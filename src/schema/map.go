@@ -142,28 +142,29 @@ func (m *Map) MarshalJSON() ([]byte, error) {
 }
 
 func (m *Map) GoString(imports map[string]string) string {
+	pkg := schemaPkg(imports)
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("&schema.Map{\n")
+	fprintf(buf, "&%sMap{\n", pkg)
 	if !reflect.ValueOf(m.Metadata).IsZero() {
-		_, _ = fmt.Fprintf(buf, "\tMetadata: %s,\n", indent(m.Metadata.GoString(imports)))
+		fprintf(buf, "\tMetadata: %s,\n", indent(m.Metadata.GoString(imports)))
 	}
 	if m.AdditionalProperties != nil {
-		_, _ = fmt.Fprintf(buf, "\tAdditionalProperties: %s,\n", indent(m.AdditionalProperties.GoString(imports)))
+		fprintf(buf, "\tAdditionalProperties: %s,\n", indent(m.AdditionalProperties.GoString(imports)))
 	}
 	if m.Const != nil {
-		_, _ = fmt.Fprintf(buf, "\tConst: %#v,\n", m.Const)
+		fprintf(buf, "\tConst: %#v,\n", m.Const)
 	}
 	if m.Default != nil {
-		_, _ = fmt.Fprintf(buf, "\tDefault: %#v,\n", m.Default)
+		fprintf(buf, "\tDefault: %#v,\n", m.Default)
 	}
 	if len(m.Enum) > 0 {
-		_, _ = fmt.Fprintf(buf, "\tEnum: %#v,\n", m.Enum)
+		fprintf(buf, "\tEnum: %#v,\n", m.Enum)
 	}
 	if m.MinProperties > 0 {
-		_, _ = fmt.Fprintf(buf, "\tMinProperties: %d,\n", m.MinProperties)
+		fprintf(buf, "\tMinProperties: %d,\n", m.MinProperties)
 	}
 	if m.MaxProperties != nil {
-		_, _ = fmt.Fprintf(buf, "\tMaxProperties: schema.Pointer(int64(%d)),\n", *m.MaxProperties)
+		fprintf(buf, "\tMaxProperties: %sPointer(int64(%d)),\n", pkg, *m.MaxProperties)
 	}
 	buf.WriteRune('}')
 	return buf.String()
