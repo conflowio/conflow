@@ -2,6 +2,7 @@ module github.com/conflowio/conflow
 
 require (
 	github.com/conflowio/parsley v0.17.0
+	github.com/go-openapi/inflect v0.19.0
 	github.com/golangci/golangci-lint v1.50.0
 	github.com/google/uuid v1.3.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0
