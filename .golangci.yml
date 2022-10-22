@@ -8,7 +8,6 @@ linters:
     - depguard
     - exportloopref
     - unparam
-    - wastedassign
 
 linters-settings:
   depguard:
