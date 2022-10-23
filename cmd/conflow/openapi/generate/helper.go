@@ -16,11 +16,11 @@ import (
 	"runtime"
 
 	"github.com/conflowio/conflow/examples/common"
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/job"
-	"github.com/conflowio/conflow/src/loggers/zerolog"
-	"github.com/conflowio/conflow/src/openapi"
-	"github.com/conflowio/conflow/src/parsers"
+	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/job"
+	"github.com/conflowio/conflow/pkg/loggers/zerolog"
+	"github.com/conflowio/conflow/pkg/openapi"
+	"github.com/conflowio/conflow/pkg/parsers"
 )
 
 func evaluateStdin(ctx context.Context) (*openapi.OpenAPI, error) {

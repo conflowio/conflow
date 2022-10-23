@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
-	"github.com/conflowio/conflow/src/openapi"
+	"github.com/conflowio/conflow/pkg/openapi"
 )
 
 func yamlCommand() *cobra.Command {

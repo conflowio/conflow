@@ -17,10 +17,10 @@ import (
 	"github.com/conflowio/parsley/parsley"
 	uzerolog "github.com/rs/zerolog"
 
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/job"
-	"github.com/conflowio/conflow/src/directives"
-	"github.com/conflowio/conflow/src/loggers/zerolog"
+	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/job"
+	"github.com/conflowio/conflow/pkg/directives"
+	"github.com/conflowio/conflow/pkg/loggers/zerolog"
 )
 
 func NewParseContext() *conflow.ParseContext {

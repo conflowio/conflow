@@ -4,9 +4,9 @@ package common
 
 import (
 	"fmt"
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/annotations"
-	"github.com/conflowio/conflow/src/schema"
+	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/schema"
 )
 
 func init() {

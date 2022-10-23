@@ -35,7 +35,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/pkg/conflow"
 )
 
 // @block "task"

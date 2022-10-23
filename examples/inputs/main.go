@@ -16,12 +16,12 @@ import (
 	"github.com/conflowio/parsley/text"
 
 	"github.com/conflowio/conflow/examples/common"
-	"github.com/conflowio/conflow/src/blocks"
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/block"
-	"github.com/conflowio/conflow/src/functions"
-	"github.com/conflowio/conflow/src/parsers"
-	"github.com/conflowio/conflow/src/util"
+	"github.com/conflowio/conflow/pkg/blocks"
+	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/block"
+	"github.com/conflowio/conflow/pkg/functions"
+	"github.com/conflowio/conflow/pkg/parsers"
+	"github.com/conflowio/conflow/pkg/util"
 )
 
 func main() {

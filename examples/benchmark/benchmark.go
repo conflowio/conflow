@@ -10,8 +10,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/conflowio/conflow/src/conflow"
-	"github.com/conflowio/conflow/src/conflow/block"
+	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/block"
 )
 
 // @block "task"
