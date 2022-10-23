@@ -17,19 +17,34 @@ import (
 	"github.com/conflowio/conflow/pkg/util/ptr"
 )
 
+const (
+	ParameterTypeCookie = "cookie"
+	ParameterTypeHeader = "header"
+	ParameterTypePath   = "path"
+	ParameterTypeQuery  = "query"
+
+	ParameterStyleDeepObject     = "deepObject"
+	ParameterStyleForm           = "form"
+	ParameterStyleLabel          = "label"
+	ParameterStyleMatrix         = "matrix"
+	ParameterStylePipeDelimited  = "pipeDelimited"
+	ParameterStyleSimple         = "simple"
+	ParameterStyleSpaceDelimited = "spaceDelimited"
+)
+
 // @block "configuration"
 type Parameter struct {
 	// @required
 	Name string `json:"name"`
 	// $required
-	// @enum ["query", "header", "path", "cookie"]
-	In            string `json:"in"`
-	Description   string `json:"description,omitempty"`
-	Required      *bool  `json:"required,omitempty"`
-	Deprecated    bool   `json:"deprecated,omitempty"`
-	Style         string `json:"style,omitempty"`
-	Explode       *bool  `json:"explode,omitempty"`
-	AllowReserved bool   `json:"allowReserved,omitempty"`
+	// @enum ["cookie", "header", "path", "query"]
+	In          string `json:"in"`
+	Description string `json:"description,omitempty"`
+	Required    *bool  `json:"required,omitempty"`
+	Deprecated  bool   `json:"deprecated,omitempty"`
+	// @enum ["deepObject", "form", "label", "matrix", "pipeDelimited", "simple", "spaceDelimited"]
+	Style   string `json:"style,omitempty"`
+	Explode *bool  `json:"explode,omitempty"`
 	// @required
 	Schema schema.Schema `json:"schema,omitempty"`
 }
@@ -107,9 +122,6 @@ func (p *Parameter) GoString(imports map[string]string, minimal bool) string {
 	}
 	if p.Explode != nil {
 		fprintf(b, "\tExplode: %sPointer(%#v),\n", schemaPkg, *p.Explode)
-	}
-	if p.AllowReserved {
-		fprintf(b, "\tAllowReserved: true,\n")
 	}
 	fprintf(b, "\tSchema: %s,\n", indent(p.Schema.GoString(imports)))
 	b.WriteRune('}')
