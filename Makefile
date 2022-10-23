@@ -24,7 +24,7 @@ build: bin/conflow ## Build the conflow binary
 bin/conflow:
 	@echo "Building bin/conflow"
 	@go version
-	GOBIN="$(PWD)/bin" go install -ldflags="-s -w -X github.com/conflowio/conflow/src/conflow.Version=${VERSION}" ./cmd/conflow/
+	GOBIN="$(PWD)/bin" go install -ldflags="-s -w -X github.com/conflowio/conflow/pkg/conflow.Version=${VERSION}" ./cmd/conflow/
 
 .PHONY: clean
 clean: ## Clean all built files

@@ -17,7 +17,7 @@ import (
 
 	"github.com/conflowio/conflow/cmd/conflow/generate"
 	"github.com/conflowio/conflow/cmd/conflow/openapi"
-	"github.com/conflowio/conflow/src/conflow"
+	"github.com/conflowio/conflow/pkg/conflow"
 )
 
 func rootCommand() *cobra.Command {

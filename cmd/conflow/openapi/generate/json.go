@@ -12,7 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/conflowio/conflow/src/openapi"
+	"github.com/conflowio/conflow/pkg/openapi"
 )
 
 func jsonCommand() *cobra.Command {

@@ -15,7 +15,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/conflowio/conflow/src/conflow/generator"
+	"github.com/conflowio/conflow/pkg/conflow/generator"
 )
 
 func Command() *cobra.Command {
