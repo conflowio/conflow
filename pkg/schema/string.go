@@ -17,6 +17,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/internal/utils"
 )
 
@@ -31,14 +32,14 @@ const (
 type String struct {
 	Metadata
 
-	Const     *string        `json:"const,omitempty"`
-	Default   *string        `json:"default,omitempty"`
-	Enum      []string       `json:"enum,omitempty"`
-	Format    string         `json:"format,omitempty"`
-	MinLength int64          `json:"minLength,omitempty"`
-	MaxLength *int64         `json:"maxLength,omitempty"`
-	Nullable  bool           `json:"nullable,omitempty"`
-	Pattern   *regexp.Regexp `json:"pattern,omitempty"`
+	Const     *string       `json:"const,omitempty"`
+	Default   *string       `json:"default,omitempty"`
+	Enum      []string      `json:"enum,omitempty"`
+	Format    string        `json:"format,omitempty"`
+	MinLength int64         `json:"minLength,omitempty"`
+	MaxLength *int64        `json:"maxLength,omitempty"`
+	Nullable  bool          `json:"nullable,omitempty"`
+	Pattern   *types.Regexp `json:"pattern,omitempty"`
 }
 
 func (s *String) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -138,7 +139,7 @@ func (s *String) GoString(imports map[string]string) string {
 		fprintf(buf, "\tNullable: %#v,\n", s.Nullable)
 	}
 	if s.Pattern != nil {
-		fprintf(buf, "\tPattern: %sMustCompile(%q),\n", utils.EnsureUniqueGoPackageSelector(imports, "regexp"), s.Pattern.String())
+		fprintf(buf, "\tPattern: %sMustCompileRegexp(%q),\n", utils.EnsureUniqueGoPackageSelector(imports, "github.com/conflowio/conflow/pkg/conflow/types"), s.Pattern.String())
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -208,7 +209,7 @@ func (s *String) UnmarshalJSON(input []byte) error {
 		if err != nil {
 			return fmt.Errorf("pattern is not a valid regular expression: %w", err)
 		}
-		s.Pattern = pattern
+		s.Pattern = (*types.Regexp)(pattern)
 	}
 
 	return nil
@@ -289,7 +290,7 @@ func (s *String) ValidateValue(value interface{}) (interface{}, error) {
 	}
 
 	if s.Pattern != nil {
-		if !s.Pattern.MatchString(v) {
+		if !(*regexp.Regexp)(s.Pattern).MatchString(v) {
 			return nil, fmt.Errorf("must match regular expression: %s", s.Pattern.String())
 		}
 	}

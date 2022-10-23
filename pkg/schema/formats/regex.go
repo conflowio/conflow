@@ -7,11 +7,10 @@
 package formats
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
-	"regexp"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 type Regex struct{}
@@ -21,23 +20,14 @@ func (r Regex) ValidateValue(input string) (interface{}, error) {
 		return nil, ErrValueTrimSpace
 	}
 
-	if input == "" {
-		return nil, errors.New("must be valid regular expression")
-	}
-
-	res, err := regexp.Compile(input)
-	if err != nil {
-		return nil, fmt.Errorf("must be valid regular expression: %w", err)
-	}
-
-	return *res, nil
+	return types.ParseRegexp(input)
 }
 
 func (r Regex) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
-	case regexp.Regexp:
+	case types.Regexp:
 		return v.String(), true
-	case *regexp.Regexp:
+	case *types.Regexp:
 		return v.String(), true
 	default:
 		return "", false
@@ -45,5 +35,5 @@ func (r Regex) StringValue(input interface{}) (string, bool) {
 }
 
 func (r Regex) Type() (reflect.Type, bool) {
-	return reflect.TypeOf(regexp.Regexp{}), true
+	return reflect.TypeOf(types.Regexp{}), true
 }

@@ -7,6 +7,8 @@
 package formats_test
 
 import (
+	"encoding/json"
+
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/pkg/conflow"
@@ -15,14 +17,21 @@ import (
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
-func expectFormatToParse(format schema.Format) func(string, interface{}, string) {
-	return func(input string, output interface{}, formattedExpected string) {
+func expectFormatToParse[T any](format schema.Format, equals ...func(T, T) bool) func(string, interface{}, string, ...bool) {
+	return func(input string, output interface{}, formattedExpected string, skips ...bool) {
 		res, err := format.ValidateValue(input)
 		Expect(err).ToNot(HaveOccurred())
 		Expect(res).To(Equal(output), "output mismatch")
 
 		formatted, _ := format.StringValue(output)
 		Expect(formatted).To(Equal(formattedExpected), "format mismatch")
+
+		s, err := json.Marshal(input)
+		Expect(err).ToNot(HaveOccurred())
+
+		if len(skips) == 0 || skips[0] == false {
+			expectConsistentJSONMarshalling[T](s)
+		}
 	}
 }
 
@@ -41,4 +50,27 @@ func expectGoStructToHaveStringSchema(source string, format string, nullable boo
 			},
 		},
 	})
+}
+
+func expectConsistentJSONMarshalling[T any](s []byte, equals ...func(T, T) bool) {
+	var v T
+	err := json.Unmarshal(s, &v)
+	Expect(err).ToNot(HaveOccurred(), "input: %s", s)
+
+	s2, err := json.Marshal(v)
+	Expect(err).ToNot(HaveOccurred(), "input: %s", s)
+
+	Expect(string(s2)).To(Equal(string(s)))
+
+	var v2 T
+	err = json.Unmarshal(s2, &v2)
+	Expect(err).ToNot(HaveOccurred(), "input: %v", v)
+
+	if len(equals) == 0 {
+		Expect(v).To(Equal(v2))
+	} else {
+		for _, eq := range equals {
+			Expect(eq(v, v2)).To(BeTrue(), "mismatch: %v vs %s", v, v2)
+		}
+	}
 }

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 // @block "configuration"
@@ -28,7 +29,7 @@ type Block struct {
 	FieldString       string
 	FieldStringArray  []string
 	FieldTime         time.Time
-	FieldTimeDuration time.Duration
+	FieldTimeDuration types.Duration
 }
 
 func (t *Block) ID() conflow.ID {

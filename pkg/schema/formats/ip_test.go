@@ -22,13 +22,15 @@ var _ = Describe("IP", func() {
 	format := formats.IP{AllowIPv4: true, AllowIPv6: true}
 
 	ipv4 := net.ParseIP("1.2.3.4")
-	ipv6 := net.ParseIP("2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+	ipv6 := net.ParseIP("2001:2db8:85a3:1234:5678:8a2e:3370:7334")
+	ipv6Short := net.ParseIP("2001:0db8:85a3:0000:0000:8a2e:0370:7334")
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[net.IP](format),
 		Entry("valid IPv4", "1.2.3.4", ipv4, "1.2.3.4"),
-		Entry("valid IPv6", "2001:0db8:85a3:0000:0000:8a2e:0370:7334", ipv6, "2001:db8:85a3::8a2e:370:7334"),
-		Entry("IPv6 shortening", "0:0:0:0:0:0:0:1", net.IPv6loopback, "::1"),
+		Entry("valid IPv6", "2001:2db8:85a3:1234:5678:8a2e:3370:7334", ipv6, "2001:2db8:85a3:1234:5678:8a2e:3370:7334"),
+		Entry("valid IPv6 shortened", "2001:0db8:85a3:0000:0000:8a2e:0370:7334", ipv6Short, "2001:db8:85a3::8a2e:370:7334", true),
+		Entry("IPv6 shortening", "0:0:0:0:0:0:0:1", net.IPv6loopback, "::1", true),
 	)
 
 	DescribeTable("Invalid values",
@@ -77,7 +79,7 @@ var _ = Describe("IPv4", func() {
 	ipv4 := net.ParseIP("1.2.3.4")
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[net.IP](format),
 		Entry("valid IPv4", "1.2.3.4", ipv4, "1.2.3.4"),
 	)
 
@@ -112,12 +114,14 @@ var _ = Describe("IPv6", func() {
 
 	format := formats.IP{AllowIPv6: true}
 
-	ipv6 := net.ParseIP("2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+	ipv6 := net.ParseIP("2001:2db8:85a3:1234:5678:8a2e:3370:7334")
+	ipv6Short := net.ParseIP("2001:0db8:85a3:0000:0000:8a2e:0370:7334")
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
-		Entry("valid IPv6", "2001:0db8:85a3:0000:0000:8a2e:0370:7334", ipv6, "2001:db8:85a3::8a2e:370:7334"),
-		Entry("IPv6 shortening", "0:0:0:0:0:0:0:1", net.IPv6loopback, "::1"),
+		expectFormatToParse[net.IP](format),
+		Entry("valid IPv6", "2001:2db8:85a3:1234:5678:8a2e:3370:7334", ipv6, "2001:2db8:85a3:1234:5678:8a2e:3370:7334"),
+		Entry("valid IPv6 shortened", "2001:0db8:85a3:0000:0000:8a2e:0370:7334", ipv6Short, "2001:db8:85a3::8a2e:370:7334", true),
+		Entry("IPv6 shortening", "0:0:0:0:0:0:0:1", net.IPv6loopback, "::1", true),
 	)
 
 	DescribeTable("Invalid values",
@@ -143,6 +147,10 @@ var _ = Describe("IPv6", func() {
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatIPv6, false)
 		})
+	})
+
+	It("should have a consistent JSON marshalling", func() {
+		expectConsistentJSONMarshalling[*net.IP]([]byte("null"))
 	})
 
 })

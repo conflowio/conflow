@@ -4,10 +4,10 @@ package directives
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -35,7 +35,8 @@ func init() {
 						annotations.Value: "true",
 					},
 				},
-				Format: "regex",
+				Format:   "regex",
+				Nullable: true,
 			},
 		},
 		Required: []string{"value"},
@@ -88,7 +89,7 @@ func (i PatternInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*Pattern)
 	switch name {
 	case "value":
-		b.value = value.(regexp.Regexp)
+		b.value = schema.Pointer(value.(types.Regexp))
 	}
 	return nil
 }

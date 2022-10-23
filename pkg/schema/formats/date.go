@@ -7,10 +7,10 @@
 package formats
 
 import (
-	"errors"
 	"reflect"
 	"strings"
-	"time"
+
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 type Date struct{}
@@ -20,26 +20,20 @@ func (d Date) ValidateValue(input string) (interface{}, error) {
 		return nil, ErrValueTrimSpace
 	}
 
-	res, err := time.Parse("2006-01-02", input)
-	if err != nil {
-		// Errors returned by time.Parse are often meaningless to a user, so we just return a generic message
-		return nil, errors.New("must be an RFC 3339 date value")
-	}
-
-	return res, err
+	return types.ParseDate(input)
 }
 
 func (d Date) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
-	case time.Time:
-		return v.Format("2006-01-02"), true
-	case *time.Time:
-		return v.Format("2006-01-02"), true
+	case types.Date:
+		return v.String(), true
+	case *types.Date:
+		return v.String(), true
 	default:
 		return "", false
 	}
 }
 
 func (d Date) Type() (reflect.Type, bool) {
-	return reflect.TypeOf(time.Time{}), false
+	return reflect.TypeOf(types.Date{}), true
 }

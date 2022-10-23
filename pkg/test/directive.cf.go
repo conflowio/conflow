@@ -4,10 +4,10 @@ package test
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -137,7 +137,7 @@ func (i DirectiveInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	case "field_string":
 		b.FieldString = value.(string)
 	case "field_time_duration":
-		b.FieldTimeDuration = value.(time.Duration)
+		b.FieldTimeDuration = value.(types.Duration)
 	case "value":
 		b.Value = value
 	}

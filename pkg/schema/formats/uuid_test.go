@@ -24,7 +24,7 @@ var _ = Describe("UUID", func() {
 	uuid4 := uuid.MustParse("cb95ec16-54d2-46f0-a63f-e94c0803d0d1")
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[uuid.UUID](format),
 		Entry("version 1", "c94b8114-3f28-11ec-9bbc-0242ac130002", uuid1, "c94b8114-3f28-11ec-9bbc-0242ac130002"),
 		Entry("version 4", "cb95ec16-54d2-46f0-a63f-e94c0803d0d1", uuid4, "cb95ec16-54d2-46f0-a63f-e94c0803d0d1"),
 	)
@@ -63,6 +63,10 @@ var _ = Describe("UUID", func() {
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatUUID, true)
 		})
+	})
+
+	It("should have a consistent JSON marshalling", func() {
+		expectConsistentJSONMarshalling[*uuid.UUID]([]byte("null"))
 	})
 
 })

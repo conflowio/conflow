@@ -8,9 +8,9 @@ package directives
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -21,7 +21,7 @@ type Pattern struct {
 	// @value
 	// @required
 	// @format "regex"
-	value regexp.Regexp
+	value *types.Regexp
 }
 
 func (p *Pattern) ID() conflow.ID {
@@ -31,7 +31,7 @@ func (p *Pattern) ID() conflow.ID {
 func (p *Pattern) ApplyToSchema(s schema.Schema) error {
 	switch st := s.(type) {
 	case *schema.String:
-		st.Pattern = &p.value
+		st.Pattern = p.value
 		return nil
 	default:
 		return fmt.Errorf("format directive can not be applied to %T", s)

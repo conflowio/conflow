@@ -13,6 +13,7 @@ import (
 	"io"
 	"reflect"
 	"regexp"
+	"time"
 
 	"github.com/tidwall/gjson"
 )
@@ -170,6 +171,8 @@ func GetSchemaForValue(value interface{}) (Schema, error) {
 		return &Map{AdditionalProperties: additionalProperties}, nil
 	case io.Reader:
 		return ByteStreamValue(), nil
+	case time.Duration:
+		return &String{Format: FormatDuration}, nil
 	default:
 		formatName, _, ok := GetFormatForType(getFullyQualifiedTypeName(reflect.TypeOf(value)))
 		if ok {

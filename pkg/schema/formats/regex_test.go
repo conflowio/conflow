@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 	"github.com/conflowio/conflow/pkg/schema/formats"
 )
@@ -21,9 +22,11 @@ var _ = Describe("Regex", func() {
 
 	format := formats.Regex{}
 
+	re := regexp.MustCompile("^[a-z]+$")
+
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
-		Entry("valid regexp", "^[a-z]+$", *regexp.MustCompile("^[a-z]+$"), "^[a-z]+$"),
+		expectFormatToParse[types.Regexp](format),
+		Entry("valid regexp", "^[a-z]+$", (types.Regexp)(*re), "^[a-z]+$"),
 	)
 
 	DescribeTable("Invalid values",
@@ -35,30 +38,34 @@ var _ = Describe("Regex", func() {
 		Entry("missing parentheses", "(a-z"),
 	)
 
-	When("a field type is regexp.Regexp", func() {
+	When("a field type is types.Regexp", func() {
 		It("should be parsed as string schema with regex format", func() {
 			source := `
-				import "regexp"
+				import "github.com/conflowio/conflow/pkg/conflow/types"
 				// @block "configuration"
 				type Foo struct {
-					v regexp.Regexp
+					v types.Regexp
 				}
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatRegex, false)
 		})
 	})
 
-	When("a field type is *regexp.Regexp", func() {
+	When("a field type is *types.Regexp", func() {
 		It("should be parsed as string schema with regex format", func() {
 			source := `
-				import "regexp"
+				import "github.com/conflowio/conflow/pkg/conflow/types"
 				// @block "configuration"
 				type Foo struct {
-					v *regexp.Regexp
+					v *types.Regexp
 				}
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatRegex, true)
 		})
+	})
+
+	It("should have a consistent JSON marshalling", func() {
+		expectConsistentJSONMarshalling[*types.Regexp]([]byte("null"))
 	})
 
 })

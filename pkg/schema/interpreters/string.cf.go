@@ -4,10 +4,10 @@ package interpreters
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -155,7 +155,7 @@ func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	case "nullable":
 		b.Nullable = value.(bool)
 	case "pattern":
-		b.Pattern = schema.Pointer(value.(regexp.Regexp))
+		b.Pattern = schema.Pointer(value.(types.Regexp))
 	case "read_only":
 		b.ReadOnly = value.(bool)
 	case "title":

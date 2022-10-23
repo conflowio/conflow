@@ -14,6 +14,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/internal/testhelper"
 	"github.com/conflowio/conflow/pkg/schema"
 )
@@ -38,8 +39,8 @@ var _ = Describe("String", func() {
 		Entry("max length - equal", &schema.String{MaxLength: schema.Pointer(int64(1))}, "a"),
 		Entry("max length - shorter", &schema.String{MaxLength: schema.Pointer(int64(2))}, "a"),
 		Entry("max length - unicode", &schema.String{MaxLength: schema.Pointer(int64(1))}, "🍕"),
-		Entry("pattern - partial match", &schema.String{Pattern: regexp.MustCompile("[a-z]+")}, "12ab34"),
-		Entry("pattern - full match", &schema.String{Pattern: regexp.MustCompile("^[a-z]+$")}, "ab"),
+		Entry("pattern - partial match", &schema.String{Pattern: (*types.Regexp)(regexp.MustCompile("[a-z]+"))}, "12ab34"),
+		Entry("pattern - full match", &schema.String{Pattern: (*types.Regexp)(regexp.MustCompile("^[a-z]+$"))}, "ab"),
 		Entry("format - email", &schema.String{Format: "email"}, "my.name@example.com"),
 		Entry("format - unknown", &schema.String{Format: "unknown"}, "foo"),
 	)
@@ -123,13 +124,13 @@ var _ = Describe("String", func() {
 		),
 		Entry(
 			"pattern - no match",
-			&schema.String{Pattern: regexp.MustCompile("[a-z]+")},
+			&schema.String{Pattern: (*types.Regexp)(regexp.MustCompile("[a-z]+"))},
 			"012",
 			errors.New(`must match regular expression: [a-z]+`),
 		),
 		Entry(
 			"pattern - no full match",
-			&schema.String{Pattern: regexp.MustCompile("^[a-z]+$")},
+			&schema.String{Pattern: (*types.Regexp)(regexp.MustCompile("^[a-z]+$"))},
 			"ab012",
 			errors.New(`must match regular expression: ^[a-z]+$`),
 		),
@@ -196,9 +197,9 @@ var _ = Describe("String", func() {
 		),
 		Entry(
 			"pattern",
-			&schema.String{Pattern: regexp.MustCompile("^foo$")},
+			&schema.String{Pattern: (*types.Regexp)(regexp.MustCompile("^foo$"))},
 			`&schema.String{
-	Pattern: regexp.MustCompile("^foo$"),
+	Pattern: types.MustCompileRegexp("^foo$"),
 }`,
 		),
 		Entry(

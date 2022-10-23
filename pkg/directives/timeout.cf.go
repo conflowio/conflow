@@ -4,10 +4,10 @@ package directives
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -89,7 +89,7 @@ func (i TimeoutInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*Timeout)
 	switch name {
 	case "duration":
-		b.duration = value.(time.Duration)
+		b.duration = value.(types.Duration)
 	}
 	return nil
 }

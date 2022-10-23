@@ -7,10 +7,10 @@
 package formats
 
 import (
-	"errors"
-	"net/mail"
 	"reflect"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 type Email struct {
@@ -22,27 +22,14 @@ func (e Email) ValidateValue(input string) (interface{}, error) {
 		return nil, ErrValueTrimSpace
 	}
 
-	res, err := mail.ParseAddress(input)
-	if err != nil {
-		return nil, errors.New("must be a valid email address")
-	}
-
-	return *res, nil
+	return types.ParseEmail(input)
 }
 
 func (e Email) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
-	case mail.Address:
-		if v.Name == "" {
-			return v.Address, true
-		}
-
+	case types.Email:
 		return v.String(), true
-	case *mail.Address:
-		if v.Name == "" {
-			return v.Address, true
-		}
-
+	case *types.Email:
 		return v.String(), true
 	default:
 		return "", false
@@ -50,5 +37,5 @@ func (e Email) StringValue(input interface{}) (string, bool) {
 }
 
 func (e Email) Type() (reflect.Type, bool) {
-	return reflect.TypeOf(mail.Address{}), e.Default
+	return reflect.TypeOf(types.Email{}), e.Default
 }

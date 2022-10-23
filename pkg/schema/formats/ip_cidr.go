@@ -7,9 +7,6 @@
 package formats
 
 import (
-	"errors"
-	"fmt"
-	"net"
 	"reflect"
 	"strings"
 
@@ -27,23 +24,7 @@ func (i IPCIDR) ValidateValue(input string) (interface{}, error) {
 		return nil, ErrValueTrimSpace
 	}
 
-	if !i.AllowIPv4 && strings.Contains(input, ".") {
-		return nil, errors.New("must be an IPv6 CIDR block")
-	}
-
-	if !i.AllowIPv6 && strings.Contains(input, ":") {
-		return nil, errors.New("must be an IPv4 CIDR block")
-	}
-
-	ip, ipNet, err := net.ParseCIDR(input)
-	if err != nil {
-		return nil, fmt.Errorf("must be a CIDR block: %w", err)
-	}
-
-	return types.CIDR{
-		IP:    ip,
-		IPNet: ipNet,
-	}, nil
+	return types.ParseCIDR(input, i.AllowIPv4, i.AllowIPv6)
 }
 
 func (i IPCIDR) StringValue(input interface{}) (string, bool) {

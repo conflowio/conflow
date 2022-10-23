@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 // @block "task"
@@ -20,7 +21,7 @@ type Sleep struct {
 	id conflow.ID
 	// @value
 	// @required
-	duration time.Duration
+	duration types.Duration
 }
 
 func (s *Sleep) ID() conflow.ID {
@@ -29,7 +30,7 @@ func (s *Sleep) ID() conflow.ID {
 
 func (s *Sleep) Run(ctx context.Context) (conflow.Result, error) {
 	select {
-	case <-time.After(s.duration):
+	case <-time.After(time.Duration(s.duration)):
 		return nil, nil
 	case <-ctx.Done():
 		return nil, errors.New("aborted")

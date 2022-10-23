@@ -9,36 +9,31 @@ package formats
 import (
 	"reflect"
 	"strings"
-	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
-type Duration struct{}
+type DurationRFC3339 struct{}
 
-func (d Duration) ValidateValue(input string) (interface{}, error) {
+func (d DurationRFC3339) ValidateValue(input string) (interface{}, error) {
 	if strings.TrimSpace(input) != input {
 		return nil, ErrValueTrimSpace
 	}
 
-	return types.ParseDuration(input)
+	return types.ParseRFC3339Duration(input)
 }
 
-func (d Duration) StringValue(input interface{}) (string, bool) {
+func (d DurationRFC3339) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
-	case time.Duration:
+	case types.RFC3339Duration:
 		return v.String(), true
-	case *time.Duration:
+	case *types.RFC3339Duration:
 		return v.String(), true
-	case types.Duration:
-		return time.Duration(v).String(), true
-	case *types.Duration:
-		return time.Duration(*v).String(), true
 	default:
 		return "", false
 	}
 }
 
-func (d Duration) Type() (reflect.Type, bool) {
-	return reflect.TypeOf(types.Duration(0)), true
+func (d DurationRFC3339) Type() (reflect.Type, bool) {
+	return reflect.TypeOf(types.RFC3339Duration{}), true
 }

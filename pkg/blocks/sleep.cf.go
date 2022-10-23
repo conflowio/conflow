@@ -4,10 +4,10 @@ package blocks
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -88,7 +88,7 @@ func (i SleepInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Sleep)
 	switch name {
 	case "duration":
-		b.duration = value.(time.Duration)
+		b.duration = value.(types.Duration)
 	}
 	return nil
 }
