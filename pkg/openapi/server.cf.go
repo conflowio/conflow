@@ -4,10 +4,11 @@ package openapi
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
-	"net/url"
 )
 
 func init() {

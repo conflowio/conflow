@@ -23,11 +23,12 @@ import (
 )
 
 type generator struct {
-	o           *openapi.OpenAPI
-	router      string
-	packageName string
-	imports     map[string]string
-	schemas     []schema.Schema
+	o             *openapi.OpenAPI
+	router        string
+	packageName   string
+	imports       map[string]string
+	schemas       []schema.Schema
+	localPrefixes []string
 }
 
 type Operation struct {
@@ -37,7 +38,7 @@ type Operation struct {
 	Parameters  map[string]*openapi.Parameter
 }
 
-func Generate(o *openapi.OpenAPI, router string, packageName, outputDir string) error {
+func Generate(o *openapi.OpenAPI, router string, packageName, outputDir string, localPrefixes []string) error {
 	g := generator{
 		o:           o,
 		router:      router,
@@ -45,6 +46,7 @@ func Generate(o *openapi.OpenAPI, router string, packageName, outputDir string) 
 		imports: map[string]string{
 			packageName: "",
 		},
+		localPrefixes: localPrefixes,
 	}
 	if err := g.generateTypes(outputDir); err != nil {
 		return err
@@ -112,8 +114,9 @@ func (g *generator) generateTypes(outputDir string) error {
 	packageParts := strings.Split(g.packageName, "/")
 
 	header, err := template.GenerateHeader(template.HeaderParams{
-		Package: packageParts[len(packageParts)-1],
-		Imports: g.imports,
+		Package:       packageParts[len(packageParts)-1],
+		Imports:       g.imports,
+		LocalPrefixes: g.localPrefixes,
 	})
 	if err != nil {
 		return err
@@ -149,8 +152,9 @@ func (g *generator) generateSchemas(outputDir string) error {
 	packageParts := strings.Split(g.packageName, "/")
 
 	header, err := template.GenerateHeader(template.HeaderParams{
-		Package: packageParts[len(packageParts)-1],
-		Imports: g.imports,
+		Package:       packageParts[len(packageParts)-1],
+		Imports:       g.imports,
+		LocalPrefixes: g.localPrefixes,
 	})
 	if err != nil {
 		return err

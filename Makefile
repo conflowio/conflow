@@ -16,7 +16,7 @@ test: ## Runs all tests
 
 .PHONY: generate
 generate: build ## Regenerates all files
-	@PATH="$(PWD)/bin:$(PATH)" conflow generate
+	@PATH="$(PWD)/bin:$(PATH)" conflow generate --local github.com/conflowio/conflow
 
 .PHONY: build
 build: bin/conflow ## Build the conflow binary

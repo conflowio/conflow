@@ -22,6 +22,7 @@ func goCommand() *cobra.Command {
 	var router string
 	var packageName string
 	var outputDir string
+	var localPrefixes []string
 
 	cmd := &cobra.Command{
 		Use:   "go",
@@ -53,7 +54,7 @@ func goCommand() *cobra.Command {
 				}
 			}
 
-			return generator.Generate(res, router, packageName, outputDir)
+			return generator.Generate(res, router, packageName, outputDir, localPrefixes)
 		},
 	}
 
@@ -62,6 +63,7 @@ func goCommand() *cobra.Command {
 	cmd.Flags().StringVar(&router, "router", "echo", "Go router library to use")
 	cmd.Flags().StringVar(&packageName, "package", "", "Full package name")
 	cmd.Flags().StringVar(&outputDir, "output-dir", "", "Path where the files will be generated")
+	cmd.Flags().StringArrayVar(&localPrefixes, "local", nil, "put imports beginning with this string after 3rd-party packages")
 
 	_ = cobra.MarkFlagRequired(cmd.Flags(), "package")
 	_ = cobra.MarkFlagRequired(cmd.Flags(), "output-dir")

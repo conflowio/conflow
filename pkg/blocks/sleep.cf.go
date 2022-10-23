@@ -4,10 +4,11 @@ package blocks
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
-	"time"
 )
 
 func init() {

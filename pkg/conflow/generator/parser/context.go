@@ -12,35 +12,39 @@ import (
 )
 
 type Context struct {
-	WorkDir string
-	FileSet *token.FileSet
-	Parent  ast.Node
-	File    *ast.File
+	WorkDir       string
+	FileSet       *token.FileSet
+	Parent        ast.Node
+	File          *ast.File
+	LocalPrefixes []string
 }
 
 func (c *Context) WithFile(f *ast.File) *Context {
 	return &Context{
-		WorkDir: c.WorkDir,
-		FileSet: c.FileSet,
-		Parent:  c.Parent,
-		File:    f,
+		WorkDir:       c.WorkDir,
+		FileSet:       c.FileSet,
+		Parent:        c.Parent,
+		File:          f,
+		LocalPrefixes: c.LocalPrefixes,
 	}
 }
 
 func (c *Context) WithParent(parent ast.Node) *Context {
 	return &Context{
-		WorkDir: c.WorkDir,
-		FileSet: c.FileSet,
-		Parent:  parent,
-		File:    c.File,
+		WorkDir:       c.WorkDir,
+		FileSet:       c.FileSet,
+		Parent:        parent,
+		File:          c.File,
+		LocalPrefixes: c.LocalPrefixes,
 	}
 }
 
 func (c *Context) WithWorkdir(workDir string) *Context {
 	return &Context{
-		WorkDir: workDir,
-		FileSet: c.FileSet,
-		Parent:  c.Parent,
-		File:    c.File,
+		WorkDir:       workDir,
+		FileSet:       c.FileSet,
+		Parent:        c.Parent,
+		File:          c.File,
+		LocalPrefixes: c.LocalPrefixes,
 	}
 }

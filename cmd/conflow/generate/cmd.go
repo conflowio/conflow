@@ -19,6 +19,8 @@ import (
 )
 
 func Command() *cobra.Command {
+	var localPrefixes []string
+
 	cmd := &cobra.Command{
 		Use:   "generate",
 		Short: "Generates Conflow files",
@@ -48,8 +50,11 @@ func Command() *cobra.Command {
 				return fmt.Errorf("path must be in %s", srcPath)
 			}
 
-			return generator.Generate(target)
+			return generator.Generate(target, localPrefixes)
 		},
 	}
+
+	cmd.Flags().StringArrayVar(&localPrefixes, "local", nil, "put imports beginning with this string after 3rd-party packages")
+
 	return cmd
 }
