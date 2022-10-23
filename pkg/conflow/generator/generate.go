@@ -28,10 +28,11 @@ import (
 )
 
 // Generate generates code for the given types
-func Generate(dir string) error {
+func Generate(dir string, localPrefixes []string) error {
 	parseCtx := &parser.Context{
-		WorkDir: dir,
-		FileSet: &gotoken.FileSet{},
+		WorkDir:       dir,
+		FileSet:       &gotoken.FileSet{},
+		LocalPrefixes: localPrefixes,
 	}
 
 	err := filepath.WalkDir(dir, func(filePath string, d fs.DirEntry, err error) error {

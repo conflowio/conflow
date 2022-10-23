@@ -4,10 +4,11 @@ package interpreters
 
 import (
 	"fmt"
+	"regexp"
+
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
-	"regexp"
 )
 
 func init() {

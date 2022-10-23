@@ -62,8 +62,9 @@ func GenerateInterpreter(
 	}
 
 	header, err := generatortemplate.GenerateHeader(generatortemplate.HeaderParams{
-		Package: params.Package,
-		Imports: params.Imports,
+		Package:       params.Package,
+		Imports:       params.Imports,
+		LocalPrefixes: parseCtx.LocalPrefixes,
 	})
 	if err != nil {
 		return nil, nil, err
