@@ -4,10 +4,10 @@ package blocks
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -94,7 +94,7 @@ func (i TickerInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Ticker)
 	switch name {
 	case "interval":
-		b.interval = value.(time.Duration)
+		b.interval = value.(types.Duration)
 	}
 	return nil
 }

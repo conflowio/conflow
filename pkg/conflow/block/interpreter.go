@@ -53,7 +53,11 @@ func NewInterpreter(uri string) (conflow.BlockInterpreter, error) {
 			id := fmt.Sprintf("%s/%s", s.GetID(), parameterName)
 			pt.SetID(id)
 			schema.Register(pt)
-			o.Properties[jsonPropertyName] = &schema.Reference{Ref: id}
+			ref := &schema.Reference{Ref: id}
+			if err := ref.Resolve(schema.NewContext()); err != nil {
+				panic(err)
+			}
+			o.Properties[jsonPropertyName] = ref
 
 			var err error
 			interpreterRegistry[parameterName], err = NewInterpreter(id)
@@ -65,7 +69,11 @@ func NewInterpreter(uri string) (conflow.BlockInterpreter, error) {
 				id := fmt.Sprintf("%s/%s", s.GetID(), parameterName)
 				po.SetID(id)
 				schema.Register(po)
-				pt.Items = &schema.Reference{Ref: id}
+				ref := &schema.Reference{Ref: id}
+				if err := ref.Resolve(schema.NewContext()); err != nil {
+					panic(err)
+				}
+				pt.Items = ref
 
 				var err error
 				interpreterRegistry[parameterName], err = NewInterpreter(id)

@@ -10,10 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"net/mail"
-	"net/url"
 	"os"
-	"regexp"
 	"time"
 
 	"github.com/google/uuid"
@@ -216,18 +213,19 @@ var _ = Describe("Schema", func() {
 		Entry("number", float64(1), schema.NumberValue(), nil),
 		Entry("string", "foo", schema.StringValue(), nil),
 		Entry("byte stream", os.Stdin, schema.ByteStreamValue(), nil),
+		Entry("time duration", 1*time.Second, &schema.String{Format: schema.FormatDuration}, nil),
 		Entry("unknown value", int8(1), nil, fmt.Errorf("value type int8 is not allowed")),
 
 		Entry("byte", []byte("aGVsbG8="), &schema.String{Format: schema.FormatBinary}, nil),
 		Entry("date-time", time.Now(), &schema.String{Format: schema.FormatDateTime}, nil),
 		Entry("duration", types.RFC3339Duration{}, &schema.String{Format: schema.FormatDurationRFC3339}, nil),
-		Entry("duration-go", 1*time.Second, &schema.String{Format: schema.FormatDurationGo}, nil),
-		Entry("email", mail.Address{}, &schema.String{Format: schema.FormatEmail}, nil),
+		Entry("duration-go", types.Duration(1*time.Second), &schema.String{Format: schema.FormatDuration}, nil),
+		Entry("email", types.Email{}, &schema.String{Format: schema.FormatEmail}, nil),
 		Entry("ip", net.IP{}, &schema.String{Format: schema.FormatIP}, nil),
 		Entry("ipc-cidr", types.CIDR{}, &schema.String{Format: schema.FormatIPCIDR}, nil),
-		Entry("regexp", regexp.Regexp{}, &schema.String{Format: schema.FormatRegex}, nil),
+		Entry("regexp", types.Regexp{}, &schema.String{Format: schema.FormatRegex}, nil),
 		Entry("time", types.Time{}, &schema.String{Format: schema.FormatTime}, nil),
-		Entry("uri", url.URL{}, &schema.String{Format: schema.FormatURI}, nil),
+		Entry("uri", types.URL{}, &schema.String{Format: schema.FormatURI}, nil),
 		Entry("uuid", uuid.UUID{}, &schema.String{Format: schema.FormatUUID}, nil),
 
 		Entry(
@@ -273,7 +271,7 @@ var _ = Describe("Schema", func() {
 		Entry(
 			"time duration array",
 			[]interface{}{1 * time.Second, 2 * time.Second},
-			&schema.Array{Items: &schema.String{Format: schema.FormatDurationGo}}, nil,
+			&schema.Array{Items: &schema.String{Format: schema.FormatDuration}}, nil,
 		),
 		Entry(
 			"mixed types in array",
@@ -329,7 +327,7 @@ var _ = Describe("Schema", func() {
 		Entry(
 			"time duration map",
 			map[string]interface{}{"a": 1 * time.Second, "b": 2 * time.Second},
-			&schema.Map{AdditionalProperties: &schema.String{Format: schema.FormatDurationGo}}, nil,
+			&schema.Map{AdditionalProperties: &schema.String{Format: schema.FormatDuration}}, nil,
 		),
 		Entry(
 			"mixed types in map",

@@ -33,7 +33,7 @@ const (
 	FormatDate            = "date"
 	FormatDateTime        = "date-time"
 	FormatDurationRFC3339 = "duration"
-	FormatDurationGo      = "duration-go"
+	FormatDuration        = "duration-go"
 	FormatEmail           = "email"
 	FormatHostname        = "hostname"
 	FormatIDNEmail        = "idn-email"
@@ -60,7 +60,7 @@ var registeredFormats = map[string]Format{
 	FormatDate:            formats.Date{},
 	FormatDateTime:        formats.DateTime{},
 	FormatDurationRFC3339: formats.DurationRFC3339{},
-	FormatDurationGo:      formats.DurationGo{},
+	FormatDuration:        formats.Duration{},
 	FormatEmail:           formats.Email{Default: true},
 	FormatHostname:        formats.Hostname{},
 	FormatIDNEmail:        formats.Email{},

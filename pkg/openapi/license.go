@@ -7,30 +7,16 @@
 package openapi
 
 import (
-	"encoding/json"
-	"net/url"
-
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
 // @block "configuration"
 type License struct {
 	// @required
-	Name       string  `json:"name,omitempty"`
-	Identifier string  `json:"identifier,omitempty"`
-	URL        url.URL `json:"url"`
-}
-
-func (l License) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Name       string `json:"name,omitempty"`
-		Identifier string `json:"identifier,omitempty"`
-		URL        string `json:"url"`
-	}{
-		Name:       l.Name,
-		Identifier: l.Identifier,
-		URL:        l.URL.String(),
-	})
+	Name       string    `json:"name,omitempty"`
+	Identifier string    `json:"identifier,omitempty"`
+	URL        types.URL `json:"url"`
 }
 
 func (l *License) Validate(*schema.Context) error {

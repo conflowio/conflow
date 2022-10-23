@@ -14,6 +14,7 @@ import (
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/parsers"
 	"github.com/conflowio/conflow/pkg/test"
 )
@@ -74,7 +75,7 @@ var _ = Describe("Directive parser", func() {
 				FieldBool:         true,
 				FieldArray:        []interface{}{"foo", "bar"},
 				FieldMap:          map[string]interface{}{"a": "b", "c": "d"},
-				FieldTimeDuration: 1*time.Hour + 30*time.Minute,
+				FieldTimeDuration: types.Duration(1*time.Hour + 30*time.Minute),
 			},
 		),
 		Entry(

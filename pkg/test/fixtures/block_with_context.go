@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 // @block "configuration"
@@ -19,11 +20,11 @@ type BlockWithContext struct {
 	IDField conflow.ID
 	// @required
 	// @eval_stage "init"
-	timeout time.Duration
+	timeout types.Duration
 }
 
 func (b *BlockWithContext) Context(ctx context.Context) (context.Context, context.CancelFunc) {
-	return context.WithTimeout(ctx, b.timeout)
+	return context.WithTimeout(ctx, time.Duration(b.timeout))
 }
 
 func (b *BlockWithContext) ID() conflow.ID {

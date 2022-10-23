@@ -4,10 +4,10 @@ package openapi
 
 import (
 	"fmt"
-	"net/url"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -84,7 +84,7 @@ func (i ServerInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	case "description":
 		b.Description = value.(string)
 	case "url":
-		b.URL = value.(url.URL)
+		b.URL = value.(types.URL)
 	}
 	return nil
 }

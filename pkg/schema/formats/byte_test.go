@@ -20,7 +20,7 @@ var _ = Describe("Byte", func() {
 	format := formats.Binary{}
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[[]byte](format),
 		Entry(
 			"empty string",
 			"",
@@ -67,4 +67,7 @@ var _ = Describe("Byte", func() {
 		})
 	})
 
+	It("should have a consistent JSON marshalling", func() {
+		expectConsistentJSONMarshalling[[]byte]([]byte("null"))
+	})
 })

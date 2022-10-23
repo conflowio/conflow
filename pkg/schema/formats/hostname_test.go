@@ -20,7 +20,7 @@ var _ = Describe("Hostname", func() {
 	format := formats.Hostname{}
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[string](format),
 		Entry("simple host", "host", "host", "host"),
 		Entry("subdomain", "sub.host", "sub.host", "sub.host"),
 		Entry("starts with a digit", "123domain.com", "123domain.com", "123domain.com"),

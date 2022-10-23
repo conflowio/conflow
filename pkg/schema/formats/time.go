@@ -7,10 +7,8 @@
 package formats
 
 import (
-	"errors"
 	"reflect"
 	"strings"
-	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow/types"
 )
@@ -22,24 +20,7 @@ func (t Time) ValidateValue(input string) (interface{}, error) {
 		return nil, ErrValueTrimSpace
 	}
 
-	res, err := time.Parse("15:04:05.999999999Z07:00", input)
-	if err != nil {
-		// Let's try to parse it without a timezone
-		res, err = time.Parse("15:04:05.999999999", input)
-	}
-
-	if err != nil {
-		// Errors returned by time.Parse are often meaningless to a user, so we just return a generic message
-		return nil, errors.New("must be an RFC 3339 time value")
-	}
-
-	return types.Time{
-		Hour:       res.Hour(),
-		Minute:     res.Minute(),
-		Second:     res.Second(),
-		NanoSecond: res.Nanosecond(),
-		Location:   res.Location(),
-	}, err
+	return types.ParseTime(input)
 }
 
 func (t Time) StringValue(input interface{}) (string, bool) {

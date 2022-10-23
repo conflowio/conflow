@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/util/ptr"
 )
 
@@ -22,7 +23,7 @@ type Timeout struct {
 	id conflow.ID
 	// @value
 	// @required
-	duration time.Duration
+	duration types.Duration
 }
 
 func (t *Timeout) ID() conflow.ID {
@@ -30,5 +31,5 @@ func (t *Timeout) ID() conflow.ID {
 }
 
 func (t *Timeout) ApplyToRuntimeConfig(config *conflow.RuntimeConfig) {
-	config.Timeout = ptr.To(t.duration)
+	config.Timeout = ptr.To(time.Duration(t.duration))
 }

@@ -84,10 +84,6 @@ var _ = Describe("ParseStruct", func() {
 			s.(*schema.Object).Properties["field"] = &schema.Number{}
 		}),
 
-		Entry("time duration field", "field time.Duration", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.String{Format: schema.FormatDurationGo}
-		}),
-
 		Entry("string array", "field []string", func(s schema.Schema) {
 			s.(*schema.Object).Properties["field"] = &schema.Array{
 				Items: &schema.String{},
@@ -109,12 +105,6 @@ var _ = Describe("ParseStruct", func() {
 		Entry("number array", "field []float64", func(s schema.Schema) {
 			s.(*schema.Object).Properties["field"] = &schema.Array{
 				Items: &schema.Number{},
-			}
-		}),
-
-		Entry("time duration array", "field []time.Duration", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Array{
-				Items: &schema.String{Format: schema.FormatDurationGo},
 			}
 		}),
 
@@ -147,12 +137,6 @@ var _ = Describe("ParseStruct", func() {
 		Entry("boolean map", "field map[string]bool", func(s schema.Schema) {
 			s.(*schema.Object).Properties["field"] = &schema.Map{
 				AdditionalProperties: &schema.Boolean{},
-			}
-		}),
-
-		Entry("time duration map", "field map[string]time.Duration", func(s schema.Schema) {
-			s.(*schema.Object).Properties["field"] = &schema.Map{
-				AdditionalProperties: &schema.String{Format: schema.FormatDurationGo},
 			}
 		}),
 

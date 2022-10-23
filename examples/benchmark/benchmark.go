@@ -12,6 +12,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 // @block "task"
@@ -19,8 +20,8 @@ type Benchmark struct {
 	// @id
 	id conflow.ID
 	// @required
-	duration time.Duration
-	elapsed  time.Duration
+	duration types.Duration
+	elapsed  types.Duration
 	// @read_only
 	counter int64
 	// @generated
@@ -34,7 +35,7 @@ func (b *Benchmark) ID() conflow.ID {
 }
 
 func (b *Benchmark) Run(ctx context.Context) (conflow.Result, error) {
-	timer := time.NewTimer(b.duration)
+	timer := time.NewTimer(time.Duration(b.duration))
 	defer timer.Stop()
 
 	started := time.Now()
@@ -42,7 +43,7 @@ func (b *Benchmark) Run(ctx context.Context) (conflow.Result, error) {
 	for {
 		select {
 		case <-timer.C:
-			b.elapsed = time.Now().Sub(started)
+			b.elapsed = types.Duration(time.Now().Sub(started))
 			return nil, nil
 		default:
 			b.counter++

@@ -12,6 +12,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 // @block "generator"
@@ -19,7 +20,7 @@ type Ticker struct {
 	// @id
 	id conflow.ID
 	// @required
-	interval time.Duration
+	interval types.Duration
 	// @generated
 	tick *Tick
 	// @dependency
@@ -31,7 +32,7 @@ func (t *Ticker) ID() conflow.ID {
 }
 
 func (t *Ticker) Run(ctx context.Context) (conflow.Result, error) {
-	ticker := time.NewTicker(t.interval)
+	ticker := time.NewTicker(time.Duration(t.interval))
 	defer ticker.Stop()
 
 	for {

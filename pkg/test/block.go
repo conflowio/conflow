@@ -8,13 +8,13 @@ package test
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -48,7 +48,7 @@ type Block struct {
 	FieldBool         bool
 	FieldArray        []interface{}
 	FieldMap          map[string]interface{}
-	FieldTimeDuration time.Duration
+	FieldTimeDuration types.Duration
 	// @name "custom_field"
 	FieldCustomName string
 

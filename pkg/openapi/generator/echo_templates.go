@@ -25,6 +25,7 @@ type EchoServer struct {
 func (e *EchoServer) {{ camelize $op.OperationID }}(ctx {{ $echoSel }}Context) error {
 	var err error
 	req := {{ camelize $op.OperationID }}Request{}
+	
 	{{ range $field, $p := $op.Parameters -}}
 	if req.{{ $field }}, err = {{ $serverSel }}{{ bindParameterFunc $p $root.Imports }}(
 		{{ $p.GoString $root.Imports true }},
@@ -32,7 +33,8 @@ func (e *EchoServer) {{ camelize $op.OperationID }}(ctx {{ $echoSel }}Context) e
 	); err != nil {
 		return err
 	}
-	{{ end -}}
+	
+	{{- end }}
 
 	resp, err := e.Server.{{ camelize $op.OperationID }}(ctx.Request().Context(), req)
 	if err != nil {

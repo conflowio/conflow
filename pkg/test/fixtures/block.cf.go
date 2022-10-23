@@ -8,6 +8,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -157,7 +158,7 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	case "field_time":
 		b.FieldTime = value.(time.Time)
 	case "field_time_duration":
-		b.FieldTimeDuration = value.(time.Duration)
+		b.FieldTimeDuration = value.(types.Duration)
 	}
 	return nil
 }

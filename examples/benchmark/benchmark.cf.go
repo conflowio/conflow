@@ -4,10 +4,10 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -109,9 +109,9 @@ func (i BenchmarkInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*Benchmark)
 	switch name {
 	case "duration":
-		b.duration = value.(time.Duration)
+		b.duration = value.(types.Duration)
 	case "elapsed":
-		b.elapsed = value.(time.Duration)
+		b.elapsed = value.(types.Duration)
 	}
 	return nil
 }

@@ -28,7 +28,7 @@ var _ = Describe("IPCIDR", func() {
 	ipv6Start := net.ParseIP("2001:0db8:85a3::0")
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[types.CIDR](format, func(c1 types.CIDR, c2 types.CIDR) bool { return c1.Equals(c2) }),
 		Entry(
 			"valid IPv4",
 			"1.2.3.4/24",
@@ -40,6 +40,7 @@ var _ = Describe("IPCIDR", func() {
 			"2001:0db8:85a3:0000:0000:8a2e:0370:7334/80",
 			types.CIDR{IP: ipv6, IPNet: &net.IPNet{IP: ipv6Start, Mask: net.CIDRMask(80, 128)}},
 			"2001:db8:85a3::8a2e:370:7334/80",
+			true,
 		),
 	)
 
@@ -94,7 +95,7 @@ var _ = Describe("IPv4CIDR", func() {
 	ipv4Start := net.IP([]byte{0x01, 0x02, 0x03, 0x00})
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[types.CIDR](format, func(c1 types.CIDR, c2 types.CIDR) bool { return c1.Equals(c2) }),
 		Entry(
 			"valid IPv4",
 			"1.2.3.4/24",
@@ -136,16 +137,25 @@ var _ = Describe("IPv6CIDR", func() {
 
 	format := formats.IPCIDR{AllowIPv6: true}
 
-	ipv6 := net.ParseIP("2001:0db8:85a3:0000:0000:8a2e:0370:7334")
-	ipv6Start := net.ParseIP("2001:0db8:85a3::0")
+	ipv6 := net.ParseIP("2001:2db8:85a3:1234:5678:8a2e:3370:7334")
+	ipv6Start := net.ParseIP("2001:2db8:85a3:1234:5678:0:0:0")
+	ipv6Short := net.ParseIP("2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+	ipv6ShortStart := net.ParseIP("2001:0db8:85a3::0")
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[types.CIDR](format, func(c1 types.CIDR, c2 types.CIDR) bool { return c1.Equals(c2) }),
 		Entry(
 			"valid IPv6",
-			"2001:0db8:85a3:0000:0000:8a2e:0370:7334/80",
+			"2001:2db8:85a3:1234:5678:8a2e:3370:7334/80",
 			types.CIDR{IP: ipv6, IPNet: &net.IPNet{IP: ipv6Start, Mask: net.CIDRMask(80, 128)}},
+			"2001:2db8:85a3:1234:5678:8a2e:3370:7334/80",
+		),
+		Entry(
+			"valid IPv6 shortened",
+			"2001:0db8:85a3:0000:0000:8a2e:0370:7334/80",
+			types.CIDR{IP: ipv6Short, IPNet: &net.IPNet{IP: ipv6ShortStart, Mask: net.CIDRMask(80, 128)}},
 			"2001:db8:85a3::8a2e:370:7334/80",
+			true,
 		),
 	)
 
@@ -174,6 +184,10 @@ var _ = Describe("IPv6CIDR", func() {
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatIPv6CIDR, false)
 		})
+	})
+
+	It("should have a consistent JSON marshalling", func() {
+		expectConsistentJSONMarshalling[*types.CIDR]([]byte("null"))
 	})
 
 })

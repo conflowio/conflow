@@ -7,32 +7,18 @@
 package openapi
 
 import (
-	"encoding/json"
-	"net/url"
-
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
 // @block "configuration"
 type Server struct {
-	URL         url.URL `json:"url"`
-	Description string  `json:"description,omitempty"`
+	URL         types.URL `json:"url"`
+	Description string    `json:"description,omitempty"`
 	// @name "variable"
 	Variables map[string]*ServerVariable `json:"variables,omitempty"`
-}
-
-func (s *Server) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		URL         string                     `json:"url"`
-		Description string                     `json:"description,omitempty"`
-		Variables   map[string]*ServerVariable `json:"variables,omitempty"`
-	}{
-		URL:         s.URL.String(),
-		Description: s.Description,
-		Variables:   s.Variables,
-	})
 }
 
 func (s *Server) ParseContextOverride() conflow.ParseContextOverride {

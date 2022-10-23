@@ -7,12 +7,11 @@
 package formats_test
 
 import (
-	"time"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 	"github.com/conflowio/conflow/pkg/schema/formats"
 )
@@ -22,11 +21,11 @@ var _ = Describe("Date", func() {
 	format := formats.Date{}
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[types.Date](format),
 		Entry(
 			"any date",
 			"2021-01-02",
-			time.Date(2021, 1, 02, 0, 0, 0, 0, time.UTC),
+			types.NewDate(2021, 1, 2),
 			"2021-01-02",
 		),
 	)
@@ -43,30 +42,34 @@ var _ = Describe("Date", func() {
 		Entry("non-existing day", "2021-02-31"),
 	)
 
-	When("a field type is time.Time and format is set as date", func() {
+	When("a field type is types.Date and format is set as date", func() {
 		It("should be parsed as string schema with date format", func() {
 			source := `
+				import "github.com/conflowio/conflow/pkg/conflow/types" 
 				// @block "configuration"
 				type Foo struct {
-					// @format "date"
-					v time.Time
+					v types.Date
 				}
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatDate, false)
 		})
 	})
 
-	When("a field type is *time.Time and format is set as date", func() {
+	When("a field type is *types.Date and format is set as date", func() {
 		It("should be parsed as string schema with date format", func() {
 			source := `
+				import "github.com/conflowio/conflow/pkg/conflow/types"
 				// @block "configuration"
 				type Foo struct {
-					// @format "date"
-					v *time.Time
+					v *types.Date
 				}
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatDate, true)
 		})
+	})
+
+	It("should have a consistent JSON marshalling", func() {
+		expectConsistentJSONMarshalling[*types.Date]([]byte("null"))
 	})
 
 })

@@ -23,13 +23,8 @@ var _ = Describe("Time", func() {
 	format := formats.Time{}
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
-		Entry(
-			"time with no timezone",
-			"12:23:34",
-			types.Time{Hour: 12, Minute: 23, Second: 34, Location: time.UTC},
-			"12:23:34Z",
-		),
+		expectFormatToParse[types.Time](format),
+
 		Entry(
 			"time with zero timezone",
 			"12:23:34Z",
@@ -49,12 +44,6 @@ var _ = Describe("Time", func() {
 			"12:23:34-01:00",
 		),
 		Entry(
-			"time with fractional seconds and no timezone",
-			"12:23:34.123",
-			types.Time{Hour: 12, Minute: 23, Second: 34, NanoSecond: 123000000, Location: time.UTC},
-			"12:23:34.123Z",
-		),
-		Entry(
 			"time with fractional seconds and empty timezone",
 			"12:23:34.123Z",
 			types.Time{Hour: 12, Minute: 23, Second: 34, NanoSecond: 123000000, Location: time.UTC},
@@ -71,6 +60,8 @@ var _ = Describe("Time", func() {
 		Entry("random string", "foo"),
 		Entry("incomplete - no seconds", "12:23"),
 		Entry("timezone - Z with value", "12:23:34Z+01:00"),
+		Entry("time with no timezone", "12:23:34"),
+		Entry("time with fractional seconds and no timezone", "12:23:34.123"),
 	)
 
 	When("a field type is types.Time", func() {
@@ -97,6 +88,10 @@ var _ = Describe("Time", func() {
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatTime, true)
 		})
+	})
+
+	It("should have a consistent JSON marshalling", func() {
+		expectConsistentJSONMarshalling[*types.Time]([]byte("null"))
 	})
 
 })

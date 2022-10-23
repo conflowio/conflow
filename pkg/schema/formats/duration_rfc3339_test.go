@@ -16,12 +16,12 @@ import (
 	"github.com/conflowio/conflow/pkg/schema/formats"
 )
 
-var _ = Describe("DurationGo", func() {
+var _ = Describe("DurationRFC3339", func() {
 
 	format := formats.DurationRFC3339{}
 
 	DescribeTable("Valid values",
-		expectFormatToParse(format),
+		expectFormatToParse[types.RFC3339Duration](format),
 
 		Entry(
 			"day",
@@ -99,7 +99,7 @@ var _ = Describe("DurationGo", func() {
 	)
 
 	When("a field type is types.RFC3339Duration", func() {
-		It("should be parsed as string schema with duration format", func() {
+		It("should be parsed as string schema with duration RFC3339 format", func() {
 			source := `
 				import "github.com/conflowio/conflow/pkg/conflow/types"
 				// @block "configuration"
@@ -112,7 +112,7 @@ var _ = Describe("DurationGo", func() {
 	})
 
 	When("a field type is *types.RFC3339Duration", func() {
-		It("should be parsed as string schema with duration format", func() {
+		It("should be parsed as string schema with duration RFC3339 format", func() {
 			source := `
 				import "github.com/conflowio/conflow/pkg/conflow/types"
 				// @block "configuration"
@@ -122,6 +122,10 @@ var _ = Describe("DurationGo", func() {
 			`
 			expectGoStructToHaveStringSchema(source, schema.FormatDurationRFC3339, true)
 		})
+	})
+
+	It("should have a consistent JSON marshalling", func() {
+		expectConsistentJSONMarshalling[*types.RFC3339Duration]([]byte("null"))
 	})
 
 })

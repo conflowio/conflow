@@ -14,5 +14,5 @@ println {
 }
 
 println {
-    value = str_format("Elapsed: %s", b.elapsed)
+    value = str_format("Elapsed: %s", string(b.elapsed))
 }

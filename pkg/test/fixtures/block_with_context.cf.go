@@ -4,10 +4,10 @@ package fixtures
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -89,7 +89,7 @@ func (i BlockWithContextInterpreter) SetParam(block conflow.Block, name conflow.
 	b := block.(*BlockWithContext)
 	switch name {
 	case "timeout":
-		b.timeout = value.(time.Duration)
+		b.timeout = value.(types.Duration)
 	}
 	return nil
 }

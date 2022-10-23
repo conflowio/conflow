@@ -31,7 +31,7 @@ var _ = Describe("Compare", func() {
 	var q pparser.Func
 	q = combinator.Choice(
 		terminal.String(schema.StringValue(), false),
-		terminal.TimeDuration(&schema.String{Format: schema.FormatDurationGo}),
+		terminal.TimeDuration(&schema.String{Format: schema.FormatDuration}),
 		terminal.Float(schema.NumberValue()),
 		terminal.Integer(schema.IntegerValue()),
 		terminal.Bool(schema.BooleanValue(), "true", "false"),

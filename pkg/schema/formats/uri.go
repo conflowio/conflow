@@ -8,9 +8,10 @@ package formats
 
 import (
 	"errors"
-	"net/url"
 	"reflect"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/conflow/types"
 )
 
 type URI struct {
@@ -23,19 +24,19 @@ func (u URI) ValidateValue(input string) (interface{}, error) {
 		return nil, ErrValueTrimSpace
 	}
 
-	res, err := url.Parse(input)
+	res, err := types.ParseURL(input)
 	if err != nil || (u.RequireScheme && res.Scheme == "") {
 		return nil, errors.New("must be a valid URI")
 	}
 
-	return *res, nil
+	return res, nil
 }
 
 func (u URI) StringValue(input interface{}) (string, bool) {
 	switch v := input.(type) {
-	case url.URL:
+	case types.URL:
 		return v.String(), true
-	case *url.URL:
+	case *types.URL:
 		return v.String(), true
 	default:
 		return "", false
@@ -43,5 +44,5 @@ func (u URI) StringValue(input interface{}) (string, bool) {
 }
 
 func (u URI) Type() (reflect.Type, bool) {
-	return reflect.TypeOf(url.URL{}), u.Default
+	return reflect.TypeOf(types.URL{}), u.Default
 }
