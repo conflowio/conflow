@@ -18,6 +18,11 @@ test: ## Runs all tests
 generate: build ## Regenerates all files
 	@PATH="$(PWD)/bin:$(PATH)" conflow generate --local github.com/conflowio/conflow
 
+.PHONY: go-generate
+go-generate: ## Runs go generate
+	go generate ./...
+	${MAKE} goimports
+
 .PHONY: build
 build: bin/conflow ## Build the conflow binary
 
@@ -52,20 +57,16 @@ update-dependencies: ## Updates all dependencies
 	@go mod tidy
 
 .PHONY: check
-check: lint check-generate check-go-generate check-goimports ## Runs various code checks
+check: lint check-generate check-goimports check-go-generate ## Runs various code checks
 
 .PHONY: check-generate
-check-generate: generate
-	@echo "Checking 'make generate'"
-	@ scripts/check_git_changes.sh "make generate"
+check-generate:
+	@ scripts/check_git_changes.sh make generate
+
+.PHONY: check-goimports
+check-goimports:
+	@ scripts/check_git_changes.sh make goimports
 
 .PHONY: check-go-generate
 check-go-generate:
-	@echo "Checking 'go generate ./...'"
-	@go generate ./...
-	@ scripts/check_git_changes.sh "make go-generate"
-
-.PHONY: check-goimports
-check-goimports: goimports
-	@echo "Checking 'make goimports"
-	@ scripts/check_git_changes.sh "make goimports"
+	@ scripts/check_git_changes.sh make go-generate
