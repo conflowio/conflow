@@ -23,13 +23,13 @@ type EchoServer struct {
 
 {{ range $op := .Operations -}}
 func (e *EchoServer) {{ camelize $op.OperationID }}(ctx {{ $echoSel }}Context) error {
-	var err error
 	req := {{ camelize $op.OperationID }}Request{}
 	
 	{{ range $field, $p := $op.Parameters -}}
-	if req.{{ $field }}, err = {{ $serverSel }}{{ bindParameterFunc $p $root.Imports }}(
+	if err := {{ $serverSel }}BindParameter[{{ bindParameterType $p $root.Imports }}](
 		{{ $p.GoString $root.Imports true }},
 		ctx,
+		&req.{{ $field }},
 	); err != nil {
 		return err
 	}

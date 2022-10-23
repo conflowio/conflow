@@ -193,14 +193,14 @@ func (g *generator) generateServer(outputDir string) error {
 				"convertPath": func(path string) string {
 					return paramRegex.ReplaceAllString(path, ":$1")
 				},
-				"bindParameterFunc": func(p *openapi.Parameter, imports map[string]string) string {
+				"bindParameterType": func(p *openapi.Parameter, imports map[string]string) string {
 					if a, ok := p.Schema.(*schema.Array); ok {
-						return fmt.Sprintf("BindParameterArray[%s]", a.Items.GoType(imports))
+						return a.Items.GoType(imports)
 					} else {
 						if n, ok := p.Schema.(schema.Nullable); ok && n.GetNullable() {
-							return fmt.Sprintf("BindParameterPtr[%s]", strings.TrimPrefix(p.Schema.GoType(imports), "*"))
+							return strings.TrimPrefix(p.Schema.GoType(imports), "*")
 						} else {
-							return fmt.Sprintf("BindParameter[%s]", p.Schema.GoType(imports))
+							return p.Schema.GoType(imports)
 						}
 					}
 				},

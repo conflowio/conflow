@@ -18,12 +18,10 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/pkg/openapi.Parameter",
 		},
-		FieldNames:     map[string]string{"allowReserved": "AllowReserved", "deprecated": "Deprecated", "description": "Description", "explode": "Explode", "in": "In", "name": "Name", "required": "Required", "schema": "Schema", "style": "Style"},
-		ParameterNames: map[string]string{"allowReserved": "allow_reserved"},
+		FieldNames: map[string]string{"deprecated": "Deprecated", "description": "Description", "explode": "Explode", "in": "In", "name": "Name", "required": "Required", "schema": "Schema", "style": "Style"},
 		Properties: map[string]schema.Schema{
-			"allowReserved": &schema.Boolean{},
-			"deprecated":    &schema.Boolean{},
-			"description":   &schema.String{},
+			"deprecated":  &schema.Boolean{},
+			"description": &schema.String{},
 			"explode": &schema.Boolean{
 				Nullable: true,
 			},
@@ -31,7 +29,7 @@ func init() {
 				Metadata: schema.Metadata{
 					Description: "$required",
 				},
-				Enum: []string{"query", "header", "path", "cookie"},
+				Enum: []string{"cookie", "header", "path", "query"},
 			},
 			"name": &schema.String{},
 			"required": &schema.Boolean{
@@ -40,7 +38,9 @@ func init() {
 			"schema": &schema.Reference{
 				Ref: "github.com/conflowio/conflow/pkg/schema.Schema",
 			},
-			"style": &schema.String{},
+			"style": &schema.String{
+				Enum: []string{"deepObject", "form", "label", "matrix", "pipeDelimited", "simple", "spaceDelimited"},
+			},
 		},
 		Required: []string{"name", "schema"},
 	})
@@ -78,8 +78,6 @@ func (i ParameterInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.P
 
 func (i ParameterInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
-	case "allow_reserved":
-		return b.(*Parameter).AllowReserved
 	case "deprecated":
 		return b.(*Parameter).Deprecated
 	case "description":
@@ -102,8 +100,6 @@ func (i ParameterInterpreter) Param(b conflow.Block, name conflow.ID) interface{
 func (i ParameterInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
 	b := block.(*Parameter)
 	switch name {
-	case "allow_reserved":
-		b.AllowReserved = value.(bool)
 	case "deprecated":
 		b.Deprecated = value.(bool)
 	case "description":
