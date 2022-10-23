@@ -27,7 +27,7 @@ GOBIN="$PROJECT_DIR/bin" go install golang.org/x/tools/cmd/goimports
 
 # shellcheck disable=SC2016
 for path in $(go list -f '{{ $dir := .Dir }}{{ range .GoFiles }}{{ printf "%s/%s\n" $dir . }}{{ end }}{{ range .CgoFiles }}{{ printf "%s/%s\n" $dir . }}{{ end }}{{ range .TestGoFiles }}{{ printf "%s/%s\n" $dir . }}{{ end }}{{ range .XTestGoFiles }}{{ printf "%s/%s\n" $dir . }}{{ end }}' ./...); do
-  if [[ "${path}" == *.cf.go ]] || [[ "${path}" == */fake_*.go ]]; then
+  if [[ "${path}" == *.cf.go ]]; then
     continue
   fi
 
