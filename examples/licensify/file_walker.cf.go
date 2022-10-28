@@ -103,15 +103,15 @@ func (i FileWalkerInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	case "exclude":
 		b.exclude = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.exclude[valuek] = valuev.(string)
+			b.exclude[valuek] = schema.Value[string](valuev)
 		}
 	case "include":
 		b.include = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.include[valuek] = valuev.(string)
+			b.include[valuek] = schema.Value[string](valuev)
 		}
 	case "path":
-		b.path = value.(string)
+		b.path = schema.Value[string](value)
 	}
 	return nil
 }

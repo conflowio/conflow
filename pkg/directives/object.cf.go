@@ -160,7 +160,7 @@ func (i ObjectInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Object)
 	switch name {
 	case "id":
-		b.ID = value.(string)
+		b.ID = schema.Value[string](value)
 	case "const":
 		b.Const = value.(map[string]interface{})
 	case "default":
@@ -170,13 +170,13 @@ func (i ObjectInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 		for valuek, valuev := range value.(map[string]interface{}) {
 			b.DependentRequired[valuek] = make([]string, len(valuev.([]interface{})))
 			for valuevk, valuevv := range valuev.([]interface{}) {
-				b.DependentRequired[valuek][valuevk] = valuevv.(string)
+				b.DependentRequired[valuek][valuevk] = schema.Value[string](valuevv)
 			}
 		}
 	case "deprecated":
-		b.Deprecated = value.(bool)
+		b.Deprecated = schema.Value[bool](value)
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "enum":
 		b.Enum = make([]map[string]interface{}, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
@@ -185,36 +185,36 @@ func (i ObjectInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	case "examples":
 		b.Examples = value.([]interface{})
 	case "max_properties":
-		b.MaxProperties = schema.Pointer(value.(int64))
+		b.MaxProperties = schema.PointerValue[int64](value)
 	case "min_properties":
-		b.MinProperties = value.(int64)
+		b.MinProperties = schema.Value[int64](value)
 	case "nullable":
-		b.Nullable = value.(bool)
+		b.Nullable = schema.Value[bool](value)
 	case "read_only":
-		b.ReadOnly = value.(bool)
+		b.ReadOnly = schema.Value[bool](value)
 	case "required":
 		b.Required = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.Required[valuek] = valuev.(string)
+			b.Required[valuek] = schema.Value[string](valuev)
 		}
 	case "title":
-		b.Title = value.(string)
+		b.Title = schema.Value[string](value)
 	case "write_only":
-		b.WriteOnly = value.(bool)
+		b.WriteOnly = schema.Value[bool](value)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = valuev.(string)
+			b.Annotations[valuek] = schema.Value[string](valuev)
 		}
 	case "field_names":
 		b.FieldNames = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
-			b.FieldNames[valuek] = valuev.(string)
+			b.FieldNames[valuek] = schema.Value[string](valuev)
 		}
 	case "parameter_names":
 		b.ParameterNames = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
-			b.ParameterNames[valuek] = valuev.(string)
+			b.ParameterNames[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

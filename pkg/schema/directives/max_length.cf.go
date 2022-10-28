@@ -86,7 +86,7 @@ func (i MaxLengthInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*MaxLength)
 	switch name {
 	case "value":
-		b.value = value.(int64)
+		b.value = schema.Value[int64](value)
 	}
 	return nil
 }

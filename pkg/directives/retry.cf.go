@@ -91,7 +91,7 @@ func (i RetryInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Retry)
 	switch name {
 	case "limit":
-		b.limit = value.(int64)
+		b.limit = schema.Value[int64](value)
 	}
 	return nil
 }

@@ -87,7 +87,7 @@ func (i TodoInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*Todo)
 	switch name {
 	case "description":
-		b.description = value.(string)
+		b.description = schema.Value[string](value)
 	}
 	return nil
 }

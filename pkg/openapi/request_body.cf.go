@@ -79,9 +79,9 @@ func (i RequestBodyInterpreter) SetParam(block conflow.Block, name conflow.ID, v
 	b := block.(*RequestBody)
 	switch name {
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "required":
-		b.Required = value.(bool)
+		b.Required = schema.Value[bool](value)
 	}
 	return nil
 }

@@ -33,6 +33,6 @@ func (i LowerInterpreter) Schema() schema.Schema {
 
 // Eval returns with the result of the function
 func (i LowerInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
-	var val0 = args[0].(string)
+	var val0 = schema.Value[string](args[0])
 	return Lower(val0), nil
 }

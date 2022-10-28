@@ -87,7 +87,7 @@ func (i FormatInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Format)
 	switch name {
 	case "value":
-		b.value = value.(string)
+		b.value = schema.Value[string](value)
 	}
 	return nil
 }

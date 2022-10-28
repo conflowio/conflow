@@ -29,7 +29,7 @@ func (v *ValidationError) AddErrorf(field, format string, a ...interface{}) {
 	})
 }
 
-func (v ValidationError) Error() string {
+func (v *ValidationError) Error() string {
 	if len(v.Errors) == 1 {
 		return v.Errors[0].Error()
 	}
@@ -44,7 +44,7 @@ func (v ValidationError) Error() string {
 	return sb.String()
 }
 
-func (v ValidationError) ErrOrNil() error {
+func (v *ValidationError) ErrOrNil() error {
 	switch len(v.Errors) {
 	case 0:
 		return nil

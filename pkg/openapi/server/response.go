@@ -14,6 +14,8 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/openapi"
 )
 
 type ErrUnexpectedResponseFormat struct {
@@ -27,9 +29,9 @@ func (e ErrUnexpectedResponseFormat) Error() string {
 
 func WriteResponse(w http.ResponseWriter, contentType string, response interface{}) error {
 	switch contentType {
-	case "application/json":
+	case openapi.ContentTypeApplicationJSON:
 		return json.NewEncoder(w).Encode(response)
-	case "application/octet-stream":
+	case openapi.ContentTypeOctetStream:
 		r, ok := response.([]byte)
 		if !ok {
 			return ErrUnexpectedResponseFormat{ExpectedContentType: contentType, ActualType: reflect.TypeOf(response)}

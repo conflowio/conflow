@@ -89,7 +89,7 @@ func (i TypesInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	case "value":
 		b.value = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.value[valuek] = valuev.(string)
+			b.value[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

@@ -85,7 +85,7 @@ func (i InputInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Input)
 	switch name {
 	case "required":
-		b.required = value.(bool)
+		b.required = schema.Value[bool](value)
 	}
 	return nil
 }

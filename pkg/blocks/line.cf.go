@@ -79,7 +79,7 @@ func (i LineInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*Line)
 	switch name {
 	case "text":
-		b.text = value.(string)
+		b.text = schema.Value[string](value)
 	}
 	return nil
 }

@@ -86,7 +86,7 @@ func (i FailInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*Fail)
 	switch name {
 	case "msg":
-		b.msg = value.(string)
+		b.msg = schema.Value[string](value)
 	}
 	return nil
 }

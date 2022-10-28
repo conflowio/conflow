@@ -98,7 +98,7 @@ func (i DependentRequiredInterpreter) SetParam(block conflow.Block, name conflow
 		for valuek, valuev := range value.(map[string]interface{}) {
 			b.Value[valuek] = make([]string, len(valuev.([]interface{})))
 			for valuevk, valuevv := range valuev.([]interface{}) {
-				b.Value[valuek][valuevk] = valuevv.(string)
+				b.Value[valuek][valuevk] = schema.Value[string](valuevv)
 			}
 		}
 	}

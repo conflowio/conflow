@@ -107,17 +107,17 @@ func (i OperationInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*Operation)
 	switch name {
 	case "deprecated":
-		b.Deprecated = value.(bool)
+		b.Deprecated = schema.Value[bool](value)
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "operation_id":
-		b.OperationID = value.(string)
+		b.OperationID = schema.Value[string](value)
 	case "summary":
-		b.Summary = value.(string)
+		b.Summary = schema.Value[string](value)
 	case "tags":
 		b.Tags = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.Tags[valuek] = valuev.(string)
+			b.Tags[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

@@ -125,18 +125,18 @@ func (i ExecInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*Exec)
 	switch name {
 	case "cmd":
-		b.cmd = value.(string)
+		b.cmd = schema.Value[string](value)
 	case "dir":
-		b.dir = value.(string)
+		b.dir = schema.Value[string](value)
 	case "env":
 		b.env = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.env[valuek] = valuev.(string)
+			b.env[valuek] = schema.Value[string](valuev)
 		}
 	case "params":
 		b.params = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.params[valuek] = valuev.(string)
+			b.params[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

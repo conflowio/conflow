@@ -92,7 +92,7 @@ func (i FailInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*Fail)
 	switch name {
 	case "tries_required":
-		b.triesRequired = value.(int64)
+		b.triesRequired = schema.Value[int64](value)
 	}
 	return nil
 }

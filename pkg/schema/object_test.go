@@ -7,6 +7,7 @@
 package schema_test
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"go/format"
@@ -22,11 +23,29 @@ import (
 var _ schema.Schema = &schema.Object{}
 
 var _ = Describe("Object", func() {
+	type TestObject2 struct {
+		Qux bool `json:"qux"`
+	}
+
+	type TestObject struct {
+		Foo         int64       `json:"foo,omitempty"`
+		FooPointer  *int64      `json:"foop,omitempty"`
+		Bar         interface{} `json:"bar,omitempty"`
+		Baz         TestObject2 `json:"baz,omitempty"`
+		notExported int8
+		Ignored     int8 `json:"-"'`
+	}
+
+	type OtherObject struct {
+		OtherField string `json:"otherField,omitempty"`
+	}
+
 	defaultSchema := func() *schema.Object {
 		return &schema.Object{
 			Properties: map[string]schema.Schema{
-				"foo": &schema.Integer{},
-				"bar": &schema.String{},
+				"foo":  &schema.Integer{},
+				"foop": &schema.Integer{Nullable: true},
+				"bar":  &schema.String{},
 				"baz": &schema.Object{
 					Properties: map[string]schema.Schema{
 						"qux": &schema.Boolean{},
@@ -42,28 +61,34 @@ var _ = Describe("Object", func() {
 			f(s)
 			_, err := s.ValidateValue(value)
 			Expect(err).ToNot(HaveOccurred())
+
+			// Let's test the map type
+			if _, isMap := value.(map[string]interface{}); !isMap {
+				j, err := json.Marshal(value)
+				Expect(err).To(Not(HaveOccurred()))
+				var m map[string]interface{}
+				Expect(json.Unmarshal(j, &m)).ToNot(HaveOccurred())
+				_, err = s.ValidateValue(value)
+				Expect(err).ToNot(HaveOccurred(), "validating the map type failed")
+			}
 		},
 		Entry(
 			"empty object",
 			func(*schema.Object) {},
-			map[string]interface{}{},
+			TestObject{},
 		),
 		Entry(
 			"non-empty object",
 			func(*schema.Object) {},
-			map[string]interface{}{
-				"foo": int64(1),
-			},
+			TestObject{Foo: 1},
 		),
 		Entry(
 			"complex object",
 			func(*schema.Object) {},
-			map[string]interface{}{
-				"foo": int64(1),
-				"bar": "value",
-				"baz": map[string]interface{}{
-					"qux": true,
-				},
+			TestObject{
+				Foo: 1,
+				Bar: "value",
+				Baz: TestObject2{Qux: true},
 			},
 		),
 		Entry(
@@ -71,8 +96,8 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.Required = []string{"foo"}
 			},
-			map[string]interface{}{
-				"foo": int64(1),
+			TestObject{
+				Foo: 1,
 			},
 		),
 		Entry(
@@ -82,8 +107,8 @@ var _ = Describe("Object", func() {
 					"foo": int64(1),
 				}
 			},
-			map[string]interface{}{
-				"foo": int64(1),
+			TestObject{
+				Foo: 1,
 			},
 		),
 		Entry(
@@ -91,14 +116,14 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.Const = map[string]interface{}{}
 			},
-			map[string]interface{}{},
+			TestObject{},
 		),
 		Entry(
 			"enum value - empty object",
 			func(s *schema.Object) {
 				s.Enum = []map[string]interface{}{}
 			},
-			map[string]interface{}{},
+			TestObject{},
 		),
 		Entry(
 			"enum value - single",
@@ -107,8 +132,8 @@ var _ = Describe("Object", func() {
 					{"foo": int64(1)},
 				}
 			},
-			map[string]interface{}{
-				"foo": int64(1),
+			TestObject{
+				Foo: 1,
 			},
 		),
 		Entry(
@@ -119,8 +144,8 @@ var _ = Describe("Object", func() {
 					{"foo": int64(2)},
 				}
 			},
-			map[string]interface{}{
-				"foo": int64(1),
+			TestObject{
+				Foo: 1,
 			},
 		),
 		Entry(
@@ -128,8 +153,8 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.MinProperties = 1
 			},
-			map[string]interface{}{
-				"foo": int64(1),
+			TestObject{
+				Foo: 1,
 			},
 		),
 		Entry(
@@ -137,9 +162,9 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.MinProperties = 2
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-				"bar": "2",
+			TestObject{
+				Foo: 1,
+				Bar: "xxx",
 			},
 		),
 		Entry(
@@ -147,9 +172,9 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.MaxProperties = schema.Pointer(int64(2))
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-				"bar": "2",
+			TestObject{
+				Foo: 1,
+				Bar: "xxx",
 			},
 		),
 		Entry(
@@ -157,8 +182,8 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.MaxProperties = schema.Pointer(int64(2))
 			},
-			map[string]interface{}{
-				"foo": int64(1),
+			TestObject{
+				Foo: 1,
 			},
 		),
 		Entry(
@@ -168,9 +193,9 @@ var _ = Describe("Object", func() {
 					"foo": {"bar"},
 				}
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-				"bar": "val",
+			TestObject{
+				Foo: 1,
+				Bar: "xxx",
 			},
 		),
 	)
@@ -189,38 +214,38 @@ var _ = Describe("Object", func() {
 			errors.New("must be object"),
 		),
 		Entry(
-			"invalid object property value",
+			"property does not exist",
 			func(s *schema.Object) {},
-			map[string]interface{}{
-				"unknown": int64(1),
-			},
-			schema.NewFieldError("unknown", errors.New("property does not exist")),
+			OtherObject{OtherField: "foo"},
+			schema.NewFieldError("otherField", errors.New("property does not exist")),
 		),
 		Entry(
-			"invalid object property value",
+			"property does not exist - map input",
 			func(s *schema.Object) {},
-			map[string]interface{}{
-				"foo": "not an integer",
-			},
-			schema.NewFieldError("foo", errors.New("must be integer")),
+			map[string]interface{}{"otherField": "foo"},
+			schema.NewFieldError("otherField", errors.New("property does not exist")),
 		),
 		Entry(
-			"invalid object property on child object",
-			func(*schema.Object) {},
-			map[string]interface{}{
-				"foo": int64(1),
-				"baz": map[string]interface{}{
-					"qux": int64(1),
-				},
+			"invalid property value",
+			func(s *schema.Object) {},
+			TestObject{
+				Foo: 1,
+				Bar: 123,
 			},
-			schema.NewFieldError("baz", schema.NewFieldError("qux", errors.New("must be boolean"))),
+			schema.NewFieldError("bar", errors.New("must be string")),
+		),
+		Entry(
+			"invalid property value - map input",
+			func(s *schema.Object) {},
+			map[string]interface{}{"foo": int64(1), "bar": int64(123)},
+			schema.NewFieldError("bar", errors.New("must be string")),
 		),
 		Entry(
 			"required value not set",
 			func(s *schema.Object) {
 				s.Required = []string{"foo"}
 			},
-			map[string]interface{}{},
+			TestObject{},
 			schema.NewFieldError("foo", errors.New("required")),
 		),
 		Entry(
@@ -230,9 +255,7 @@ var _ = Describe("Object", func() {
 					"foo": int64(1),
 				}
 			},
-			map[string]interface{}{
-				"foo": int64(2),
-			},
+			TestObject{Foo: 2},
 			errors.New("must be {foo: 1}"),
 		),
 		Entry(
@@ -240,9 +263,7 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.Const = map[string]interface{}{}
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-			},
+			TestObject{Foo: 1},
 			errors.New("must be {}"),
 		),
 		Entry(
@@ -250,9 +271,7 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.Enum = []map[string]interface{}{{}}
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-			},
+			TestObject{Foo: 1},
 			errors.New("must be {}"),
 		),
 		Entry(
@@ -262,9 +281,7 @@ var _ = Describe("Object", func() {
 					{"foo": int64(1)},
 				}
 			},
-			map[string]interface{}{
-				"foo": int64(2),
-			},
+			TestObject{Foo: 2},
 			errors.New("must be {foo: 1}"),
 		),
 		Entry(
@@ -275,9 +292,7 @@ var _ = Describe("Object", func() {
 					{"foo": int64(2)},
 				}
 			},
-			map[string]interface{}{
-				"foo": int64(3),
-			},
+			TestObject{Foo: 3},
 			errors.New("must be one of {foo: 1}, {foo: 2}"),
 		),
 		Entry(
@@ -285,7 +300,7 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.MinProperties = 1
 			},
-			map[string]interface{}{},
+			TestObject{},
 			errors.New("the object can not be empty"),
 		),
 		Entry(
@@ -293,9 +308,7 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.MinProperties = 2
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-			},
+			TestObject{Foo: 1},
 			errors.New("the object must have at least 2 properties defined"),
 		),
 		Entry(
@@ -303,9 +316,7 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.MaxProperties = schema.Pointer(int64(0))
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-			},
+			TestObject{Foo: 1},
 			errors.New("the object must be empty"),
 		),
 		Entry(
@@ -313,10 +324,7 @@ var _ = Describe("Object", func() {
 			func(s *schema.Object) {
 				s.MaxProperties = schema.Pointer(int64(1))
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-				"bar": int64(2),
-			},
+			TestObject{Foo: 1, Bar: "xxx"},
 			errors.New("the object can only have a single property defined"),
 		),
 		Entry(
@@ -326,9 +334,7 @@ var _ = Describe("Object", func() {
 					"foo": {"bar"},
 				}
 			},
-			map[string]interface{}{
-				"foo": int64(1),
-			},
+			TestObject{Foo: 1},
 			schema.NewFieldError("bar", errors.New("required")),
 		),
 	)

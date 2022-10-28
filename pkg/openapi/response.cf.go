@@ -76,7 +76,7 @@ func (i ResponseInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	b := block.(*Response)
 	switch name {
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	}
 	return nil
 }

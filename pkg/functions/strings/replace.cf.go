@@ -41,8 +41,8 @@ func (i ReplaceInterpreter) Schema() schema.Schema {
 
 // Eval returns with the result of the function
 func (i ReplaceInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
-	var val0 = args[0].(string)
-	var val1 = args[1].(string)
-	var val2 = args[2].(string)
+	var val0 = schema.Value[string](args[0])
+	var val1 = schema.Value[string](args[1])
+	var val2 = schema.Value[string](args[2])
 	return Replace(val0, val1, val2), nil
 }

@@ -38,38 +38,23 @@ type Integer struct {
 }
 
 func (i *Integer) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if i.Nullable {
-		return fmt.Sprintf("%s = %sPointer(%s.(int64))", resultName, schemaPkg(imports), valueName)
-	}
-
-	return fmt.Sprintf("%s = %s.(int64)", resultName, valueName)
+	return fmt.Sprintf("%s = %s(%s)", resultName, assignFuncName(i, imports), valueName)
 }
 
 func (i *Integer) CompareValues(v1, v2 interface{}) int {
-	var f1 float64
-	switch v := v1.(type) {
-	case int64:
-		f1 = float64(v)
-	case float64:
-		f1 = v
-	default:
-		panic(fmt.Errorf("unexpected type when comparing numbers: %T", v))
-	}
-
-	var f2 float64
-	switch v := v2.(type) {
-	case int64:
-		f2 = float64(v)
-	case float64:
-		f2 = v
-	default:
-		panic(fmt.Errorf("unexpected type when comparing numbers: %T", v))
-	}
+	i1, _ := i.valueOf(v1)
+	i2, _ := i.valueOf(v2)
 
 	switch {
-	case f1-f2 < Epsilon && f2-f1 < Epsilon:
+	case i1 == nil && i2 == nil:
 		return 0
-	case f1 < f2:
+	case i1 == nil:
+		return -1
+	case i2 == nil:
+		return 1
+	case *i1 == *i2:
+		return 0
+	case *i1 < *i2:
 		return -1
 	default:
 		return 1
@@ -211,23 +196,26 @@ func (i *Integer) ValidateSchema(i2 Schema, compare bool) error {
 }
 
 func (i *Integer) ValidateValue(value interface{}) (interface{}, error) {
-	v, ok := value.(int64)
+	v, ok := i.valueOf(value)
 	if !ok {
 		return nil, errors.New("must be integer")
 	}
+	if v == nil {
+		return nil, nil
+	}
 
-	if i.Const != nil && *i.Const != v {
+	if i.Const != nil && *i.Const != *v {
 		return nil, fmt.Errorf("must be %s", i.StringValue(*i.Const))
 	}
 
-	if len(i.Enum) == 1 && i.Enum[0] != v {
+	if len(i.Enum) == 1 && i.Enum[0] != *v {
 		return nil, fmt.Errorf("must be %s", i.StringValue(i.Enum[0]))
 	}
 
 	if len(i.Enum) > 0 {
 		allowed := func() bool {
 			for _, e := range i.Enum {
-				if e == v {
+				if e == *v {
 					return true
 				}
 			}
@@ -238,35 +226,38 @@ func (i *Integer) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if i.Minimum != nil && v < *i.Minimum {
+	if i.Minimum != nil && *v < *i.Minimum {
 		return nil, fmt.Errorf("must be greater than or equal to %d", *i.Minimum)
 	}
 
-	if i.Format == "int32" && v < math.MinInt32 {
+	if i.Format == "int32" && *v < math.MinInt32 {
 		return nil, fmt.Errorf("must be greater than or equal to %d", math.MinInt32)
 	}
 
-	if i.ExclusiveMinimum != nil && v <= *i.ExclusiveMinimum {
+	if i.ExclusiveMinimum != nil && *v <= *i.ExclusiveMinimum {
 		return nil, fmt.Errorf("must be greater than %d", *i.ExclusiveMinimum)
 	}
 
-	if i.Maximum != nil && v > *i.Maximum {
+	if i.Maximum != nil && *v > *i.Maximum {
 		return nil, fmt.Errorf("must be less than or equal to %d", *i.Maximum)
 	}
 
-	if i.Format == "int32" && v > math.MaxInt32 {
+	if i.Format == "int32" && *v > math.MaxInt32 {
 		return nil, fmt.Errorf("must be less than or equal to %d", math.MaxInt32)
 	}
 
-	if i.ExclusiveMaximum != nil && v >= *i.ExclusiveMaximum {
+	if i.ExclusiveMaximum != nil && *v >= *i.ExclusiveMaximum {
 		return nil, fmt.Errorf("must be less than %d", *i.ExclusiveMaximum)
 	}
 
-	if i.MultipleOf != nil && v%*i.MultipleOf != 0 {
+	if i.MultipleOf != nil && *v%*i.MultipleOf != 0 {
 		return nil, fmt.Errorf("must be multiple of %d", *i.MultipleOf)
 	}
 
-	return v, nil
+	if i.Nullable {
+		return v, nil
+	}
+	return *v, nil
 }
 
 func (i *Integer) join(elems []int64, sep string) string {
@@ -284,6 +275,17 @@ func (i *Integer) join(elems []int64, sep string) string {
 		b.WriteString(i.StringValue(e))
 	}
 	return b.String()
+}
+
+func (i *Integer) valueOf(value interface{}) (*int64, bool) {
+	switch v := value.(type) {
+	case int64:
+		return &v, true
+	case *int64:
+		return v, true
+	default:
+		return nil, false
+	}
 }
 
 func IntegerValue() Schema {

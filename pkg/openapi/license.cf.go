@@ -78,11 +78,11 @@ func (i LicenseInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*License)
 	switch name {
 	case "identifier":
-		b.Identifier = value.(string)
+		b.Identifier = schema.Value[string](value)
 	case "name":
-		b.Name = value.(string)
+		b.Name = schema.Value[string](value)
 	case "url":
-		b.URL = value.(types.URL)
+		b.URL = schema.Value[types.URL](value)
 	}
 	return nil
 }

@@ -89,7 +89,7 @@ func (i PatternInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*Pattern)
 	switch name {
 	case "value":
-		b.value = schema.Pointer(value.(types.Regexp))
+		b.value = schema.PointerValue[types.Regexp](value)
 	}
 	return nil
 }

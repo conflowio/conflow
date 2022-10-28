@@ -88,7 +88,7 @@ func (i RunInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	b := block.(*Run)
 	switch name {
 	case "when":
-		b.when = value.(bool)
+		b.when = schema.Value[bool](value)
 	}
 	return nil
 }

@@ -101,19 +101,19 @@ func (i ParameterInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*Parameter)
 	switch name {
 	case "deprecated":
-		b.Deprecated = value.(bool)
+		b.Deprecated = schema.Value[bool](value)
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "explode":
-		b.Explode = schema.Pointer(value.(bool))
+		b.Explode = schema.PointerValue[bool](value)
 	case "in":
-		b.In = value.(string)
+		b.In = schema.Value[string](value)
 	case "name":
-		b.Name = value.(string)
+		b.Name = schema.Value[string](value)
 	case "required":
-		b.Required = schema.Pointer(value.(bool))
+		b.Required = schema.PointerValue[bool](value)
 	case "style":
-		b.Style = value.(string)
+		b.Style = schema.Value[string](value)
 	}
 	return nil
 }

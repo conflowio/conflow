@@ -33,6 +33,6 @@ func (i RoundInterpreter) Schema() schema.Schema {
 
 // Eval returns with the result of the function
 func (i RoundInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
-	var val0 = args[0].(float64)
+	var val0 = schema.Value[float64](args[0])
 	return Round(val0), nil
 }

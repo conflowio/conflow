@@ -87,7 +87,7 @@ func (i DocInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	b := block.(*Doc)
 	switch name {
 	case "description":
-		b.description = value.(string)
+		b.description = schema.Value[string](value)
 	}
 	return nil
 }

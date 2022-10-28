@@ -81,7 +81,7 @@ func (i FunctionInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	b := block.(*Function)
 	switch name {
 	case "path":
-		b.Path = value.(string)
+		b.Path = schema.Value[string](value)
 	}
 	return nil
 }

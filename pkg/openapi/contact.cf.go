@@ -79,11 +79,11 @@ func (i ContactInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*Contact)
 	switch name {
 	case "email":
-		b.Email = value.(types.Email)
+		b.Email = schema.Value[types.Email](value)
 	case "name":
-		b.Name = value.(string)
+		b.Name = schema.Value[string](value)
 	case "url":
-		b.URL = value.(types.URL)
+		b.URL = schema.Value[types.URL](value)
 	}
 	return nil
 }

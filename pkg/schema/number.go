@@ -15,6 +15,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/util/ptr"
 )
 
 // Epsilon is used as a float64 comparison tolerance
@@ -39,38 +41,23 @@ type Number struct {
 }
 
 func (n *Number) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if n.Nullable {
-		return fmt.Sprintf("%s = %sPointer(%s.(float64))", resultName, schemaPkg(imports), valueName)
-	}
-
-	return fmt.Sprintf("%s = %s.(float64)", resultName, valueName)
+	return fmt.Sprintf("%s = %s(%s)", resultName, assignFuncName(n, imports), valueName)
 }
 
 func (n *Number) CompareValues(v1, v2 interface{}) int {
-	var f1 float64
-	switch v := v1.(type) {
-	case int64:
-		f1 = float64(v)
-	case float64:
-		f1 = v
-	default:
-		return -1
-	}
-
-	var f2 float64
-	switch v := v2.(type) {
-	case int64:
-		f2 = float64(v)
-	case float64:
-		f2 = v
-	default:
-		return -1
-	}
+	n1, _ := n.valueOf(v1)
+	n2, _ := n.valueOf(v2)
 
 	switch {
-	case f1-f2 < Epsilon && f2-f1 < Epsilon:
+	case n1 == nil && n2 == nil:
 		return 0
-	case f1 < f2:
+	case n1 == nil:
+		return -1
+	case n2 == nil:
+		return 1
+	case *n1-*n2 < Epsilon && *n2-*n1 < Epsilon:
+		return 0
+	case *n1 < *n2:
 		return -1
 	default:
 		return 1
@@ -204,28 +191,26 @@ func (n *Number) ValidateSchema(n2 Schema, _ bool) error {
 }
 
 func (n *Number) ValidateValue(value interface{}) (interface{}, error) {
-	var v float64
-	switch vt := value.(type) {
-	case int64:
-		v = float64(vt)
-	case float64:
-		v = vt
-	default:
+	v, ok := n.valueOf(value)
+	if !ok {
 		return nil, errors.New("must be number")
 	}
+	if v == nil {
+		return nil, nil
+	}
 
-	if n.Const != nil && *n.Const != v {
+	if n.Const != nil && !NumberEquals(*n.Const, *v) {
 		return nil, fmt.Errorf("must be %s", n.StringValue(*n.Const))
 	}
 
-	if len(n.Enum) == 1 && !NumberEquals(n.Enum[0], v) {
+	if len(n.Enum) == 1 && !NumberEquals(n.Enum[0], *v) {
 		return nil, fmt.Errorf("must be %s", n.StringValue(n.Enum[0]))
 	}
 
 	if len(n.Enum) > 0 {
 		allowed := func() bool {
 			for _, e := range n.Enum {
-				if NumberEquals(e, v) {
+				if NumberEquals(e, *v) {
 					return true
 				}
 			}
@@ -236,27 +221,30 @@ func (n *Number) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if n.Minimum != nil && !NumberGreaterThanOrEqualsTo(v, *n.Minimum) {
+	if n.Minimum != nil && !NumberGreaterThanOrEqualsTo(*v, *n.Minimum) {
 		return nil, fmt.Errorf("must be greater than or equal to %s", n.StringValue(*n.Minimum))
 	}
 
-	if n.ExclusiveMinimum != nil && !NumberGreaterThan(v, *n.ExclusiveMinimum) {
+	if n.ExclusiveMinimum != nil && !NumberGreaterThan(*v, *n.ExclusiveMinimum) {
 		return nil, fmt.Errorf("must be greater than %s", n.StringValue(*n.ExclusiveMinimum))
 	}
 
-	if n.Maximum != nil && !NumberLessThanOrEqualsTo(v, *n.Maximum) {
+	if n.Maximum != nil && !NumberLessThanOrEqualsTo(*v, *n.Maximum) {
 		return nil, fmt.Errorf("must be less than or equal to %s", n.StringValue(*n.Maximum))
 	}
 
-	if n.ExclusiveMaximum != nil && !NumberLessThan(v, *n.ExclusiveMaximum) {
+	if n.ExclusiveMaximum != nil && !NumberLessThan(*v, *n.ExclusiveMaximum) {
 		return nil, fmt.Errorf("must be less than %s", n.StringValue(*n.ExclusiveMaximum))
 	}
 
-	if n.MultipleOf != nil && !NumberMultipleOf(v, *n.MultipleOf) {
+	if n.MultipleOf != nil && !NumberMultipleOf(*v, *n.MultipleOf) {
 		return nil, fmt.Errorf("must be multiple of %s", n.StringValue(*n.MultipleOf))
 	}
 
-	return v, nil
+	if n.Nullable {
+		return v, nil
+	}
+	return *v, nil
 }
 
 func (n *Number) join(elems []float64, sep string) string {
@@ -274,6 +262,21 @@ func (n *Number) join(elems []float64, sep string) string {
 		b.WriteString(n.StringValue(e))
 	}
 	return b.String()
+}
+
+func (n *Number) valueOf(value interface{}) (*float64, bool) {
+	switch v := value.(type) {
+	case int64:
+		return ptr.To(float64(v)), true
+	case *int64:
+		return ptr.To(float64(*v)), true
+	case float64:
+		return &v, true
+	case *float64:
+		return v, true
+	default:
+		return nil, false
+	}
 }
 
 func NumberValue() Schema {

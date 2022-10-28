@@ -86,7 +86,7 @@ func (i TitleInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Title)
 	switch name {
 	case "value":
-		b.value = value.(string)
+		b.value = schema.Value[string](value)
 	}
 	return nil
 }

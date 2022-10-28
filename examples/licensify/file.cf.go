@@ -79,7 +79,7 @@ func (i FileInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*File)
 	switch name {
 	case "path":
-		b.path = value.(string)
+		b.path = schema.Value[string](value)
 	}
 	return nil
 }

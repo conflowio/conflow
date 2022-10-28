@@ -36,6 +36,7 @@ type Operation struct {
 	Method      string
 	OperationID string
 	Parameters  map[string]*openapi.Parameter
+	RequestBody *openapi.RequestBody
 }
 
 func Generate(o *openapi.OpenAPI, router string, packageName, outputDir string, localPrefixes []string) error {
@@ -175,6 +176,7 @@ func (g *generator) generateServer(outputDir string) error {
 				Method:      method,
 				OperationID: op.OperationID,
 				Parameters:  g.mergeParams(p.Parameters, op.Parameters),
+				RequestBody: op.RequestBody,
 			})
 			return nil
 		})
@@ -193,17 +195,19 @@ func (g *generator) generateServer(outputDir string) error {
 				"convertPath": func(path string) string {
 					return paramRegex.ReplaceAllString(path, ":$1")
 				},
-				"bindParameterType": func(p *openapi.Parameter, imports map[string]string) string {
-					if a, ok := p.Schema.(*schema.Array); ok {
+				"schemaType": func(s schema.Schema, imports map[string]string) string {
+					if a, ok := s.(*schema.Array); ok {
 						return a.Items.GoType(imports)
 					} else {
-						if n, ok := p.Schema.(schema.Nullable); ok && n.GetNullable() {
-							return strings.TrimPrefix(p.Schema.GoType(imports), "*")
+						if n, ok := s.(schema.Nullable); ok && n.GetNullable() {
+							return strings.TrimPrefix(s.GoType(imports), "*")
 						} else {
-							return p.Schema.GoType(imports)
+							return s.GoType(imports)
 						}
 					}
 				},
+				"contentTypeName": g.contentTypeName,
+				"sortedMapKeys":   util.SortedMapKeys[*openapi.MediaType],
 			},
 		)
 		if err != nil {

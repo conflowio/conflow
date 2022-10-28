@@ -7,7 +7,10 @@
 package server_test
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -34,6 +37,14 @@ func (t *testRequest) Param(name string) string {
 // Request returns `*http.Request`.
 func (t *testRequest) Request() *http.Request {
 	return t.Req
+}
+
+func ExpectHttp400Error(err error, wrappedErr interface{}) {
+	Expect(err).To(BeAssignableToTypeOf(&server.HTTPError{}))
+	Expect(err.(*server.HTTPError).Code).To(Equal(http.StatusBadRequest))
+	if wrappedErr != nil {
+		Expect(err).To(MatchError(wrappedErr))
+	}
 }
 
 var _ = Describe("BindParameter", func() {
@@ -284,6 +295,243 @@ var _ = Describe("BindParameter", func() {
 			p.Schema = &schema.Array{Items: &schema.String{}}
 			Expect(server.BindParameter[string](p, req, &t.FieldStringArr)).ToNot(HaveOccurred())
 			Expect(t.FieldStringArr).To(Equal([]string{"foo", "bar"}))
+		})
+	})
+
+})
+
+var _ = Describe("BindBody", func() {
+	type Obj2 struct {
+		Field2 string `json:"field2,omitempty"`
+	}
+
+	type Obj struct {
+		Field    string  `json:"field,omitempty"`
+		FieldPtr *string `json:"fieldPtr,omitempty"`
+		Obj2     Obj2    `json:"obj2,omitempty"`
+	}
+
+	var requestBody *openapi.RequestBody
+	var req *testRequest
+	objSchema := func() *schema.Object {
+		return &schema.Object{
+			Properties: map[string]schema.Schema{
+				"field":    &schema.String{},
+				"fieldPtr": &schema.String{Nullable: true},
+				"obj2": &schema.Object{
+					Properties: map[string]schema.Schema{
+						"field2": &schema.String{},
+					},
+				},
+			},
+		}
+	}
+
+	BeforeEach(func() {
+		req = &testRequest{
+			Req: &http.Request{
+				Header: map[string][]string{},
+			},
+		}
+		requestBody = &openapi.RequestBody{
+			Content: map[string]*openapi.MediaType{
+				openapi.ContentTypeApplicationJSON: {Schema: objSchema()},
+			},
+		}
+	})
+
+	Context("json", func() {
+		BeforeEach(func() {
+			req.Req.Header.Set(openapi.HeaderContentType, openapi.ContentTypeApplicationJSON)
+		})
+
+		It("binds valid input", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{"field": "foo", "fieldPtr": "bar", "obj2": {"field2": "baz"}}`)))
+			var t Obj
+			Expect(server.BindBody[Obj](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(Equal(Obj{
+				Field:    "foo",
+				FieldPtr: ptr.To("bar"),
+				Obj2: Obj2{
+					Field2: "baz",
+				},
+			}))
+		})
+
+		It("binds valid input to pointer target", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{"field": "foo", "fieldPtr": "bar", "obj2": {"field2": "baz"}}`)))
+			var t *Obj
+			Expect(server.BindBody[Obj](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(HaveValue(Equal(Obj{
+				Field:    "foo",
+				FieldPtr: ptr.To("bar"),
+				Obj2: Obj2{
+					Field2: "baz",
+				},
+			})))
+		})
+
+		It("handles empty input", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer(nil))
+			var t Obj
+			Expect(server.BindBody[Obj](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(Equal(Obj{}))
+		})
+
+		It("handles empty input when using a pointer target", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer(nil))
+			var t *Obj
+			Expect(server.BindBody[Obj](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(BeNil())
+		})
+
+		It("handles null", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`null`)))
+			var t Obj
+			Expect(server.BindBody[Obj](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(Equal(Obj{}))
+		})
+
+		It("handles null when using a pointer target", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`null`)))
+			var t *Obj
+			Expect(server.BindBody[Obj](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(BeNil())
+		})
+
+		It("handles empty object", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{}`)))
+			var t Obj
+			Expect(server.BindBody[Obj](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(Equal(Obj{}))
+		})
+
+		It("handles empty object when using a pointer target", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{}`)))
+			var t *Obj
+			Expect(server.BindBody[Obj](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(HaveValue(Equal(Obj{})))
+		})
+
+		It("handles JSON syntax error", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`x`)))
+			var t Obj
+			err := server.BindBody[Obj](requestBody, req, &t)
+			ExpectHttp400Error(err, "failed to decode JSON request body: invalid character 'x' looking for beginning of value (pos 1)")
+		})
+
+		It("handles generic JSON error", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{"xxx": `)))
+			var t Obj
+			err := server.BindBody[Obj](requestBody, req, &t)
+			ExpectHttp400Error(err, "failed to decode JSON request body: unexpected EOF")
+		})
+
+		It("handles JSON object unmarshalling error", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{"foo": `)))
+			var t Obj
+			err := server.BindBody[Obj](requestBody, req, &t)
+			ExpectHttp400Error(err, "failed to decode JSON request body: unexpected EOF")
+		})
+
+		It("handles JSON object unknown fields", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{"foo": "bar"}`)))
+			var t Obj
+			err := server.BindBody[Obj](requestBody, req, &t)
+			ExpectHttp400Error(err, "failed to decode JSON request body: json: unknown field \"foo\"")
+		})
+
+		It("errors on empty input if body is required", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer(nil))
+			requestBody.Required = true
+			var t Obj
+			err := server.BindBody[Obj](requestBody, req, &t)
+			ExpectHttp400Error(err, "request body can not be empty")
+		})
+
+		It("errors on null input if body is required", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte("null")))
+			requestBody.Required = true
+			var t Obj
+			err := server.BindBody[Obj](requestBody, req, &t)
+			ExpectHttp400Error(err, "request body can not be empty")
+		})
+
+		It("validates JSON input using the schema", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{}`)))
+			s := objSchema()
+			s.Required = []string{"field"}
+			requestBody.Content = map[string]*openapi.MediaType{
+				openapi.ContentTypeApplicationJSON: {Schema: s},
+			}
+			var t Obj
+			err := server.BindBody[Obj](requestBody, req, &t)
+			ExpectHttp400Error(err, schema.FieldError{Field: "field", Err: errors.New("required")}.Error())
+		})
+	})
+
+	Context("plain text", func() {
+		BeforeEach(func() {
+			req.Req.Header.Set(openapi.HeaderContentType, openapi.ContentTypeTextPlain)
+			requestBody.Content = map[string]*openapi.MediaType{
+				openapi.ContentTypeTextPlain: {Schema: &schema.String{}},
+			}
+		})
+
+		It("binds valid input", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`foo`)))
+			var t string
+			Expect(server.BindBody[string](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(Equal("foo"))
+		})
+
+		It("binds valid input to pointer target", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte(`foo`)))
+			var t *string
+			Expect(server.BindBody[string](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(HaveValue(Equal("foo")))
+		})
+
+		It("handles empty input", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer(nil))
+			var t string
+			Expect(server.BindBody[string](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(Equal(""))
+		})
+
+		It("handles empty input when using a pointer target", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer(nil))
+			var t *string
+			Expect(server.BindBody[string](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(BeNil())
+		})
+
+		It("handles and validates a string format input", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte("1m2s")))
+			requestBody.Content = map[string]*openapi.MediaType{
+				openapi.ContentTypeTextPlain: {Schema: &schema.String{Format: schema.FormatDuration}},
+			}
+			var t types.Duration
+			Expect(server.BindBody[types.Duration](requestBody, req, &t)).ToNot(HaveOccurred())
+			Expect(t).To(Equal(types.Duration(1*time.Minute + 2*time.Second)))
+		})
+
+		It("validates the input", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer([]byte("foo")))
+			requestBody.Content = map[string]*openapi.MediaType{
+				openapi.ContentTypeTextPlain: {Schema: &schema.String{MinLength: 4}},
+			}
+			var t string
+			err := server.BindBody[string](requestBody, req, &t)
+			ExpectHttp400Error(err, "failed to parse request body: must be at least 4 characters long")
+		})
+
+		It("errors on empty input if body is required", func() {
+			req.Req.Body = io.NopCloser(bytes.NewBuffer(nil))
+			requestBody.Required = true
+			var t string
+			err := server.BindBody[string](requestBody, req, &t)
+			ExpectHttp400Error(err, "request body can not be empty")
 		})
 	})
 

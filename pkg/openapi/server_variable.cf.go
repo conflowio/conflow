@@ -78,13 +78,13 @@ func (i ServerVariableInterpreter) SetParam(block conflow.Block, name conflow.ID
 	b := block.(*ServerVariable)
 	switch name {
 	case "default":
-		b.Default = value.(string)
+		b.Default = schema.Value[string](value)
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "enum":
 		b.Enum = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.Enum[valuek] = valuev.(string)
+			b.Enum[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil
