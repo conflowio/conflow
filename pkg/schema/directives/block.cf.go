@@ -97,11 +97,11 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Block)
 	switch name {
 	case "eval_stage":
-		b.EvalStage = value.(string)
+		b.EvalStage = schema.Value[string](value)
 	case "path":
-		b.Path = value.(string)
+		b.Path = schema.Value[string](value)
 	case "type":
-		b.Type = value.(string)
+		b.Type = schema.Value[string](value)
 	}
 	return nil
 }

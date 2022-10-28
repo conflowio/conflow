@@ -87,7 +87,7 @@ func (i DeprecatedInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	b := block.(*Deprecated)
 	switch name {
 	case "description":
-		b.description = value.(string)
+		b.description = schema.Value[string](value)
 	}
 	return nil
 }

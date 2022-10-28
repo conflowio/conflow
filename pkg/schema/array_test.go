@@ -246,7 +246,7 @@ var _ = Describe("Array", func() {
 				Items: schema.IntegerValue(),
 			},
 			[]interface{}{int64(1), "foo", "bar"},
-			schema.ValidationError{Errors: []error{
+			&schema.ValidationError{Errors: []error{
 				schema.NewFieldError("1", errors.New("must be integer")),
 				schema.NewFieldError("2", errors.New("must be integer")),
 			}},

@@ -137,11 +137,11 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	case "field_array":
 		b.FieldArray = value.([]interface{})
 	case "field_bool":
-		b.FieldBool = value.(bool)
+		b.FieldBool = schema.Value[bool](value)
 	case "field_float":
-		b.FieldFloat = value.(float64)
+		b.FieldFloat = schema.Value[float64](value)
 	case "field_integer":
-		b.FieldInteger = value.(int64)
+		b.FieldInteger = schema.Value[int64](value)
 	case "field_interface":
 		b.FieldInterface = value
 	case "field_map":
@@ -149,16 +149,16 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	case "field_number":
 		b.FieldNumber = value
 	case "field_string":
-		b.FieldString = value.(string)
+		b.FieldString = schema.Value[string](value)
 	case "field_string_array":
 		b.FieldStringArray = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.FieldStringArray[valuek] = valuev.(string)
+			b.FieldStringArray[valuek] = schema.Value[string](valuev)
 		}
 	case "field_time":
-		b.FieldTime = value.(time.Time)
+		b.FieldTime = schema.Value[time.Time](value)
 	case "field_time_duration":
-		b.FieldTimeDuration = value.(types.Duration)
+		b.FieldTimeDuration = schema.Value[types.Duration](value)
 	}
 	return nil
 }

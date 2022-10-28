@@ -6,9 +6,12 @@
 
 package generator
 
+import "github.com/conflowio/conflow/pkg/openapi"
+
 type EchoServerTemplateParams struct {
-	Operations []Operation
-	Imports    map[string]string
+	Operations  []Operation
+	Imports     map[string]string
+	RequestBody *openapi.RequestBody
 }
 
 var echoServerTemplate = `
@@ -16,18 +19,39 @@ var echoServerTemplate = `
 {{- $echoSel := ensureUniqueGoPackageSelector .Imports "github.com/labstack/echo/v4" -}}
 {{- $fmtSel := ensureUniqueGoPackageSelector .Imports "fmt" -}}
 {{- $serverSel := ensureUniqueGoPackageSelector .Imports "github.com/conflowio/conflow/pkg/openapi/server" -}}
+{{- $stringsSel := ensureUniqueGoPackageSelector .Imports "strings" -}}
+{{- $httpSel := ensureUniqueGoPackageSelector .Imports "net/http" -}}
 
 type EchoServer struct {
 	Server Server
 }
-
 {{ range $op := .Operations -}}
 func (e *EchoServer) {{ camelize $op.OperationID }}(ctx {{ $echoSel }}Context) error {
 	req := {{ camelize $op.OperationID }}Request{}
 	
+	{{ if $op.RequestBody }}{{ if $op.RequestBody.Content -}}
+	contentType := ctx.Request().Header.Get({{ $echoSel }}HeaderContentType)
+	switch {
+	{{ range $contentType := (sortedMapKeys $op.RequestBody.Content) }}
+	{{- $content := (index $op.RequestBody.Content $contentType) -}}
+	case {{ $stringsSel }}HasPrefix(contentType, {{ printf "%q" $contentType }}):
+		if err := {{ $serverSel }}BindBody[{{ schemaType $content.Schema $root.Imports }}](
+			{{ $op.RequestBody.GoString $root.Imports }},
+			ctx,
+			&req.Body{{ contentTypeName $contentType }},
+		); err != nil {
+				return err
+		}
+	{{ end -}}
+	default:
+		return {{ $serverSel }}NewHTTPErrorf({{ $httpSel }}StatusBadRequest, "unsupported content type: '%s'", contentType)
+	}
+
+	{{ end }}{{ end -}}
+	
 	{{ range $field, $p := $op.Parameters -}}
-	if err := {{ $serverSel }}BindParameter[{{ bindParameterType $p $root.Imports }}](
-		{{ $p.GoString $root.Imports true }},
+	if err := {{ $serverSel }}BindParameter[{{ schemaType $p.Schema $root.Imports }}](
+		{{ $p.GoString $root.Imports }},
 		ctx,
 		&req.{{ $field }},
 	); err != nil {

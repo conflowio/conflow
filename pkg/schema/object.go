@@ -441,23 +441,90 @@ func (o *Object) ValidateSchema(s Schema, compare bool) error {
 }
 
 func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
-	v, ok := value.(map[string]interface{})
+	var ve ValidationError
+
+	m, ok := value.(map[string]interface{})
 	if !ok {
-		return nil, errors.New("must be object")
+		v := reflect.ValueOf(value)
+		if v.Kind() == reflect.Pointer {
+			if v.IsNil() {
+				return nil, fmt.Errorf("can not be empty")
+			} else {
+				v = v.Elem()
+				value = v.Interface()
+			}
+		}
+		t := v.Type()
+		if t.Kind() != reflect.Struct {
+			return nil, fmt.Errorf("must be object")
+		}
+
+		m = map[string]interface{}{}
+		for i := 0; i < t.NumField(); i++ {
+			f := t.Field(i)
+
+			if !f.IsExported() {
+				continue
+			}
+
+			name := f.Name
+			var omitEmpty bool
+			if jsonTag, ok := f.Tag.Lookup("json"); ok {
+				parts := strings.Split(jsonTag, ",")
+				if parts[0] == "-" {
+					continue
+				}
+				if parts[0] != "" {
+					name = parts[0]
+				}
+				if len(parts) > 1 && parts[1] == "omitempty" {
+					omitEmpty = true
+				}
+			}
+
+			vf := v.Field(i)
+
+			if p, ok := o.Properties[name]; ok {
+				if vf.Kind() == reflect.Interface && vf.IsZero() {
+					continue
+				}
+				validatedValue, err := p.ValidateValue(v.Field(i).Interface())
+				if err != nil {
+					ve.AddError(name, err)
+				}
+				if !omitEmpty || !v.Field(i).IsZero() {
+					m[name] = validatedValue
+				}
+			} else {
+				ve.AddError(name, errors.New("property does not exist"))
+			}
+		}
+	} else {
+		for name, v := range m {
+			if p, ok := o.Properties[name]; ok {
+				fv, err := p.ValidateValue(v)
+				if err != nil {
+					ve.AddError(name, err)
+				}
+				m[name] = fv
+			} else {
+				ve.AddError(name, errors.New("property does not exist"))
+			}
+		}
 	}
 
-	if o.Const != nil && o.CompareValues(o.Const, v) != 0 {
+	if o.Const != nil && o.CompareValues(o.Const, m) != 0 {
 		return nil, fmt.Errorf("must be %s", o.StringValue(o.Const))
 	}
 
-	if len(o.Enum) == 1 && o.CompareValues(o.Enum[0], v) != 0 {
+	if len(o.Enum) == 1 && o.CompareValues(o.Enum[0], m) != 0 {
 		return nil, fmt.Errorf("must be %s", o.StringValue(o.Enum[0]))
 	}
 
 	if len(o.Enum) > 0 {
 		allowed := func() bool {
 			for _, e := range o.Enum {
-				if o.CompareValues(e, v) == 0 {
+				if o.CompareValues(e, m) == 0 {
 					return true
 				}
 			}
@@ -468,7 +535,7 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if int64(len(v)) < o.MinProperties {
+	if int64(len(m)) < o.MinProperties {
 		switch o.MinProperties {
 		case 1:
 			return nil, errors.New("the object can not be empty")
@@ -477,7 +544,7 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if o.MaxProperties != nil && int64(len(v)) > *o.MaxProperties {
+	if o.MaxProperties != nil && int64(len(m)) > *o.MaxProperties {
 		switch *o.MaxProperties {
 		case 0:
 			return nil, errors.New("the object must be empty")
@@ -488,23 +555,21 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	ve := ValidationError{}
-
 	if len(o.Required) > 0 || len(o.DependentRequired) > 0 {
 		missingFields := map[string]bool{}
 
 		for _, f := range o.Required {
-			if _, ok := v[f]; !ok {
+			if _, ok := m[f]; !ok {
 				missingFields[f] = true
 			}
 		}
 
 		for p, required := range o.DependentRequired {
-			if _, ok := v[p]; !ok {
+			if _, ok := m[p]; !ok {
 				continue
 			}
 			for _, f := range required {
-				if _, ok := v[f]; !ok {
+				if _, ok := m[f]; !ok {
 					missingFields[f] = true
 				}
 			}
@@ -515,24 +580,14 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	for _, k := range getSortedMapKeys(v) {
-		if p, ok := o.Properties[k]; ok {
-			nv, err := p.ValidateValue(v[k])
-			if err != nil {
-				ve.AddError(k, err)
-			} else {
-				v[k] = nv
-			}
-		} else {
-			ve.AddError(k, errors.New("property does not exist"))
-		}
-	}
-
 	if err := ve.ErrOrNil(); err != nil {
 		return nil, err
 	}
 
-	return v, nil
+	if o.Nullable {
+		return &value, nil
+	}
+	return value, nil
 }
 
 func (o *Object) join(elems []map[string]interface{}, sep string) string {

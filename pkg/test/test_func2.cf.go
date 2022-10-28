@@ -36,7 +36,7 @@ func (i TestFunc2Interpreter) Schema() schema.Schema {
 
 // Eval returns with the result of the function
 func (i TestFunc2Interpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
-	var val0 = args[0].(string)
-	var val1 = args[1].(string)
+	var val0 = schema.Value[string](args[0])
+	var val1 = schema.Value[string](args[1])
 	return testFunc2(val0, val1), nil
 }

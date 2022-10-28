@@ -83,9 +83,9 @@ func (i LicensifyInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*Licensify)
 	switch name {
 	case "license":
-		b.license = value.(string)
+		b.license = schema.Value[string](value)
 	case "path":
-		b.path = value.(string)
+		b.path = schema.Value[string](value)
 	}
 	return nil
 }

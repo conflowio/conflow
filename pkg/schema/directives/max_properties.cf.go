@@ -86,7 +86,7 @@ func (i MaxPropertiesInterpreter) SetParam(block conflow.Block, name conflow.ID,
 	b := block.(*MaxProperties)
 	switch name {
 	case "value":
-		b.value = value.(int64)
+		b.value = schema.Value[int64](value)
 	}
 	return nil
 }

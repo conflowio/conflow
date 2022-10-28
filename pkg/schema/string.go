@@ -43,42 +43,23 @@ type String struct {
 }
 
 func (s *String) AssignValue(imports map[string]string, valueName, resultName string) string {
-	formatType, _ := s.format().Type()
-	goType := utils.GoType(imports, formatType, false)
-
-	if s.Nullable {
-		return fmt.Sprintf(
-			"%s = %sPointer(%s.(%s))",
-			resultName,
-			schemaPkg(imports),
-			valueName,
-			goType,
-		)
-	}
-
-	return fmt.Sprintf(
-		"%s = %s.(%s)",
-		resultName,
-		valueName,
-		goType,
-	)
+	return fmt.Sprintf("%s = %s(%s)", resultName, assignFuncName(s, imports), valueName)
 }
 
 func (s *String) CompareValues(v1, v2 interface{}) int {
-	s1, ok := v1.(string)
-	if !ok {
-		return -1
-	}
-
-	s2, ok := v2.(string)
-	if !ok {
-		return 1
-	}
+	s1, _ := s.valueOf(v1)
+	s2, _ := s.valueOf(v2)
 
 	switch {
-	case s1 == s2:
+	case s1 == nil && s2 == nil:
 		return 0
-	case s1 < s2:
+	case s1 == nil:
+		return -1
+	case s2 == nil:
+		return 1
+	case *s1 == *s2:
+		return 0
+	case *s1 < *s2:
 		return -1
 	default:
 		return 1
@@ -228,26 +209,26 @@ func (s *String) ValidateSchema(s2 Schema, _ bool) error {
 }
 
 func (s *String) ValidateValue(value interface{}) (interface{}, error) {
-	v, ok := value.(string)
+	v, ok := s.valueOf(value)
 	if !ok {
-		v, ok = s.format().StringValue(value)
-		if !ok {
-			return nil, errors.New("must be string")
-		}
+		return nil, errors.New("must be string")
+	}
+	if v == nil {
+		return nil, nil
 	}
 
-	if s.Const != nil && *s.Const != v {
+	if s.Const != nil && *s.Const != *v {
 		return nil, fmt.Errorf("must be %q", s.StringValue(*s.Const))
 	}
 
-	if len(s.Enum) == 1 && s.Enum[0] != v {
+	if len(s.Enum) == 1 && s.Enum[0] != *v {
 		return nil, fmt.Errorf("must be %q", s.StringValue(s.Enum[0]))
 	}
 
 	if len(s.Enum) > 0 {
 		allowed := func() bool {
 			for _, e := range s.Enum {
-				if e == v {
+				if e == *v {
 					return true
 				}
 			}
@@ -258,7 +239,7 @@ func (s *String) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if s.MaxLength != nil && s.MinLength == *s.MaxLength && len(v) != int(s.MinLength) {
+	if s.MaxLength != nil && s.MinLength == *s.MaxLength && len(*v) != int(s.MinLength) {
 		switch s.MinLength {
 		case 0:
 			return nil, errors.New("must be empty string")
@@ -269,7 +250,7 @@ func (s *String) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if s.MinLength > 0 && int64(utf8.RuneCount([]byte(v))) < s.MinLength {
+	if s.MinLength > 0 && int64(utf8.RuneCount([]byte(*v))) < s.MinLength {
 		switch s.MinLength {
 		case 1:
 			return nil, errors.New("can not be empty string")
@@ -278,7 +259,7 @@ func (s *String) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if s.MaxLength != nil && int64(utf8.RuneCount([]byte(v))) > *s.MaxLength {
+	if s.MaxLength != nil && int64(utf8.RuneCount([]byte(*v))) > *s.MaxLength {
 		switch *s.MaxLength {
 		case 0:
 			return nil, errors.New("must be empty string")
@@ -290,12 +271,20 @@ func (s *String) ValidateValue(value interface{}) (interface{}, error) {
 	}
 
 	if s.Pattern != nil {
-		if !(*regexp.Regexp)(s.Pattern).MatchString(v) {
+		if !(*regexp.Regexp)(s.Pattern).MatchString(*v) {
 			return nil, fmt.Errorf("must match regular expression: %s", s.Pattern.String())
 		}
 	}
 
-	return s.format().ValidateValue(v)
+	fv, err := s.format().ValidateValue(*v)
+	if err != nil {
+		return nil, err
+	}
+
+	if s.Nullable {
+		return &fv, nil
+	}
+	return fv, nil
 }
 
 func (s *String) format() Format {
@@ -320,6 +309,21 @@ func (s *String) join(elems []string, sep string) string {
 		b.WriteString(strconv.Quote(e))
 	}
 	return b.String()
+}
+
+func (s *String) valueOf(value interface{}) (*string, bool) {
+	switch v := value.(type) {
+	case string:
+		return &v, true
+	case *string:
+		return v, true
+	default:
+		sv, ok := s.format().StringValue(value)
+		if !ok {
+			return nil, false
+		}
+		return &sv, true
+	}
 }
 
 func StringValue() Schema {

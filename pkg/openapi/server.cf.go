@@ -82,9 +82,9 @@ func (i ServerInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Server)
 	switch name {
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "url":
-		b.URL = value.(types.URL)
+		b.URL = schema.Value[types.URL](value)
 	}
 	return nil
 }

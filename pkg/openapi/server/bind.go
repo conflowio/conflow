@@ -7,10 +7,16 @@
 package server
 
 import (
+	"bufio"
+	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/conflowio/conflow/pkg/openapi"
 	"github.com/conflowio/conflow/pkg/schema"
@@ -26,17 +32,97 @@ type Request interface {
 }
 
 func BindParameter[T any](p *openapi.Parameter, r Request, dest interface{}) error {
+	var err error
 	switch p.In {
 	case openapi.ParameterTypePath:
-		return bindPathParameter[T](p, r.Param(p.Name), dest)
+		err = bindPathParameter[T](p, r.Param(p.Name), dest)
 	case openapi.ParameterTypeQuery:
-		return bindQueryParameter[T](p, r.Request().URL.Query(), dest)
+		err = bindQueryParameter[T](p, r.Request().URL.Query(), dest)
 	case openapi.ParameterTypeCookie:
-		return bindCookieParameter[T](p, r.Request().Cookies(), dest)
+		err = bindCookieParameter[T](p, r.Request().Cookies(), dest)
 	case openapi.ParameterTypeHeader:
-		return bindHeaderParameter[T](p, r.Request().Header, dest)
+		err = bindHeaderParameter[T](p, r.Request().Header, dest)
 	default:
 		panic(fmt.Errorf("unexpected parameter type: '%s'", p.In))
+	}
+
+	if err != nil {
+		return NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return nil
+}
+
+func BindBody[T any](reqBody *openapi.RequestBody, r Request, dest interface{}) error {
+	defer r.Request().Body.Close()
+
+	contentType := r.Request().Header.Get(openapi.HeaderContentType)
+	switch {
+	case strings.HasPrefix(contentType, openapi.ContentTypeApplicationJSON):
+		c, ok := reqBody.Content[openapi.ContentTypeApplicationJSON]
+		if !ok {
+			return NewHTTPErrorf(http.StatusBadRequest, "unsupported content type: '%s'", contentType)
+		}
+
+		bufferedBody := bufio.NewReader(r.Request().Body)
+		peek, _ := bufferedBody.Peek(4)
+
+		if len(peek) == 0 || bytes.Equal(peek, []byte("null")) {
+			if reqBody.Required {
+				return NewHTTPError(http.StatusBadRequest, errors.New("request body can not be empty"))
+			}
+			return nil
+		}
+
+		var res T
+		jsonDecoder := json.NewDecoder(bufferedBody)
+		jsonDecoder.DisallowUnknownFields()
+		if err := jsonDecoder.Decode(&res); err != nil {
+			if ute, ok := err.(*json.UnmarshalTypeError); ok {
+				return NewHTTPErrorf(http.StatusBadRequest, "failed to decode JSON request body: expected=%v, got=%v, field=%v, offset=%v", ute.Type, ute.Value, ute.Field, ute.Offset)
+			} else if se, ok := err.(*json.SyntaxError); ok {
+				return NewHTTPErrorf(http.StatusBadRequest, "failed to decode JSON request body: %w (pos %d)", se, se.Offset)
+			}
+			return NewHTTPErrorf(http.StatusBadRequest, "failed to decode JSON request body: %w", err)
+		}
+
+		validatedValue, err := c.Schema.ValidateValue(res)
+		if err != nil {
+			return NewHTTPError(http.StatusBadRequest, err)
+		}
+
+		return setValue[T](validatedValue, dest)
+	case strings.HasPrefix(contentType, openapi.ContentTypeTextPlain):
+		c, ok := reqBody.Content[openapi.ContentTypeTextPlain]
+		if !ok {
+			return NewHTTPErrorf(http.StatusBadRequest, "unsupported content type: '%s'", contentType)
+		}
+
+		value, err := io.ReadAll(r.Request().Body)
+		if err != nil {
+			return err
+		}
+
+		if len(value) == 0 {
+			if reqBody.Required {
+				return NewHTTPError(http.StatusBadRequest, errors.New("request body can not be empty"))
+			}
+			return nil
+		}
+
+		res, err := parseLiteralValue(c.Schema, string(value))
+		if err != nil {
+			return NewHTTPErrorf(http.StatusBadRequest, "failed to parse request body: %w", err)
+		}
+
+		validatedValue, err := c.Schema.ValidateValue(res)
+		if err != nil {
+			return NewHTTPErrorf(http.StatusBadRequest, "failed to parse request body: %w", err)
+		}
+
+		return setValue[T](validatedValue, dest)
+	default:
+		return NewHTTPErrorf(http.StatusBadRequest, "unsupported content type: '%s'", contentType)
 	}
 }
 

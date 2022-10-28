@@ -87,7 +87,7 @@ func (i EvalStageInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*EvalStage)
 	switch name {
 	case "value":
-		b.value = value.(string)
+		b.value = schema.Value[string](value)
 	}
 	return nil
 }

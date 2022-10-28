@@ -87,7 +87,7 @@ func (i ImportInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Import)
 	switch name {
 	case "path":
-		b.path = value.(string)
+		b.path = schema.Value[string](value)
 	}
 	return nil
 }

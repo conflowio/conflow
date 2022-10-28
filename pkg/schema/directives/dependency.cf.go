@@ -86,7 +86,7 @@ func (i DependencyInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	b := block.(*Dependency)
 	switch name {
 	case "name":
-		b.Name = value.(string)
+		b.Name = schema.Value[string](value)
 	}
 	return nil
 }

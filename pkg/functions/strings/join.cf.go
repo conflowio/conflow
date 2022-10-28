@@ -41,8 +41,8 @@ func (i JoinInterpreter) Schema() schema.Schema {
 func (i JoinInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
 	var val0 = make([]string, len(args[0].([]interface{})))
 	for args0k, args0v := range args[0].([]interface{}) {
-		val0[args0k] = args0v.(string)
+		val0[args0k] = schema.Value[string](args0v)
 	}
-	var val1 = args[1].(string)
+	var val1 = schema.Value[string](args[1])
 	return Join(val0, val1), nil
 }

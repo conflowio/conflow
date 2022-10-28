@@ -17,21 +17,6 @@ import (
 	"github.com/conflowio/conflow/pkg/util/ptr"
 )
 
-const (
-	ParameterTypeCookie = "cookie"
-	ParameterTypeHeader = "header"
-	ParameterTypePath   = "path"
-	ParameterTypeQuery  = "query"
-
-	ParameterStyleDeepObject     = "deepObject"
-	ParameterStyleForm           = "form"
-	ParameterStyleLabel          = "label"
-	ParameterStyleMatrix         = "matrix"
-	ParameterStylePipeDelimited  = "pipeDelimited"
-	ParameterStyleSimple         = "simple"
-	ParameterStyleSpaceDelimited = "spaceDelimited"
-)
-
 // @block "configuration"
 type Parameter struct {
 	// @required
@@ -101,20 +86,20 @@ func (p *Parameter) Validate(ctx *schema.Context) error {
 	)
 }
 
-func (p *Parameter) GoString(imports map[string]string, minimal bool) string {
+func (p *Parameter) GoString(imports map[string]string) string {
 	pkg := openapiPkg(imports)
 	schemaPkg := schemaPkg(imports)
 	b := &strings.Builder{}
 	fprintf(b, "&%sParameter{\n", pkg)
 	fprintf(b, "\tName: %#v,\n", p.Name)
 	fprintf(b, "\tIn: %#v,\n", p.In)
-	if !minimal && p.Description != "" {
+	if p.Description != "" {
 		fprintf(b, "\tDescription: %#v,\n", p.Description)
 	}
 	if p.Required != nil {
 		fprintf(b, "\tRequired: %sPointer(%#v),\n", schemaPkg, *p.Required)
 	}
-	if !minimal && p.Deprecated {
+	if p.Deprecated {
 		fprintf(b, "\tDeprecated: true,\n")
 	}
 	if p.Style != "" {

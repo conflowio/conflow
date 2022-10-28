@@ -127,15 +127,15 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Array)
 	switch name {
 	case "id":
-		b.ID = value.(string)
+		b.ID = schema.Value[string](value)
 	case "const":
 		b.Const = value.([]interface{})
 	case "default":
 		b.Default = value.([]interface{})
 	case "deprecated":
-		b.Deprecated = value.(bool)
+		b.Deprecated = schema.Value[bool](value)
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "enum":
 		b.Enum = make([][]interface{}, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
@@ -144,21 +144,21 @@ func (i ArrayInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	case "examples":
 		b.Examples = value.([]interface{})
 	case "max_items":
-		b.MaxItems = schema.Pointer(value.(int64))
+		b.MaxItems = schema.PointerValue[int64](value)
 	case "min_items":
-		b.MinItems = value.(int64)
+		b.MinItems = schema.Value[int64](value)
 	case "read_only":
-		b.ReadOnly = value.(bool)
+		b.ReadOnly = schema.Value[bool](value)
 	case "title":
-		b.Title = value.(string)
+		b.Title = schema.Value[string](value)
 	case "unique_items":
-		b.UniqueItems = value.(bool)
+		b.UniqueItems = schema.Value[bool](value)
 	case "write_only":
-		b.WriteOnly = value.(bool)
+		b.WriteOnly = schema.Value[bool](value)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = valuev.(string)
+			b.Annotations[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

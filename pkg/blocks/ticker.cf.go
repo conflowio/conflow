@@ -94,7 +94,7 @@ func (i TickerInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Ticker)
 	switch name {
 	case "interval":
-		b.interval = value.(types.Duration)
+		b.interval = schema.Value[types.Duration](value)
 	}
 	return nil
 }

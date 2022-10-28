@@ -29,28 +29,23 @@ type Boolean struct {
 }
 
 func (b *Boolean) AssignValue(imports map[string]string, valueName, resultName string) string {
-	if b.Nullable {
-		return fmt.Sprintf("%s = %sPointer(%s.(bool))", resultName, schemaPkg(imports), valueName)
-	}
-
-	return fmt.Sprintf("%s = %s.(bool)", resultName, valueName)
+	return fmt.Sprintf("%s = %s(%s)", resultName, assignFuncName(b, imports), valueName)
 }
 
 func (b *Boolean) CompareValues(v1, v2 interface{}) int {
-	b1, ok := v1.(bool)
-	if !ok {
-		return -1
-	}
-
-	b2, ok := v2.(bool)
-	if !ok {
-		return 1
-	}
+	b1, _ := b.valueOf(v1)
+	b2, _ := b.valueOf(v2)
 
 	switch {
-	case b1 == b2:
+	case b1 == nil && b2 == nil:
 		return 0
-	case !b1:
+	case b1 == nil:
+		return -1
+	case b2 == nil:
+		return 1
+	case *b1 == *b2:
+		return 0
+	case !*b1:
 		return -1
 	default:
 		return 1
@@ -167,20 +162,37 @@ func (b *Boolean) ValidateSchema(b2 Schema, _ bool) error {
 }
 
 func (b *Boolean) ValidateValue(value interface{}) (interface{}, error) {
-	v, ok := value.(bool)
+	v, ok := b.valueOf(value)
 	if !ok {
 		return nil, errors.New("must be boolean")
 	}
+	if v == nil {
+		return nil, nil
+	}
 
-	if b.Const != nil && *b.Const != v {
+	if b.Const != nil && *b.Const != *v {
 		return nil, fmt.Errorf("must be %s", b.StringValue(*b.Const))
 	}
 
-	if len(b.Enum) == 1 && b.Enum[0] != v {
+	if len(b.Enum) == 1 && b.Enum[0] != *v {
 		return nil, fmt.Errorf("must be %s", b.StringValue(b.Enum[0]))
 	}
 
-	return v, nil
+	if b.Nullable {
+		return v, nil
+	}
+	return *v, nil
+}
+
+func (b *Boolean) valueOf(value interface{}) (*bool, bool) {
+	switch v := value.(type) {
+	case bool:
+		return &v, true
+	case *bool:
+		return v, true
+	default:
+		return nil, false
+	}
 }
 
 func BooleanValue() Schema {

@@ -109,9 +109,9 @@ func (i BenchmarkInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*Benchmark)
 	switch name {
 	case "duration":
-		b.duration = value.(types.Duration)
+		b.duration = schema.Value[types.Duration](value)
 	case "elapsed":
-		b.elapsed = value.(types.Duration)
+		b.elapsed = schema.Value[types.Duration](value)
 	}
 	return nil
 }

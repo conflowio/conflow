@@ -137,44 +137,44 @@ func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*schema.Number)
 	switch name {
 	case "id":
-		b.ID = value.(string)
+		b.ID = schema.Value[string](value)
 	case "const":
-		b.Const = schema.Pointer(value.(float64))
+		b.Const = schema.PointerValue[float64](value)
 	case "default":
-		b.Default = schema.Pointer(value.(float64))
+		b.Default = schema.PointerValue[float64](value)
 	case "deprecated":
-		b.Deprecated = value.(bool)
+		b.Deprecated = schema.Value[bool](value)
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "enum":
 		b.Enum = make([]float64, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.Enum[valuek] = valuev.(float64)
+			b.Enum[valuek] = schema.Value[float64](valuev)
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
 	case "exclusive_maximum":
-		b.ExclusiveMaximum = schema.Pointer(value.(float64))
+		b.ExclusiveMaximum = schema.PointerValue[float64](value)
 	case "exclusive_minimum":
-		b.ExclusiveMinimum = schema.Pointer(value.(float64))
+		b.ExclusiveMinimum = schema.PointerValue[float64](value)
 	case "maximum":
-		b.Maximum = schema.Pointer(value.(float64))
+		b.Maximum = schema.PointerValue[float64](value)
 	case "minimum":
-		b.Minimum = schema.Pointer(value.(float64))
+		b.Minimum = schema.PointerValue[float64](value)
 	case "multiple_of":
-		b.MultipleOf = schema.Pointer(value.(float64))
+		b.MultipleOf = schema.PointerValue[float64](value)
 	case "nullable":
-		b.Nullable = value.(bool)
+		b.Nullable = schema.Value[bool](value)
 	case "read_only":
-		b.ReadOnly = value.(bool)
+		b.ReadOnly = schema.Value[bool](value)
 	case "title":
-		b.Title = value.(string)
+		b.Title = schema.Value[string](value)
 	case "write_only":
-		b.WriteOnly = value.(bool)
+		b.WriteOnly = schema.Value[bool](value)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = valuev.(string)
+			b.Annotations[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

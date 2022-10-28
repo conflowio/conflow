@@ -91,7 +91,7 @@ func (i IteratorInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	b := block.(*Iterator)
 	switch name {
 	case "count":
-		b.count = value.(int64)
+		b.count = schema.Value[int64](value)
 	}
 	return nil
 }

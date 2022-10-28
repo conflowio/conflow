@@ -116,9 +116,9 @@ func (i PathItemInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	b := block.(*PathItem)
 	switch name {
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "summary":
-		b.Summary = value.(string)
+		b.Summary = schema.Value[string](value)
 	}
 	return nil
 }

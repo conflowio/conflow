@@ -112,34 +112,34 @@ func (i BooleanInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*schema.Boolean)
 	switch name {
 	case "id":
-		b.ID = value.(string)
+		b.ID = schema.Value[string](value)
 	case "const":
-		b.Const = schema.Pointer(value.(bool))
+		b.Const = schema.PointerValue[bool](value)
 	case "default":
-		b.Default = schema.Pointer(value.(bool))
+		b.Default = schema.PointerValue[bool](value)
 	case "deprecated":
-		b.Deprecated = value.(bool)
+		b.Deprecated = schema.Value[bool](value)
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "enum":
 		b.Enum = make([]bool, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.Enum[valuek] = valuev.(bool)
+			b.Enum[valuek] = schema.Value[bool](valuev)
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
 	case "nullable":
-		b.Nullable = value.(bool)
+		b.Nullable = schema.Value[bool](value)
 	case "read_only":
-		b.ReadOnly = value.(bool)
+		b.ReadOnly = schema.Value[bool](value)
 	case "title":
-		b.Title = value.(string)
+		b.Title = schema.Value[string](value)
 	case "write_only":
-		b.WriteOnly = value.(bool)
+		b.WriteOnly = schema.Value[bool](value)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = valuev.(string)
+			b.Annotations[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

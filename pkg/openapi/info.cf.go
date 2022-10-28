@@ -90,15 +90,15 @@ func (i InfoInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*Info)
 	switch name {
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "summary":
-		b.Summary = value.(string)
+		b.Summary = schema.Value[string](value)
 	case "terms_of_service":
-		b.TermsOfService = value.(string)
+		b.TermsOfService = schema.Value[string](value)
 	case "title":
-		b.Title = value.(string)
+		b.Title = schema.Value[string](value)
 	case "version":
-		b.Version = value.(string)
+		b.Version = schema.Value[string](value)
 	}
 	return nil
 }

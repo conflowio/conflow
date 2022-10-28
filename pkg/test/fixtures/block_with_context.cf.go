@@ -89,7 +89,7 @@ func (i BlockWithContextInterpreter) SetParam(block conflow.Block, name conflow.
 	b := block.(*BlockWithContext)
 	switch name {
 	case "timeout":
-		b.timeout = value.(types.Duration)
+		b.timeout = schema.Value[types.Duration](value)
 	}
 	return nil
 }

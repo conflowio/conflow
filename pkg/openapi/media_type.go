@@ -7,6 +7,8 @@
 package openapi
 
 import (
+	"strings"
+
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/schema"
 	schemainterpreters "github.com/conflowio/conflow/pkg/schema/interpreters"
@@ -26,4 +28,13 @@ func (m *MediaType) ParseContextOverride() conflow.ParseContextOverride {
 
 func (m *MediaType) Validate(ctx *schema.Context) error {
 	return schema.Validate("schema", m.Schema)(ctx)
+}
+
+func (m *MediaType) GoString(imports map[string]string) string {
+	pkg := openapiPkg(imports)
+	b := &strings.Builder{}
+	fprintf(b, "&%sMediaType{\n", pkg)
+	fprintf(b, "\tSchema: %s,\n", indent(m.Schema.GoString(imports)))
+	b.WriteRune('}')
+	return b.String()
 }

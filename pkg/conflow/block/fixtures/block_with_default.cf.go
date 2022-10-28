@@ -88,7 +88,7 @@ func (i BlockWithDefaultInterpreter) SetParam(block conflow.Block, name conflow.
 	b := block.(*BlockWithDefault)
 	switch name {
 	case "value":
-		b.Value = value.(string)
+		b.Value = schema.Value[string](value)
 	}
 	return nil
 }

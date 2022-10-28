@@ -88,7 +88,7 @@ func (i SkipInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*Skip)
 	switch name {
 	case "when":
-		b.when = value.(bool)
+		b.when = schema.Value[bool](value)
 	}
 	return nil
 }

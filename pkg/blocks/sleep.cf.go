@@ -88,7 +88,7 @@ func (i SleepInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Sleep)
 	switch name {
 	case "duration":
-		b.duration = value.(types.Duration)
+		b.duration = schema.Value[types.Duration](value)
 	}
 	return nil
 }

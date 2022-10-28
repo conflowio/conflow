@@ -119,11 +119,11 @@ func (i OpenAPIInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*OpenAPI)
 	switch name {
 	case "openapi":
-		b.OpenAPI = value.(string)
+		b.OpenAPI = schema.Value[string](value)
 	case "tags":
 		b.Tags = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.Tags[valuek] = valuev.(string)
+			b.Tags[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

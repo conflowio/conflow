@@ -130,42 +130,42 @@ func (i StringInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*schema.String)
 	switch name {
 	case "id":
-		b.ID = value.(string)
+		b.ID = schema.Value[string](value)
 	case "const":
-		b.Const = schema.Pointer(value.(string))
+		b.Const = schema.PointerValue[string](value)
 	case "default":
-		b.Default = schema.Pointer(value.(string))
+		b.Default = schema.PointerValue[string](value)
 	case "deprecated":
-		b.Deprecated = value.(bool)
+		b.Deprecated = schema.Value[bool](value)
 	case "description":
-		b.Description = value.(string)
+		b.Description = schema.Value[string](value)
 	case "enum":
 		b.Enum = make([]string, len(value.([]interface{})))
 		for valuek, valuev := range value.([]interface{}) {
-			b.Enum[valuek] = valuev.(string)
+			b.Enum[valuek] = schema.Value[string](valuev)
 		}
 	case "examples":
 		b.Examples = value.([]interface{})
 	case "format":
-		b.Format = value.(string)
+		b.Format = schema.Value[string](value)
 	case "max_length":
-		b.MaxLength = schema.Pointer(value.(int64))
+		b.MaxLength = schema.PointerValue[int64](value)
 	case "min_length":
-		b.MinLength = value.(int64)
+		b.MinLength = schema.Value[int64](value)
 	case "nullable":
-		b.Nullable = value.(bool)
+		b.Nullable = schema.Value[bool](value)
 	case "pattern":
-		b.Pattern = schema.Pointer(value.(types.Regexp))
+		b.Pattern = schema.PointerValue[types.Regexp](value)
 	case "read_only":
-		b.ReadOnly = value.(bool)
+		b.ReadOnly = schema.Value[bool](value)
 	case "title":
-		b.Title = value.(string)
+		b.Title = schema.Value[string](value)
 	case "write_only":
-		b.WriteOnly = value.(bool)
+		b.WriteOnly = schema.Value[bool](value)
 	case "annotations":
 		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
 		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = valuev.(string)
+			b.Annotations[valuek] = schema.Value[string](valuev)
 		}
 	}
 	return nil

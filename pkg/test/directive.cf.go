@@ -125,19 +125,19 @@ func (i DirectiveInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	case "field_array":
 		b.FieldArray = value.([]interface{})
 	case "field_bool":
-		b.FieldBool = value.(bool)
+		b.FieldBool = schema.Value[bool](value)
 	case "custom_field":
-		b.FieldCustomName = value.(string)
+		b.FieldCustomName = schema.Value[string](value)
 	case "field_float":
-		b.FieldFloat = value.(float64)
+		b.FieldFloat = schema.Value[float64](value)
 	case "field_int":
-		b.FieldInt = value.(int64)
+		b.FieldInt = schema.Value[int64](value)
 	case "field_map":
 		b.FieldMap = value.(map[string]interface{})
 	case "field_string":
-		b.FieldString = value.(string)
+		b.FieldString = schema.Value[string](value)
 	case "field_time_duration":
-		b.FieldTimeDuration = value.(types.Duration)
+		b.FieldTimeDuration = schema.Value[types.Duration](value)
 	case "value":
 		b.Value = value
 	}

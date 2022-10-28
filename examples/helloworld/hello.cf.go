@@ -91,7 +91,7 @@ func (i HelloInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Hello)
 	switch name {
 	case "to":
-		b.to = value.(string)
+		b.to = schema.Value[string](value)
 	}
 	return nil
 }
