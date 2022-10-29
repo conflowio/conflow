@@ -8,12 +8,13 @@ package schema
 
 import (
 	"errors"
-	"fmt"
+	"strings"
 	"sync"
 )
 
 var registry = Registry{
-	schemas: map[string]interface{}{},
+	schemas:   map[string]Schema{},
+	resolvers: map[string]Resolver{},
 }
 var registryLock = sync.RWMutex{}
 
@@ -30,7 +31,8 @@ func RegisterResolver(uri string, res Resolver) {
 }
 
 type Registry struct {
-	schemas map[string]interface{}
+	schemas   map[string]Schema
+	resolvers map[string]Resolver
 }
 
 func (r *Registry) RegisterSchema(s Schema) {
@@ -43,9 +45,9 @@ func (r *Registry) RegisterSchema(s Schema) {
 	registryLock.Unlock()
 }
 
-func (r *Registry) RegisterResolver(uri string, res Resolver) {
+func (r *Registry) RegisterResolver(prefix string, res Resolver) {
 	registryLock.Lock()
-	r.schemas[uri] = res
+	r.resolvers[prefix] = res
 	registryLock.Unlock()
 }
 
@@ -54,33 +56,36 @@ func (r *Registry) GetSchema(uri string) (Schema, error) {
 	s, found := r.schemas[uri]
 	registryLock.RUnlock()
 
-	if !found {
-		return nil, nil
-	}
-
-	switch st := s.(type) {
-	case nil:
-		return nil, nil
-	case Schema:
-		return st, nil
-	case Resolver:
-		registryLock.Lock()
-		defer registryLock.Unlock()
-
-		// Re-check the value of s, in case it was already resolved by another GetSchema acquiring the lock first
-		if _, ok := r.schemas[uri].(Resolver); !ok {
-			return Get(uri)
-		}
-
-		s, err := st.ResolveSchema(uri)
-		if err != nil {
-			return nil, err
-		}
-
-		r.schemas[uri] = s
-
+	if found {
 		return s, nil
-	default:
-		panic(fmt.Errorf("unexpected schema entry: %T", s))
 	}
+
+	registryLock.Lock()
+	defer registryLock.Unlock()
+
+	// Re-check the registry in case it was already resolved by another GetSchema acquiring the lock first
+	if s, found := r.schemas[uri]; found {
+		return s, nil
+	}
+
+	for prefix, resolver := range r.resolvers {
+		if strings.HasPrefix(uri, prefix) {
+			s, err := resolver.ResolveSchema(uri)
+			if err != nil {
+				return nil, err
+			}
+
+			if s == nil {
+				continue
+			}
+
+			r.schemas[uri] = s
+
+			return s, nil
+		}
+	}
+
+	r.schemas[uri] = nil
+
+	return nil, nil
 }
