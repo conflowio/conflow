@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/conflowio/conflow/pkg/internal/utils"
 )
@@ -32,14 +33,16 @@ type Reference struct {
 
 	// @ignore
 	schema Schema
+	// @ignore
+	resolveSchema sync.Once
 }
 
 func (r *Reference) AssignValue(imports map[string]string, valueName, resultName string) string {
-	return r.schema.AssignValue(imports, valueName, resultName)
+	return r.mustResolve().AssignValue(imports, valueName, resultName)
 }
 
 func (r *Reference) CompareValues(a, b interface{}) int {
-	return r.schema.CompareValues(a, b)
+	return r.mustResolve().CompareValues(a, b)
 }
 
 func (r *Reference) Copy() Schema {
@@ -49,16 +52,14 @@ func (r *Reference) Copy() Schema {
 }
 
 func (r *Reference) DefaultValue() interface{} {
-	return r.schema.DefaultValue()
+	return r.mustResolve().DefaultValue()
 }
 
 func (r *Reference) GetNullable() bool {
-	if r.schema != nil {
-		if n, ok := r.schema.(Nullable); ok && n.GetNullable() {
-			return true
-		}
+	if n, ok := r.mustResolve().(Nullable); ok && n.GetNullable() {
+		return true
 	}
-	return r.Nullable
+	return false
 }
 
 func (r *Reference) GoString(imports map[string]string) string {
@@ -76,14 +77,14 @@ func (r *Reference) GoString(imports map[string]string) string {
 }
 
 func (r *Reference) GoType(imports map[string]string) string {
-	if r.schema != nil {
-		return r.schema.GoType(imports)
-	}
-
 	u, err := url.Parse(r.Ref)
 	if err != nil {
 		panic(fmt.Errorf("reference %q is invalid: %w", r.Ref, err))
 	}
+	if u.Scheme != "" || strings.HasPrefix(r.Ref, "#") {
+		return r.mustResolve().GoType(imports)
+	}
+
 	u.Path = strings.TrimPrefix(u.Path, "/")
 
 	var path string
@@ -110,44 +111,48 @@ func (r *Reference) SetNullable(nullable bool) {
 }
 
 func (r *Reference) StringValue(value interface{}) string {
-	return r.schema.StringValue(value)
+	return r.mustResolve().StringValue(value)
 }
 
 func (r *Reference) Type() Type {
-	return r.schema.Type()
+	return r.mustResolve().Type()
 }
 
 func (r *Reference) TypeString() string {
-	return r.schema.TypeString()
+	return r.mustResolve().TypeString()
 }
 
 func (r *Reference) Validate(ctx *Context) error {
-	return r.Resolve(ctx)
+	return r.resolve(ctx)
 }
 
-func (r *Reference) Resolve(ctx *Context) error {
-	if r.schema != nil {
-		return nil
+func (r *Reference) mustResolve() Schema {
+	if err := r.resolve(nil); err != nil {
+		panic(err)
 	}
+	return r.schema
+}
 
-	s, err := ctx.ResolveSchema(r.Ref)
-	if err != nil {
-		return fmt.Errorf("failed to resolve schema %q: %w", r.Ref, err)
-	}
+func (r *Reference) resolve(ctx *Context) (resolveErr error) {
+	r.resolveSchema.Do(func() {
+		var err error
+		r.schema, err = ctx.ResolveSchema(r.Ref)
+		if err != nil {
+			resolveErr = fmt.Errorf("failed to resolve schema %q: %w", r.Ref, err)
+			return
+		}
 
-	if s == nil {
-		return fmt.Errorf("schema not found for %q", r.Ref)
-	}
-
-	r.schema = s
-
-	return nil
+		if r.schema == nil {
+			resolveErr = fmt.Errorf("schema not found for %q", r.Ref)
+		}
+	})
+	return
 }
 
 func (r *Reference) ValidateSchema(s Schema, compare bool) error {
-	return r.schema.ValidateSchema(s, compare)
+	return r.mustResolve().ValidateSchema(s, compare)
 }
 
 func (r *Reference) ValidateValue(value interface{}) (interface{}, error) {
-	return r.schema.ValidateValue(value)
+	return r.mustResolve().ValidateValue(value)
 }

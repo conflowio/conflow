@@ -11,9 +11,7 @@ type Context struct {
 }
 
 func NewContext() *Context {
-	return &Context{
-		resolver: ResolverFunc(Get),
-	}
+	return &Context{}
 }
 
 func (c *Context) WithResolver(resolver Resolver) *Context {
@@ -22,5 +20,12 @@ func (c *Context) WithResolver(resolver Resolver) *Context {
 }
 
 func (c *Context) ResolveSchema(uri string) (Schema, error) {
-	return c.resolver.ResolveSchema(uri)
+	if c != nil && c.resolver != nil {
+		s, err := c.resolver.ResolveSchema(uri)
+		if s != nil || err != nil {
+			return s, err
+		}
+	}
+
+	return Get(uri)
 }

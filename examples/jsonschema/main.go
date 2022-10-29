@@ -53,10 +53,9 @@ func mainWithError() error {
 	ctx, cancel := util.CreateDefaultContext()
 	defer cancel()
 
-	schemaID := "file://person.json"
-	schema.RegisterResolver(schemaID, schema.ResolverFunc(schema.ResolveFromFile))
+	schema.RegisterResolver("file://", schema.ResolverFunc(schema.ResolveFromFile))
 
-	personInterpreter, err := block.NewInterpreter(schemaID)
+	personInterpreter, err := block.NewInterpreter("file://person.json")
 	if err != nil {
 		return err
 	}

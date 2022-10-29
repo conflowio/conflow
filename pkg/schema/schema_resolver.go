@@ -8,6 +8,8 @@ package schema
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -26,12 +28,32 @@ func ResolveFromFile(uri string) (Schema, error) {
 	path := strings.TrimPrefix(uri, "file://")
 	json, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read %q: %w", path, err)
+		return nil, fmt.Errorf("failed to read schema: %w", err)
 	}
 
 	s, err := UnmarshalJSON(json)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse schema from %q: %w", path, err)
+		return nil, fmt.Errorf("failed to parse schema: %w", err)
+	}
+
+	return s, nil
+}
+
+func ResolveFromURL(uri string) (Schema, error) {
+	response, err := http.Get(uri)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read schema: %w", err)
+	}
+
+	defer response.Body.Close()
+	content, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read schema: %w", err)
+	}
+
+	s, err := UnmarshalJSON(content)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse schema: %w", err)
 	}
 
 	return s, nil
