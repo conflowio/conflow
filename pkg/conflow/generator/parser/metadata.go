@@ -64,14 +64,13 @@ func ParseMetadataFromComments(comments []*goast.Comment) (*Metadata, error) {
 
 	if directivesBuilder != nil {
 		idRegistry := conflow.NewIDRegistry(8, 16)
-		evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
 		ctx := conflow.NewParseContext(parsley.NewFileSet(), idRegistry, directives.Registry())
-
 		node, err := conflow.ParseText(ctx, annotationParser, directivesBuilder.String())
 		if err != nil {
 			return nil, err
 		}
 
+		evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil, node)
 		val, err := parsley.EvaluateNode(evalCtx, node)
 		if err != nil {
 			return nil, err
@@ -100,7 +99,7 @@ var annotationParser = combinator.Sentence(
 				}
 				names[n.(conflow.BlockNode).BlockType()] = true
 
-				evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
+				evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil, n)
 				value, err := parsley.EvaluateNode(evalCtx, n)
 				if err != nil {
 					return nil, parsley.NewError(n.Pos(), err)

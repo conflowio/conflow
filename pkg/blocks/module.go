@@ -35,7 +35,7 @@ func (m *module) Run(ctx context.Context) (conflow.Result, error) {
 	defer moduleCancel()
 
 	evalContext := conflow.NewEvalContext(
-		moduleCtx, m.userCtx, m.logger, m.jobScheduler, nil,
+		moduleCtx, m.userCtx, m.logger, m.jobScheduler, nil, m.node,
 	)
 	evalContext.InputParams = m.params
 

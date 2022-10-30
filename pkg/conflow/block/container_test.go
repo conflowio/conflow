@@ -25,7 +25,6 @@ import (
 
 var _ = Describe("Container", func() {
 	var container *block.Container
-	var evalCtx *conflow.EvalContext
 	var blockNode *conflowfakes.FakeBlockNode
 	var b conflow.Block
 	var ctx context.Context
@@ -56,8 +55,7 @@ var _ = Describe("Container", func() {
 		logger := zerolog.NewDisabledLogger()
 		scheduler = job.NewScheduler(logger, 1, 10)
 		scheduler.Start()
-		evalCtx = conflow.NewEvalContext(ctx, nil, logger, scheduler, nil)
-
+		evalCtx := conflow.NewEvalContext(ctx, nil, logger, scheduler, nil, blockNode)
 		container = block.NewContainer(evalCtx, conflow.RuntimeConfig{}, blockNode, nil, nil, nil, false)
 		container.Run()
 		value, err = container.Value()

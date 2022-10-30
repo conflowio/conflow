@@ -45,7 +45,7 @@ var _ = Describe("NodeContainer", func() {
 
 		logger := zerolog.NewDisabledLogger()
 		scheduler = &conflowfakes.FakeJobScheduler{}
-		evalCtx = conflow.NewEvalContext(ctx, nil, logger, scheduler, nil)
+		evalCtx = conflow.NewEvalContext(ctx, nil, logger, scheduler, nil, node)
 	})
 
 	AfterEach(func() {

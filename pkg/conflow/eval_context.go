@@ -13,6 +13,8 @@ import (
 	"os"
 	"sync/atomic"
 	"time"
+
+	"github.com/conflowio/parsley/parsley"
 )
 
 // EvalStage means an evaluation stage (default, pre or post)
@@ -72,6 +74,7 @@ type EvalContext struct {
 	sem          int64
 	Stdout       io.Writer
 	InputParams  map[ID]interface{}
+	node         parsley.Node
 }
 
 // NewEvalContext returns with a new evaluation context
@@ -81,6 +84,7 @@ func NewEvalContext(
 	logger Logger,
 	jobScheduler JobScheduler,
 	dependencies map[ID]BlockContainer,
+	node parsley.Node,
 ) *EvalContext {
 	ctx, cancel := context.WithCancel(ctx)
 	return &EvalContext{
@@ -92,6 +96,7 @@ func NewEvalContext(
 		pubSub:       NewPubSub(),
 		dependencies: dependencies,
 		Stdout:       os.Stdout,
+		node:         node,
 	}
 }
 
@@ -100,6 +105,7 @@ func (e *EvalContext) New(
 	ctx context.Context,
 	cancel context.CancelFunc,
 	dependencies map[ID]BlockContainer,
+	node parsley.Node,
 ) *EvalContext {
 	return &EvalContext{
 		ctx:          ctx,
@@ -111,6 +117,7 @@ func (e *EvalContext) New(
 		pubSub:       e.pubSub,
 		parentCtx:    e,
 		Stdout:       e.Stdout,
+		node:         node,
 	}
 }
 

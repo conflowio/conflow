@@ -32,14 +32,14 @@ var _ = Describe("Variable", func() {
 	var value interface{}
 	var input string
 	var blockNode *conflowfakes.FakeBlockNode
+	var dependencies map[conflow.ID]conflow.BlockContainer
 
 	BeforeEach(func() {
-		logger := zerolog.NewDisabledLogger()
-		evalCtx = conflow.NewEvalContext(context.Background(), nil, logger, &test.Scheduler{}, nil)
 		parseErr = nil
 		evalErr = nil
 		value = nil
 		blockNode = nil
+		dependencies = nil
 	})
 
 	JustBeforeEach(func() {
@@ -58,6 +58,7 @@ var _ = Describe("Variable", func() {
 
 		res, parseErr = parsley.Parse(parsleyContext, combinator.Sentence(p))
 		if parseErr == nil {
+			evalCtx = conflow.NewEvalContext(context.Background(), nil, zerolog.NewDisabledLogger(), &test.Scheduler{}, dependencies, res)
 			value, evalErr = parsley.EvaluateNode(evalCtx, res)
 		}
 	})
@@ -87,8 +88,7 @@ var _ = Describe("Variable", func() {
 			cont.ParamReturnsOnCall(0, "bar")
 			cont.NodeReturns(blockNode)
 
-			ctx, cancel := context.WithCancel(context.Background())
-			evalCtx = evalCtx.New(ctx, cancel, map[conflow.ID]conflow.BlockContainer{"foo": cont})
+			dependencies = map[conflow.ID]conflow.BlockContainer{"foo": cont}
 		})
 
 		Context("with an existing parameter", func() {

@@ -54,7 +54,7 @@ func Evaluate(
 		}
 	}
 
-	evalContext := NewEvalContext(context, userContext, logger, scheduler, nil)
+	evalContext := NewEvalContext(context, userContext, logger, scheduler, nil, node)
 	evalContext.InputParams = inputParams
 
 	value, err := parsley.EvaluateNode(evalContext, node)

@@ -203,12 +203,12 @@ func (n *NodeContainer) CreateContainer(value interface{}, wgs []WaitGroup) (Job
 		return nil, nil
 	}
 
-	ctx := n.createEvalContext(ptr.Value(n.runtimeConfig.Timeout))
+	ctx := n.createEvalContext(n.node, ptr.Value(n.runtimeConfig.Timeout))
 	return n.node.CreateContainer(ctx, n.runtimeConfig, n.parent, value, wgs, n.pending), nil
 }
 
 // CreateEvalContext returns with a new evaluation context
-func (n *NodeContainer) createEvalContext(timeout time.Duration) *EvalContext {
+func (n *NodeContainer) createEvalContext(node parsley.Node, timeout time.Duration) *EvalContext {
 	dependencies := make(map[ID]BlockContainer, len(n.dependencies))
 	for id, cont := range n.dependencies {
 		if cont == nil {
@@ -231,7 +231,7 @@ func (n *NodeContainer) createEvalContext(timeout time.Duration) *EvalContext {
 		ctx, cancel = context.WithCancel(context.Background())
 	}
 
-	return n.ctx.New(ctx, cancel, dependencies)
+	return n.ctx.New(ctx, cancel, dependencies, node)
 }
 
 func (n *NodeContainer) Close() {
@@ -250,7 +250,7 @@ func (n *NodeContainer) evaluateDirectives(evalStage EvalStage) parsley.Error {
 			continue
 		}
 
-		directive, err := parsley.EvaluateNode(n.createEvalContext(0), d)
+		directive, err := parsley.EvaluateNode(n.createEvalContext(d, 0), d)
 		if err != nil {
 			return err
 		}
