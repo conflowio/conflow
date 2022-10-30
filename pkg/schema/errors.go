@@ -8,75 +8,7 @@ package schema
 
 import (
 	"fmt"
-	"strings"
 )
-
-type ValidationError struct {
-	Errors []error `json:"errors"`
-}
-
-func (v *ValidationError) AddError(field string, err error) {
-	v.Errors = append(v.Errors, FieldError{
-		Field: field,
-		Err:   err,
-	})
-}
-
-func (v *ValidationError) AddErrorf(field, format string, a ...interface{}) {
-	v.Errors = append(v.Errors, FieldError{
-		Field: field,
-		Err:   fmt.Errorf(format, a...),
-	})
-}
-
-func (v *ValidationError) Error() string {
-	if len(v.Errors) == 1 {
-		return v.Errors[0].Error()
-	}
-
-	var sb strings.Builder
-	for i, err := range v.Errors {
-		if i > 0 {
-			sb.WriteString(", ")
-		}
-		sb.WriteString(err.Error())
-	}
-	return sb.String()
-}
-
-func (v *ValidationError) ErrOrNil() error {
-	switch len(v.Errors) {
-	case 0:
-		return nil
-	case 1:
-		return v.Errors[0]
-	default:
-		return v
-	}
-}
-
-func NewFieldError(field string, err error) FieldError {
-	return FieldError{
-		Field: field,
-		Err:   err,
-	}
-}
-
-func NewFieldErrorf(field, format string, a ...interface{}) FieldError {
-	return FieldError{
-		Field: field,
-		Err:   fmt.Errorf(format, a...),
-	}
-}
-
-type FieldError struct {
-	Field string `json:"field"`
-	Err   error  `json:"error"`
-}
-
-func (f FieldError) Error() string {
-	return fmt.Sprintf("%s: %s", f.Field, f.Err.Error())
-}
 
 type typeError string
 

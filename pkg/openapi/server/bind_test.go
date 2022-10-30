@@ -23,6 +23,7 @@ import (
 	"github.com/conflowio/conflow/pkg/openapi/server"
 	"github.com/conflowio/conflow/pkg/schema"
 	"github.com/conflowio/conflow/pkg/util/ptr"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 type testRequest struct {
@@ -466,7 +467,7 @@ var _ = Describe("BindBody", func() {
 			}
 			var t Obj
 			err := server.BindBody[Obj](requestBody, req, &t)
-			ExpectHttp400Error(err, schema.FieldError{Field: "field", Err: errors.New("required")}.Error())
+			ExpectHttp400Error(err, validation.NewFieldError("field", errors.New("required")).Error())
 		})
 	})
 

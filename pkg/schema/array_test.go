@@ -15,6 +15,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/internal/testhelper"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 var _ schema.Schema = &schema.Array{}
@@ -228,7 +229,7 @@ var _ = Describe("Array", func() {
 				Items: schema.IntegerValue(),
 			},
 			[]interface{}{"foo"},
-			schema.NewFieldError("0", errors.New("must be integer")),
+			validation.NewFieldError("0", errors.New("must be integer")),
 		),
 		Entry(
 			"invalid array value",
@@ -238,7 +239,7 @@ var _ = Describe("Array", func() {
 				},
 			},
 			[]interface{}{int64(3)},
-			schema.NewFieldError("0", errors.New("must be one of 1, 2")),
+			validation.NewFieldError("0", errors.New("must be one of 1, 2")),
 		),
 		Entry(
 			"multiple invalid array items",
@@ -246,10 +247,10 @@ var _ = Describe("Array", func() {
 				Items: schema.IntegerValue(),
 			},
 			[]interface{}{int64(1), "foo", "bar"},
-			&schema.ValidationError{Errors: []error{
-				schema.NewFieldError("1", errors.New("must be integer")),
-				schema.NewFieldError("2", errors.New("must be integer")),
-			}},
+			validation.NewError(
+				validation.NewFieldError("1", errors.New("must be integer")),
+				validation.NewFieldError("2", errors.New("must be integer")),
+			),
 		),
 		Entry(
 			"recursive validation",
@@ -259,7 +260,7 @@ var _ = Describe("Array", func() {
 				},
 			},
 			[]interface{}{[]interface{}{"foo"}},
-			schema.NewFieldError("0", schema.NewFieldError("0", errors.New("must be integer"))),
+			validation.NewFieldError("0", validation.NewFieldError("0", errors.New("must be integer"))),
 		),
 		Entry(
 			"const value",

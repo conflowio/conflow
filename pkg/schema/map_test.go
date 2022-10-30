@@ -15,6 +15,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/internal/testhelper"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 var _ schema.Schema = &schema.Map{}
@@ -210,7 +211,7 @@ var _ = Describe("Map", func() {
 			map[string]interface{}{
 				"foo": "not an integer",
 			},
-			schema.NewFieldError("foo", errors.New("must be integer")),
+			validation.NewFieldError(`"foo"`, errors.New("must be integer")),
 		),
 		Entry(
 			"const value",

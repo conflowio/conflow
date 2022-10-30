@@ -17,6 +17,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/internal/utils"
 	"github.com/conflowio/conflow/pkg/util"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 type structTemplateParams struct {
@@ -402,6 +403,25 @@ func (o *Object) UnmarshalJSON(j []byte) error {
 func (o *Object) Validate(ctx *Context) error {
 	return ValidateAll(
 		ctx,
+		func(ctx *Context) error {
+			if o.MinProperties < 0 {
+				return validation.NewFieldError("minProperties", errors.New("must be greater than or equal to 0"))
+			}
+			if o.MaxProperties != nil && o.MinProperties > *o.MaxProperties {
+				return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
+			}
+			if int64(len(o.Properties)) < o.MinProperties {
+				return validation.NewFieldError("minProperties", errors.New("can not be greater than the number of properties defined"))
+			}
+
+			for i, r := range o.Required {
+				if _, ok := o.Properties[r]; !ok {
+					return validation.NewFieldErrorf(fmt.Sprintf("required[%d]", i), "property %q does not exist", r)
+				}
+			}
+
+			return nil
+		},
 		validateCommonFields(o, o.Const, o.Default, o.Enum),
 		ValidateMap("properties", o.Properties),
 	)
@@ -441,7 +461,7 @@ func (o *Object) ValidateSchema(s Schema, compare bool) error {
 }
 
 func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
-	var ve ValidationError
+	var ve validation.Error
 
 	m, ok := value.(map[string]interface{})
 	if !ok {
@@ -490,13 +510,13 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 				}
 				validatedValue, err := p.ValidateValue(v.Field(i).Interface())
 				if err != nil {
-					ve.AddError(name, err)
+					ve.AddFieldError(name, err)
 				}
 				if !omitEmpty || !v.Field(i).IsZero() {
 					m[name] = validatedValue
 				}
 			} else {
-				ve.AddError(name, errors.New("property does not exist"))
+				ve.AddFieldError(name, errors.New("property does not exist"))
 			}
 		}
 	} else {
@@ -504,11 +524,11 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 			if p, ok := o.Properties[name]; ok {
 				fv, err := p.ValidateValue(v)
 				if err != nil {
-					ve.AddError(name, err)
+					ve.AddFieldError(name, err)
 				}
 				m[name] = fv
 			} else {
-				ve.AddError(name, errors.New("property does not exist"))
+				ve.AddFieldError(name, errors.New("property does not exist"))
 			}
 		}
 	}
@@ -538,20 +558,20 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 	if int64(len(m)) < o.MinProperties {
 		switch o.MinProperties {
 		case 1:
-			return nil, errors.New("the object can not be empty")
+			ve.AddError(errors.New("the object can not be empty"))
 		default:
-			return nil, fmt.Errorf("the object must have at least %d properties defined", o.MinProperties)
+			ve.AddErrorf("the object must have at least %d properties defined", o.MinProperties)
 		}
 	}
 
 	if o.MaxProperties != nil && int64(len(m)) > *o.MaxProperties {
 		switch *o.MaxProperties {
 		case 0:
-			return nil, errors.New("the object must be empty")
+			ve.AddError(errors.New("the object must be empty"))
 		case 1:
-			return nil, errors.New("the object can only have a single property defined")
+			ve.AddError(errors.New("the object can only have a single property defined"))
 		default:
-			return nil, fmt.Errorf("the object can not have more than %d properties defined", *o.MaxProperties)
+			ve.AddErrorf("the object can not have more than %d properties defined", *o.MaxProperties)
 		}
 	}
 
@@ -576,7 +596,7 @@ func (o *Object) ValidateValue(value interface{}) (interface{}, error) {
 		}
 
 		for f := range missingFields {
-			ve.AddError(f, errors.New("required"))
+			ve.AddFieldError(f, errors.New("required"))
 		}
 	}
 

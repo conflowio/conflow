@@ -15,6 +15,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 //	@block {
@@ -213,6 +215,16 @@ func (a *Array) UnmarshalJSON(j []byte) error {
 func (a *Array) Validate(ctx *Context) error {
 	return ValidateAll(
 		ctx,
+		func(ctx *Context) error {
+			if a.MinItems < 0 {
+				return validation.NewFieldError("minItems", errors.New("must be greater than or equal to 0"))
+			}
+			if a.MaxItems != nil && a.MinItems > *a.MaxItems {
+				return errors.New("minItems and maxItems constraints are impossible to fulfil")
+			}
+
+			return nil
+		},
 		validateCommonFields(a, a.Const, a.Default, a.Enum),
 		Validate("items", a.Items),
 	)
@@ -269,53 +281,65 @@ func (a *Array) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if a.MaxItems != nil && a.MinItems == *a.MaxItems && len(v) != int(a.MinItems) {
-		switch a.MinItems {
-		case 0:
-			return nil, errors.New("must be empty")
-		case 1:
-			return nil, errors.New("must have exactly one element")
-		default:
-			return nil, fmt.Errorf("must have exactly %d elements", a.MinItems)
+	ve := validation.Error{}
+
+	if a.MaxItems != nil {
+		if a.MinItems == *a.MaxItems && len(v) != int(a.MinItems) {
+			switch a.MinItems {
+			case 0:
+				ve.AddError(errors.New("must be empty"))
+			case 1:
+				ve.AddError(errors.New("must have exactly one element"))
+			default:
+				ve.AddError(fmt.Errorf("must have exactly %d elements", a.MinItems))
+			}
+		} else {
+			if len(v) > int(*a.MaxItems) {
+				switch *a.MaxItems {
+				case 0:
+					ve.AddError(errors.New("must be empty"))
+				case 1:
+					ve.AddError(errors.New("must not contain more than one element"))
+				default:
+					ve.AddError(fmt.Errorf("must not contain more than %d elements", *a.MaxItems))
+				}
+			}
 		}
 	}
 
 	if len(v) < int(a.MinItems) {
 		switch a.MinItems {
 		case 1:
-			return nil, errors.New("must have at least one element")
+			ve.AddError(errors.New("must have at least one element"))
 		default:
-			return nil, fmt.Errorf("must have at least %d elements", a.MinItems)
+			ve.AddError(fmt.Errorf("must have at least %d elements", a.MinItems))
 		}
 	}
 
-	if a.MaxItems != nil && len(v) > int(*a.MaxItems) {
-		switch *a.MaxItems {
-		case 0:
-			return nil, errors.New("must be empty")
-		case 1:
-			return nil, errors.New("must not contain more than one element")
-		default:
-			return nil, fmt.Errorf("must not contain more than %d elements", *a.MaxItems)
-		}
-	}
-
+	unique := true
 	if a.UniqueItems {
 		l := len(v)
 		for i := 0; i < l; i++ {
 			for j := i + 1; j < l; j++ {
 				if a.Items.CompareValues(v[i], v[j]) == 0 {
-					return nil, fmt.Errorf("array must contain unique items")
+					unique = false
+					break
 				}
+			}
+			if !unique {
+				break
 			}
 		}
 	}
 
-	ve := ValidationError{}
+	if !unique {
+		ve.AddError(fmt.Errorf("array must contain unique items"))
+	}
+
 	for i, e := range v {
 		nv, err := a.Items.ValidateValue(e)
 		if err != nil {
-			ve.AddError(strconv.Itoa(i), err)
+			ve.AddFieldError(strconv.Itoa(i), err)
 		} else {
 			v[i] = nv
 		}

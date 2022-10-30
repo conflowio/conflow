@@ -18,6 +18,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/internal/testhelper"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 var _ schema.Schema = &schema.Object{}
@@ -217,13 +218,13 @@ var _ = Describe("Object", func() {
 			"property does not exist",
 			func(s *schema.Object) {},
 			OtherObject{OtherField: "foo"},
-			schema.NewFieldError("otherField", errors.New("property does not exist")),
+			validation.NewFieldError("otherField", errors.New("property does not exist")),
 		),
 		Entry(
 			"property does not exist - map input",
 			func(s *schema.Object) {},
 			map[string]interface{}{"otherField": "foo"},
-			schema.NewFieldError("otherField", errors.New("property does not exist")),
+			validation.NewFieldError("otherField", errors.New("property does not exist")),
 		),
 		Entry(
 			"invalid property value",
@@ -232,13 +233,13 @@ var _ = Describe("Object", func() {
 				Foo: 1,
 				Bar: 123,
 			},
-			schema.NewFieldError("bar", errors.New("must be string")),
+			validation.NewFieldError("bar", errors.New("must be string")),
 		),
 		Entry(
 			"invalid property value - map input",
 			func(s *schema.Object) {},
 			map[string]interface{}{"foo": int64(1), "bar": int64(123)},
-			schema.NewFieldError("bar", errors.New("must be string")),
+			validation.NewFieldError("bar", errors.New("must be string")),
 		),
 		Entry(
 			"required value not set",
@@ -246,7 +247,7 @@ var _ = Describe("Object", func() {
 				s.Required = []string{"foo"}
 			},
 			TestObject{},
-			schema.NewFieldError("foo", errors.New("required")),
+			validation.NewFieldError("foo", errors.New("required")),
 		),
 		Entry(
 			"const value",
@@ -335,7 +336,7 @@ var _ = Describe("Object", func() {
 				}
 			},
 			TestObject{Foo: 1},
-			schema.NewFieldError("bar", errors.New("required")),
+			validation.NewFieldError("bar", errors.New("required")),
 		),
 	)
 
