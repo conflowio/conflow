@@ -9,17 +9,20 @@ package openapi
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/schema"
 	schemainterpreters "github.com/conflowio/conflow/pkg/schema/interpreters"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 // @block "main"
 type OpenAPI struct {
-	// @required
 	// @name "openapi"
+	// @default "3.1.0"
 	OpenAPI string `json:"openapi"`
 	// @required
 	Info *Info `json:"info"`
@@ -37,6 +40,9 @@ type OpenAPI struct {
 	Parameters map[string]*Parameter `json:"-"`
 	// @name "request_body"
 	RequestBodies map[string]*RequestBody `json:"-"`
+
+	// @dependency
+	userContext interface{} `json:"-"`
 }
 
 func (o *OpenAPI) ParseContextOverride() conflow.ParseContextOverride {
@@ -76,24 +82,35 @@ func (o *OpenAPI) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (o *OpenAPI) Validate(ctx *schema.Context) error {
-	return schema.ValidateAll(
-		ctx,
-		schema.Validate("info", o.Info),
-		schema.ValidateArray("servers", o.Servers),
-		schema.ValidateMap("paths", o.Paths),
-		schema.ValidateMap("schemas", o.Schemas),
-		schema.ValidateMap("responses", o.Responses),
-		schema.ValidateMap("parameters", o.Parameters),
-		schema.ValidateMap("requestBodies", o.RequestBodies),
-	)
+func (o *OpenAPI) Validate(ctx context.Context) error {
+	operationIDs := map[string]bool{}
+	for pathName, p := range o.Paths {
+		if err := p.IterateOperations(func(method string, op *Operation) error {
+			if operationIDs[op.OperationID] {
+				return validation.NewFieldError(fmt.Sprintf("paths[%q].%s.operationId", pathName, strings.ToLower(method)), errors.New("operation id must be unique"))
+			}
+			operationIDs[op.OperationID] = true
+			return nil
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (o *OpenAPI) Run(context.Context) (conflow.Result, error) {
-	return nil, o.Validate(schema.NewContext().WithResolver(o))
+func (o *OpenAPI) Run(ctx context.Context) (conflow.Result, error) {
+	var schemaCtx *schema.Context
+	if v, ok := ctx.Value(schema.GoContextKey).(*schema.Context); ok {
+		schemaCtx = v
+	} else if v, ok := o.userContext.(schema.ContextAware); ok {
+		schemaCtx = v.SchemaContext()
+	}
+	schemaCtx.SetResolver(o)
+
+	return nil, validation.Validate(ctx, o)
 }
 
-func (o *OpenAPI) ResolveSchema(uri string) (schema.Schema, error) {
+func (o *OpenAPI) ResolveSchema(ctx context.Context, uri string) (schema.Schema, error) {
 	if strings.HasPrefix(uri, "#/components/schemas/") {
 		name := strings.TrimPrefix(uri, "#/components/schemas/")
 		return o.Schemas[name], nil

@@ -7,14 +7,15 @@
 package openapi
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/schema"
 	schemainterpreters "github.com/conflowio/conflow/pkg/schema/interpreters"
 	"github.com/conflowio/conflow/pkg/util/ptr"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 // @block "configuration"
@@ -40,50 +41,44 @@ func (p *Parameter) ParseContextOverride() conflow.ParseContextOverride {
 	}
 }
 
-func (p *Parameter) Validate(ctx *schema.Context) error {
-	return schema.ValidateAll(
-		ctx,
-		func(ctx *schema.Context) error {
-			switch p.In {
-			case "path":
-				if p.Required != nil && !*p.Required {
-					return fmt.Errorf("required=false is not allowed on path parameters")
-				}
-				p.Required = ptr.To(true)
+func (p *Parameter) Validate(ctx context.Context) error {
+	switch p.In {
+	case "path":
+		if p.Required != nil && !*p.Required {
+			return validation.NewFieldError("required", errors.New("false is not allowed on path parameters"))
+		}
+		p.Required = ptr.To(true)
 
-				if p.Style != "" && p.Style != "simple" {
-					return errors.New("only style=simple is supported on path parameters")
-				}
-				if ptr.Value(p.Explode) {
-					return errors.New("explode=true is not supported on path parameters")
-				}
-			case "query":
-				if p.Style != "" && p.Style != "form" {
-					return errors.New("only style=form is supported on query parameters")
-				}
-				if p.Explode != nil && !*p.Explode {
-					return errors.New("explode=false is not supported on query parameters")
-				}
-			case "header":
-				if p.Style != "" && p.Style != "simple" {
-					return errors.New("only style=simple is allowed on header parameters")
-				}
-				if ptr.Value(p.Explode) {
-					return errors.New("explode=true is not supported on header parameters")
-				}
-			case "cookie":
-				if p.Style != "" && p.Style != "form" {
-					return errors.New("only style=form is allowed on header parameters")
-				}
-				if ptr.Value(p.Explode) {
-					return errors.New("explode=true is not supported on header parameters")
-				}
-			}
+		if p.Style != "" && p.Style != "simple" {
+			return validation.NewFieldError("style", errors.New("only 'simple' is supported on path parameters"))
+		}
+		if ptr.Value(p.Explode) {
+			return validation.NewFieldError("explode", errors.New("true is not supported on path parameters"))
+		}
+	case "query":
+		if p.Style != "" && p.Style != "form" {
+			return validation.NewFieldError("style", errors.New("only 'form' is supported on query parameters"))
+		}
+		if p.Explode != nil && !*p.Explode {
+			return validation.NewFieldError("explode", errors.New("false is not supported on query parameters"))
+		}
+	case "header":
+		if p.Style != "" && p.Style != "simple" {
+			return validation.NewFieldError("style", errors.New("only 'simple' is supported on header parameters"))
+		}
+		if ptr.Value(p.Explode) {
+			return validation.NewFieldError("explode", errors.New("true is not supported on header parameters"))
+		}
+	case "cookie":
+		if p.Style != "" && p.Style != "form" {
+			return validation.NewFieldError("style", errors.New("only 'form' is supported on cookie parameters"))
+		}
+		if ptr.Value(p.Explode) {
+			return validation.NewFieldError("explode", errors.New("true is not supported on cookie parameters"))
+		}
+	}
 
-			return nil
-		},
-		schema.Validate("schema", p.Schema),
-	)
+	return nil
 }
 
 func (p *Parameter) GoString(imports map[string]string) string {

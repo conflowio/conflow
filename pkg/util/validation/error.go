@@ -9,8 +9,21 @@ package validation
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 )
+
+// FieldRegexp matches the following field expressions:
+//   - param
+//   - param[1]
+//   - param["key"]
+//
+// Matches:
+//
+//	1: param
+//	2: numeric index
+//	3: string index
+var FieldRegexp = regexp.MustCompile(`^([^\[\.]+)(?:\[(?:(\d+)|"(.*)")\])?$`)
 
 type Error struct {
 	errors []error
@@ -83,4 +96,16 @@ func (e *Error) ErrOrNil() error {
 	default:
 		return e
 	}
+}
+
+func (e *Error) TransformError(tr func(path string, err error) error) error {
+	for i, err := range e.errors {
+		switch t := err.(type) {
+		case FieldError:
+			e.errors[i] = tr(t.field, t.err)
+		default:
+			e.errors[i] = tr("", err)
+		}
+	}
+	return e
 }

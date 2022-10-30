@@ -8,7 +8,6 @@ package openapi
 
 import (
 	"github.com/conflowio/conflow/pkg/conflow/types"
-	"github.com/conflowio/conflow/pkg/schema"
 )
 
 // @block "configuration"
@@ -16,8 +15,4 @@ type Contact struct {
 	Name  string      `json:"name,omitempty"`
 	URL   types.URL   `json:"url,omitempty"`
 	Email types.Email `json:"email,omitempty"`
-}
-
-func (c *Contact) Validate(*schema.Context) error {
-	return nil
 }

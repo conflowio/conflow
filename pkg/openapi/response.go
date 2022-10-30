@@ -9,7 +9,6 @@ package openapi
 import (
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
-	"github.com/conflowio/conflow/pkg/schema"
 )
 
 // @block "configuration"
@@ -25,8 +24,4 @@ func (r *Response) ParseContextOverride() conflow.ParseContextOverride {
 			"content": MediaTypeInterpreter{},
 		},
 	}
-}
-
-func (r *Response) Validate(ctx *schema.Context) error {
-	return schema.ValidateMap("content", r.Content)(ctx)
 }

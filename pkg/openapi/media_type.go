@@ -26,10 +26,6 @@ func (m *MediaType) ParseContextOverride() conflow.ParseContextOverride {
 	}
 }
 
-func (m *MediaType) Validate(ctx *schema.Context) error {
-	return schema.Validate("schema", m.Schema)(ctx)
-}
-
 func (m *MediaType) GoString(imports map[string]string) string {
 	pkg := openapiPkg(imports)
 	b := &strings.Builder{}

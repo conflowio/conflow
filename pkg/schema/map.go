@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -236,22 +237,19 @@ func (m *Map) UnmarshalJSON(j []byte) error {
 	return nil
 }
 
-func (m *Map) Validate(ctx *Context) error {
-	return ValidateAll(
-		ctx,
-		func(ctx *Context) error {
-			if m.MinProperties < 0 {
-				return validation.NewFieldError("minProperties", errors.New("must be greater than or equal to 0"))
-			}
-			if m.MaxProperties != nil && m.MinProperties > *m.MaxProperties {
-				return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
-			}
+func (m *Map) Validate(ctx context.Context) error {
+	if m.MinProperties < 0 {
+		return validation.NewFieldError("minProperties", errors.New("must be greater than or equal to 0"))
+	}
+	if m.MaxProperties != nil && m.MinProperties > *m.MaxProperties {
+		return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
+	}
 
-			return nil
-		},
-		validateCommonFields(m, m.Const, m.Default, m.Enum),
-		Validate("additionalProperties", m.AdditionalProperties),
-	)
+	if err := validateCommonFields(m, m.Const, m.Default, m.Enum); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *Map) ValidateSchema(s Schema, compare bool) error {

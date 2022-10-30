@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -198,19 +199,19 @@ func (s *String) UnmarshalJSON(input []byte) error {
 	return nil
 }
 
-func (s *String) Validate(ctx *Context) error {
-	return ValidateAll(ctx,
-		func(ctx *Context) error {
-			if s.MinLength < 0 {
-				return validation.NewFieldError("minLength", errors.New("must be greater than or equal to 0"))
-			}
-			if s.MaxLength != nil && s.MinLength > *s.MaxLength {
-				return errors.New("minLength and maxLength constraints are impossible to fulfil")
-			}
-			return nil
-		},
-		validateCommonFields(s, s.Const, s.Default, s.Enum),
-	)
+func (s *String) Validate(ctx context.Context) error {
+	if s.MinLength < 0 {
+		return validation.NewFieldError("minLength", errors.New("must be greater than or equal to 0"))
+	}
+	if s.MaxLength != nil && s.MinLength > *s.MaxLength {
+		return errors.New("minLength and maxLength constraints are impossible to fulfil")
+	}
+
+	if err := validateCommonFields(s, s.Const, s.Default, s.Enum); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *String) ValidateSchema(s2 Schema, _ bool) error {

@@ -9,7 +9,6 @@ package openapi
 import (
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
-	"github.com/conflowio/conflow/pkg/schema"
 )
 
 // @block "configuration"
@@ -32,12 +31,4 @@ func (i *Info) ParseContextOverride() conflow.ParseContextOverride {
 			"license": LicenseInterpreter{},
 		},
 	}
-}
-
-func (i *Info) Validate(ctx *schema.Context) error {
-	return schema.ValidateAll(
-		ctx,
-		schema.Validate("contact", i.Contact),
-		schema.Validate("license", i.License),
-	)
 }

@@ -11,7 +11,6 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
-	"github.com/conflowio/conflow/pkg/schema"
 	"github.com/conflowio/conflow/pkg/util"
 )
 
@@ -29,10 +28,6 @@ func (r *RequestBody) ParseContextOverride() conflow.ParseContextOverride {
 			"content": MediaTypeInterpreter{},
 		},
 	}
-}
-
-func (r *RequestBody) Validate(ctx *schema.Context) error {
-	return schema.ValidateMap("content", r.Content)(ctx)
 }
 
 func (r *RequestBody) GoString(imports map[string]string) string {

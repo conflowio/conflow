@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -179,35 +180,34 @@ func (n *Number) UnmarshalJSON(input []byte) error {
 	})
 }
 
-func (n *Number) Validate(ctx *Context) error {
-	return ValidateAll(ctx,
-		func(ctx *Context) error {
-			if n.ExclusiveMinimum != nil && n.Minimum != nil {
-				return validation.NewFieldError("minimum", errors.New("should not be defined if exclusiveMinimum is set"))
-			}
+func (n *Number) Validate(ctx context.Context) error {
+	if n.ExclusiveMinimum != nil && n.Minimum != nil {
+		return validation.NewFieldError("minimum", errors.New("should not be defined if exclusiveMinimum is set"))
+	}
 
-			if n.ExclusiveMaximum != nil && n.Maximum != nil {
-				return validation.NewFieldError("maximum", errors.New("should not be defined if exclusiveMaximum is set"))
-			}
+	if n.ExclusiveMaximum != nil && n.Maximum != nil {
+		return validation.NewFieldError("maximum", errors.New("should not be defined if exclusiveMaximum is set"))
+	}
 
-			min := n.Minimum
-			if n.ExclusiveMinimum != nil {
-				min = ptr.To(*n.ExclusiveMinimum + Epsilon)
-			}
+	min := n.Minimum
+	if n.ExclusiveMinimum != nil {
+		min = ptr.To(*n.ExclusiveMinimum + Epsilon)
+	}
 
-			max := n.Maximum
-			if n.ExclusiveMaximum != nil {
-				max = ptr.To(*n.ExclusiveMaximum - Epsilon)
-			}
+	max := n.Maximum
+	if n.ExclusiveMaximum != nil {
+		max = ptr.To(*n.ExclusiveMaximum - Epsilon)
+	}
 
-			if min != nil && max != nil && NumberGreaterThan(*min, *max) {
-				return errors.New("minimum and maximum constraints are impossible to fulfil")
-			}
+	if min != nil && max != nil && NumberGreaterThan(*min, *max) {
+		return errors.New("minimum and maximum constraints are impossible to fulfil")
+	}
 
-			return nil
-		},
-		validateCommonFields(n, n.Const, n.Default, n.Enum),
-	)
+	if err := validateCommonFields(n, n.Const, n.Default, n.Enum); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (n *Number) ValidateSchema(n2 Schema, _ bool) error {

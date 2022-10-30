@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net/url"
 	"reflect"
@@ -35,6 +36,9 @@ type Reference struct {
 	schema Schema
 	// @ignore
 	resolveSchema sync.Once
+
+	// @dependency
+	UserContext interface{} `json:"-"`
 }
 
 func (r *Reference) AssignValue(imports map[string]string, valueName, resultName string) string {
@@ -122,21 +126,28 @@ func (r *Reference) TypeString() string {
 	return r.mustResolve().TypeString()
 }
 
-func (r *Reference) Validate(ctx *Context) error {
+func (r *Reference) Validate(ctx context.Context) error {
 	return r.resolve(ctx)
 }
 
 func (r *Reference) mustResolve() Schema {
-	if err := r.resolve(nil); err != nil {
+	if err := r.resolve(context.Background()); err != nil {
 		panic(err)
 	}
 	return r.schema
 }
 
-func (r *Reference) resolve(ctx *Context) (resolveErr error) {
+func (r *Reference) resolve(ctx context.Context) (resolveErr error) {
 	r.resolveSchema.Do(func() {
+		var schemaCtx *Context
+		if v, ok := ctx.Value(GoContextKey).(*Context); ok {
+			schemaCtx = v
+		} else if v, ok := r.UserContext.(ContextAware); ok {
+			schemaCtx = v.SchemaContext()
+		}
+
 		var err error
-		r.schema, err = ctx.ResolveSchema(r.Ref)
+		r.schema, err = schemaCtx.ResolveSchema(ctx, r.Ref)
 		if err != nil {
 			resolveErr = fmt.Errorf("failed to resolve schema %q: %w", r.Ref, err)
 			return

@@ -36,13 +36,13 @@ var _ = Describe("Error", func() {
 
 	It("should merge field with numeric field index", func() {
 		e := &validation.Error{}
-		e.AddFieldError("foo", validation.NewFieldError("1", errors.New("some error")))
+		e.AddFieldError("foo", validation.NewFieldError("[1]", errors.New("some error")))
 		Expect(e).To(MatchError("foo[1]: some error"))
 	})
 
 	It("should merge field with string field index", func() {
 		e := &validation.Error{}
-		e.AddFieldError("foo", validation.NewFieldError(`"bar"`, errors.New("some error")))
+		e.AddFieldError("foo", validation.NewFieldError(`["bar"]`, errors.New("some error")))
 		Expect(e).To(MatchError(`foo["bar"]: some error`))
 	})
 

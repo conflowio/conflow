@@ -7,6 +7,7 @@
 package schema
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,16 +16,16 @@ import (
 )
 
 type Resolver interface {
-	ResolveSchema(uri string) (Schema, error)
+	ResolveSchema(ctx context.Context, uri string) (Schema, error)
 }
 
-type ResolverFunc func(uri string) (Schema, error)
+type ResolverFunc func(ctx context.Context, uri string) (Schema, error)
 
-func (f ResolverFunc) ResolveSchema(uri string) (Schema, error) {
-	return f(uri)
+func (f ResolverFunc) ResolveSchema(ctx context.Context, uri string) (Schema, error) {
+	return f(ctx, uri)
 }
 
-func ResolveFromFile(uri string) (Schema, error) {
+func ResolveFromFile(ctx context.Context, uri string) (Schema, error) {
 	path := strings.TrimPrefix(uri, "file://")
 	json, err := os.ReadFile(path)
 	if err != nil {
@@ -39,8 +40,13 @@ func ResolveFromFile(uri string) (Schema, error) {
 	return s, nil
 }
 
-func ResolveFromURL(uri string) (Schema, error) {
-	response, err := http.Get(uri)
+func ResolveFromURL(ctx context.Context, uri string) (Schema, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read schema: %w", err)
+	}
+
+	response, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read schema: %w", err)
 	}

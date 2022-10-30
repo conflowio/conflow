@@ -61,6 +61,7 @@ func ParseField(
 		jsonTagParts := strings.Split(jsonTags, ",")
 		jsonName := strings.TrimSpace(jsonTagParts[0])
 
+		// TODO: ignore "-"
 		if jsonName != "" && jsonName != "-" {
 			jsonPropertyName = jsonName
 		}
@@ -118,8 +119,9 @@ func ParseField(
 				}
 				dependencyName = d.Name
 			} else {
-				if util.StringSliceContains(validDependencies, fieldName) {
-					dependencyName = fieldName
+				name := strings.ToLower(fieldName[0:1]) + fieldName[1:]
+				if util.StringSliceContains(validDependencies, name) {
+					dependencyName = name
 				} else {
 					return nil, errors.New("dependency can not be inferred from the field name, please set the name explicitly (@dependency \"name\"")
 				}
