@@ -19,6 +19,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/internal/utils"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 const (
@@ -32,10 +33,11 @@ const (
 type String struct {
 	Metadata
 
-	Const     *string       `json:"const,omitempty"`
-	Default   *string       `json:"default,omitempty"`
-	Enum      []string      `json:"enum,omitempty"`
-	Format    string        `json:"format,omitempty"`
+	Const   *string  `json:"const,omitempty"`
+	Default *string  `json:"default,omitempty"`
+	Enum    []string `json:"enum,omitempty"`
+	Format  string   `json:"format,omitempty"`
+	// @minimum 0
 	MinLength int64         `json:"minLength,omitempty"`
 	MaxLength *int64        `json:"maxLength,omitempty"`
 	Nullable  bool          `json:"nullable,omitempty"`
@@ -197,7 +199,18 @@ func (s *String) UnmarshalJSON(input []byte) error {
 }
 
 func (s *String) Validate(ctx *Context) error {
-	return validateCommonFields(s, s.Const, s.Default, s.Enum)(ctx)
+	return ValidateAll(ctx,
+		func(ctx *Context) error {
+			if s.MinLength < 0 {
+				return validation.NewFieldError("minLength", errors.New("must be greater than or equal to 0"))
+			}
+			if s.MaxLength != nil && s.MinLength > *s.MaxLength {
+				return errors.New("minLength and maxLength constraints are impossible to fulfil")
+			}
+			return nil
+		},
+		validateCommonFields(s, s.Const, s.Default, s.Enum),
+	)
 }
 
 func (s *String) ValidateSchema(s2 Schema, _ bool) error {
@@ -239,45 +252,53 @@ func (s *String) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if s.MaxLength != nil && s.MinLength == *s.MaxLength && len(*v) != int(s.MinLength) {
-		switch s.MinLength {
-		case 0:
-			return nil, errors.New("must be empty string")
-		case 1:
-			return nil, errors.New("must be a single character")
-		default:
-			return nil, fmt.Errorf("must be exactly %d characters long", s.MinLength)
+	ve := &validation.Error{}
+
+	if s.MaxLength != nil {
+		if s.MinLength == *s.MaxLength && len(*v) != int(s.MinLength) {
+			switch s.MinLength {
+			case 0:
+				ve.AddError(errors.New("must be empty string"))
+			case 1:
+				ve.AddError(errors.New("must be a single character"))
+			default:
+				ve.AddErrorf("must be exactly %d characters long", s.MinLength)
+			}
+		} else {
+			if int64(utf8.RuneCount([]byte(*v))) > *s.MaxLength {
+				switch *s.MaxLength {
+				case 0:
+					ve.AddError(errors.New("must be empty string"))
+				case 1:
+					ve.AddError(errors.New("must be empty string or a single character"))
+				default:
+					ve.AddErrorf("must be no more than %d characters long", *s.MaxLength)
+				}
+			}
 		}
 	}
 
 	if s.MinLength > 0 && int64(utf8.RuneCount([]byte(*v))) < s.MinLength {
 		switch s.MinLength {
 		case 1:
-			return nil, errors.New("can not be empty string")
+			ve.AddError(errors.New("can not be empty string"))
 		default:
-			return nil, fmt.Errorf("must be at least %d characters long", s.MinLength)
-		}
-	}
-
-	if s.MaxLength != nil && int64(utf8.RuneCount([]byte(*v))) > *s.MaxLength {
-		switch *s.MaxLength {
-		case 0:
-			return nil, errors.New("must be empty string")
-		case 1:
-			return nil, errors.New("must be empty string or a single character")
-		default:
-			return nil, fmt.Errorf("must be no more than %d characters long", *s.MaxLength)
+			ve.AddErrorf("must be at least %d characters long", s.MinLength)
 		}
 	}
 
 	if s.Pattern != nil {
 		if !(*regexp.Regexp)(s.Pattern).MatchString(*v) {
-			return nil, fmt.Errorf("must match regular expression: %s", s.Pattern.String())
+			ve.AddErrorf("must match regular expression: %s", s.Pattern.String())
 		}
 	}
 
 	fv, err := s.format().ValidateValue(*v)
 	if err != nil {
+		ve.AddError(err)
+	}
+
+	if err := ve.ErrOrNil(); err != nil {
 		return nil, err
 	}
 

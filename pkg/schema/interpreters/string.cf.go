@@ -41,8 +41,10 @@ func init() {
 			"maxLength": &schema.Integer{
 				Nullable: true,
 			},
-			"minLength": &schema.Integer{},
-			"nullable":  &schema.Boolean{},
+			"minLength": &schema.Integer{
+				Minimum: schema.Pointer(int64(0)),
+			},
+			"nullable": &schema.Boolean{},
 			"pattern": &schema.String{
 				Format:   "regex",
 				Nullable: true,

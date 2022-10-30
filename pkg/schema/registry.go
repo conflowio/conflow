@@ -79,6 +79,10 @@ func (r *Registry) GetSchema(uri string) (Schema, error) {
 				continue
 			}
 
+			if err := s.Validate(NewContext()); err != nil {
+				return nil, err
+			}
+
 			r.schemas[uri] = s
 
 			return s, nil

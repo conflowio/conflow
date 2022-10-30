@@ -15,6 +15,9 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/util/ptr"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 //	@block {
@@ -177,7 +180,34 @@ func (i *Integer) UnmarshalJSON(input []byte) error {
 }
 
 func (i *Integer) Validate(ctx *Context) error {
-	return validateCommonFields(i, i.Const, i.Default, i.Enum)(ctx)
+	return ValidateAll(ctx,
+		func(ctx *Context) error {
+			if i.ExclusiveMinimum != nil && i.Minimum != nil {
+				return validation.NewFieldError("minimum", errors.New("should not be defined if exclusiveMinimum is set"))
+			}
+
+			if i.ExclusiveMaximum != nil && i.Maximum != nil {
+				return validation.NewFieldError("maximum", errors.New("should not be defined if exclusiveMaximum is set"))
+			}
+
+			min := i.Minimum
+			if i.ExclusiveMinimum != nil {
+				min = ptr.To(*i.ExclusiveMinimum + 1)
+			}
+
+			max := i.Maximum
+			if i.ExclusiveMaximum != nil {
+				max = ptr.To(*i.ExclusiveMaximum - 1)
+			}
+
+			if min != nil && max != nil && *min > *max {
+				return errors.New("minimum and maximum constraints are impossible to fulfil")
+			}
+
+			return nil
+		},
+		validateCommonFields(i, i.Const, i.Default, i.Enum),
+	)
 }
 
 func (i *Integer) ValidateSchema(i2 Schema, compare bool) error {
@@ -226,32 +256,30 @@ func (i *Integer) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if i.Minimum != nil && *v < *i.Minimum {
-		return nil, fmt.Errorf("must be greater than or equal to %d", *i.Minimum)
-	}
+	ve := &validation.Error{}
 
 	if i.Format == "int32" && *v < math.MinInt32 {
-		return nil, fmt.Errorf("must be greater than or equal to %d", math.MinInt32)
-	}
-
-	if i.ExclusiveMinimum != nil && *v <= *i.ExclusiveMinimum {
-		return nil, fmt.Errorf("must be greater than %d", *i.ExclusiveMinimum)
-	}
-
-	if i.Maximum != nil && *v > *i.Maximum {
-		return nil, fmt.Errorf("must be less than or equal to %d", *i.Maximum)
+		ve.AddErrorf("must be greater than or equal to %d", math.MinInt32)
+	} else if i.ExclusiveMinimum != nil && *v <= *i.ExclusiveMinimum {
+		ve.AddErrorf("must be greater than %d", *i.ExclusiveMinimum)
+	} else if i.Minimum != nil && *v < *i.Minimum {
+		ve.AddErrorf("must be greater than or equal to %d", *i.Minimum)
 	}
 
 	if i.Format == "int32" && *v > math.MaxInt32 {
-		return nil, fmt.Errorf("must be less than or equal to %d", math.MaxInt32)
-	}
-
-	if i.ExclusiveMaximum != nil && *v >= *i.ExclusiveMaximum {
-		return nil, fmt.Errorf("must be less than %d", *i.ExclusiveMaximum)
+		ve.AddErrorf("must be less than or equal to %d", math.MaxInt32)
+	} else if i.ExclusiveMaximum != nil && *v >= *i.ExclusiveMaximum {
+		ve.AddErrorf("must be less than %d", *i.ExclusiveMaximum)
+	} else if i.Maximum != nil && *v > *i.Maximum {
+		ve.AddErrorf("must be less than or equal to %d", *i.Maximum)
 	}
 
 	if i.MultipleOf != nil && *v%*i.MultipleOf != 0 {
-		return nil, fmt.Errorf("must be multiple of %d", *i.MultipleOf)
+		ve.AddErrorf("must be multiple of %d", *i.MultipleOf)
+	}
+
+	if err := ve.ErrOrNil(); err != nil {
+		return nil, err
 	}
 
 	if i.Nullable {

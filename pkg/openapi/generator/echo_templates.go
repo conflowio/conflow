@@ -21,7 +21,6 @@ var echoServerTemplate = `
 {{- $serverSel := ensureUniqueGoPackageSelector .Imports "github.com/conflowio/conflow/pkg/openapi/server" -}}
 {{- $stringsSel := ensureUniqueGoPackageSelector .Imports "strings" -}}
 {{- $httpSel := ensureUniqueGoPackageSelector .Imports "net/http" -}}
-
 type EchoServer struct {
 	Server Server
 }

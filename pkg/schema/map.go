@@ -13,7 +13,10 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 //	@block {
@@ -236,6 +239,16 @@ func (m *Map) UnmarshalJSON(j []byte) error {
 func (m *Map) Validate(ctx *Context) error {
 	return ValidateAll(
 		ctx,
+		func(ctx *Context) error {
+			if m.MinProperties < 0 {
+				return validation.NewFieldError("minProperties", errors.New("must be greater than or equal to 0"))
+			}
+			if m.MaxProperties != nil && m.MinProperties > *m.MaxProperties {
+				return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
+			}
+
+			return nil
+		},
 		validateCommonFields(m, m.Const, m.Default, m.Enum),
 		Validate("additionalProperties", m.AdditionalProperties),
 	)
@@ -297,39 +310,45 @@ func (m *Map) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
+	ve := &validation.Error{}
+
 	if int64(len(v)) < m.MinProperties {
 		switch m.MinProperties {
 		case 1:
-			return nil, errors.New("the map can not be empty")
+			ve.AddError(errors.New("the map can not be empty"))
 		default:
-			return nil, fmt.Errorf("the map must contain at least %d elements", m.MinProperties)
+			ve.AddErrorf("the map must contain at least %d elements", m.MinProperties)
 		}
 	}
 
 	if m.MaxProperties != nil && int64(len(v)) > *m.MaxProperties {
 		switch *m.MaxProperties {
 		case 0:
-			return nil, errors.New("the map must be empty")
+			ve.AddError(errors.New("the map must be empty"))
 		case 1:
-			return nil, errors.New("the map can only have a single element")
+			ve.AddError(errors.New("the map can only have a single element"))
 		default:
-			return nil, fmt.Errorf("the map can not have more than %d elements", *m.MaxProperties)
+			ve.AddErrorf("the map can not have more than %d elements", *m.MaxProperties)
 		}
 	}
 
 	p := m.GetAdditionalProperties()
 
+	if len(v) > 0 && p.Type() == TypeFalse {
+		ve.AddError(errors.New("the map must be empty"))
+	}
+
 	for _, k := range getSortedMapKeys(v) {
-		if p.Type() == TypeFalse {
-			return nil, NewFieldError(k, errors.New("no map values are allowed"))
+		nv, err := p.ValidateValue(v[k])
+		if err != nil {
+			return nil, validation.NewFieldError(strconv.Quote(k), err)
 		} else {
-			nv, err := p.ValidateValue(v[k])
-			if err != nil {
-				return nil, NewFieldError(k, err)
-			} else {
-				v[k] = nv
-			}
+			v[k] = nv
 		}
+	}
+
+	if err := ve.ErrOrNil(); err != nil {
+		return nil, err
 	}
 
 	return v, nil
@@ -352,6 +371,6 @@ func (m *Map) join(elems []map[string]interface{}, sep string) string {
 	return b.String()
 }
 
-func isTypedMap(o *Map) bool {
-	return o.GetAdditionalProperties().Type() != TypeAny
+func isTypedMap(m *Map) bool {
+	return m.GetAdditionalProperties().Type() != TypeAny
 }

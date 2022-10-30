@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/pkg/util/ptr"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 // Epsilon is used as a float64 comparison tolerance
@@ -179,7 +180,34 @@ func (n *Number) UnmarshalJSON(input []byte) error {
 }
 
 func (n *Number) Validate(ctx *Context) error {
-	return validateCommonFields(n, n.Const, n.Default, n.Enum)(ctx)
+	return ValidateAll(ctx,
+		func(ctx *Context) error {
+			if n.ExclusiveMinimum != nil && n.Minimum != nil {
+				return validation.NewFieldError("minimum", errors.New("should not be defined if exclusiveMinimum is set"))
+			}
+
+			if n.ExclusiveMaximum != nil && n.Maximum != nil {
+				return validation.NewFieldError("maximum", errors.New("should not be defined if exclusiveMaximum is set"))
+			}
+
+			min := n.Minimum
+			if n.ExclusiveMinimum != nil {
+				min = ptr.To(*n.ExclusiveMinimum + Epsilon)
+			}
+
+			max := n.Maximum
+			if n.ExclusiveMaximum != nil {
+				max = ptr.To(*n.ExclusiveMaximum - Epsilon)
+			}
+
+			if min != nil && max != nil && NumberGreaterThan(*min, *max) {
+				return errors.New("minimum and maximum constraints are impossible to fulfil")
+			}
+
+			return nil
+		},
+		validateCommonFields(n, n.Const, n.Default, n.Enum),
+	)
 }
 
 func (n *Number) ValidateSchema(n2 Schema, _ bool) error {
@@ -221,24 +249,26 @@ func (n *Number) ValidateValue(value interface{}) (interface{}, error) {
 		}
 	}
 
-	if n.Minimum != nil && !NumberGreaterThanOrEqualsTo(*v, *n.Minimum) {
-		return nil, fmt.Errorf("must be greater than or equal to %s", n.StringValue(*n.Minimum))
-	}
+	ve := &validation.Error{}
 
 	if n.ExclusiveMinimum != nil && !NumberGreaterThan(*v, *n.ExclusiveMinimum) {
-		return nil, fmt.Errorf("must be greater than %s", n.StringValue(*n.ExclusiveMinimum))
-	}
-
-	if n.Maximum != nil && !NumberLessThanOrEqualsTo(*v, *n.Maximum) {
-		return nil, fmt.Errorf("must be less than or equal to %s", n.StringValue(*n.Maximum))
+		ve.AddErrorf("must be greater than %s", n.StringValue(*n.ExclusiveMinimum))
+	} else if n.Minimum != nil && !NumberGreaterThanOrEqualsTo(*v, *n.Minimum) {
+		ve.AddErrorf("must be greater than or equal to %s", n.StringValue(*n.Minimum))
 	}
 
 	if n.ExclusiveMaximum != nil && !NumberLessThan(*v, *n.ExclusiveMaximum) {
-		return nil, fmt.Errorf("must be less than %s", n.StringValue(*n.ExclusiveMaximum))
+		ve.AddErrorf("must be less than %s", n.StringValue(*n.ExclusiveMaximum))
+	} else if n.Maximum != nil && !NumberLessThanOrEqualsTo(*v, *n.Maximum) {
+		ve.AddErrorf("must be less than or equal to %s", n.StringValue(*n.Maximum))
 	}
 
 	if n.MultipleOf != nil && !NumberMultipleOf(*v, *n.MultipleOf) {
-		return nil, fmt.Errorf("must be multiple of %s", n.StringValue(*n.MultipleOf))
+		ve.AddErrorf("must be multiple of %s", n.StringValue(*n.MultipleOf))
+	}
+
+	if err := ve.ErrOrNil(); err != nil {
+		return nil, err
 	}
 
 	if n.Nullable {
