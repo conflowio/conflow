@@ -8,7 +8,6 @@ package openapi
 
 import (
 	"github.com/conflowio/conflow/pkg/conflow/types"
-	"github.com/conflowio/conflow/pkg/schema"
 )
 
 // @block "configuration"
@@ -17,8 +16,4 @@ type License struct {
 	Name       string    `json:"name,omitempty"`
 	Identifier string    `json:"identifier,omitempty"`
 	URL        types.URL `json:"url"`
-}
-
-func (l *License) Validate(*schema.Context) error {
-	return nil
 }

@@ -7,9 +7,12 @@
 package openapi
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
-	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 // @block "configuration"
@@ -40,12 +43,14 @@ func (o *Operation) ParseContextOverride() conflow.ParseContextOverride {
 	}
 }
 
-func (o *Operation) Validate(ctx *schema.Context) error {
-	return schema.ValidateAll(
-		ctx,
-		schema.ValidateArray("parameters", o.Parameters),
-		schema.Validate("requestBody", o.RequestBody),
-		schema.ValidateMap("responses", o.Responses),
-		schema.ValidateArray("servers", o.Servers),
-	)
+func (o *Operation) Validate(ctx context.Context) error {
+	parameters := map[string]bool{}
+	for i, p := range o.Parameters {
+		name := fmt.Sprintf("%s,%s", p.In, p.Name)
+		if parameters[name] {
+			return validation.NewFieldErrorf(fmt.Sprintf("parameters[%d]", i), "%s parameter must be unique", p.In)
+		}
+		parameters[name] = true
+	}
+	return nil
 }

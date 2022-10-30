@@ -13,53 +13,29 @@ import (
 	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
-type Validatable interface {
-	Validate(ctx *Context) error
-}
-
-func ValidateAll(ctx *Context, validators ...func(ctx *Context) error) error {
+func validateCommonFields[T any](s Schema, constValue interface{}, defaultValue interface{}, enumValues []T) error {
 	ve := &validation.Error{}
-	for _, v := range validators {
-		if err := v(ctx); err != nil {
-			ve.AddError(err)
+	if err := validateValue[T](s, constValue); err != nil {
+		ve.AddFieldError("const", err)
+	}
+
+	if err := validateValue[T](s, defaultValue); err != nil {
+		ve.AddFieldError("default", err)
+	}
+
+	for i, enum := range enumValues {
+		if _, err := s.ValidateValue(enum); err != nil {
+			ve.AddFieldError(fmt.Sprintf("enum[%d]", i), err)
 		}
 	}
+
+	for i, example := range s.GetExamples() {
+		if _, err := s.ValidateValue(example); err != nil {
+			ve.AddFieldError(fmt.Sprintf("examples[%d]", i), err)
+		}
+	}
+
 	return ve.ErrOrNil()
-}
-
-func Validate(name string, v Validatable) func(*Context) error {
-	return func(ctx *Context) error {
-		if v != nil && !reflect.ValueOf(v).IsNil() {
-			if err := v.Validate(ctx); err != nil {
-				return validation.NewFieldError(name, err)
-			}
-		}
-		return nil
-	}
-}
-
-func ValidateArray[T Validatable](name string, v []T) func(*Context) error {
-	return func(ctx *Context) error {
-		ve := &validation.Error{}
-		for i, e := range v {
-			if err := e.Validate(ctx); err != nil {
-				ve.AddFieldError(fmt.Sprintf("%s[%d]", name, i), err)
-			}
-		}
-		return ve.ErrOrNil()
-	}
-}
-
-func ValidateMap[T Validatable](name string, v map[string]T) func(*Context) error {
-	return func(ctx *Context) error {
-		ve := &validation.Error{}
-		for k, e := range v {
-			if err := e.Validate(ctx); err != nil {
-				ve.AddFieldError(fmt.Sprintf("%s[%q]", name, k), err)
-			}
-		}
-		return ve.ErrOrNil()
-	}
 }
 
 func validateValue[T any](s Schema, value interface{}) error {
@@ -79,31 +55,4 @@ func validateValue[T any](s Schema, value interface{}) error {
 		return err
 	}
 	return nil
-}
-
-func validateCommonFields[T any](s Schema, constValue interface{}, defaultValue interface{}, enumValues []T) func(*Context) error {
-	return func(ctx *Context) error {
-		ve := &validation.Error{}
-		if err := validateValue[T](s, constValue); err != nil {
-			ve.AddFieldError("const", err)
-		}
-
-		if err := validateValue[T](s, defaultValue); err != nil {
-			ve.AddFieldError("default", err)
-		}
-
-		for i, enum := range enumValues {
-			if _, err := s.ValidateValue(enum); err != nil {
-				ve.AddFieldError(fmt.Sprintf("enum[%d]", i), err)
-			}
-		}
-
-		for i, example := range s.GetExamples() {
-			if _, err := s.ValidateValue(example); err != nil {
-				ve.AddFieldError(fmt.Sprintf("examples[%d]", i), err)
-			}
-		}
-
-		return ve.ErrOrNil()
-	}
 }

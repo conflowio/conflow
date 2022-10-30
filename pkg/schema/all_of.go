@@ -8,8 +8,11 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 //	@block {
@@ -103,8 +106,13 @@ func (a *AllOf) UnmarshalJSON(j []byte) error {
 	return nil
 }
 
-func (a *AllOf) Validate(ctx *Context) error {
-	return a.getSchema().Validate(ctx)
+func (a *AllOf) Validate(ctx context.Context) error {
+	s := a.getSchema()
+	if v, ok := s.(validation.Validator); ok {
+		return v.Validate(ctx)
+	}
+
+	return nil
 }
 
 func (a *AllOf) ValidateSchema(s Schema, compare bool) error {

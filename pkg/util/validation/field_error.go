@@ -9,7 +9,6 @@ package validation
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -22,13 +21,12 @@ func NewFieldError(field string, err error) error {
 		}
 		return ve
 	case FieldError:
-		if idx, err := strconv.Atoi(t.field); err == nil { // numeric index
-			field = fmt.Sprintf("%s[%d]", field, idx)
-		} else if strings.HasPrefix(t.field, `"`) { // string index
-			field = fmt.Sprintf("%s[%s]", field, t.field)
+		if strings.HasPrefix(t.field, "[") {
+			field = fmt.Sprintf("%s%s", field, t.field)
 		} else {
 			field = fmt.Sprintf("%s.%s", field, t.field)
 		}
+
 		return FieldError{
 			field: field,
 			err:   t.err,
@@ -54,6 +52,14 @@ type FieldError struct {
 	err   error
 }
 
+func (f FieldError) Field() string {
+	return f.field
+}
+
+func (f FieldError) Err() error {
+	return f.err
+}
+
 func (f FieldError) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Field string `json:"field"`
@@ -66,4 +72,8 @@ func (f FieldError) MarshalJSON() ([]byte, error) {
 
 func (f FieldError) Error() string {
 	return fmt.Sprintf("%s: %s", f.field, f.err.Error())
+}
+
+func (f FieldError) TransformError(tr func(path string, err error) error) error {
+	return tr(f.field, f.err)
 }

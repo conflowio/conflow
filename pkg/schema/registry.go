@@ -7,9 +7,12 @@
 package schema
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"sync"
+
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 var registry = Registry{
@@ -68,9 +71,11 @@ func (r *Registry) GetSchema(uri string) (Schema, error) {
 		return s, nil
 	}
 
+	ctx := context.WithValue(context.Background(), GoContextKey, NewContext())
+
 	for prefix, resolver := range r.resolvers {
 		if strings.HasPrefix(uri, prefix) {
-			s, err := resolver.ResolveSchema(uri)
+			s, err := resolver.ResolveSchema(ctx, uri)
 			if err != nil {
 				return nil, err
 			}
@@ -79,7 +84,7 @@ func (r *Registry) GetSchema(uri string) (Schema, error) {
 				continue
 			}
 
-			if err := s.Validate(NewContext()); err != nil {
+			if err := validation.Validate(ctx, s); err != nil {
 				return nil, err
 			}
 

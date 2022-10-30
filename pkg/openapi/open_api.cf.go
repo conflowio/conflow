@@ -48,7 +48,9 @@ func init() {
 				Nullable: true,
 				Ref:      "github.com/conflowio/conflow/pkg/openapi.Info",
 			},
-			"openapi": &schema.String{},
+			"openapi": &schema.String{
+				Default: schema.Pointer("3.1.0"),
+			},
 			"paths": &schema.Map{
 				AdditionalProperties: &schema.Reference{
 					Nullable: true,
@@ -65,7 +67,7 @@ func init() {
 				Items: &schema.String{},
 			},
 		},
-		Required: []string{"openapi", "info"},
+		Required: []string{"info"},
 	})
 }
 
@@ -81,11 +83,13 @@ func (i OpenAPIInterpreter) Schema() schema.Schema {
 // Create creates a new OpenAPI block
 func (i OpenAPIInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
 	b := &OpenAPI{}
+	b.OpenAPI = "3.1.0"
 	b.Parameters = map[string]*Parameter{}
 	b.RequestBodies = map[string]*RequestBody{}
 	b.Responses = map[string]*Response{}
 	b.Schemas = map[string]schema.Schema{}
 	b.Paths = map[string]*PathItem{}
+	b.userContext = blockCtx.UserContext()
 	return b
 }
 

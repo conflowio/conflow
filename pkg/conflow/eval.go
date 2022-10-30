@@ -59,7 +59,7 @@ func Evaluate(
 
 	value, err := parsley.EvaluateNode(evalContext, node)
 	if err != nil {
-		return nil, parseCtx.FileSet().ErrorWithPosition(err)
+		return nil, TransformPathErrors(parseCtx, err, node)
 	}
 
 	return value, nil

@@ -7,8 +7,6 @@
 package parsers
 
 import (
-	"fmt"
-
 	"github.com/conflowio/parsley/ast"
 	"github.com/conflowio/parsley/combinator"
 	"github.com/conflowio/parsley/parser"
@@ -16,6 +14,7 @@ import (
 	"github.com/conflowio/parsley/text"
 	"github.com/conflowio/parsley/text/terminal"
 
+	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -59,13 +58,7 @@ func (a mapInterpreter) Eval(userCtx interface{}, node parsley.NonTerminalNode) 
 
 func (a mapInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (parsley.Node, parsley.Error) {
 	if len(node.(parsley.NonTerminalNode).Children()) == 3 {
-		return &mapNode{
-			keys:      nil,
-			items:     nil,
-			pos:       node.Pos(),
-			readerPos: node.ReaderPos(),
-			schema:    schema.NullValue(),
-		}, nil
+		return conflow.NewMapNode(nil, nil, node.Pos(), node.ReaderPos(), schema.NullValue()), nil
 	}
 
 	var nodes []parsley.Node
@@ -86,90 +79,5 @@ func (a mapInterpreter) TransformNode(userCtx interface{}, node parsley.Node) (p
 		}
 	}
 
-	return &mapNode{
-		keys:      keys,
-		items:     items,
-		pos:       node.Pos(),
-		readerPos: node.ReaderPos(),
-	}, nil
-}
-
-type mapNode struct {
-	keys      []string
-	items     []parsley.Node
-	pos       parsley.Pos
-	readerPos parsley.Pos
-	schema    schema.Schema
-}
-
-// Token returns with the node's token
-func (a *mapNode) Token() string {
-	return "MAP"
-}
-
-// Schema returns the schema for the node's value
-func (a *mapNode) Schema() interface{} {
-	return a.schema
-}
-
-// StaticCheck runs static analysis on the node
-func (a *mapNode) StaticCheck(ctx interface{}) parsley.Error {
-	if len(a.items) == 0 {
-		a.schema = schema.NullValue()
-		return nil
-	}
-
-	s, err := schema.GetSchemaForValues(len(a.items), func(i int) (schema.Schema, error) {
-		return a.items[i].Schema().(schema.Schema), nil
-	})
-
-	if err != nil {
-		return parsley.NewError(a.Pos(), err)
-	}
-
-	a.schema = &schema.Map{AdditionalProperties: s}
-
-	return nil
-}
-
-// Value creates a new block
-func (a *mapNode) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	if len(a.items) == 0 {
-		return map[string]interface{}{}, nil
-	}
-
-	res := make(map[string]interface{}, len(a.items))
-	for i, item := range a.items {
-		value, err := parsley.EvaluateNode(userCtx, item)
-		if err != nil {
-			return nil, err
-		}
-		res[a.keys[i]] = value
-	}
-	return res, nil
-}
-
-// Pos returns with the node's position
-func (a *mapNode) Pos() parsley.Pos {
-	return a.pos
-}
-
-// ReaderPos returns with the reader's position
-func (a *mapNode) ReaderPos() parsley.Pos {
-	return a.readerPos
-}
-
-// SetReaderPos amends the reader position using the given function
-func (a *mapNode) SetReaderPos(f func(parsley.Pos) parsley.Pos) {
-	a.readerPos = f(a.readerPos)
-}
-
-// Children returns with the array items
-func (a *mapNode) Children() []parsley.Node {
-	return a.items
-}
-
-// String returns with a string representation of the node
-func (a *mapNode) String() string {
-	return fmt.Sprintf("%s{%s, %d..%d}", a.Token(), a.items, a.pos, a.readerPos)
+	return conflow.NewMapNode(keys, items, node.Pos(), node.ReaderPos(), nil), nil
 }

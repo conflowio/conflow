@@ -21,6 +21,7 @@ import (
 	"github.com/conflowio/conflow/pkg/loggers/zerolog"
 	"github.com/conflowio/conflow/pkg/openapi"
 	"github.com/conflowio/conflow/pkg/parsers"
+	"github.com/conflowio/conflow/pkg/schema"
 )
 
 func evaluateStdin(ctx context.Context) (*openapi.OpenAPI, error) {
@@ -95,7 +96,7 @@ func evaluate(ctx context.Context, parseCtx *conflow.ParseContext) (*openapi.Ope
 	res, err := conflow.Evaluate(
 		parseCtx,
 		ctx,
-		nil,
+		schema.NewContext(),
 		logger,
 		scheduler,
 		"main",

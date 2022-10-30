@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -149,8 +150,12 @@ func (b *Boolean) UnmarshalJSON(input []byte) error {
 	})
 }
 
-func (b *Boolean) Validate(ctx *Context) error {
-	return validateCommonFields(b, b.Const, b.Default, b.Enum)(ctx)
+func (b *Boolean) Validate(ctx context.Context) error {
+	if err := validateCommonFields(b, b.Const, b.Default, b.Enum); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (b *Boolean) ValidateSchema(b2 Schema, _ bool) error {

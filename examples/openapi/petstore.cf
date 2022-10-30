@@ -101,7 +101,7 @@ path "/pets" {
 path "/pets/{id}" {
   get {
     description = "Returns a user based on a single ID, if the user does not have access to the pet"
-    operation_id = "find pet by id"
+    operation_id = "findPetByID"
 
     parameter {
       name = "id"

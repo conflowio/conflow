@@ -10,7 +10,6 @@ import (
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
 	"github.com/conflowio/conflow/pkg/conflow/types"
-	"github.com/conflowio/conflow/pkg/schema"
 )
 
 // @block "configuration"
@@ -27,8 +26,4 @@ func (s *Server) ParseContextOverride() conflow.ParseContextOverride {
 			"variable": ServerVariableInterpreter{},
 		},
 	}
-}
-
-func (s *Server) Validate(ctx *schema.Context) error {
-	return schema.ValidateMap("variables", s.Variables)(ctx)
 }

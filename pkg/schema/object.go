@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -400,31 +401,24 @@ func (o *Object) UnmarshalJSON(j []byte) error {
 	return nil
 }
 
-func (o *Object) Validate(ctx *Context) error {
-	return ValidateAll(
-		ctx,
-		func(ctx *Context) error {
-			if o.MinProperties < 0 {
-				return validation.NewFieldError("minProperties", errors.New("must be greater than or equal to 0"))
-			}
-			if o.MaxProperties != nil && o.MinProperties > *o.MaxProperties {
-				return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
-			}
-			if int64(len(o.Properties)) < o.MinProperties {
-				return validation.NewFieldError("minProperties", errors.New("can not be greater than the number of properties defined"))
-			}
+func (o *Object) Validate(ctx context.Context) error {
+	if o.MinProperties < 0 {
+		return validation.NewFieldError("minProperties", errors.New("must be greater than or equal to 0"))
+	}
+	if o.MaxProperties != nil && o.MinProperties > *o.MaxProperties {
+		return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
+	}
+	if int64(len(o.Properties)) < o.MinProperties {
+		return validation.NewFieldError("minProperties", errors.New("can not be greater than the number of properties defined"))
+	}
 
-			for i, r := range o.Required {
-				if _, ok := o.Properties[r]; !ok {
-					return validation.NewFieldErrorf(fmt.Sprintf("required[%d]", i), "property %q does not exist", r)
-				}
-			}
+	for i, r := range o.Required {
+		if _, ok := o.Properties[r]; !ok {
+			return validation.NewFieldErrorf(fmt.Sprintf("required[%d]", i), "property %q does not exist", r)
+		}
+	}
 
-			return nil
-		},
-		validateCommonFields(o, o.Const, o.Default, o.Enum),
-		ValidateMap("properties", o.Properties),
-	)
+	return nil
 }
 
 func (o *Object) ValidateSchema(s Schema, compare bool) error {

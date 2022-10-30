@@ -132,10 +132,6 @@ func (a *Any) TypeString() string {
 	return "any"
 }
 
-func (a *Any) Validate(*Context) error {
-	return nil
-}
-
 func (a *Any) ValidateSchema(s Schema, compare bool) error {
 	if len(a.Types) == 0 {
 		return nil
