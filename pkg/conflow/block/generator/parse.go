@@ -46,7 +46,7 @@ func ParseStruct(
 
 	var interpreterPath string
 	interpreterPkg := pkg
-	if bd != nil && bd.Path != "" {
+	if bd != nil && bd.Path != "" && bd.Path != "." {
 		interpreterPath = bd.Path
 		interpreterPkg = path.Clean(path.Join(interpreterPkg, bd.Path))
 	}
@@ -87,10 +87,14 @@ func ParseStruct(
 				continue
 			}
 
+			if interpreterPath != "" && strings.ToLower(fieldName[0:1]) == fieldName[0:1] {
+				return nil, fmt.Errorf("field %q must be public or excluded with @ignore, when the interpreter is generated into a different package", fieldName)
+			}
+
 			if field.Dependency != "" {
 				dependencies = append(dependencies, parser.Dependency{
-					Name:      fieldName,
-					FieldName: field.Dependency,
+					Name:      field.Dependency,
+					FieldName: fieldName,
 				})
 				continue
 			}
@@ -112,8 +116,14 @@ func ParseStruct(
 					continue
 				}
 
+				fieldName := fieldStrSchema.FieldName(parameterName)
+
+				if interpreterPath != "" && strings.ToLower(fieldName[0:1]) == fieldName[0:1] {
+					return nil, fmt.Errorf("field %q must be public or excluded with @ignore, when the interpreter is generated into a different package", fieldName)
+				}
+
 				f := parser.Field{
-					Name:             fieldStrSchema.FieldName(parameterName),
+					Name:             fieldName,
 					ParameterName:    parameterName,
 					Required:         fieldStrSchema.IsPropertyRequired(jsonPropertyName),
 					Schema:           property,
