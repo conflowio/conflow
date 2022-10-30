@@ -9,6 +9,8 @@ package conflow
 import (
 	"context"
 	"io"
+
+	"github.com/conflowio/parsley/parsley"
 )
 
 // Context defines an interface about creating a new context
@@ -60,4 +62,8 @@ func (b *BlockContext) Stdout() io.Writer {
 
 func (b *BlockContext) UserContext() interface{} {
 	return b.evalContext.UserContext
+}
+
+func (b *BlockContext) Node() parsley.Node {
+	return b.evalContext.node
 }

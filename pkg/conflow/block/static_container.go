@@ -98,7 +98,7 @@ func (s *StaticContainer) Value() (interface{}, parsley.Error) {
 
 func (s *StaticContainer) createContainer(node conflow.Node) conflow.JobContainer {
 	ctx, cancel := context.WithCancel(context.Background())
-	childCtx := s.evalCtx.New(ctx, cancel, nil)
+	childCtx := s.evalCtx.New(ctx, cancel, nil, node)
 	switch n := node.(type) {
 	case conflow.BlockNode:
 		return NewStaticContainer(childCtx, n)

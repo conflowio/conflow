@@ -335,7 +335,7 @@ func getParameterConfig(param conflow.ParameterNode) (*conflow.ParameterConfig, 
 			continue
 		}
 
-		evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
+		evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil, d)
 
 		block, err := d.Value(evalCtx)
 		if err != nil {
@@ -354,7 +354,7 @@ func getParameterConfig(param conflow.ParameterNode) (*conflow.ParameterConfig, 
 }
 
 func evaluateBlock(parseCtx *conflow.ParseContext, node conflow.BlockNode) parsley.Error {
-	evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil)
+	evalCtx := conflow.NewEvalContext(context.Background(), nil, nil, job.SimpleScheduler{}, nil, node)
 
 	block, err := parsley.EvaluateNode(evalCtx, node)
 	if err != nil {

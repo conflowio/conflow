@@ -10,6 +10,7 @@ const (
 	DependencyBlockPublisher = "blockPublisher"
 	DependencyJobScheduler   = "jobScheduler"
 	DependencyLogger         = "logger"
+	DependencyNode           = "node"
 	DependencyStdout         = "stdout"
 	DependencyUserContext    = "userContext"
 )
@@ -18,6 +19,7 @@ var validDependencies = []string{
 	DependencyBlockPublisher,
 	DependencyJobScheduler,
 	DependencyLogger,
+	DependencyNode,
 	DependencyStdout,
 	DependencyUserContext,
 }
@@ -26,6 +28,7 @@ var dependencyTypes = map[string]string{
 	DependencyBlockPublisher: "github.com/conflowio/conflow/pkg/conflow.BlockPublisher",
 	DependencyJobScheduler:   "github.com/conflowio/conflow/pkg/conflow.JobScheduler",
 	DependencyLogger:         "github.com/conflowio/conflow/pkg/conflow.Logger",
+	DependencyNode:           "github.com/conflowio/parsley/parsley.Node",
 	DependencyStdout:         "io.Writer",
 	DependencyUserContext:    "interface{}",
 }
