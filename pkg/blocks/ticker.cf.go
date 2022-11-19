@@ -47,6 +47,12 @@ func init() {
 	})
 }
 
+// NewTickerWithDefaults creates a new Ticker instance with default values
+func NewTickerWithDefaults() *Ticker {
+	b := &Ticker{}
+	return b
+}
+
 // TickerInterpreter is the Conflow interpreter for the Ticker block
 type TickerInterpreter struct {
 }
@@ -58,7 +64,7 @@ func (i TickerInterpreter) Schema() schema.Schema {
 
 // Create creates a new Ticker block
 func (i TickerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Ticker{}
+	b := NewTickerWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

@@ -39,6 +39,12 @@ func init() {
 	})
 }
 
+// NewInfoWithDefaults creates a new Info instance with default values
+func NewInfoWithDefaults() *Info {
+	b := &Info{}
+	return b
+}
+
 // InfoInterpreter is the Conflow interpreter for the Info block
 type InfoInterpreter struct {
 }
@@ -50,7 +56,7 @@ func (i InfoInterpreter) Schema() schema.Schema {
 
 // Create creates a new Info block
 func (i InfoInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Info{}
+	b := NewInfoWithDefaults()
 	return b
 }
 

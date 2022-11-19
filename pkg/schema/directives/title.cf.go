@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewTitleWithDefaults creates a new Title instance with default values
+func NewTitleWithDefaults() *Title {
+	b := &Title{}
+	return b
+}
+
 // TitleInterpreter is the Conflow interpreter for the Title block
 type TitleInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i TitleInterpreter) Schema() schema.Schema {
 
 // Create creates a new Title block
 func (i TitleInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Title{}
+	b := NewTitleWithDefaults()
 	b.id = id
 	return b
 }

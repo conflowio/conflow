@@ -35,6 +35,12 @@ func init() {
 	})
 }
 
+// NewStreamWithDefaults creates a new Stream instance with default values
+func NewStreamWithDefaults() *Stream {
+	b := &Stream{}
+	return b
+}
+
 // StreamInterpreter is the Conflow interpreter for the Stream block
 type StreamInterpreter struct {
 }
@@ -46,7 +52,7 @@ func (i StreamInterpreter) Schema() schema.Schema {
 
 // Create creates a new Stream block
 func (i StreamInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Stream{}
+	b := NewStreamWithDefaults()
 	b.id = id
 	return b
 }

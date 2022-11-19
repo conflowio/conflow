@@ -33,6 +33,12 @@ func init() {
 	})
 }
 
+// NewFileWithDefaults creates a new File instance with default values
+func NewFileWithDefaults() *File {
+	b := &File{}
+	return b
+}
+
 // FileInterpreter is the Conflow interpreter for the File block
 type FileInterpreter struct {
 }
@@ -44,7 +50,7 @@ func (i FileInterpreter) Schema() schema.Schema {
 
 // Create creates a new File block
 func (i FileInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &File{}
+	b := NewFileWithDefaults()
 	b.id = id
 	return b
 }

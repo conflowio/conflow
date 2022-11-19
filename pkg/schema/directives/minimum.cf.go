@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMinimumWithDefaults creates a new Minimum instance with default values
+func NewMinimumWithDefaults() *Minimum {
+	b := &Minimum{}
+	return b
+}
+
 // MinimumInterpreter is the Conflow interpreter for the Minimum block
 type MinimumInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MinimumInterpreter) Schema() schema.Schema {
 
 // Create creates a new Minimum block
 func (i MinimumInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Minimum{}
+	b := NewMinimumWithDefaults()
 	b.id = id
 	return b
 }

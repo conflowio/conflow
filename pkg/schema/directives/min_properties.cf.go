@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMinPropertiesWithDefaults creates a new MinProperties instance with default values
+func NewMinPropertiesWithDefaults() *MinProperties {
+	b := &MinProperties{}
+	return b
+}
+
 // MinPropertiesInterpreter is the Conflow interpreter for the MinProperties block
 type MinPropertiesInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MinPropertiesInterpreter) Schema() schema.Schema {
 
 // Create creates a new MinProperties block
 func (i MinPropertiesInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &MinProperties{}
+	b := NewMinPropertiesWithDefaults()
 	b.id = id
 	return b
 }

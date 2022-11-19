@@ -33,6 +33,13 @@ func init() {
 	})
 }
 
+// NewRequestBodyWithDefaults creates a new RequestBody instance with default values
+func NewRequestBodyWithDefaults() *RequestBody {
+	b := &RequestBody{}
+	b.Content = map[string]*MediaType{}
+	return b
+}
+
 // RequestBodyInterpreter is the Conflow interpreter for the RequestBody block
 type RequestBodyInterpreter struct {
 }
@@ -44,8 +51,7 @@ func (i RequestBodyInterpreter) Schema() schema.Schema {
 
 // Create creates a new RequestBody block
 func (i RequestBodyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &RequestBody{}
-	b.Content = map[string]*MediaType{}
+	b := NewRequestBodyWithDefaults()
 	return b
 }
 

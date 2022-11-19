@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewBlockWithInterfaceWithDefaults creates a new BlockWithInterface instance with default values
+func NewBlockWithInterfaceWithDefaults() *BlockWithInterface {
+	b := &BlockWithInterface{}
+	return b
+}
+
 // BlockWithInterfaceInterpreter is the Conflow interpreter for the BlockWithInterface block
 type BlockWithInterfaceInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i BlockWithInterfaceInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockWithInterface block
 func (i BlockWithInterfaceInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &BlockWithInterface{}
+	b := NewBlockWithInterfaceWithDefaults()
 	b.IDField = id
 	return b
 }

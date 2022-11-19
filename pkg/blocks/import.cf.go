@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewImportWithDefaults creates a new Import instance with default values
+func NewImportWithDefaults() *Import {
+	b := &Import{}
+	return b
+}
+
 // ImportInterpreter is the Conflow interpreter for the Import block
 type ImportInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i ImportInterpreter) Schema() schema.Schema {
 
 // Create creates a new Import block
 func (i ImportInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Import{}
+	b := NewImportWithDefaults()
 	b.id = id
 	return b
 }

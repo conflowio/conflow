@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewDeprecatedWithDefaults creates a new Deprecated instance with default values
+func NewDeprecatedWithDefaults() *Deprecated {
+	b := &Deprecated{}
+	return b
+}
+
 // DeprecatedInterpreter is the Conflow interpreter for the Deprecated block
 type DeprecatedInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i DeprecatedInterpreter) Schema() schema.Schema {
 
 // Create creates a new Deprecated block
 func (i DeprecatedInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Deprecated{}
+	b := NewDeprecatedWithDefaults()
 	b.id = id
 	return b
 }

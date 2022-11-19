@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMaxPropertiesWithDefaults creates a new MaxProperties instance with default values
+func NewMaxPropertiesWithDefaults() *MaxProperties {
+	b := &MaxProperties{}
+	return b
+}
+
 // MaxPropertiesInterpreter is the Conflow interpreter for the MaxProperties block
 type MaxPropertiesInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MaxPropertiesInterpreter) Schema() schema.Schema {
 
 // Create creates a new MaxProperties block
 func (i MaxPropertiesInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &MaxProperties{}
+	b := NewMaxPropertiesWithDefaults()
 	b.id = id
 	return b
 }

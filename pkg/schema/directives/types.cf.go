@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewTypesWithDefaults creates a new Types instance with default values
+func NewTypesWithDefaults() *Types {
+	b := &Types{}
+	return b
+}
+
 // TypesInterpreter is the Conflow interpreter for the Types block
 type TypesInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i TypesInterpreter) Schema() schema.Schema {
 
 // Create creates a new Types block
 func (i TypesInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Types{}
+	b := NewTypesWithDefaults()
 	b.id = id
 	return b
 }

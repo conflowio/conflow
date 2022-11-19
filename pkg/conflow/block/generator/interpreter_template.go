@@ -30,6 +30,20 @@ func init() {
 	{{ .SchemaPackageSelector }}Register({{ .Schema.GoString .Imports }})
 }
 
+// New{{ .Name }}WithDefaults creates a new {{ .Name }} instance with default values
+func New{{ .Name }}WithDefaults() *{{ .NameSelector }}{{ .Name }} {
+	b := &{{ .NameSelector }}{{ .Name }}{}
+	{{ range $name, $schema := filterDefaults (filterParams .Schema.Properties) -}}
+	b.{{ getFieldName $name }} = {{ printf "%#v" .DefaultValue }}
+	{{ end -}}
+	{{ range $name, $property := filterInputs (filterBlocks .Schema.Properties) -}}
+	{{ if isMap $property -}}
+	b.{{ getFieldName $name }} = map[string]{{ getType $property.AdditionalProperties }}{}
+	{{ end -}}
+	{{ end -}}
+	return b
+}
+
 // {{ .Name }}Interpreter is the Conflow interpreter for the {{ .Name }} block
 type {{ .Name }}Interpreter struct {
 }
@@ -41,17 +55,9 @@ func (i {{ .Name }}Interpreter) Schema() {{ .SchemaPackageSelector}}Schema {
 
 // Create creates a new {{ .Name }} block
 func (i {{ .Name }}Interpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &{{ .NameSelector }}{{ .Name }}{}
+	b := New{{ .Name }}WithDefaults()
 	{{ if .IDPropertyName -}}
 	b.{{ getFieldName .IDPropertyName }} = id
-	{{ end -}}
-	{{ range $name, $schema := filterDefaults (filterParams .Schema.Properties) -}}
-	b.{{ getFieldName $name }} = {{ printf "%#v" .DefaultValue }}
-	{{ end -}}
-	{{ range $name, $property := filterInputs (filterBlocks .Schema.Properties) -}}
-	{{ if isMap $property -}}
-	b.{{ getFieldName $name }} = map[string]{{ getType $property.AdditionalProperties }}{}
-	{{ end -}}
 	{{ end -}}
 	{{ range .Dependencies -}}
 	b.{{ .FieldName }} = blockCtx.{{ title .Name }}()

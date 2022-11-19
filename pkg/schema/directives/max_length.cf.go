@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMaxLengthWithDefaults creates a new MaxLength instance with default values
+func NewMaxLengthWithDefaults() *MaxLength {
+	b := &MaxLength{}
+	return b
+}
+
 // MaxLengthInterpreter is the Conflow interpreter for the MaxLength block
 type MaxLengthInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MaxLengthInterpreter) Schema() schema.Schema {
 
 // Create creates a new MaxLength block
 func (i MaxLengthInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &MaxLength{}
+	b := NewMaxLengthWithDefaults()
 	b.id = id
 	return b
 }

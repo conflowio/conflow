@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMaxItemsWithDefaults creates a new MaxItems instance with default values
+func NewMaxItemsWithDefaults() *MaxItems {
+	b := &MaxItems{}
+	return b
+}
+
 // MaxItemsInterpreter is the Conflow interpreter for the MaxItems block
 type MaxItemsInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MaxItemsInterpreter) Schema() schema.Schema {
 
 // Create creates a new MaxItems block
 func (i MaxItemsInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &MaxItems{}
+	b := NewMaxItemsWithDefaults()
 	b.id = id
 	return b
 }

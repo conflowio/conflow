@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewWriteOnlyWithDefaults creates a new WriteOnly instance with default values
+func NewWriteOnlyWithDefaults() *WriteOnly {
+	b := &WriteOnly{}
+	return b
+}
+
 // WriteOnlyInterpreter is the Conflow interpreter for the WriteOnly block
 type WriteOnlyInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i WriteOnlyInterpreter) Schema() schema.Schema {
 
 // Create creates a new WriteOnly block
 func (i WriteOnlyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &WriteOnly{}
+	b := NewWriteOnlyWithDefaults()
 	b.id = id
 	return b
 }

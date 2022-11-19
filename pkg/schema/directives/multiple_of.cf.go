@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMultipleOfWithDefaults creates a new MultipleOf instance with default values
+func NewMultipleOfWithDefaults() *MultipleOf {
+	b := &MultipleOf{}
+	return b
+}
+
 // MultipleOfInterpreter is the Conflow interpreter for the MultipleOf block
 type MultipleOfInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MultipleOfInterpreter) Schema() schema.Schema {
 
 // Create creates a new MultipleOf block
 func (i MultipleOfInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &MultipleOf{}
+	b := NewMultipleOfWithDefaults()
 	b.id = id
 	return b
 }

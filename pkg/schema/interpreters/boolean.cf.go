@@ -47,6 +47,12 @@ func init() {
 	})
 }
 
+// NewBooleanWithDefaults creates a new Boolean instance with default values
+func NewBooleanWithDefaults() *schema.Boolean {
+	b := &schema.Boolean{}
+	return b
+}
+
 // BooleanInterpreter is the Conflow interpreter for the Boolean block
 type BooleanInterpreter struct {
 }
@@ -58,7 +64,7 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 
 // Create creates a new Boolean block
 func (i BooleanInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &schema.Boolean{}
+	b := NewBooleanWithDefaults()
 	return b
 }
 

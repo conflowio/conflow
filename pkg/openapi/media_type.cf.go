@@ -28,6 +28,12 @@ func init() {
 	})
 }
 
+// NewMediaTypeWithDefaults creates a new MediaType instance with default values
+func NewMediaTypeWithDefaults() *MediaType {
+	b := &MediaType{}
+	return b
+}
+
 // MediaTypeInterpreter is the Conflow interpreter for the MediaType block
 type MediaTypeInterpreter struct {
 }
@@ -39,7 +45,7 @@ func (i MediaTypeInterpreter) Schema() schema.Schema {
 
 // Create creates a new MediaType block
 func (i MediaTypeInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &MediaType{}
+	b := NewMediaTypeWithDefaults()
 	return b
 }
 

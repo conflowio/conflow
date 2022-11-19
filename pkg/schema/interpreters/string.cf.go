@@ -59,6 +59,12 @@ func init() {
 	})
 }
 
+// NewStringWithDefaults creates a new String instance with default values
+func NewStringWithDefaults() *schema.String {
+	b := &schema.String{}
+	return b
+}
+
 // StringInterpreter is the Conflow interpreter for the String block
 type StringInterpreter struct {
 }
@@ -70,7 +76,7 @@ func (i StringInterpreter) Schema() schema.Schema {
 
 // Create creates a new String block
 func (i StringInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &schema.String{}
+	b := NewStringWithDefaults()
 	return b
 }
 

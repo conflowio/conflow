@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewExclusiveMaximumWithDefaults creates a new ExclusiveMaximum instance with default values
+func NewExclusiveMaximumWithDefaults() *ExclusiveMaximum {
+	b := &ExclusiveMaximum{}
+	return b
+}
+
 // ExclusiveMaximumInterpreter is the Conflow interpreter for the ExclusiveMaximum block
 type ExclusiveMaximumInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i ExclusiveMaximumInterpreter) Schema() schema.Schema {
 
 // Create creates a new ExclusiveMaximum block
 func (i ExclusiveMaximumInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &ExclusiveMaximum{}
+	b := NewExclusiveMaximumWithDefaults()
 	b.id = id
 	return b
 }

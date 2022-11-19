@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewBlockValueFieldWithDefaults creates a new BlockValueField instance with default values
+func NewBlockValueFieldWithDefaults() *BlockValueField {
+	b := &BlockValueField{}
+	return b
+}
+
 // BlockValueFieldInterpreter is the Conflow interpreter for the BlockValueField block
 type BlockValueFieldInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i BlockValueFieldInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockValueField block
 func (i BlockValueFieldInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &BlockValueField{}
+	b := NewBlockValueFieldWithDefaults()
 	b.IDField = id
 	return b
 }

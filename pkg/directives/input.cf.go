@@ -39,6 +39,12 @@ func init() {
 	})
 }
 
+// NewInputWithDefaults creates a new Input instance with default values
+func NewInputWithDefaults() *Input {
+	b := &Input{}
+	return b
+}
+
 // InputInterpreter is the Conflow interpreter for the Input block
 type InputInterpreter struct {
 }
@@ -50,7 +56,7 @@ func (i InputInterpreter) Schema() schema.Schema {
 
 // Create creates a new Input block
 func (i InputInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Input{}
+	b := NewInputWithDefaults()
 	b.id = id
 	return b
 }

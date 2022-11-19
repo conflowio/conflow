@@ -43,6 +43,12 @@ func init() {
 	})
 }
 
+// NewBlockWithContextWithDefaults creates a new BlockWithContext instance with default values
+func NewBlockWithContextWithDefaults() *BlockWithContext {
+	b := &BlockWithContext{}
+	return b
+}
+
 // BlockWithContextInterpreter is the Conflow interpreter for the BlockWithContext block
 type BlockWithContextInterpreter struct {
 }
@@ -54,7 +60,7 @@ func (i BlockWithContextInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockWithContext block
 func (i BlockWithContextInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &BlockWithContext{}
+	b := NewBlockWithContextWithDefaults()
 	b.IDField = id
 	return b
 }

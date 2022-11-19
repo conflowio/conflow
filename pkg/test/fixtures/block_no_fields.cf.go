@@ -33,6 +33,12 @@ func init() {
 	})
 }
 
+// NewBlockNoFieldsWithDefaults creates a new BlockNoFields instance with default values
+func NewBlockNoFieldsWithDefaults() *BlockNoFields {
+	b := &BlockNoFields{}
+	return b
+}
+
 // BlockNoFieldsInterpreter is the Conflow interpreter for the BlockNoFields block
 type BlockNoFieldsInterpreter struct {
 }
@@ -44,7 +50,7 @@ func (i BlockNoFieldsInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockNoFields block
 func (i BlockNoFieldsInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &BlockNoFields{}
+	b := NewBlockNoFieldsWithDefaults()
 	b.IDField = id
 	return b
 }

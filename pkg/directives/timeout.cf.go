@@ -43,6 +43,12 @@ func init() {
 	})
 }
 
+// NewTimeoutWithDefaults creates a new Timeout instance with default values
+func NewTimeoutWithDefaults() *Timeout {
+	b := &Timeout{}
+	return b
+}
+
 // TimeoutInterpreter is the Conflow interpreter for the Timeout block
 type TimeoutInterpreter struct {
 }
@@ -54,7 +60,7 @@ func (i TimeoutInterpreter) Schema() schema.Schema {
 
 // Create creates a new Timeout block
 func (i TimeoutInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Timeout{}
+	b := NewTimeoutWithDefaults()
 	b.id = id
 	return b
 }

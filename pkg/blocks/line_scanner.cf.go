@@ -44,6 +44,12 @@ func init() {
 	})
 }
 
+// NewLineScannerWithDefaults creates a new LineScanner instance with default values
+func NewLineScannerWithDefaults() *LineScanner {
+	b := &LineScanner{}
+	return b
+}
+
 // LineScannerInterpreter is the Conflow interpreter for the LineScanner block
 type LineScannerInterpreter struct {
 }
@@ -55,7 +61,7 @@ func (i LineScannerInterpreter) Schema() schema.Schema {
 
 // Create creates a new LineScanner block
 func (i LineScannerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &LineScanner{}
+	b := NewLineScannerWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

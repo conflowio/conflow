@@ -39,6 +39,12 @@ func init() {
 	})
 }
 
+// NewBlockWithManyBlockWithDefaults creates a new BlockWithManyBlock instance with default values
+func NewBlockWithManyBlockWithDefaults() *BlockWithManyBlock {
+	b := &BlockWithManyBlock{}
+	return b
+}
+
 // BlockWithManyBlockInterpreter is the Conflow interpreter for the BlockWithManyBlock block
 type BlockWithManyBlockInterpreter struct {
 }
@@ -50,7 +56,7 @@ func (i BlockWithManyBlockInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockWithManyBlock block
 func (i BlockWithManyBlockInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &BlockWithManyBlock{}
+	b := NewBlockWithManyBlockWithDefaults()
 	b.IDField = id
 	return b
 }

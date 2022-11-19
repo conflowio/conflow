@@ -61,6 +61,12 @@ func init() {
 	})
 }
 
+// NewDirectiveWithDefaults creates a new Directive instance with default values
+func NewDirectiveWithDefaults() *Directive {
+	b := &Directive{}
+	return b
+}
+
 // DirectiveInterpreter is the Conflow interpreter for the Directive block
 type DirectiveInterpreter struct {
 }
@@ -72,7 +78,7 @@ func (i DirectiveInterpreter) Schema() schema.Schema {
 
 // Create creates a new Directive block
 func (i DirectiveInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Directive{}
+	b := NewDirectiveWithDefaults()
 	b.IDField = id
 	return b
 }

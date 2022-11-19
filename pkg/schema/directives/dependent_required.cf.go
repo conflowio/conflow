@@ -48,6 +48,12 @@ func init() {
 	})
 }
 
+// NewDependentRequiredWithDefaults creates a new DependentRequired instance with default values
+func NewDependentRequiredWithDefaults() *DependentRequired {
+	b := &DependentRequired{}
+	return b
+}
+
 // DependentRequiredInterpreter is the Conflow interpreter for the DependentRequired block
 type DependentRequiredInterpreter struct {
 }
@@ -59,7 +65,7 @@ func (i DependentRequiredInterpreter) Schema() schema.Schema {
 
 // Create creates a new DependentRequired block
 func (i DependentRequiredInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &DependentRequired{}
+	b := NewDependentRequiredWithDefaults()
 	b.id = id
 	return b
 }

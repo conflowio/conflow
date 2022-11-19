@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewAllOfWithDefaults creates a new AllOf instance with default values
+func NewAllOfWithDefaults() *schema.AllOf {
+	b := &schema.AllOf{}
+	return b
+}
+
 // AllOfInterpreter is the Conflow interpreter for the AllOf block
 type AllOfInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i AllOfInterpreter) Schema() schema.Schema {
 
 // Create creates a new AllOf block
 func (i AllOfInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &schema.AllOf{}
+	b := NewAllOfWithDefaults()
 	return b
 }
 

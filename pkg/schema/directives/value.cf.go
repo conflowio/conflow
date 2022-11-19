@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewValueWithDefaults creates a new Value instance with default values
+func NewValueWithDefaults() *Value {
+	b := &Value{}
+	return b
+}
+
 // ValueInterpreter is the Conflow interpreter for the Value block
 type ValueInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i ValueInterpreter) Schema() schema.Schema {
 
 // Create creates a new Value block
 func (i ValueInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Value{}
+	b := NewValueWithDefaults()
 	b.id = id
 	return b
 }

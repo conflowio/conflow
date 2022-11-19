@@ -56,6 +56,12 @@ func init() {
 	})
 }
 
+// NewMapWithDefaults creates a new Map instance with default values
+func NewMapWithDefaults() *schema.Map {
+	b := &schema.Map{}
+	return b
+}
+
 // MapInterpreter is the Conflow interpreter for the Map block
 type MapInterpreter struct {
 }
@@ -67,7 +73,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 
 // Create creates a new Map block
 func (i MapInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &schema.Map{}
+	b := NewMapWithDefaults()
 	return b
 }
 

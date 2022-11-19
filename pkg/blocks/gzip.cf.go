@@ -45,6 +45,12 @@ func init() {
 	})
 }
 
+// NewGzipWithDefaults creates a new Gzip instance with default values
+func NewGzipWithDefaults() *Gzip {
+	b := &Gzip{}
+	return b
+}
+
 // GzipInterpreter is the Conflow interpreter for the Gzip block
 type GzipInterpreter struct {
 }
@@ -56,7 +62,7 @@ func (i GzipInterpreter) Schema() schema.Schema {
 
 // Create creates a new Gzip block
 func (i GzipInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Gzip{}
+	b := NewGzipWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

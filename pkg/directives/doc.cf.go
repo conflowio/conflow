@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewDocWithDefaults creates a new Doc instance with default values
+func NewDocWithDefaults() *Doc {
+	b := &Doc{}
+	return b
+}
+
 // DocInterpreter is the Conflow interpreter for the Doc block
 type DocInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i DocInterpreter) Schema() schema.Schema {
 
 // Create creates a new Doc block
 func (i DocInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Doc{}
+	b := NewDocWithDefaults()
 	b.id = id
 	return b
 }

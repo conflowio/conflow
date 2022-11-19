@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewIgnoreWithDefaults creates a new Ignore instance with default values
+func NewIgnoreWithDefaults() *Ignore {
+	b := &Ignore{}
+	return b
+}
+
 // IgnoreInterpreter is the Conflow interpreter for the Ignore block
 type IgnoreInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i IgnoreInterpreter) Schema() schema.Schema {
 
 // Create creates a new Ignore block
 func (i IgnoreInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Ignore{}
+	b := NewIgnoreWithDefaults()
 	b.id = id
 	return b
 }

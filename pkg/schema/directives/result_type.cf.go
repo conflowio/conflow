@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewResultTypeWithDefaults creates a new ResultType instance with default values
+func NewResultTypeWithDefaults() *ResultType {
+	b := &ResultType{}
+	return b
+}
+
 // ResultTypeInterpreter is the Conflow interpreter for the ResultType block
 type ResultTypeInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i ResultTypeInterpreter) Schema() schema.Schema {
 
 // Create creates a new ResultType block
 func (i ResultTypeInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &ResultType{}
+	b := NewResultTypeWithDefaults()
 	b.id = id
 	return b
 }

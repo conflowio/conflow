@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewDependencyWithDefaults creates a new Dependency instance with default values
+func NewDependencyWithDefaults() *Dependency {
+	b := &Dependency{}
+	return b
+}
+
 // DependencyInterpreter is the Conflow interpreter for the Dependency block
 type DependencyInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i DependencyInterpreter) Schema() schema.Schema {
 
 // Create creates a new Dependency block
 func (i DependencyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Dependency{}
+	b := NewDependencyWithDefaults()
 	b.id = id
 	return b
 }
