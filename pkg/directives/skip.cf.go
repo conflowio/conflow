@@ -41,6 +41,13 @@ func init() {
 	})
 }
 
+// NewSkipWithDefaults creates a new Skip instance with default values
+func NewSkipWithDefaults() *Skip {
+	b := &Skip{}
+	b.when = true
+	return b
+}
+
 // SkipInterpreter is the Conflow interpreter for the Skip block
 type SkipInterpreter struct {
 }
@@ -52,9 +59,8 @@ func (i SkipInterpreter) Schema() schema.Schema {
 
 // Create creates a new Skip block
 func (i SkipInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Skip{}
+	b := NewSkipWithDefaults()
 	b.id = id
-	b.when = true
 	return b
 }
 

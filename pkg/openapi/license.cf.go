@@ -31,6 +31,12 @@ func init() {
 	})
 }
 
+// NewLicenseWithDefaults creates a new License instance with default values
+func NewLicenseWithDefaults() *License {
+	b := &License{}
+	return b
+}
+
 // LicenseInterpreter is the Conflow interpreter for the License block
 type LicenseInterpreter struct {
 }
@@ -42,7 +48,7 @@ func (i LicenseInterpreter) Schema() schema.Schema {
 
 // Create creates a new License block
 func (i LicenseInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &License{}
+	b := NewLicenseWithDefaults()
 	return b
 }
 

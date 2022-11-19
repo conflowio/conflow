@@ -44,6 +44,12 @@ func init() {
 	})
 }
 
+// NewFailWithDefaults creates a new Fail instance with default values
+func NewFailWithDefaults() *Fail {
+	b := &Fail{}
+	return b
+}
+
 // FailInterpreter is the Conflow interpreter for the Fail block
 type FailInterpreter struct {
 }
@@ -55,7 +61,7 @@ func (i FailInterpreter) Schema() schema.Schema {
 
 // Create creates a new Fail block
 func (i FailInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Fail{}
+	b := NewFailWithDefaults()
 	b.id = id
 	return b
 }

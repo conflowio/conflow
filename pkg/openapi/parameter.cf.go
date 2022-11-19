@@ -46,6 +46,12 @@ func init() {
 	})
 }
 
+// NewParameterWithDefaults creates a new Parameter instance with default values
+func NewParameterWithDefaults() *Parameter {
+	b := &Parameter{}
+	return b
+}
+
 // ParameterInterpreter is the Conflow interpreter for the Parameter block
 type ParameterInterpreter struct {
 }
@@ -57,7 +63,7 @@ func (i ParameterInterpreter) Schema() schema.Schema {
 
 // Create creates a new Parameter block
 func (i ParameterInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Parameter{}
+	b := NewParameterWithDefaults()
 	return b
 }
 

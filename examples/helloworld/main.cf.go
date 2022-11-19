@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewMainWithDefaults creates a new Main instance with default values
+func NewMainWithDefaults() *Main {
+	b := &Main{}
+	return b
+}
+
 // MainInterpreter is the Conflow interpreter for the Main block
 type MainInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i MainInterpreter) Schema() schema.Schema {
 
 // Create creates a new Main block
 func (i MainInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Main{}
+	b := NewMainWithDefaults()
 	b.id = id
 	return b
 }

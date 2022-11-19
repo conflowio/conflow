@@ -42,6 +42,12 @@ func init() {
 	})
 }
 
+// NewSleepWithDefaults creates a new Sleep instance with default values
+func NewSleepWithDefaults() *Sleep {
+	b := &Sleep{}
+	return b
+}
+
 // SleepInterpreter is the Conflow interpreter for the Sleep block
 type SleepInterpreter struct {
 }
@@ -53,7 +59,7 @@ func (i SleepInterpreter) Schema() schema.Schema {
 
 // Create creates a new Sleep block
 func (i SleepInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Sleep{}
+	b := NewSleepWithDefaults()
 	b.id = id
 	return b
 }

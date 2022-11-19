@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewKeyWithDefaults creates a new Key instance with default values
+func NewKeyWithDefaults() *Key {
+	b := &Key{}
+	return b
+}
+
 // KeyInterpreter is the Conflow interpreter for the Key block
 type KeyInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i KeyInterpreter) Schema() schema.Schema {
 
 // Create creates a new Key block
 func (i KeyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Key{}
+	b := NewKeyWithDefaults()
 	b.id = id
 	return b
 }

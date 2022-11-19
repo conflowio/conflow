@@ -50,6 +50,12 @@ func init() {
 	})
 }
 
+// NewFileWalkerWithDefaults creates a new FileWalker instance with default values
+func NewFileWalkerWithDefaults() *FileWalker {
+	b := &FileWalker{}
+	return b
+}
+
 // FileWalkerInterpreter is the Conflow interpreter for the FileWalker block
 type FileWalkerInterpreter struct {
 }
@@ -61,7 +67,7 @@ func (i FileWalkerInterpreter) Schema() schema.Schema {
 
 // Create creates a new FileWalker block
 func (i FileWalkerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &FileWalker{}
+	b := NewFileWalkerWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

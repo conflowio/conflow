@@ -70,6 +70,12 @@ func init() {
 	})
 }
 
+// NewExecWithDefaults creates a new Exec instance with default values
+func NewExecWithDefaults() *Exec {
+	b := &Exec{}
+	return b
+}
+
 // ExecInterpreter is the Conflow interpreter for the Exec block
 type ExecInterpreter struct {
 }
@@ -81,7 +87,7 @@ func (i ExecInterpreter) Schema() schema.Schema {
 
 // Create creates a new Exec block
 func (i ExecInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Exec{}
+	b := NewExecWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

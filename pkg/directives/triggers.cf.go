@@ -43,6 +43,12 @@ func init() {
 	})
 }
 
+// NewTriggersWithDefaults creates a new Triggers instance with default values
+func NewTriggersWithDefaults() *Triggers {
+	b := &Triggers{}
+	return b
+}
+
 // TriggersInterpreter is the Conflow interpreter for the Triggers block
 type TriggersInterpreter struct {
 }
@@ -54,7 +60,7 @@ func (i TriggersInterpreter) Schema() schema.Schema {
 
 // Create creates a new Triggers block
 func (i TriggersInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Triggers{}
+	b := NewTriggersWithDefaults()
 	b.id = id
 	return b
 }

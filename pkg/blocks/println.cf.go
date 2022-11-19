@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewPrintlnWithDefaults creates a new Println instance with default values
+func NewPrintlnWithDefaults() *Println {
+	b := &Println{}
+	return b
+}
+
 // PrintlnInterpreter is the Conflow interpreter for the Println block
 type PrintlnInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i PrintlnInterpreter) Schema() schema.Schema {
 
 // Create creates a new Println block
 func (i PrintlnInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Println{}
+	b := NewPrintlnWithDefaults()
 	b.id = id
 	b.stdout = blockCtx.Stdout()
 	return b

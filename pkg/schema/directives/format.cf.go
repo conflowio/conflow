@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewFormatWithDefaults creates a new Format instance with default values
+func NewFormatWithDefaults() *Format {
+	b := &Format{}
+	return b
+}
+
 // FormatInterpreter is the Conflow interpreter for the Format block
 type FormatInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i FormatInterpreter) Schema() schema.Schema {
 
 // Create creates a new Format block
 func (i FormatInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Format{}
+	b := NewFormatWithDefaults()
 	b.id = id
 	return b
 }

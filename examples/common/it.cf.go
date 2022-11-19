@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewItWithDefaults creates a new It instance with default values
+func NewItWithDefaults() *It {
+	b := &It{}
+	return b
+}
+
 // ItInterpreter is the Conflow interpreter for the It block
 type ItInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i ItInterpreter) Schema() schema.Schema {
 
 // Create creates a new It block
 func (i ItInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &It{}
+	b := NewItWithDefaults()
 	b.id = id
 	return b
 }

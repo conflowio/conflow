@@ -32,6 +32,13 @@ func init() {
 	})
 }
 
+// NewResponseWithDefaults creates a new Response instance with default values
+func NewResponseWithDefaults() *Response {
+	b := &Response{}
+	b.Content = map[string]*MediaType{}
+	return b
+}
+
 // ResponseInterpreter is the Conflow interpreter for the Response block
 type ResponseInterpreter struct {
 }
@@ -43,8 +50,7 @@ func (i ResponseInterpreter) Schema() schema.Schema {
 
 // Create creates a new Response block
 func (i ResponseInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Response{}
-	b.Content = map[string]*MediaType{}
+	b := NewResponseWithDefaults()
 	return b
 }
 

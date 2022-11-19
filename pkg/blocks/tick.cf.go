@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewTickWithDefaults creates a new Tick instance with default values
+func NewTickWithDefaults() *Tick {
+	b := &Tick{}
+	return b
+}
+
 // TickInterpreter is the Conflow interpreter for the Tick block
 type TickInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i TickInterpreter) Schema() schema.Schema {
 
 // Create creates a new Tick block
 func (i TickInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Tick{}
+	b := NewTickWithDefaults()
 	b.id = id
 	return b
 }

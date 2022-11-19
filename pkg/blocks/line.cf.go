@@ -33,6 +33,12 @@ func init() {
 	})
 }
 
+// NewLineWithDefaults creates a new Line instance with default values
+func NewLineWithDefaults() *Line {
+	b := &Line{}
+	return b
+}
+
 // LineInterpreter is the Conflow interpreter for the Line block
 type LineInterpreter struct {
 }
@@ -44,7 +50,7 @@ func (i LineInterpreter) Schema() schema.Schema {
 
 // Create creates a new Line block
 func (i LineInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Line{}
+	b := NewLineWithDefaults()
 	b.id = id
 	return b
 }

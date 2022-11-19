@@ -58,6 +58,12 @@ func init() {
 	})
 }
 
+// NewArrayWithDefaults creates a new Array instance with default values
+func NewArrayWithDefaults() *Array {
+	b := &Array{}
+	return b
+}
+
 // ArrayInterpreter is the Conflow interpreter for the Array block
 type ArrayInterpreter struct {
 }
@@ -69,7 +75,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 
 // Create creates a new Array block
 func (i ArrayInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Array{}
+	b := NewArrayWithDefaults()
 	return b
 }
 

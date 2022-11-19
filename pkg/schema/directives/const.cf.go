@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewConstWithDefaults creates a new Const instance with default values
+func NewConstWithDefaults() *Const {
+	b := &Const{}
+	return b
+}
+
 // ConstInterpreter is the Conflow interpreter for the Const block
 type ConstInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i ConstInterpreter) Schema() schema.Schema {
 
 // Create creates a new Const block
 func (i ConstInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Const{}
+	b := NewConstWithDefaults()
 	b.id = id
 	return b
 }

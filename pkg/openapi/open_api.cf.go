@@ -71,6 +71,18 @@ func init() {
 	})
 }
 
+// NewOpenAPIWithDefaults creates a new OpenAPI instance with default values
+func NewOpenAPIWithDefaults() *OpenAPI {
+	b := &OpenAPI{}
+	b.OpenAPI = "3.1.0"
+	b.Parameters = map[string]*Parameter{}
+	b.RequestBodies = map[string]*RequestBody{}
+	b.Responses = map[string]*Response{}
+	b.Schemas = map[string]schema.Schema{}
+	b.Paths = map[string]*PathItem{}
+	return b
+}
+
 // OpenAPIInterpreter is the Conflow interpreter for the OpenAPI block
 type OpenAPIInterpreter struct {
 }
@@ -82,13 +94,7 @@ func (i OpenAPIInterpreter) Schema() schema.Schema {
 
 // Create creates a new OpenAPI block
 func (i OpenAPIInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &OpenAPI{}
-	b.OpenAPI = "3.1.0"
-	b.Parameters = map[string]*Parameter{}
-	b.RequestBodies = map[string]*RequestBody{}
-	b.Responses = map[string]*Response{}
-	b.Schemas = map[string]schema.Schema{}
-	b.Paths = map[string]*PathItem{}
+	b := NewOpenAPIWithDefaults()
 	b.userContext = blockCtx.UserContext()
 	return b
 }

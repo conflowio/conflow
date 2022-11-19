@@ -71,6 +71,12 @@ func init() {
 	})
 }
 
+// NewPathItemWithDefaults creates a new PathItem instance with default values
+func NewPathItemWithDefaults() *PathItem {
+	b := &PathItem{}
+	return b
+}
+
 // PathItemInterpreter is the Conflow interpreter for the PathItem block
 type PathItemInterpreter struct {
 }
@@ -82,7 +88,7 @@ func (i PathItemInterpreter) Schema() schema.Schema {
 
 // Create creates a new PathItem block
 func (i PathItemInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &PathItem{}
+	b := NewPathItemWithDefaults()
 	return b
 }
 

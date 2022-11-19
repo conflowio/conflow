@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewRequiredWithDefaults creates a new Required instance with default values
+func NewRequiredWithDefaults() *Required {
+	b := &Required{}
+	return b
+}
+
 // RequiredInterpreter is the Conflow interpreter for the Required block
 type RequiredInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i RequiredInterpreter) Schema() schema.Schema {
 
 // Create creates a new Required block
 func (i RequiredInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Required{}
+	b := NewRequiredWithDefaults()
 	b.id = id
 	return b
 }

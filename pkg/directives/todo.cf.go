@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewTodoWithDefaults creates a new Todo instance with default values
+func NewTodoWithDefaults() *Todo {
+	b := &Todo{}
+	return b
+}
+
 // TodoInterpreter is the Conflow interpreter for the Todo block
 type TodoInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i TodoInterpreter) Schema() schema.Schema {
 
 // Create creates a new Todo block
 func (i TodoInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Todo{}
+	b := NewTodoWithDefaults()
 	b.id = id
 	return b
 }

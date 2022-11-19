@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMinItemsWithDefaults creates a new MinItems instance with default values
+func NewMinItemsWithDefaults() *MinItems {
+	b := &MinItems{}
+	return b
+}
+
 // MinItemsInterpreter is the Conflow interpreter for the MinItems block
 type MinItemsInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MinItemsInterpreter) Schema() schema.Schema {
 
 // Create creates a new MinItems block
 func (i MinItemsInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &MinItems{}
+	b := NewMinItemsWithDefaults()
 	b.id = id
 	return b
 }

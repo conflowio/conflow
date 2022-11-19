@@ -58,6 +58,12 @@ func init() {
 	})
 }
 
+// NewBenchmarkWithDefaults creates a new Benchmark instance with default values
+func NewBenchmarkWithDefaults() *Benchmark {
+	b := &Benchmark{}
+	return b
+}
+
 // BenchmarkInterpreter is the Conflow interpreter for the Benchmark block
 type BenchmarkInterpreter struct {
 }
@@ -69,7 +75,7 @@ func (i BenchmarkInterpreter) Schema() schema.Schema {
 
 // Create creates a new Benchmark block
 func (i BenchmarkInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Benchmark{}
+	b := NewBenchmarkWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

@@ -44,6 +44,12 @@ func init() {
 	})
 }
 
+// NewIteratorWithDefaults creates a new Iterator instance with default values
+func NewIteratorWithDefaults() *Iterator {
+	b := &Iterator{}
+	return b
+}
+
 // IteratorInterpreter is the Conflow interpreter for the Iterator block
 type IteratorInterpreter struct {
 }
@@ -55,7 +61,7 @@ func (i IteratorInterpreter) Schema() schema.Schema {
 
 // Create creates a new Iterator block
 func (i IteratorInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Iterator{}
+	b := NewIteratorWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

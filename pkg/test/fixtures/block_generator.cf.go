@@ -46,6 +46,12 @@ func init() {
 	})
 }
 
+// NewBlockGeneratorWithDefaults creates a new BlockGenerator instance with default values
+func NewBlockGeneratorWithDefaults() *BlockGenerator {
+	b := &BlockGenerator{}
+	return b
+}
+
 // BlockGeneratorInterpreter is the Conflow interpreter for the BlockGenerator block
 type BlockGeneratorInterpreter struct {
 }
@@ -57,7 +63,7 @@ func (i BlockGeneratorInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockGenerator block
 func (i BlockGeneratorInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &BlockGenerator{}
+	b := NewBlockGeneratorWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

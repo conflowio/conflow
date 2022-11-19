@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewBlockValueRequiredWithDefaults creates a new BlockValueRequired instance with default values
+func NewBlockValueRequiredWithDefaults() *BlockValueRequired {
+	b := &BlockValueRequired{}
+	return b
+}
+
 // BlockValueRequiredInterpreter is the Conflow interpreter for the BlockValueRequired block
 type BlockValueRequiredInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i BlockValueRequiredInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockValueRequired block
 func (i BlockValueRequiredInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &BlockValueRequired{}
+	b := NewBlockValueRequiredWithDefaults()
 	b.IDField = id
 	return b
 }

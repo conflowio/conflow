@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewContactWithDefaults creates a new Contact instance with default values
+func NewContactWithDefaults() *Contact {
+	b := &Contact{}
+	return b
+}
+
 // ContactInterpreter is the Conflow interpreter for the Contact block
 type ContactInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i ContactInterpreter) Schema() schema.Schema {
 
 // Create creates a new Contact block
 func (i ContactInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Contact{}
+	b := NewContactWithDefaults()
 	return b
 }
 

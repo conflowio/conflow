@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewIDWithDefaults creates a new ID instance with default values
+func NewIDWithDefaults() *ID {
+	b := &ID{}
+	return b
+}
+
 // IDInterpreter is the Conflow interpreter for the ID block
 type IDInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i IDInterpreter) Schema() schema.Schema {
 
 // Create creates a new ID block
 func (i IDInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &ID{}
+	b := NewIDWithDefaults()
 	b.id = id
 	return b
 }

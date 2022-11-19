@@ -55,6 +55,13 @@ func init() {
 	})
 }
 
+// NewOperationWithDefaults creates a new Operation instance with default values
+func NewOperationWithDefaults() *Operation {
+	b := &Operation{}
+	b.Responses = map[string]*Response{}
+	return b
+}
+
 // OperationInterpreter is the Conflow interpreter for the Operation block
 type OperationInterpreter struct {
 }
@@ -66,8 +73,7 @@ func (i OperationInterpreter) Schema() schema.Schema {
 
 // Create creates a new Operation block
 func (i OperationInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Operation{}
-	b.Responses = map[string]*Response{}
+	b := NewOperationWithDefaults()
 	return b
 }
 

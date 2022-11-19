@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewNameWithDefaults creates a new Name instance with default values
+func NewNameWithDefaults() *Name {
+	b := &Name{}
+	return b
+}
+
 // NameInterpreter is the Conflow interpreter for the Name block
 type NameInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i NameInterpreter) Schema() schema.Schema {
 
 // Create creates a new Name block
 func (i NameInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Name{}
+	b := NewNameWithDefaults()
 	b.id = id
 	return b
 }

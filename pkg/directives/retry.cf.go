@@ -44,6 +44,13 @@ func init() {
 	})
 }
 
+// NewRetryWithDefaults creates a new Retry instance with default values
+func NewRetryWithDefaults() *Retry {
+	b := &Retry{}
+	b.limit = -1
+	return b
+}
+
 // RetryInterpreter is the Conflow interpreter for the Retry block
 type RetryInterpreter struct {
 }
@@ -55,9 +62,8 @@ func (i RetryInterpreter) Schema() schema.Schema {
 
 // Create creates a new Retry block
 func (i RetryInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Retry{}
+	b := NewRetryWithDefaults()
 	b.id = id
-	b.limit = -1
 	return b
 }
 

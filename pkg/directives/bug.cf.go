@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewBugWithDefaults creates a new Bug instance with default values
+func NewBugWithDefaults() *Bug {
+	b := &Bug{}
+	return b
+}
+
 // BugInterpreter is the Conflow interpreter for the Bug block
 type BugInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i BugInterpreter) Schema() schema.Schema {
 
 // Create creates a new Bug block
 func (i BugInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Bug{}
+	b := NewBugWithDefaults()
 	b.id = id
 	return b
 }

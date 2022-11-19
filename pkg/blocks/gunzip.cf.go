@@ -45,6 +45,12 @@ func init() {
 	})
 }
 
+// NewGunzipWithDefaults creates a new Gunzip instance with default values
+func NewGunzipWithDefaults() *Gunzip {
+	b := &Gunzip{}
+	return b
+}
+
 // GunzipInterpreter is the Conflow interpreter for the Gunzip block
 type GunzipInterpreter struct {
 }
@@ -56,7 +62,7 @@ func (i GunzipInterpreter) Schema() schema.Schema {
 
 // Create creates a new Gunzip block
 func (i GunzipInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Gunzip{}
+	b := NewGunzipWithDefaults()
 	b.id = id
 	b.blockPublisher = blockCtx.BlockPublisher()
 	return b

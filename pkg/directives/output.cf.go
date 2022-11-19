@@ -38,6 +38,12 @@ func init() {
 	})
 }
 
+// NewOutputWithDefaults creates a new Output instance with default values
+func NewOutputWithDefaults() *Output {
+	b := &Output{}
+	return b
+}
+
 // OutputInterpreter is the Conflow interpreter for the Output block
 type OutputInterpreter struct {
 }
@@ -49,7 +55,7 @@ func (i OutputInterpreter) Schema() schema.Schema {
 
 // Create creates a new Output block
 func (i OutputInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Output{}
+	b := NewOutputWithDefaults()
 	b.id = id
 	return b
 }

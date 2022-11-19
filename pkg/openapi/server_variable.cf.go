@@ -31,6 +31,12 @@ func init() {
 	})
 }
 
+// NewServerVariableWithDefaults creates a new ServerVariable instance with default values
+func NewServerVariableWithDefaults() *ServerVariable {
+	b := &ServerVariable{}
+	return b
+}
+
 // ServerVariableInterpreter is the Conflow interpreter for the ServerVariable block
 type ServerVariableInterpreter struct {
 }
@@ -42,7 +48,7 @@ func (i ServerVariableInterpreter) Schema() schema.Schema {
 
 // Create creates a new ServerVariable block
 func (i ServerVariableInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &ServerVariable{}
+	b := NewServerVariableWithDefaults()
 	return b
 }
 

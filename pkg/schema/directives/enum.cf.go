@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewEnumWithDefaults creates a new Enum instance with default values
+func NewEnumWithDefaults() *Enum {
+	b := &Enum{}
+	return b
+}
+
 // EnumInterpreter is the Conflow interpreter for the Enum block
 type EnumInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i EnumInterpreter) Schema() schema.Schema {
 
 // Create creates a new Enum block
 func (i EnumInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Enum{}
+	b := NewEnumWithDefaults()
 	b.id = id
 	return b
 }

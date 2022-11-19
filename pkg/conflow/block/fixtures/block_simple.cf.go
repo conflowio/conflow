@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewBlockSimpleWithDefaults creates a new BlockSimple instance with default values
+func NewBlockSimpleWithDefaults() *BlockSimple {
+	b := &BlockSimple{}
+	return b
+}
+
 // BlockSimpleInterpreter is the Conflow interpreter for the BlockSimple block
 type BlockSimpleInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i BlockSimpleInterpreter) Schema() schema.Schema {
 
 // Create creates a new BlockSimple block
 func (i BlockSimpleInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &BlockSimple{}
+	b := NewBlockSimpleWithDefaults()
 	b.IDField = id
 	return b
 }

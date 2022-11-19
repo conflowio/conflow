@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewReadOnlyWithDefaults creates a new ReadOnly instance with default values
+func NewReadOnlyWithDefaults() *ReadOnly {
+	b := &ReadOnly{}
+	return b
+}
+
 // ReadOnlyInterpreter is the Conflow interpreter for the ReadOnly block
 type ReadOnlyInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i ReadOnlyInterpreter) Schema() schema.Schema {
 
 // Create creates a new ReadOnly block
 func (i ReadOnlyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &ReadOnly{}
+	b := NewReadOnlyWithDefaults()
 	b.id = id
 	return b
 }

@@ -35,6 +35,12 @@ func init() {
 	})
 }
 
+// NewFunctionWithDefaults creates a new Function instance with default values
+func NewFunctionWithDefaults() *Function {
+	b := &Function{}
+	return b
+}
+
 // FunctionInterpreter is the Conflow interpreter for the Function block
 type FunctionInterpreter struct {
 }
@@ -46,7 +52,7 @@ func (i FunctionInterpreter) Schema() schema.Schema {
 
 // Create creates a new Function block
 func (i FunctionInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Function{}
+	b := NewFunctionWithDefaults()
 	b.id = id
 	return b
 }

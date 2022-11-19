@@ -43,6 +43,12 @@ func init() {
 	})
 }
 
+// NewPatternWithDefaults creates a new Pattern instance with default values
+func NewPatternWithDefaults() *Pattern {
+	b := &Pattern{}
+	return b
+}
+
 // PatternInterpreter is the Conflow interpreter for the Pattern block
 type PatternInterpreter struct {
 }
@@ -54,7 +60,7 @@ func (i PatternInterpreter) Schema() schema.Schema {
 
 // Create creates a new Pattern block
 func (i PatternInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Pattern{}
+	b := NewPatternWithDefaults()
 	b.id = id
 	return b
 }

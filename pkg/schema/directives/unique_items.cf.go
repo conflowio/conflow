@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewUniqueItemsWithDefaults creates a new UniqueItems instance with default values
+func NewUniqueItemsWithDefaults() *UniqueItems {
+	b := &UniqueItems{}
+	return b
+}
+
 // UniqueItemsInterpreter is the Conflow interpreter for the UniqueItems block
 type UniqueItemsInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i UniqueItemsInterpreter) Schema() schema.Schema {
 
 // Create creates a new UniqueItems block
 func (i UniqueItemsInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &UniqueItems{}
+	b := NewUniqueItemsWithDefaults()
 	b.id = id
 	return b
 }

@@ -65,6 +65,12 @@ func init() {
 	})
 }
 
+// NewIntegerWithDefaults creates a new Integer instance with default values
+func NewIntegerWithDefaults() *schema.Integer {
+	b := &schema.Integer{}
+	return b
+}
+
 // IntegerInterpreter is the Conflow interpreter for the Integer block
 type IntegerInterpreter struct {
 }
@@ -76,7 +82,7 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 
 // Create creates a new Integer block
 func (i IntegerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &schema.Integer{}
+	b := NewIntegerWithDefaults()
 	return b
 }
 

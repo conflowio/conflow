@@ -46,6 +46,12 @@ func init() {
 	})
 }
 
+// NewReferenceWithDefaults creates a new Reference instance with default values
+func NewReferenceWithDefaults() *schema.Reference {
+	b := &schema.Reference{}
+	return b
+}
+
 // ReferenceInterpreter is the Conflow interpreter for the Reference block
 type ReferenceInterpreter struct {
 }
@@ -57,7 +63,7 @@ func (i ReferenceInterpreter) Schema() schema.Schema {
 
 // Create creates a new Reference block
 func (i ReferenceInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &schema.Reference{}
+	b := NewReferenceWithDefaults()
 	b.UserContext = blockCtx.UserContext()
 	return b
 }

@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMinLengthWithDefaults creates a new MinLength instance with default values
+func NewMinLengthWithDefaults() *MinLength {
+	b := &MinLength{}
+	return b
+}
+
 // MinLengthInterpreter is the Conflow interpreter for the MinLength block
 type MinLengthInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MinLengthInterpreter) Schema() schema.Schema {
 
 // Create creates a new MinLength block
 func (i MinLengthInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &MinLength{}
+	b := NewMinLengthWithDefaults()
 	b.id = id
 	return b
 }

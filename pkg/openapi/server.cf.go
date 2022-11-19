@@ -36,6 +36,13 @@ func init() {
 	})
 }
 
+// NewServerWithDefaults creates a new Server instance with default values
+func NewServerWithDefaults() *Server {
+	b := &Server{}
+	b.Variables = map[string]*ServerVariable{}
+	return b
+}
+
 // ServerInterpreter is the Conflow interpreter for the Server block
 type ServerInterpreter struct {
 }
@@ -47,8 +54,7 @@ func (i ServerInterpreter) Schema() schema.Schema {
 
 // Create creates a new Server block
 func (i ServerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Server{}
-	b.Variables = map[string]*ServerVariable{}
+	b := NewServerWithDefaults()
 	return b
 }
 

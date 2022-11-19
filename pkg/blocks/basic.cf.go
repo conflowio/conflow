@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewBasicWithDefaults creates a new Basic instance with default values
+func NewBasicWithDefaults() *Basic {
+	b := &Basic{}
+	return b
+}
+
 // BasicInterpreter is the Conflow interpreter for the Basic block
 type BasicInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i BasicInterpreter) Schema() schema.Schema {
 
 // Create creates a new Basic block
 func (i BasicInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Basic{}
+	b := NewBasicWithDefaults()
 	b.id = id
 	return b
 }

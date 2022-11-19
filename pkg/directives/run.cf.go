@@ -41,6 +41,13 @@ func init() {
 	})
 }
 
+// NewRunWithDefaults creates a new Run instance with default values
+func NewRunWithDefaults() *Run {
+	b := &Run{}
+	b.when = true
+	return b
+}
+
 // RunInterpreter is the Conflow interpreter for the Run block
 type RunInterpreter struct {
 }
@@ -52,9 +59,8 @@ func (i RunInterpreter) Schema() schema.Schema {
 
 // Create creates a new Run block
 func (i RunInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Run{}
+	b := NewRunWithDefaults()
 	b.id = id
-	b.when = true
 	return b
 }
 

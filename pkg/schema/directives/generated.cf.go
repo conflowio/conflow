@@ -32,6 +32,12 @@ func init() {
 	})
 }
 
+// NewGeneratedWithDefaults creates a new Generated instance with default values
+func NewGeneratedWithDefaults() *Generated {
+	b := &Generated{}
+	return b
+}
+
 // GeneratedInterpreter is the Conflow interpreter for the Generated block
 type GeneratedInterpreter struct {
 }
@@ -43,7 +49,7 @@ func (i GeneratedInterpreter) Schema() schema.Schema {
 
 // Create creates a new Generated block
 func (i GeneratedInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Generated{}
+	b := NewGeneratedWithDefaults()
 	b.id = id
 	return b
 }

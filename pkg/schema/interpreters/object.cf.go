@@ -81,6 +81,13 @@ func init() {
 	})
 }
 
+// NewObjectWithDefaults creates a new Object instance with default values
+func NewObjectWithDefaults() *schema.Object {
+	b := &schema.Object{}
+	b.Properties = map[string]schema.Schema{}
+	return b
+}
+
 // ObjectInterpreter is the Conflow interpreter for the Object block
 type ObjectInterpreter struct {
 }
@@ -92,8 +99,7 @@ func (i ObjectInterpreter) Schema() schema.Schema {
 
 // Create creates a new Object block
 func (i ObjectInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &schema.Object{}
-	b.Properties = map[string]schema.Schema{}
+	b := NewObjectWithDefaults()
 	return b
 }
 

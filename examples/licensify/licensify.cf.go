@@ -35,6 +35,12 @@ func init() {
 	})
 }
 
+// NewLicensifyWithDefaults creates a new Licensify instance with default values
+func NewLicensifyWithDefaults() *Licensify {
+	b := &Licensify{}
+	return b
+}
+
 // LicensifyInterpreter is the Conflow interpreter for the Licensify block
 type LicensifyInterpreter struct {
 }
@@ -46,7 +52,7 @@ func (i LicensifyInterpreter) Schema() schema.Schema {
 
 // Create creates a new Licensify block
 func (i LicensifyInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Licensify{}
+	b := NewLicensifyWithDefaults()
 	b.id = id
 	return b
 }

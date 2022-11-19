@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewExamplesWithDefaults creates a new Examples instance with default values
+func NewExamplesWithDefaults() *Examples {
+	b := &Examples{}
+	return b
+}
+
 // ExamplesInterpreter is the Conflow interpreter for the Examples block
 type ExamplesInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i ExamplesInterpreter) Schema() schema.Schema {
 
 // Create creates a new Examples block
 func (i ExamplesInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Examples{}
+	b := NewExamplesWithDefaults()
 	b.id = id
 	return b
 }

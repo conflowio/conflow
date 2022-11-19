@@ -41,6 +41,12 @@ func init() {
 	})
 }
 
+// NewEvalStageWithDefaults creates a new EvalStage instance with default values
+func NewEvalStageWithDefaults() *EvalStage {
+	b := &EvalStage{}
+	return b
+}
+
 // EvalStageInterpreter is the Conflow interpreter for the EvalStage block
 type EvalStageInterpreter struct {
 }
@@ -52,7 +58,7 @@ func (i EvalStageInterpreter) Schema() schema.Schema {
 
 // Create creates a new EvalStage block
 func (i EvalStageInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &EvalStage{}
+	b := NewEvalStageWithDefaults()
 	b.id = id
 	return b
 }

@@ -63,6 +63,12 @@ func init() {
 	})
 }
 
+// NewNumberWithDefaults creates a new Number instance with default values
+func NewNumberWithDefaults() *Number {
+	b := &Number{}
+	return b
+}
+
 // NumberInterpreter is the Conflow interpreter for the Number block
 type NumberInterpreter struct {
 }
@@ -74,7 +80,7 @@ func (i NumberInterpreter) Schema() schema.Schema {
 
 // Create creates a new Number block
 func (i NumberInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Number{}
+	b := NewNumberWithDefaults()
 	return b
 }
 

@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewExclusiveMinimumWithDefaults creates a new ExclusiveMinimum instance with default values
+func NewExclusiveMinimumWithDefaults() *ExclusiveMinimum {
+	b := &ExclusiveMinimum{}
+	return b
+}
+
 // ExclusiveMinimumInterpreter is the Conflow interpreter for the ExclusiveMinimum block
 type ExclusiveMinimumInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i ExclusiveMinimumInterpreter) Schema() schema.Schema {
 
 // Create creates a new ExclusiveMinimum block
 func (i ExclusiveMinimumInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &ExclusiveMinimum{}
+	b := NewExclusiveMinimumWithDefaults()
 	b.id = id
 	return b
 }

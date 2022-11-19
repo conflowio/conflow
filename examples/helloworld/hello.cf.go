@@ -43,6 +43,12 @@ func init() {
 	})
 }
 
+// NewHelloWithDefaults creates a new Hello instance with default values
+func NewHelloWithDefaults() *Hello {
+	b := &Hello{}
+	return b
+}
+
 // HelloInterpreter is the Conflow interpreter for the Hello block
 type HelloInterpreter struct {
 }
@@ -54,7 +60,7 @@ func (i HelloInterpreter) Schema() schema.Schema {
 
 // Create creates a new Hello block
 func (i HelloInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Hello{}
+	b := NewHelloWithDefaults()
 	b.id = id
 	return b
 }

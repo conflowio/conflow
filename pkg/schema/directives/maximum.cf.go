@@ -40,6 +40,12 @@ func init() {
 	})
 }
 
+// NewMaximumWithDefaults creates a new Maximum instance with default values
+func NewMaximumWithDefaults() *Maximum {
+	b := &Maximum{}
+	return b
+}
+
 // MaximumInterpreter is the Conflow interpreter for the Maximum block
 type MaximumInterpreter struct {
 }
@@ -51,7 +57,7 @@ func (i MaximumInterpreter) Schema() schema.Schema {
 
 // Create creates a new Maximum block
 func (i MaximumInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := &Maximum{}
+	b := NewMaximumWithDefaults()
 	b.id = id
 	return b
 }
