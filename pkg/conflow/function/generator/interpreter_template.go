@@ -9,29 +9,30 @@ package generator
 import "github.com/conflowio/conflow/pkg/schema"
 
 type InterpreterTemplateParams struct {
-	Package               string
-	Name                  string
-	FuncNameSelector      string
-	FuncName              string
-	Schema                schema.Schema
-	Imports               map[string]string
-	ReturnsError          bool
-	SchemaPackageSelector string
+	FunctionPackage string
+	Name            string
+	FuncName        string
+	Schema          schema.Schema
+	Imports         map[string]string
+	ReturnsError    bool
 }
 
 const interpreterTemplate = `
 {{ $root := . -}}
+{{- $functionPackageSel := ensureUniqueGoPackageSelector .Imports .FunctionPackage -}}
+{{- $schemaSel := ensureUniqueGoPackageSelector .Imports "github.com/conflowio/conflow/pkg/schema" -}}
+
 
 func init() {
-	{{ .SchemaPackageSelector }}Register({{ .Schema.GoString .Imports }})
+	{{ $schemaSel }}Register({{ .Schema.GoString .Imports }})
 }
 
 // {{ .Name }}Interpreter is the Conflow interpreter for the {{ .FuncName }} function
 type {{ .Name }}Interpreter struct {
 }
 
-func (i {{ .Name }}Interpreter) Schema() {{ .SchemaPackageSelector }}Schema {
-	s, _ := {{ .SchemaPackageSelector }}Get("{{ .Schema.ID }}")
+func (i {{ .Name }}Interpreter) Schema() {{ $schemaSel }}Schema {
+	s, _ := {{ $schemaSel }}Get("{{ .Schema.ID }}")
 	return s
 }
 
@@ -47,7 +48,7 @@ func (i {{ .Name }}Interpreter) Eval(ctx interface{}, args []interface{}) (inter
 		variadicArgs = append(variadicArgs, val)
 	}
 	{{ end -}}
-	return {{ .FuncNameSelector }}{{ .FuncName }}(
+	return {{ $functionPackageSel }}{{ .FuncName }}(
 		{{- range $i, $property := .Schema.GetParameters -}}
 		val{{ $i }},
 		{{- end -}}

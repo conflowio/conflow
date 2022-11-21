@@ -12,50 +12,34 @@ import (
 )
 
 type InterpreterTemplateParams struct {
-	Package               string
-	NameSelector          string
-	Name                  string
-	Schema                schema.Schema
-	IDPropertyName        string
-	ValuePropertyName     string
-	Imports               map[string]string
-	Dependencies          []parser.Dependency
-	SchemaPackageSelector string
+	BlockPackage      string
+	Name              string
+	Schema            schema.Schema
+	IDPropertyName    string
+	ValuePropertyName string
+	Imports           map[string]string
+	Dependencies      []parser.Dependency
 }
 
 const interpreterTemplate = `
 {{ $root := . -}}
-
-func init() {
-	{{ .SchemaPackageSelector }}Register({{ .Schema.GoString .Imports }})
-}
-
-// New{{ .Name }}WithDefaults creates a new {{ .Name }} instance with default values
-func New{{ .Name }}WithDefaults() *{{ .NameSelector }}{{ .Name }} {
-	b := &{{ .NameSelector }}{{ .Name }}{}
-	{{ range $name, $schema := filterDefaults (filterParams .Schema.Properties) -}}
-	b.{{ getFieldName $name }} = {{ printf "%#v" .DefaultValue }}
-	{{ end -}}
-	{{ range $name, $property := filterInputs (filterBlocks .Schema.Properties) -}}
-	{{ if isMap $property -}}
-	b.{{ getFieldName $name }} = map[string]{{ getType $property.AdditionalProperties }}{}
-	{{ end -}}
-	{{ end -}}
-	return b
-}
+{{- $blockPackageSel := ensureUniqueGoPackageSelector .Imports .BlockPackage -}}
+{{- $fmtSel := ensureUniqueGoPackageSelector .Imports "fmt" -}}
+{{- $conflowSel := ensureUniqueGoPackageSelector .Imports "github.com/conflowio/conflow/pkg/conflow" -}}
+{{- $schemaSel := ensureUniqueGoPackageSelector .Imports "github.com/conflowio/conflow/pkg/schema" -}}
 
 // {{ .Name }}Interpreter is the Conflow interpreter for the {{ .Name }} block
 type {{ .Name }}Interpreter struct {
 }
 
-func (i {{ .Name }}Interpreter) Schema() {{ .SchemaPackageSelector}}Schema {
-	s, _ := {{ .SchemaPackageSelector}}Get("{{ .Schema.ID }}")
+func (i {{ .Name }}Interpreter) Schema() {{ $schemaSel }}Schema {
+	s, _ := {{ $schemaSel }}Get("{{ .Schema.ID }}")
 	return s
 }
 
 // Create creates a new {{ .Name }} block
-func (i {{ .Name }}Interpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := New{{ .Name }}WithDefaults()
+func (i {{ .Name }}Interpreter) CreateBlock(id {{ $conflowSel }}ID, blockCtx *{{ $conflowSel }}BlockContext) {{ $conflowSel }}Block {
+	b := {{ $blockPackageSel }}New{{ .Name }}WithDefaults()
 	{{ if .IDPropertyName -}}
 	b.{{ getFieldName .IDPropertyName }} = id
 	{{ end -}}
@@ -66,34 +50,34 @@ func (i {{ .Name }}Interpreter) CreateBlock(id conflow.ID, blockCtx *conflow.Blo
 }
 
 // ValueParamName returns the name of the parameter marked as value field, if there is one set
-func (i {{ .Name }}Interpreter) ValueParamName() conflow.ID {
+func (i {{ .Name }}Interpreter) ValueParamName() {{ $conflowSel }}ID {
 	return "{{ .ValuePropertyName }}"
 }
 
 // ParseContext returns with the parse context for the block
-func (i {{.Name}}Interpreter) ParseContext(ctx *conflow.ParseContext) *conflow.ParseContext {
-	var nilBlock *{{ .NameSelector }}{{.Name}}
-	if b, ok := conflow.Block(nilBlock).(conflow.ParseContextOverrider); ok {
+func (i {{.Name}}Interpreter) ParseContext(ctx *{{ $conflowSel }}ParseContext) *{{ $conflowSel }}ParseContext {
+	var nilBlock *{{ $blockPackageSel }}{{.Name}}
+	if b, ok := {{ $conflowSel }}Block(nilBlock).({{ $conflowSel }}ParseContextOverrider); ok {
 		return ctx.New(b.ParseContextOverride())
 	}
 
 	return ctx
 }
 
-func (i {{ .Name }}Interpreter) Param(b conflow.Block, name conflow.ID) interface{} {
+func (i {{ .Name }}Interpreter) Param(b {{ $conflowSel }}Block, name {{ $conflowSel }}ID) interface{} {
 	switch name {
 	{{ range $name, $property := filterParams .Schema.Properties -}}
 	case "{{ getParameterName $name }}":
-		return b.(*{{ $root.NameSelector }}{{ $root.Name }}).{{ getFieldName $name }}
+		return b.(*{{ $blockPackageSel }}{{ $root.Name }}).{{ getFieldName $name }}
 	{{ end -}}
 	default:
-		panic(fmt.Errorf("unexpected parameter %q in {{ .Name }}", name))
+		panic({{ $fmtSel }}Errorf("unexpected parameter %q in {{ .Name }}", name))
 	}
 }
 
-func (i {{ .Name }}Interpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
+func (i {{ .Name }}Interpreter) SetParam(block {{ $conflowSel }}Block, name {{ $conflowSel }}ID, value interface{}) error {
 	{{ if filterInputs (filterParams .Schema.Properties) -}}
-	b := block.(*{{ .NameSelector }}{{ .Name }})
+	b := block.(*{{ $blockPackageSel }}{{ .Name }})
 	switch name {
 	{{ range $name, $property := filterInputs (filterParams .Schema.Properties) -}}
 	case "{{ getParameterName $name }}":
@@ -106,9 +90,9 @@ func (i {{ .Name }}Interpreter) SetParam(block conflow.Block, name conflow.ID, v
 	{{ end -}}
 }
 
-func (i {{ .Name }}Interpreter) SetBlock(block conflow.Block, name conflow.ID, key string, value interface{}) error {
+func (i {{ .Name }}Interpreter) SetBlock(block {{ $conflowSel }}Block, name {{ $conflowSel }}ID, key string, value interface{}) error {
 	{{ if filterInputs (filterBlocks .Schema.Properties) -}}
-	b := block.(*{{ $root.NameSelector }}{{ $root.Name }})
+	b := block.(*{{ $blockPackageSel }}{{ $root.Name }})
 	switch name {
 	{{ range $name, $property := filterInputs (filterBlocks .Schema.Properties) -}}
 	case "{{ getParameterName $name }}":

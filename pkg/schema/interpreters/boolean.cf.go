@@ -6,52 +6,8 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
-	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
 )
-
-func init() {
-	schema.Register(&schema.Object{
-		Metadata: schema.Metadata{
-			Annotations: map[string]string{
-				annotations.Type: "configuration",
-			},
-			ID: "github.com/conflowio/conflow/pkg/schema.Boolean",
-		},
-		FieldNames:     map[string]string{"$id": "ID", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
-		ParameterNames: map[string]string{"$id": "id", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations"},
-		Properties: map[string]schema.Schema{
-			"$id": &schema.String{},
-			"const": &schema.Boolean{
-				Nullable: true,
-			},
-			"default": &schema.Boolean{
-				Nullable: true,
-			},
-			"deprecated":  &schema.Boolean{},
-			"description": &schema.String{},
-			"enum": &schema.Array{
-				Items: &schema.Boolean{},
-			},
-			"examples": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"nullable":  &schema.Boolean{},
-			"readOnly":  &schema.Boolean{},
-			"title":     &schema.String{},
-			"writeOnly": &schema.Boolean{},
-			"x-annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
-		},
-	})
-}
-
-// NewBooleanWithDefaults creates a new Boolean instance with default values
-func NewBooleanWithDefaults() *schema.Boolean {
-	b := &schema.Boolean{}
-	return b
-}
 
 // BooleanInterpreter is the Conflow interpreter for the Boolean block
 type BooleanInterpreter struct {
@@ -64,7 +20,7 @@ func (i BooleanInterpreter) Schema() schema.Schema {
 
 // Create creates a new Boolean block
 func (i BooleanInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := NewBooleanWithDefaults()
+	b := schema.NewBooleanWithDefaults()
 	return b
 }
 

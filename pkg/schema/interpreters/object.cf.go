@@ -6,87 +6,8 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
-	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
 )
-
-func init() {
-	schema.Register(&schema.Object{
-		Metadata: schema.Metadata{
-			Annotations: map[string]string{
-				annotations.Type: "configuration",
-			},
-			ID: "github.com/conflowio/conflow/pkg/schema.Object",
-		},
-		FieldNames:     map[string]string{"$id": "ID", "const": "Const", "default": "Default", "dependentRequired": "DependentRequired", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "nullable": "Nullable", "properties": "Properties", "readOnly": "ReadOnly", "required": "Required", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations", "x-conflow-fields": "FieldNames", "x-conflow-parameters": "ParameterNames"},
-		ParameterNames: map[string]string{"$id": "id", "dependentRequired": "dependent_required", "maxProperties": "max_properties", "minProperties": "min_properties", "properties": "property", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations", "x-conflow-fields": "field_names", "x-conflow-parameters": "parameter_names"},
-		Properties: map[string]schema.Schema{
-			"$id": &schema.String{},
-			"const": &schema.Map{
-				AdditionalProperties: &schema.Any{},
-			},
-			"default": &schema.Map{
-				AdditionalProperties: &schema.Any{},
-			},
-			"dependentRequired": &schema.Map{
-				AdditionalProperties: &schema.Array{
-					Items: &schema.String{},
-				},
-			},
-			"deprecated":  &schema.Boolean{},
-			"description": &schema.String{},
-			"enum": &schema.Array{
-				Items: &schema.Map{
-					AdditionalProperties: &schema.Any{},
-				},
-			},
-			"examples": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"maxProperties": &schema.Integer{
-				Nullable: true,
-			},
-			"minProperties": &schema.Integer{},
-			"nullable":      &schema.Boolean{},
-			"properties": &schema.Map{
-				AdditionalProperties: &schema.Reference{
-					Ref: "github.com/conflowio/conflow/pkg/schema.Schema",
-				},
-			},
-			"readOnly": &schema.Boolean{},
-			"required": &schema.Array{
-				Metadata: schema.Metadata{
-					Description: "It will contain the required parameter names",
-				},
-				Items: &schema.String{},
-			},
-			"title":     &schema.String{},
-			"writeOnly": &schema.Boolean{},
-			"x-annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
-			"x-conflow-fields": &schema.Map{
-				Metadata: schema.Metadata{
-					Description: "It will contain the json property name -> field name mapping, if they are different",
-				},
-				AdditionalProperties: &schema.String{},
-			},
-			"x-conflow-parameters": &schema.Map{
-				Metadata: schema.Metadata{
-					Description: "It will contain the json property name -> parameter name mapping, if they are different",
-				},
-				AdditionalProperties: &schema.String{},
-			},
-		},
-	})
-}
-
-// NewObjectWithDefaults creates a new Object instance with default values
-func NewObjectWithDefaults() *schema.Object {
-	b := &schema.Object{}
-	b.Properties = map[string]schema.Schema{}
-	return b
-}
 
 // ObjectInterpreter is the Conflow interpreter for the Object block
 type ObjectInterpreter struct {
@@ -99,7 +20,7 @@ func (i ObjectInterpreter) Schema() schema.Schema {
 
 // Create creates a new Object block
 func (i ObjectInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := NewObjectWithDefaults()
+	b := schema.NewObjectWithDefaults()
 	return b
 }
 

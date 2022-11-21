@@ -25,6 +25,7 @@ import (
 	blockgenerator "github.com/conflowio/conflow/pkg/conflow/block/generator"
 	functiongenerator "github.com/conflowio/conflow/pkg/conflow/function/generator"
 	"github.com/conflowio/conflow/pkg/conflow/generator/parser"
+	generatortemplate "github.com/conflowio/conflow/pkg/conflow/generator/template"
 )
 
 // Generate generates code for the given types
@@ -133,19 +134,8 @@ func processFile(parseCtx *parser.Context, filePath string) error {
 			if !hasDirective {
 				continue
 			}
-			name, structType, ok := getStructType(dt)
-			if !ok {
-				return fmt.Errorf("@block annotation should only be set on a struct type")
-			}
 
-			res, data, err := blockgenerator.GenerateInterpreter(fileParseCtx, structType, pkg.ImportPath, name, dt.Doc.List)
-			if err != nil {
-				return fmt.Errorf("failed to generate interpreter for struct %s: %w", name, err)
-			}
-
-			if err := WriteGeneratedFile(path.Join(path.Dir(filePath), data.InterpreterPath), name, res); err != nil {
-				return fmt.Errorf("failed to generate interpreter for struct %s: %w", name, err)
-			}
+			return generateFilesForStruct(fileParseCtx, path.Dir(filePath), pkg.ImportPath, dt)
 		case *goast.FuncDecl:
 			hasDirective := false
 			if dt.Doc != nil {
@@ -159,18 +149,124 @@ func processFile(parseCtx *parser.Context, filePath string) error {
 			if !hasDirective {
 				continue
 			}
-			funcType := dt.Type
-			name := dt.Name.Name
 
-			res, data, err := functiongenerator.GenerateInterpreter(fileParseCtx, funcType, pkg.ImportPath, name, dt.Doc.List)
-			if err != nil {
-				return fmt.Errorf("failed to generate interpreter for function %s: %w", name, err)
-			}
-
-			if err := WriteGeneratedFile(path.Join(path.Dir(filePath), data.InterpreterPath), name, res); err != nil {
-				return fmt.Errorf("failed to generate interpreter for function %s, %w", name, err)
-			}
+			return generateFilesForFunction(fileParseCtx, path.Dir(filePath), pkg.ImportPath, dt)
 		}
+	}
+
+	return nil
+}
+
+func generateFilesForStruct(parseCtx *parser.Context, dir, pkg string, decl *goast.GenDecl) error {
+	name, structType, ok := getStructType(decl)
+	if !ok {
+		return fmt.Errorf("@block annotation should only be set on a struct type")
+	}
+
+	metadata, err := parser.ParseMetadataFromComments(decl.Doc.List)
+	if err != nil {
+		return err
+	}
+
+	str, err := blockgenerator.ParseStruct(parseCtx, structType, pkg, name, metadata)
+	if err != nil {
+		return err
+	}
+
+	imports := map[string]string{
+		pkg: "",
+	}
+	objectMethodBytes, err := blockgenerator.GenerateObjectMethods(str, imports)
+	if err != nil {
+		return err
+	}
+	if str.InterpreterPkg == pkg {
+		interpreterBytes, err := blockgenerator.GenerateInterpreter(str, pkg, imports)
+		if err != nil {
+			return fmt.Errorf("failed to generate interpreter for struct %s: %w", name, err)
+		}
+
+		data := bytes.NewBuffer(objectMethodBytes)
+		data.WriteRune('\n')
+		data.Write(interpreterBytes)
+
+		if err := WriteGeneratedFile(dir, name, data.Bytes(), generatortemplate.HeaderParams{
+			Package:       parseCtx.File.Name.Name,
+			Imports:       imports,
+			LocalPrefixes: parseCtx.LocalPrefixes,
+		}); err != nil {
+			return err
+		}
+	} else {
+		if err := WriteGeneratedFile(dir, name, objectMethodBytes, generatortemplate.HeaderParams{
+			Package:       parseCtx.File.Name.Name,
+			Imports:       imports,
+			LocalPrefixes: parseCtx.LocalPrefixes,
+		}); err != nil {
+			return err
+		}
+
+		imports := map[string]string{
+			str.InterpreterPkg: "",
+		}
+		interpreterBytes, err := blockgenerator.GenerateInterpreter(str, pkg, imports)
+		if err != nil {
+			return fmt.Errorf("failed to generate interpreter for struct %s: %w", name, err)
+		}
+
+		parts := strings.Split(strings.Trim(str.InterpreterPath, "/"), "/")
+		pkgName := parts[len(parts)-1]
+
+		if err := WriteGeneratedFile(path.Join(dir, str.InterpreterPath), name, interpreterBytes, generatortemplate.HeaderParams{
+			Package:       pkgName,
+			Imports:       imports,
+			LocalPrefixes: parseCtx.LocalPrefixes,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func generateFilesForFunction(parseCtx *parser.Context, dir, pkg string, decl *goast.FuncDecl) error {
+	funcType := decl.Type
+	name := decl.Name.Name
+
+	metadata, err := parser.ParseMetadataFromComments(decl.Doc.List)
+	if err != nil {
+		return err
+	}
+
+	if strings.HasPrefix(metadata.Description, name+" ") {
+		metadata.Description = strings.Replace(metadata.Description, name+" ", "It ", 1)
+	}
+
+	f, err := functiongenerator.ParseFunction(parseCtx, funcType, pkg, name, metadata)
+	if err != nil {
+		return err
+	}
+
+	imports := map[string]string{
+		f.InterpreterPkg: "",
+	}
+	interpreterBytes, err := functiongenerator.GenerateInterpreter(f, pkg, imports)
+	if err != nil {
+		return fmt.Errorf("failed to generate interpreter for function %s: %w", name, err)
+	}
+
+	pkgName := parseCtx.File.Name.Name
+	if f.InterpreterPath != "" {
+		parts := strings.Split(strings.Trim(f.InterpreterPath, "/"), "/")
+		pkgName = parts[len(parts)-1]
+	}
+
+	if err := WriteGeneratedFile(path.Join(dir, f.InterpreterPath), name, interpreterBytes, generatortemplate.HeaderParams{
+		Package:       pkgName,
+		Imports:       imports,
+		LocalPrefixes: parseCtx.LocalPrefixes,
+	}); err != nil {
+		return fmt.Errorf("failed to generate interpreter for function %s, %w", name, err)
 	}
 
 	return nil

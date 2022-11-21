@@ -6,62 +6,8 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
-	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
 )
-
-func init() {
-	schema.Register(&schema.Object{
-		Metadata: schema.Metadata{
-			Annotations: map[string]string{
-				annotations.Type: "configuration",
-			},
-			ID: "github.com/conflowio/conflow/pkg/schema.Array",
-		},
-		FieldNames:     map[string]string{"$id": "ID", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "items": "Items", "maxItems": "MaxItems", "minItems": "MinItems", "readOnly": "ReadOnly", "title": "Title", "uniqueItems": "UniqueItems", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
-		ParameterNames: map[string]string{"$id": "id", "maxItems": "max_items", "minItems": "min_items", "readOnly": "read_only", "uniqueItems": "unique_items", "writeOnly": "write_only", "x-annotations": "annotations"},
-		Properties: map[string]schema.Schema{
-			"$id": &schema.String{},
-			"const": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"default": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"deprecated":  &schema.Boolean{},
-			"description": &schema.String{},
-			"enum": &schema.Array{
-				Items: &schema.Array{
-					Items: &schema.Any{},
-				},
-			},
-			"examples": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"items": &schema.Reference{
-				Ref: "github.com/conflowio/conflow/pkg/schema.Schema",
-			},
-			"maxItems": &schema.Integer{
-				Nullable: true,
-			},
-			"minItems":    &schema.Integer{},
-			"readOnly":    &schema.Boolean{},
-			"title":       &schema.String{},
-			"uniqueItems": &schema.Boolean{},
-			"writeOnly":   &schema.Boolean{},
-			"x-annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
-		},
-		Required: []string{"items"},
-	})
-}
-
-// NewArrayWithDefaults creates a new Array instance with default values
-func NewArrayWithDefaults() *schema.Array {
-	b := &schema.Array{}
-	return b
-}
 
 // ArrayInterpreter is the Conflow interpreter for the Array block
 type ArrayInterpreter struct {
@@ -74,7 +20,7 @@ func (i ArrayInterpreter) Schema() schema.Schema {
 
 // Create creates a new Array block
 func (i ArrayInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := NewArrayWithDefaults()
+	b := schema.NewArrayWithDefaults()
 	return b
 }
 

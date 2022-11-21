@@ -8,7 +8,6 @@ package template
 
 import (
 	"bytes"
-	"fmt"
 	"sort"
 	"strings"
 	"text/template"
@@ -18,7 +17,6 @@ type HeaderParams struct {
 	Package       string
 	Imports       map[string]string
 	LocalPrefixes []string
-	Init          []string
 }
 
 const headerTemplate = `
@@ -43,13 +41,6 @@ import (
 )
 {{ end -}}
 
-{{ if .Init -}}
-func init() {
-{{ range $init := .Init -}}
-{{ indent . }}
-{{ end -}}
-}
-{{ end -}}
 `
 
 func GenerateHeader(params HeaderParams) ([]byte, error) {
@@ -69,9 +60,6 @@ func GenerateHeader(params HeaderParams) ([]byte, error) {
 		"last": func(path string) string {
 			parts := strings.Split(path, "/")
 			return parts[len(parts)-1]
-		},
-		"indent": func(s string) string {
-			return fmt.Sprintf("\t%s", strings.ReplaceAll(s, "\n", "\n\t"))
 		},
 		"importGroup": func(path string) int {
 			return importGroup(path, params.LocalPrefixes)
