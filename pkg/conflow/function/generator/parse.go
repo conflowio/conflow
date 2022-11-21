@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"path"
 	"strings"
 
 	"github.com/conflowio/conflow/pkg/conflow/generator/parser"
@@ -19,6 +20,7 @@ import (
 
 type Function struct {
 	Name            string
+	InterpreterPkg  string
 	InterpreterPath string
 	ReturnsError    bool
 	Schema          schema.Schema
@@ -122,13 +124,16 @@ func ParseFunction(
 	}
 
 	var interpreterPath string
-	if fd != nil {
+	interpreterPkg := pkg
+	if fd != nil && fd.Path != "" && fd.Path != "." {
 		interpreterPath = fd.Path
+		interpreterPkg = path.Clean(path.Join(interpreterPkg, fd.Path))
 	}
 
 	return &Function{
 		Name:            name,
 		InterpreterPath: interpreterPath,
+		InterpreterPkg:  interpreterPkg,
 		ReturnsError:    len(fun.Results.List) == 2,
 		Schema:          s,
 	}, nil

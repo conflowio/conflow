@@ -6,61 +6,8 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
-	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
 )
-
-func init() {
-	schema.Register(&schema.Object{
-		Metadata: schema.Metadata{
-			Annotations: map[string]string{
-				annotations.Type: "configuration",
-			},
-			ID: "github.com/conflowio/conflow/pkg/schema.Map",
-		},
-		FieldNames:     map[string]string{"$id": "ID", "additionalProperties": "AdditionalProperties", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "maxProperties": "MaxProperties", "minProperties": "MinProperties", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
-		ParameterNames: map[string]string{"$id": "id", "additionalProperties": "additional_properties", "maxProperties": "max_properties", "minProperties": "min_properties", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations"},
-		Properties: map[string]schema.Schema{
-			"$id": &schema.String{},
-			"additionalProperties": &schema.Reference{
-				Ref: "github.com/conflowio/conflow/pkg/schema.Schema",
-			},
-			"const": &schema.Map{
-				AdditionalProperties: &schema.Any{},
-			},
-			"default": &schema.Map{
-				AdditionalProperties: &schema.Any{},
-			},
-			"deprecated":  &schema.Boolean{},
-			"description": &schema.String{},
-			"enum": &schema.Array{
-				Items: &schema.Map{
-					AdditionalProperties: &schema.Any{},
-				},
-			},
-			"examples": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"maxProperties": &schema.Integer{
-				Nullable: true,
-			},
-			"minProperties": &schema.Integer{},
-			"readOnly":      &schema.Boolean{},
-			"title":         &schema.String{},
-			"writeOnly":     &schema.Boolean{},
-			"x-annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
-		},
-		Required: []string{"additional_properties"},
-	})
-}
-
-// NewMapWithDefaults creates a new Map instance with default values
-func NewMapWithDefaults() *schema.Map {
-	b := &schema.Map{}
-	return b
-}
 
 // MapInterpreter is the Conflow interpreter for the Map block
 type MapInterpreter struct {
@@ -73,7 +20,7 @@ func (i MapInterpreter) Schema() schema.Schema {
 
 // Create creates a new Map block
 func (i MapInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := NewMapWithDefaults()
+	b := schema.NewMapWithDefaults()
 	return b
 }
 

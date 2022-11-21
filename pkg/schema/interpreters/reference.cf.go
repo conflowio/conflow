@@ -6,51 +6,8 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
-	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
 )
-
-func init() {
-	schema.Register(&schema.Object{
-		Metadata: schema.Metadata{
-			Annotations: map[string]string{
-				annotations.Type: "configuration",
-			},
-			ID: "github.com/conflowio/conflow/pkg/schema.Reference",
-		},
-		FieldNames:     map[string]string{"$id": "ID", "$ref": "Ref", "deprecated": "Deprecated", "description": "Description", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
-		ParameterNames: map[string]string{"$id": "id", "$ref": "ref", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations"},
-		Properties: map[string]schema.Schema{
-			"$id": &schema.String{},
-			"$ref": &schema.String{
-				Metadata: schema.Metadata{
-					Annotations: map[string]string{
-						annotations.Value: "true",
-					},
-				},
-			},
-			"deprecated":  &schema.Boolean{},
-			"description": &schema.String{},
-			"examples": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"nullable":  &schema.Boolean{},
-			"readOnly":  &schema.Boolean{},
-			"title":     &schema.String{},
-			"writeOnly": &schema.Boolean{},
-			"x-annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
-		},
-		Required: []string{"ref"},
-	})
-}
-
-// NewReferenceWithDefaults creates a new Reference instance with default values
-func NewReferenceWithDefaults() *schema.Reference {
-	b := &schema.Reference{}
-	return b
-}
 
 // ReferenceInterpreter is the Conflow interpreter for the Reference block
 type ReferenceInterpreter struct {
@@ -63,7 +20,7 @@ func (i ReferenceInterpreter) Schema() schema.Schema {
 
 // Create creates a new Reference block
 func (i ReferenceInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := NewReferenceWithDefaults()
+	b := schema.NewReferenceWithDefaults()
 	b.UserContext = blockCtx.UserContext()
 	return b
 }

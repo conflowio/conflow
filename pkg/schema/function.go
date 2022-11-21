@@ -15,6 +15,8 @@ import (
 	"strings"
 
 	"github.com/tidwall/gjson"
+
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
 type Function struct {

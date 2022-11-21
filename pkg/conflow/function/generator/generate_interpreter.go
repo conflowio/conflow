@@ -8,39 +8,28 @@ package generator
 
 import (
 	"bytes"
-	"go/ast"
 	"strings"
 	"text/template"
 
-	"github.com/conflowio/conflow/pkg/conflow/generator/parser"
-	generatortemplate "github.com/conflowio/conflow/pkg/conflow/generator/template"
 	"github.com/conflowio/conflow/pkg/internal/utils"
+
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
 // GenerateInterpreter generates an interpreter for the given function
 func GenerateInterpreter(
-	parseCtx *parser.Context,
-	fun *ast.FuncType,
+	f *Function,
 	pkg string,
-	name string,
-	comments []*ast.Comment,
-) ([]byte, *Function, error) {
-	metadata, err := parser.ParseMetadataFromComments(comments)
-	if err != nil {
-		return nil, nil, err
+	imports map[string]string,
+) ([]byte, error) {
+	params := &InterpreterTemplateParams{
+		FunctionPackage: pkg,
+		Name:            strings.ToUpper(string(f.Name[0])) + f.Name[1:],
+		FuncName:        f.Name,
+		Schema:          f.Schema,
+		Imports:         imports,
+		ReturnsError:    f.ReturnsError,
 	}
-
-	if strings.HasPrefix(metadata.Description, name+" ") {
-		metadata.Description = strings.Replace(metadata.Description, name+" ", "It ", 1)
-	}
-
-	f, err := ParseFunction(parseCtx, fun, pkg, name, metadata)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	params := generateTemplateParams(parseCtx, f, pkg)
 
 	bodyTmpl := template.New("body")
 	bodyTmpl.Funcs(map[string]interface{}{
@@ -50,57 +39,16 @@ func GenerateInterpreter(
 		"getType": func(s schema.Schema) string {
 			return s.GoType(params.Imports)
 		},
+		"ensureUniqueGoPackageSelector": utils.EnsureUniqueGoPackageSelector,
 	})
 	if _, parseErr := bodyTmpl.Parse(interpreterTemplate); parseErr != nil {
-		return nil, nil, parseErr
+		return nil, parseErr
 	}
 
 	body := &bytes.Buffer{}
-	err = bodyTmpl.Execute(body, params)
-	if err != nil {
-		return nil, nil, err
+	if err := bodyTmpl.Execute(body, params); err != nil {
+		return nil, err
 	}
 
-	header, err := generatortemplate.GenerateHeader(generatortemplate.HeaderParams{
-		Package:       params.Package,
-		Imports:       params.Imports,
-		LocalPrefixes: parseCtx.LocalPrefixes,
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return append(header, body.Bytes()...), f, nil
-}
-
-func generateTemplateParams(
-	parseCtx *parser.Context,
-	f *Function,
-	pkg string,
-) *InterpreterTemplateParams {
-	imports := map[string]string{
-		pkg: "",
-	}
-
-	var nameSelector string
-	if f.InterpreterPath != "" {
-		nameSelector = utils.EnsureUniqueGoPackageSelector(imports, pkg)
-	}
-
-	pkgName := parseCtx.File.Name.Name
-	if f.InterpreterPath != "" {
-		parts := strings.Split(strings.Trim(f.InterpreterPath, "/"), "/")
-		pkgName = parts[len(parts)-1]
-	}
-
-	return &InterpreterTemplateParams{
-		Package:               pkgName,
-		Name:                  strings.ToUpper(string(f.Name[0])) + f.Name[1:],
-		FuncNameSelector:      nameSelector,
-		FuncName:              f.Name,
-		Schema:                f.Schema,
-		Imports:               imports,
-		ReturnsError:          f.ReturnsError,
-		SchemaPackageSelector: utils.EnsureUniqueGoPackageSelector(imports, "github.com/conflowio/conflow/pkg/schema"),
-	}
+	return body.Bytes(), nil
 }

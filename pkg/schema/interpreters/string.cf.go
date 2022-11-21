@@ -6,64 +6,9 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
-	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
-
-func init() {
-	schema.Register(&schema.Object{
-		Metadata: schema.Metadata{
-			Annotations: map[string]string{
-				annotations.Type: "configuration",
-			},
-			ID: "github.com/conflowio/conflow/pkg/schema.String",
-		},
-		FieldNames:     map[string]string{"$id": "ID", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "format": "Format", "maxLength": "MaxLength", "minLength": "MinLength", "nullable": "Nullable", "pattern": "Pattern", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
-		ParameterNames: map[string]string{"$id": "id", "maxLength": "max_length", "minLength": "min_length", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations"},
-		Properties: map[string]schema.Schema{
-			"$id": &schema.String{},
-			"const": &schema.String{
-				Nullable: true,
-			},
-			"default": &schema.String{
-				Nullable: true,
-			},
-			"deprecated":  &schema.Boolean{},
-			"description": &schema.String{},
-			"enum": &schema.Array{
-				Items: &schema.String{},
-			},
-			"examples": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"format": &schema.String{},
-			"maxLength": &schema.Integer{
-				Nullable: true,
-			},
-			"minLength": &schema.Integer{
-				Minimum: schema.Pointer(int64(0)),
-			},
-			"nullable": &schema.Boolean{},
-			"pattern": &schema.String{
-				Format:   "regex",
-				Nullable: true,
-			},
-			"readOnly":  &schema.Boolean{},
-			"title":     &schema.String{},
-			"writeOnly": &schema.Boolean{},
-			"x-annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
-		},
-	})
-}
-
-// NewStringWithDefaults creates a new String instance with default values
-func NewStringWithDefaults() *schema.String {
-	b := &schema.String{}
-	return b
-}
 
 // StringInterpreter is the Conflow interpreter for the String block
 type StringInterpreter struct {
@@ -76,7 +21,7 @@ func (i StringInterpreter) Schema() schema.Schema {
 
 // Create creates a new String block
 func (i StringInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := NewStringWithDefaults()
+	b := schema.NewStringWithDefaults()
 	return b
 }
 

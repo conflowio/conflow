@@ -6,70 +6,8 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
-	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
 )
-
-func init() {
-	schema.Register(&schema.Object{
-		Metadata: schema.Metadata{
-			Annotations: map[string]string{
-				annotations.Type: "configuration",
-			},
-			ID: "github.com/conflowio/conflow/pkg/schema.Integer",
-		},
-		FieldNames:     map[string]string{"$id": "ID", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "exclusiveMaximum": "ExclusiveMaximum", "exclusiveMinimum": "ExclusiveMinimum", "format": "Format", "maximum": "Maximum", "minimum": "Minimum", "multipleOf": "MultipleOf", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
-		ParameterNames: map[string]string{"$id": "id", "exclusiveMaximum": "exclusive_maximum", "exclusiveMinimum": "exclusive_minimum", "multipleOf": "multiple_of", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations"},
-		Properties: map[string]schema.Schema{
-			"$id": &schema.String{},
-			"const": &schema.Integer{
-				Nullable: true,
-			},
-			"default": &schema.Integer{
-				Nullable: true,
-			},
-			"deprecated":  &schema.Boolean{},
-			"description": &schema.String{},
-			"enum": &schema.Array{
-				Items: &schema.Integer{},
-			},
-			"examples": &schema.Array{
-				Items: &schema.Any{},
-			},
-			"exclusiveMaximum": &schema.Integer{
-				Nullable: true,
-			},
-			"exclusiveMinimum": &schema.Integer{
-				Nullable: true,
-			},
-			"format": &schema.String{
-				Enum: []string{"int32", "int64"},
-			},
-			"maximum": &schema.Integer{
-				Nullable: true,
-			},
-			"minimum": &schema.Integer{
-				Nullable: true,
-			},
-			"multipleOf": &schema.Integer{
-				Nullable: true,
-			},
-			"nullable":  &schema.Boolean{},
-			"readOnly":  &schema.Boolean{},
-			"title":     &schema.String{},
-			"writeOnly": &schema.Boolean{},
-			"x-annotations": &schema.Map{
-				AdditionalProperties: &schema.String{},
-			},
-		},
-	})
-}
-
-// NewIntegerWithDefaults creates a new Integer instance with default values
-func NewIntegerWithDefaults() *schema.Integer {
-	b := &schema.Integer{}
-	return b
-}
 
 // IntegerInterpreter is the Conflow interpreter for the Integer block
 type IntegerInterpreter struct {
@@ -82,7 +20,7 @@ func (i IntegerInterpreter) Schema() schema.Schema {
 
 // Create creates a new Integer block
 func (i IntegerInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := NewIntegerWithDefaults()
+	b := schema.NewIntegerWithDefaults()
 	return b
 }
 

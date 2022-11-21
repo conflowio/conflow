@@ -6,37 +6,8 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
-	"github.com/conflowio/conflow/pkg/conflow/annotations"
 	"github.com/conflowio/conflow/pkg/schema"
 )
-
-func init() {
-	schema.Register(&schema.Object{
-		Metadata: schema.Metadata{
-			Annotations: map[string]string{
-				annotations.Type: "configuration",
-			},
-			ID: "github.com/conflowio/conflow/pkg/schema.AllOf",
-		},
-		FieldNames:     map[string]string{"allOf": "Schemas"},
-		ParameterNames: map[string]string{"allOf": "schema"},
-		Properties: map[string]schema.Schema{
-			"allOf": &schema.Array{
-				Items: &schema.Reference{
-					Ref: "github.com/conflowio/conflow/pkg/schema.Schema",
-				},
-				MinItems: 1,
-			},
-		},
-		Required: []string{"schema"},
-	})
-}
-
-// NewAllOfWithDefaults creates a new AllOf instance with default values
-func NewAllOfWithDefaults() *schema.AllOf {
-	b := &schema.AllOf{}
-	return b
-}
 
 // AllOfInterpreter is the Conflow interpreter for the AllOf block
 type AllOfInterpreter struct {
@@ -49,7 +20,7 @@ func (i AllOfInterpreter) Schema() schema.Schema {
 
 // Create creates a new AllOf block
 func (i AllOfInterpreter) CreateBlock(id conflow.ID, blockCtx *conflow.BlockContext) conflow.Block {
-	b := NewAllOfWithDefaults()
+	b := schema.NewAllOfWithDefaults()
 	return b
 }
 

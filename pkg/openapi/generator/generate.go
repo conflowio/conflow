@@ -114,16 +114,11 @@ func (g *generator) generateTypes(outputDir string) error {
 
 	packageParts := strings.Split(g.packageName, "/")
 
-	header, err := template.GenerateHeader(template.HeaderParams{
+	return conflowgenerator.WriteGeneratedFile(outputDir, "openapi_types", []byte(body.String()), template.HeaderParams{
 		Package:       packageParts[len(packageParts)-1],
 		Imports:       g.imports,
 		LocalPrefixes: g.localPrefixes,
 	})
-	if err != nil {
-		return err
-	}
-
-	return conflowgenerator.WriteGeneratedFile(outputDir, "openapi_types", append(header, []byte(body.String())...))
 }
 
 func (g *generator) generateSchemas(outputDir string) error {
@@ -152,16 +147,11 @@ func (g *generator) generateSchemas(outputDir string) error {
 
 	packageParts := strings.Split(g.packageName, "/")
 
-	header, err := template.GenerateHeader(template.HeaderParams{
+	return conflowgenerator.WriteGeneratedFile(outputDir, "openapi_schemas", body, template.HeaderParams{
 		Package:       packageParts[len(packageParts)-1],
 		Imports:       g.imports,
 		LocalPrefixes: g.localPrefixes,
 	})
-	if err != nil {
-		return err
-	}
-
-	return conflowgenerator.WriteGeneratedFile(outputDir, "openapi_schemas", append(header, body...))
 }
 
 func (g *generator) generateServer(outputDir string) error {
@@ -222,15 +212,11 @@ func (g *generator) generateServer(outputDir string) error {
 
 	packageParts := strings.Split(g.packageName, "/")
 
-	header, err := template.GenerateHeader(template.HeaderParams{
-		Package: packageParts[len(packageParts)-1],
-		Imports: g.imports,
+	return conflowgenerator.WriteGeneratedFile(outputDir, "openapi_server", []byte(body.String()), template.HeaderParams{
+		Package:       packageParts[len(packageParts)-1],
+		Imports:       g.imports,
+		LocalPrefixes: g.localPrefixes,
 	})
-	if err != nil {
-		return err
-	}
-
-	return conflowgenerator.WriteGeneratedFile(outputDir, "openapi_server", append(header, []byte(body.String())...))
 }
 
 func (g *generator) writePath(b *strings.Builder, p *openapi.PathItem) error {

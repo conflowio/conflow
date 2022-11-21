@@ -15,12 +15,20 @@ import (
 	"runtime"
 	"strings"
 
+	generatortemplate "github.com/conflowio/conflow/pkg/conflow/generator/template"
 	"github.com/conflowio/conflow/pkg/internal/utils"
 )
 
-func WriteGeneratedFile(dir, name string, content []byte) error {
+func WriteGeneratedFile(dir, name string, content []byte, headerParams generatortemplate.HeaderParams) error {
+	header, err := generatortemplate.GenerateHeader(headerParams)
+	if err != nil {
+		return err
+	}
+
+	content = append(header, content...)
+
 	conflowFile := utils.ToSnakeCase(name) + ".cf.go"
-	filepath := path.Join(dir, conflowFile)
+	targetPath := path.Join(dir, conflowFile)
 
 	info, direrr := os.Stat(dir)
 	if os.IsExist(direrr) && !info.IsDir() {
@@ -33,9 +41,8 @@ func WriteGeneratedFile(dir, name string, content []byte) error {
 		}
 	}
 
-	err := os.WriteFile(filepath, content, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
+	if err := os.WriteFile(targetPath, content, 0644); err != nil {
+		return fmt.Errorf("failed to write %s to %s: %w", name, getRelativePath(targetPath), err)
 	}
 
 	formatted, err := format.Source(content)
@@ -43,12 +50,11 @@ func WriteGeneratedFile(dir, name string, content []byte) error {
 		return err
 	}
 
-	err = os.WriteFile(filepath, formatted, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write %s to %s: %w", name, getRelativePath(filepath), err)
+	if err := os.WriteFile(targetPath, formatted, 0644); err != nil {
+		return fmt.Errorf("failed to write %s to %s: %w", name, getRelativePath(targetPath), err)
 	}
 
-	fmt.Printf("Wrote `%s` to `%s`\n", name, getRelativePath(filepath))
+	fmt.Printf("Wrote `%s` to `%s`\n", name, getRelativePath(targetPath))
 
 	return nil
 }
