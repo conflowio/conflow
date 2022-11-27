@@ -8,30 +8,35 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"reflect"
-	"strconv"
 	"strings"
+
+	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
+//	@block {
+//	  type = "configuration"
+//	  path = "interpreters"
+//	}
 type Any struct {
 	Metadata
-	Types []string `json:"type,omitempty"`
+
+	Const    interface{}   `json:"const,omitempty"`
+	Default  interface{}   `json:"default,omitempty"`
+	Enum     []interface{} `json:"enum,omitempty"`
+	Nullable bool          `json:"nullable,omitempty"`
 }
 
-func (a *Any) AssignValue(_ map[string]string, valueName, resultName string) string {
+func (a *Any) AssignValue(imports map[string]string, valueName, resultName string) string {
 	return fmt.Sprintf("%s = %s", resultName, valueName)
 }
 
 func (a *Any) CompareValues(v1, v2 interface{}) int {
-	switch {
-	case reflect.DeepEqual(v1, v2):
-		return 0
-	default:
-		return -1
-	}
+	panic("CompareValues should not be called on Any")
 }
 
 func (a *Any) Copy() Schema {
@@ -49,7 +54,7 @@ func (a *Any) Copy() Schema {
 }
 
 func (a *Any) DefaultValue() interface{} {
-	return nil
+	return a.Default
 }
 
 func (a *Any) GoString(imports map[string]string) string {
@@ -58,8 +63,17 @@ func (a *Any) GoString(imports map[string]string) string {
 	if !reflect.ValueOf(a.Metadata).IsZero() {
 		fprintf(buf, "\tMetadata: %s,\n", indent(a.Metadata.GoString(imports)))
 	}
-	if len(a.Types) > 0 {
-		fprintf(buf, "\tTypes: %#v,\n", a.Types)
+	if a.Const != nil {
+		fprintf(buf, "\tConst: %#v,\n", a.Const)
+	}
+	if a.Default != nil {
+		fprintf(buf, "\tDefault: %#v,\n", a.Default)
+	}
+	if len(a.Enum) > 0 {
+		fprintf(buf, "\tEnum: %#v,\n", a.Enum)
+	}
+	if a.Nullable {
+		fprintf(buf, "\tNullable: %#v,\n", a.Nullable)
 	}
 	buf.WriteRune('}')
 	return buf.String()
@@ -70,58 +84,11 @@ func (a *Any) GoType(_ map[string]string) string {
 }
 
 func (a *Any) StringValue(value interface{}) string {
-	switch v := value.(type) {
-	case nil:
-		return "null"
-	case bool:
-		return strconv.FormatBool(v)
-	case int64:
-		return strconv.FormatInt(v, 10)
-	case float64:
-		return strconv.FormatFloat(v, 'f', -1, 64)
-	case string:
-		return v
-	case []interface{}:
-		if len(v) == 0 {
-			return "[]"
-		}
-
-		var sb strings.Builder
-		sb.WriteRune('[')
-		sb.WriteString(a.StringValue(v[0]))
-		for _, e := range v[1:] {
-			sb.WriteString(", ")
-			sb.WriteString(a.StringValue(e))
-		}
-		sb.WriteRune(']')
-		return sb.String()
-	case map[string]interface{}:
-		if len(v) == 0 {
-			return "{}"
-		}
-
-		keys := getSortedMapKeys(v)
-
-		var sb strings.Builder
-		sb.WriteRune('{')
-		sb.WriteString(keys[0])
-		sb.WriteString(": ")
-		sb.WriteString(a.StringValue(v[keys[0]]))
-		for _, k := range keys[1:] {
-			sb.WriteString(", ")
-			sb.WriteString(k)
-			sb.WriteString(": ")
-			sb.WriteString(a.StringValue(v[k]))
-		}
-		sb.WriteRune('}')
-		return sb.String()
-	case io.Reader:
-		return "<byte stream>"
-	case fmt.Stringer:
-		return v.String()
-	default:
-		return fmt.Sprintf("<%T>", v)
+	s, err := GetSchemaForValue(value)
+	if err != nil {
+		return ""
 	}
+	return s.StringValue(value)
 }
 
 func (a *Any) Type() Type {
@@ -132,60 +99,73 @@ func (a *Any) TypeString() string {
 	return "any"
 }
 
+func (a *Any) Validate(ctx context.Context) error {
+	return validation.ValidateObject(ctx,
+		validateCommonFields(a, a.Const, a.Default, a.Enum),
+	)
+}
+
 func (a *Any) ValidateSchema(s Schema, compare bool) error {
-	if len(a.Types) == 0 {
-		return nil
-	}
-
-	isValid := false
-	for _, t := range a.Types {
-		if err := typeSchemas[Type(t)].ValidateSchema(s, compare); err == nil {
-			isValid = true
-			break
-		}
-	}
-
-	if !isValid {
-		if len(a.Types) == 1 {
-			return fmt.Errorf("was expecting %s", a.Types[0])
-		}
-		return fmt.Errorf(
-			"was expecting %s or %s",
-			strings.Join(a.Types[0:len(a.Types)-1], ", "),
-			a.Types[len(a.Types)-1],
-		)
-	}
-
 	return nil
 }
 
 func (a *Any) ValidateValue(v interface{}) (interface{}, error) {
-	if len(a.Types) == 0 {
+	if _, ok := v.(io.ReadCloser); ok {
 		return v, nil
 	}
 
-	isValid := false
-	for _, t := range a.Types {
-		nv, err := typeSchemas[Type(t)].ValidateValue(v)
-		if err == nil {
-			v = nv
-			isValid = true
-			break
+	rv := reflect.ValueOf(v)
+	if rv.Kind() == reflect.Pointer {
+		if rv.IsNil() {
+			return nil, nil
 		}
+		v = rv.Elem().Interface()
 	}
 
-	if !isValid {
-		if len(a.Types) == 1 {
-			return nil, fmt.Errorf("was expecting %s", a.Types[0])
+	if v == nil {
+		return nil, nil
+	}
+
+	if a.Const != nil && a.Const != v {
+		return nil, fmt.Errorf("must be %s", a.StringValue(a.Const))
+	}
+
+	if len(a.Enum) > 0 {
+		if len(a.Enum) == 1 && a.Enum[0] != v {
+			return nil, fmt.Errorf("must be %s", a.StringValue(a.Enum[0]))
 		}
-		return nil, fmt.Errorf(
-			"was expecting %s or %s",
-			strings.Join(a.Types[0:len(a.Types)-1], ", "),
-			a.Types[len(a.Types)-1],
-		)
+
+		allowed := func() bool {
+			for _, e := range a.Enum {
+				if e == v {
+					return true
+				}
+			}
+			return false
+		}
+		if !allowed() {
+			return nil, fmt.Errorf("must be one of %s", a.join(a.Enum, ", "))
+		}
 	}
 
 	return v, nil
+}
+
+func (a *Any) join(elems []interface{}, sep string) string {
+	switch len(elems) {
+	case 0:
+		return ""
+	case 1:
+		return a.StringValue(elems[0])
+	}
+
+	var b strings.Builder
+	b.WriteString(a.StringValue(elems[0]))
+	for _, e := range elems[1:] {
+		b.WriteString(sep)
+		b.WriteString(a.StringValue(e))
+	}
+	return b.String()
 }
 
 func AnyValue() Schema {

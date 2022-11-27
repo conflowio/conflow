@@ -7,35 +7,38 @@
 package schema
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
 	"github.com/conflowio/conflow/pkg/util/validation"
 )
 
-func validateCommonFields[T any](s Schema, constValue interface{}, defaultValue interface{}, enumValues []T) error {
-	ve := &validation.Error{}
-	if err := validateValue[T](s, constValue); err != nil {
-		ve.AddFieldError("const", err)
-	}
-
-	if err := validateValue[T](s, defaultValue); err != nil {
-		ve.AddFieldError("default", err)
-	}
-
-	for i, enum := range enumValues {
-		if _, err := s.ValidateValue(enum); err != nil {
-			ve.AddFieldError(fmt.Sprintf("enum[%d]", i), err)
+func validateCommonFields[T any](s Schema, constValue interface{}, defaultValue interface{}, enumValues []T) validation.ValidatorFunc {
+	return func(ctx context.Context) error {
+		ve := &validation.Error{}
+		if err := validateValue[T](s, constValue); err != nil {
+			ve.AddFieldError("const", err)
 		}
-	}
 
-	for i, example := range s.GetExamples() {
-		if _, err := s.ValidateValue(example); err != nil {
-			ve.AddFieldError(fmt.Sprintf("examples[%d]", i), err)
+		if err := validateValue[T](s, defaultValue); err != nil {
+			ve.AddFieldError("default", err)
 		}
-	}
 
-	return ve.ErrOrNil()
+		for i, enum := range enumValues {
+			if _, err := s.ValidateValue(enum); err != nil {
+				ve.AddFieldError(fmt.Sprintf("enum[%d]", i), err)
+			}
+		}
+
+		for i, example := range s.GetExamples() {
+			if _, err := s.ValidateValue(example); err != nil {
+				ve.AddFieldError(fmt.Sprintf("examples[%d]", i), err)
+			}
+		}
+
+		return ve.ErrOrNil()
+	}
 }
 
 func validateValue[T any](s Schema, value interface{}) error {

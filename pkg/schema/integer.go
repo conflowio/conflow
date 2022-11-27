@@ -181,33 +181,38 @@ func (i *Integer) UnmarshalJSON(input []byte) error {
 }
 
 func (i *Integer) Validate(ctx context.Context) error {
-	if i.ExclusiveMinimum != nil && i.Minimum != nil {
-		return validation.NewFieldError("minimum", errors.New("should not be defined if exclusiveMinimum is set"))
-	}
+	return validation.ValidateObject(ctx,
+		validation.ValidateField("minimum", validation.ValidatorFunc(func(ctx context.Context) error {
+			if i.ExclusiveMinimum != nil && i.Minimum != nil {
+				return errors.New("should not be defined if exclusiveMinimum is set")
+			}
+			return nil
+		})),
+		validation.ValidateField("maximum", validation.ValidatorFunc(func(ctx context.Context) error {
+			if i.ExclusiveMaximum != nil && i.Maximum != nil {
+				return errors.New("should not be defined if exclusiveMaximum is set")
+			}
+			return nil
+		})),
+		validation.ValidatorFunc(func(ctx context.Context) error {
+			min := i.Minimum
+			if i.ExclusiveMinimum != nil {
+				min = ptr.To(*i.ExclusiveMinimum + 1)
+			}
 
-	if i.ExclusiveMaximum != nil && i.Maximum != nil {
-		return validation.NewFieldError("maximum", errors.New("should not be defined if exclusiveMaximum is set"))
-	}
+			max := i.Maximum
+			if i.ExclusiveMaximum != nil {
+				max = ptr.To(*i.ExclusiveMaximum - 1)
+			}
 
-	min := i.Minimum
-	if i.ExclusiveMinimum != nil {
-		min = ptr.To(*i.ExclusiveMinimum + 1)
-	}
+			if min != nil && max != nil && *min > *max {
+				return errors.New("minimum and maximum constraints are impossible to fulfil")
+			}
 
-	max := i.Maximum
-	if i.ExclusiveMaximum != nil {
-		max = ptr.To(*i.ExclusiveMaximum - 1)
-	}
-
-	if min != nil && max != nil && *min > *max {
-		return errors.New("minimum and maximum constraints are impossible to fulfil")
-	}
-
-	if err := validateCommonFields(i, i.Const, i.Default, i.Enum); err != nil {
-		return err
-	}
-
-	return nil
+			return nil
+		}),
+		validateCommonFields(i, i.Const, i.Default, i.Enum),
+	)
 }
 
 func (i *Integer) ValidateSchema(i2 Schema, compare bool) error {

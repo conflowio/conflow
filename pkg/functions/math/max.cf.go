@@ -14,15 +14,21 @@ func init() {
 		},
 		AdditionalParameters: &schema.NamedSchema{
 			Name: "rest",
-			Schema: &schema.Any{
-				Types: []string{"integer", "number"},
+			Schema: &schema.OneOf{
+				Schemas: []schema.Schema{
+					&schema.Integer{},
+					&schema.Number{},
+				},
 			},
 		},
 		Parameters: schema.Parameters{
 			schema.NamedSchema{
 				Name: "max",
-				Schema: &schema.Any{
-					Types: []string{"integer", "number"},
+				Schema: &schema.OneOf{
+					Schemas: []schema.Schema{
+						&schema.Integer{},
+						&schema.Number{},
+					},
 				},
 			},
 		},

@@ -214,18 +214,23 @@ func (a *Array) UnmarshalJSON(j []byte) error {
 }
 
 func (a *Array) Validate(ctx context.Context) error {
-	if a.MinItems < 0 {
-		return validation.NewFieldError("minItems", errors.New("must be greater than or equal to 0"))
-	}
-	if a.MaxItems != nil && a.MinItems > *a.MaxItems {
-		return errors.New("minItems and maxItems constraints are impossible to fulfil")
-	}
-
-	if err := validateCommonFields(a, a.Const, a.Default, a.Enum); err != nil {
-		return err
-	}
-
-	return nil
+	return validation.ValidateObject(
+		ctx,
+		validation.ValidateField("items", a.Items),
+		validation.ValidateField("minItems", validation.ValidatorFunc(func(ctx context.Context) error {
+			if a.MinItems < 0 {
+				return errors.New("must be greater than or equal to 0")
+			}
+			return nil
+		})),
+		validation.ValidatorFunc(func(ctx context.Context) error {
+			if a.MaxItems != nil && a.MinItems > *a.MaxItems {
+				return errors.New("minItems and maxItems constraints are impossible to fulfil")
+			}
+			return nil
+		}),
+		validateCommonFields(a, a.Const, a.Default, a.Enum),
+	)
 }
 
 func (a *Array) ValidateSchema(s Schema, compare bool) error {

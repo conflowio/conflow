@@ -41,12 +41,31 @@ func (i AllOfInterpreter) ParseContext(ctx *conflow.ParseContext) *conflow.Parse
 
 func (i AllOfInterpreter) Param(b conflow.Block, name conflow.ID) interface{} {
 	switch name {
+	case "const":
+		return b.(*schema.AllOf).Const
+	case "default":
+		return b.(*schema.AllOf).Default
+	case "enum":
+		return b.(*schema.AllOf).Enum
+	case "nullable":
+		return b.(*schema.AllOf).Nullable
 	default:
 		panic(fmt.Errorf("unexpected parameter %q in AllOf", name))
 	}
 }
 
 func (i AllOfInterpreter) SetParam(block conflow.Block, name conflow.ID, value interface{}) error {
+	b := block.(*schema.AllOf)
+	switch name {
+	case "const":
+		b.Const = value
+	case "default":
+		b.Default = value
+	case "enum":
+		b.Enum = value.([]interface{})
+	case "nullable":
+		b.Nullable = schema.Value[bool](value)
+	}
 	return nil
 }
 

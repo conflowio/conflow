@@ -11,6 +11,7 @@ import "github.com/conflowio/conflow/pkg/conflow/block"
 func Registry() block.InterpreterRegistry {
 	return block.InterpreterRegistry{
 		"all_of":  AllOfInterpreter{},
+		"any":     AnyInterpreter{},
 		"array":   ArrayInterpreter{},
 		"boolean": BooleanInterpreter{},
 		"integer": IntegerInterpreter{},
@@ -18,6 +19,7 @@ func Registry() block.InterpreterRegistry {
 		"number":  NumberInterpreter{},
 		"string":  StringInterpreter{},
 		"object":  ObjectInterpreter{},
+		"one_of":  OneOfInterpreter{},
 		"ref":     ReferenceInterpreter{},
 	}
 }

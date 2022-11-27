@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -194,6 +195,14 @@ func (f *Function) UnmarshalJSON(j []byte) error {
 	}
 
 	return nil
+}
+
+func (f *Function) Validate(ctx context.Context) error {
+	return validation.ValidateObject(ctx,
+		validation.ValidateArray("parameters", f.Parameters),
+		validation.ValidateField("additionalParameters", f.AdditionalParameters),
+		validation.ValidateField("result", f.Result),
+	)
 }
 
 func (f *Function) ValidateSchema(s Schema, compare bool) error {

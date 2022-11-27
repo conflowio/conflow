@@ -33,16 +33,26 @@ func (d *Default) ApplyToSchema(s schema.Schema) error {
 	}
 
 	switch st := s.(type) {
+	case *schema.AllOf:
+		st.Default = value
+	case *schema.Any:
+		st.Const = value
+	case *schema.AnyOf:
+		st.Default = value
 	case *schema.Array:
 		st.Default = value.([]interface{})
-	case *schema.Object:
-		st.Default = value.(map[string]interface{})
 	case *schema.Boolean:
 		st.Default = schema.Pointer(value.(bool))
 	case *schema.Integer:
 		st.Default = schema.Pointer(value.(int64))
+	case *schema.Map:
+		st.Default = value.(map[string]interface{})
 	case *schema.Number:
 		st.Default = schema.Pointer(value.(float64))
+	case *schema.Object:
+		st.Default = value.(map[string]interface{})
+	case *schema.OneOf:
+		st.Default = value
 	case *schema.String:
 		st.Default = schema.Pointer(value.(string))
 	default:

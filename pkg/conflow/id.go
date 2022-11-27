@@ -7,9 +7,7 @@
 package conflow
 
 // Keywords are reserved strings and may not be used as identifiers.
-var Keywords = []string{
-	"map",
-}
+var Keywords = []string{}
 
 // ID contains an identifier
 type ID string

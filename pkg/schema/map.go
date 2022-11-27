@@ -211,7 +211,7 @@ func (m *Map) Type() Type {
 }
 
 func (m *Map) TypeString() string {
-	if m.AdditionalProperties == nil || m.AdditionalProperties.Type() == TypeFalse {
+	if m.AdditionalProperties.Type() == TypeAny {
 		return "map"
 	}
 
@@ -238,18 +238,23 @@ func (m *Map) UnmarshalJSON(j []byte) error {
 }
 
 func (m *Map) Validate(ctx context.Context) error {
-	if m.MinProperties < 0 {
-		return validation.NewFieldError("minProperties", errors.New("must be greater than or equal to 0"))
-	}
-	if m.MaxProperties != nil && m.MinProperties > *m.MaxProperties {
-		return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
-	}
-
-	if err := validateCommonFields(m, m.Const, m.Default, m.Enum); err != nil {
-		return err
-	}
-
-	return nil
+	return validation.ValidateObject(
+		ctx,
+		validation.ValidateField("additionalProperties", m.AdditionalProperties),
+		validation.ValidateField("minProperties", validation.ValidatorFunc(func(ctx context.Context) error {
+			if m.MinProperties < 0 {
+				return errors.New("must be greater than or equal to 0")
+			}
+			return nil
+		})),
+		validation.ValidatorFunc(func(ctx context.Context) error {
+			if m.MaxProperties != nil && m.MinProperties > *m.MaxProperties {
+				return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
+			}
+			return nil
+		}),
+		validateCommonFields(m, m.Const, m.Default, m.Enum),
+	)
 }
 
 func (m *Map) ValidateSchema(s Schema, compare bool) error {

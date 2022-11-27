@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -82,6 +83,10 @@ func (b *ByteStream) Type() Type {
 
 func (b *ByteStream) TypeString() string {
 	return string(TypeByteStream)
+}
+
+func (b *ByteStream) Validate(context.Context) error {
+	return nil
 }
 
 func (b *ByteStream) ValidateSchema(s2 Schema, compare bool) error {

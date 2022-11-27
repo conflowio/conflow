@@ -33,6 +33,12 @@ func (c *Const) ApplyToSchema(s schema.Schema) error {
 	}
 
 	switch st := s.(type) {
+	case *schema.AllOf:
+		st.Const = value
+	case *schema.Any:
+		st.Const = value
+	case *schema.AnyOf:
+		st.Const = value
 	case *schema.Array:
 		st.Const = value.([]interface{})
 	case *schema.Boolean:
@@ -47,6 +53,8 @@ func (c *Const) ApplyToSchema(s schema.Schema) error {
 		st.Const = schema.Pointer(value.(string))
 	case *schema.Object:
 		st.Const = value.(map[string]interface{})
+	case *schema.OneOf:
+		st.Const = value
 	default:
 		return fmt.Errorf("const directive can not be applied to %T", s)
 	}

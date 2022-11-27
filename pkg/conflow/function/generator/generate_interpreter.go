@@ -12,7 +12,6 @@ import (
 	"text/template"
 
 	"github.com/conflowio/conflow/pkg/internal/utils"
-
 	"github.com/conflowio/conflow/pkg/schema"
 )
 

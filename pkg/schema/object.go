@@ -402,23 +402,35 @@ func (o *Object) UnmarshalJSON(j []byte) error {
 }
 
 func (o *Object) Validate(ctx context.Context) error {
-	if o.MinProperties < 0 {
-		return validation.NewFieldError("minProperties", errors.New("must be greater than or equal to 0"))
-	}
-	if o.MaxProperties != nil && o.MinProperties > *o.MaxProperties {
-		return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
-	}
-	if int64(len(o.Properties)) < o.MinProperties {
-		return validation.NewFieldError("minProperties", errors.New("can not be greater than the number of properties defined"))
-	}
-
-	for i, r := range o.Required {
-		if _, ok := o.Properties[r]; !ok {
-			return validation.NewFieldErrorf(fmt.Sprintf("required[%d]", i), "property %q does not exist", r)
-		}
-	}
-
-	return nil
+	return validation.ValidateObject(
+		ctx,
+		validation.ValidateMap("properties", o.Properties),
+		validation.ValidateField("minProperties", validation.ValidatorFunc(func(ctx context.Context) error {
+			if o.MinProperties < 0 {
+				return errors.New("must be greater than or equal to 0")
+			}
+			if int64(len(o.Properties)) < o.MinProperties {
+				return errors.New("can not be greater than the number of properties defined")
+			}
+			return nil
+		})),
+		validation.ValidatorFunc(func(ctx context.Context) error {
+			if o.MaxProperties != nil && o.MinProperties > *o.MaxProperties {
+				return errors.New("minProperties and maxProperties constraints are impossible to fulfil")
+			}
+			return nil
+		}),
+		validateCommonFields(o, o.Const, o.Default, o.Enum),
+		validation.ValidatorFunc(func(ctx context.Context) error {
+			ve := &validation.Error{}
+			for i, r := range o.Required {
+				if _, ok := o.Properties[r]; !ok {
+					ve.AddFieldError(fmt.Sprintf("required[%d]", i), fmt.Errorf("property '%s' does not exist", r))
+				}
+			}
+			return ve.ErrOrNil()
+		}),
+	)
 }
 
 func (o *Object) ValidateSchema(s Schema, compare bool) error {

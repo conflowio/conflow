@@ -24,7 +24,10 @@ type Block struct {
 	FieldIdentifier conflow.ID
 	FieldInteger    int64
 	FieldMap        map[string]interface{}
-	// @types ["integer", "number"]
+	// @one_of {
+	//   schema:integer
+	//   schema:number
+	// }
 	FieldNumber       interface{}
 	FieldString       string
 	FieldStringArray  []string

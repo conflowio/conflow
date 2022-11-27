@@ -12,23 +12,18 @@ func init() {
 			Annotations: map[string]string{
 				annotations.Type: "configuration",
 			},
-			ID: "github.com/conflowio/conflow/pkg/schema.Boolean",
+			ID: "github.com/conflowio/conflow/pkg/schema.Any",
 		},
 		FieldNames:     map[string]string{"$id": "ID", "const": "Const", "default": "Default", "deprecated": "Deprecated", "description": "Description", "enum": "Enum", "examples": "Examples", "nullable": "Nullable", "readOnly": "ReadOnly", "title": "Title", "writeOnly": "WriteOnly", "x-annotations": "Annotations"},
 		ParameterNames: map[string]string{"$id": "id", "readOnly": "read_only", "writeOnly": "write_only", "x-annotations": "annotations"},
 		Properties: map[string]Schema{
-			"$id": &String{},
-			"const": &Boolean{
-				Nullable: true,
-			},
-			"default": &Boolean{
-				Nullable: true,
-			},
+			"$id":         &String{},
+			"const":       &Any{},
+			"default":     &Any{},
 			"deprecated":  &Boolean{},
 			"description": &String{},
 			"enum": &Array{
-				Items:    &Boolean{},
-				MaxItems: Pointer(int64(1)),
+				Items: &Any{},
 			},
 			"examples": &Array{
 				Items: &Any{},
@@ -44,8 +39,8 @@ func init() {
 	})
 }
 
-// NewBooleanWithDefaults creates a new Boolean instance with default values
-func NewBooleanWithDefaults() *Boolean {
-	b := &Boolean{}
+// NewAnyWithDefaults creates a new Any instance with default values
+func NewAnyWithDefaults() *Any {
+	b := &Any{}
 	return b
 }

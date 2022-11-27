@@ -15,8 +15,11 @@ func init() {
 		Parameters: schema.Parameters{
 			schema.NamedSchema{
 				Name: "value",
-				Schema: &schema.Any{
-					Types: []string{"integer", "number"},
+				Schema: &schema.OneOf{
+					Schemas: []schema.Schema{
+						&schema.Integer{},
+						&schema.Number{},
+					},
 				},
 			},
 		},
@@ -37,5 +40,5 @@ func (i AbsInterpreter) Schema() schema.Schema {
 // Eval returns with the result of the function
 func (i AbsInterpreter) Eval(ctx interface{}, args []interface{}) (interface{}, error) {
 	var val0 = args[0]
-	return Abs(val0)
+	return Abs(val0), nil
 }

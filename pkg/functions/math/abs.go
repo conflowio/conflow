@@ -13,21 +13,24 @@ import (
 // Abs returns the absolute value of the given number
 // @function
 func Abs(
-	// @types ["integer", "number"]
+	// @one_of {
+	//   schema:integer
+	//   schema:number
+	// }
 	// @result_type
 	value interface{},
-) (interface{}, error) {
+) interface{} {
 	switch n := value.(type) {
 	case int64:
 		if n >= 0 {
-			return n, nil
+			return n
 		}
-		return -1 * n, nil
+		return -1 * n
 	case float64:
 		if n >= 0 {
-			return value, nil
+			return value
 		}
-		return -1 * n, nil
+		return -1 * n
 	default:
 		panic(fmt.Sprintf("unexpected value type: %T", value))
 	}

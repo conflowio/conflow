@@ -7,6 +7,7 @@
 package schema
 
 import (
+	"context"
 	"errors"
 	"fmt"
 )
@@ -59,6 +60,10 @@ func (f falseImpl) Type() Type {
 
 func (f falseImpl) TypeString() string {
 	return ""
+}
+
+func (f falseImpl) Validate(context.Context) error {
+	return nil
 }
 
 func (f falseImpl) ValidateSchema(Schema, bool) error {

@@ -14,7 +14,10 @@ import (
 // Floor returns the greatest integer value less than or equal to x.
 // @function
 func Floor(
-	// @types ["integer", "number"]
+	// @one_of {
+	//   schema:integer
+	//   schema:number
+	// }
 	number interface{},
 ) int64 {
 	switch v := number.(type) {

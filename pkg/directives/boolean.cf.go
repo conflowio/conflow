@@ -32,7 +32,8 @@ func init() {
 			"deprecated":  &schema.Boolean{},
 			"description": &schema.String{},
 			"enum": &schema.Array{
-				Items: &schema.Boolean{},
+				Items:    &schema.Boolean{},
+				MaxItems: schema.Pointer(int64(1)),
 			},
 			"examples": &schema.Array{
 				Items: &schema.Any{},

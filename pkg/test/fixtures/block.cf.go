@@ -41,8 +41,11 @@ func init() {
 			"FieldMap": &schema.Map{
 				AdditionalProperties: &schema.Any{},
 			},
-			"FieldNumber": &schema.Any{
-				Types: []string{"integer", "number"},
+			"FieldNumber": &schema.OneOf{
+				Schemas: []schema.Schema{
+					&schema.Integer{},
+					&schema.Number{},
+				},
 			},
 			"FieldString": &schema.String{},
 			"FieldStringArray": &schema.Array{
