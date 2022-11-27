@@ -13,9 +13,15 @@ import (
 // Min returns with the lowest value
 // @function
 func Min(
-	// @types ["integer", "number"]
+	// @one_of {
+	//   schema:integer
+	//   schema:number
+	// }
 	min interface{},
-	// @types ["integer", "number"]
+	// @one_of {
+	//   schema:integer
+	//   schema:number
+	// }
 	rest ...interface{},
 ) float64 {
 	var res float64

@@ -181,33 +181,38 @@ func (n *Number) UnmarshalJSON(input []byte) error {
 }
 
 func (n *Number) Validate(ctx context.Context) error {
-	if n.ExclusiveMinimum != nil && n.Minimum != nil {
-		return validation.NewFieldError("minimum", errors.New("should not be defined if exclusiveMinimum is set"))
-	}
+	return validation.ValidateObject(ctx,
+		validation.ValidateField("minimum", validation.ValidatorFunc(func(ctx context.Context) error {
+			if n.ExclusiveMinimum != nil && n.Minimum != nil {
+				return errors.New("should not be defined if exclusiveMinimum is set")
+			}
+			return nil
+		})),
+		validation.ValidateField("maximum", validation.ValidatorFunc(func(ctx context.Context) error {
+			if n.ExclusiveMaximum != nil && n.Maximum != nil {
+				return errors.New("should not be defined if exclusiveMaximum is set")
+			}
+			return nil
+		})),
+		validation.ValidatorFunc(func(ctx context.Context) error {
+			min := n.Minimum
+			if n.ExclusiveMinimum != nil {
+				min = ptr.To(*n.ExclusiveMinimum + Epsilon)
+			}
 
-	if n.ExclusiveMaximum != nil && n.Maximum != nil {
-		return validation.NewFieldError("maximum", errors.New("should not be defined if exclusiveMaximum is set"))
-	}
+			max := n.Maximum
+			if n.ExclusiveMaximum != nil {
+				max = ptr.To(*n.ExclusiveMaximum - Epsilon)
+			}
 
-	min := n.Minimum
-	if n.ExclusiveMinimum != nil {
-		min = ptr.To(*n.ExclusiveMinimum + Epsilon)
-	}
+			if min != nil && max != nil && NumberGreaterThan(*min, *max) {
+				return errors.New("minimum and maximum constraints are impossible to fulfil")
+			}
 
-	max := n.Maximum
-	if n.ExclusiveMaximum != nil {
-		max = ptr.To(*n.ExclusiveMaximum - Epsilon)
-	}
-
-	if min != nil && max != nil && NumberGreaterThan(*min, *max) {
-		return errors.New("minimum and maximum constraints are impossible to fulfil")
-	}
-
-	if err := validateCommonFields(n, n.Const, n.Default, n.Enum); err != nil {
-		return err
-	}
-
-	return nil
+			return nil
+		}),
+		validateCommonFields(n, n.Const, n.Default, n.Enum),
+	)
 }
 
 func (n *Number) ValidateSchema(n2 Schema, _ bool) error {

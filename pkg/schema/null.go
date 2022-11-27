@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -82,6 +83,10 @@ func (n *Null) Type() Type {
 
 func (n *Null) TypeString() string {
 	return string(TypeNull)
+}
+
+func (n *Null) Validate(context.Context) error {
+	return nil
 }
 
 func (n *Null) ValidateSchema(n2 Schema, _ bool) error {

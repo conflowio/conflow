@@ -15,8 +15,16 @@ func init() {
 		Parameters: schema.Parameters{
 			schema.NamedSchema{
 				Name: "value",
-				Schema: &schema.Any{
-					Types: []string{"string", "array", "map"},
+				Schema: &schema.OneOf{
+					Schemas: []schema.Schema{
+						&schema.Array{
+							Items: &schema.Any{},
+						},
+						&schema.Map{
+							AdditionalProperties: &schema.Any{},
+						},
+						&schema.String{},
+					},
 				},
 			},
 		},

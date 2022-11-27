@@ -20,6 +20,11 @@ import (
 //	  path = "interpreters"
 //	}
 type AllOf struct {
+	Const    interface{}   `json:"const,omitempty"`
+	Default  interface{}   `json:"default,omitempty"`
+	Enum     []interface{} `json:"enum,omitempty"`
+	Nullable bool          `json:"nullable,omitempty"`
+
 	// @name "schema"
 	// @required
 	// @min_items 1
@@ -49,7 +54,7 @@ func (a *AllOf) Copy() Schema {
 		panic(fmt.Errorf("failed to encode schema: %w", err))
 	}
 
-	cp := &Array{}
+	cp := &AllOf{}
 	if err := json.Unmarshal(j, cp); err != nil {
 		panic(fmt.Errorf("failed to decode schema: %w", err))
 	}
@@ -58,7 +63,7 @@ func (a *AllOf) Copy() Schema {
 }
 
 func (a *AllOf) DefaultValue() interface{} {
-	return a.getSchema().DefaultValue()
+	return a.Default
 }
 
 func (a *AllOf) GoType(imports map[string]string) string {
@@ -69,6 +74,18 @@ func (a *AllOf) GoString(imports map[string]string) string {
 	pkg := schemaPkg(imports)
 	buf := bytes.NewBuffer(nil)
 	fprintf(buf, "&%sAllOf{\n", pkg)
+	if a.Const != nil {
+		fprintf(buf, "\tConst: %#v,\n", a.Const)
+	}
+	if a.Default != nil {
+		fprintf(buf, "\tDefault: %#v,\n", a.Default)
+	}
+	if len(a.Enum) > 0 {
+		fprintf(buf, "\tEnum: %#v,\n", a.Enum)
+	}
+	if a.Nullable {
+		fprintf(buf, "\tNullable: %#v,\n", a.Nullable)
+	}
 	fprintf(buf, "\tSchemas: []%sSchema{\n", pkg)
 	for _, s := range a.Schemas {
 		fprintf(buf, "\t\t%s,\n", indent(s.GoString(imports)))
@@ -91,15 +108,19 @@ func (a *AllOf) TypeString() string {
 }
 
 func (a *AllOf) UnmarshalJSON(j []byte) error {
-	allOf := struct {
+	type Alias AllOf
+	v := struct {
+		*Alias
 		Schemas []*SchemaUnmarshaler `json:"allOf"`
-	}{}
-	if err := json.Unmarshal(j, &allOf); err != nil {
+	}{
+		Alias: (*Alias)(a),
+	}
+	if err := json.Unmarshal(j, &v); err != nil {
 		return err
 	}
 
-	a.Schemas = make([]Schema, len(allOf.Schemas))
-	for _, s := range allOf.Schemas {
+	a.Schemas = make([]Schema, 0, len(v.Schemas))
+	for _, s := range v.Schemas {
 		a.Schemas = append(a.Schemas, s.Schema)
 	}
 
@@ -107,12 +128,9 @@ func (a *AllOf) UnmarshalJSON(j []byte) error {
 }
 
 func (a *AllOf) Validate(ctx context.Context) error {
-	s := a.getSchema()
-	if v, ok := s.(validation.Validator); ok {
-		return v.Validate(ctx)
-	}
-
-	return nil
+	return validation.ValidateObject(ctx,
+		validation.ValidateArray("", a.Schemas),
+	)
 }
 
 func (a *AllOf) ValidateSchema(s Schema, compare bool) error {

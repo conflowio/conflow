@@ -16,7 +16,15 @@ import (
 // For arrays and maps it means the number of items/entries
 // @function
 func Len(
-	// @types ["string", "array", "map"]
+	// @one_of {
+	//   schema:string
+	//   schema:array {
+	//     items:any
+	//   }
+	//   schema:map {
+	//     additional_properties:any
+	//   }
+	// }
 	value interface{},
 ) int64 {
 	switch v := value.(type) {

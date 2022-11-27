@@ -13,9 +13,15 @@ import (
 // Max returns with the greatest value
 // @function
 func Max(
-	// @types ["integer", "number"]
+	// @one_of {
+	//   schema:integer
+	//   schema:number
+	// }
 	max interface{},
-	// @types ["integer", "number"]
+	// @one_of {
+	//   schema:integer
+	//   schema:number
+	// }
 	rest ...interface{},
 ) float64 {
 	var res float64

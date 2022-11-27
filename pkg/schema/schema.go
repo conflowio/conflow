@@ -8,6 +8,7 @@ package schema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -43,12 +44,17 @@ type Schema interface {
 	StringValue(interface{}) string
 	Type() Type
 	TypeString() string
+	Validate(ctx context.Context) error
 	ValidateValue(interface{}) (interface{}, error)
 	ValidateSchema(s Schema, compare bool) error
 }
 
 type Directive interface {
 	ApplyToSchema(Schema) error
+}
+
+type SchemaReplacer interface {
+	ReplaceSchema(Schema) (Schema, error)
 }
 
 type Nullable interface {
@@ -67,12 +73,33 @@ func UnmarshalJSON(b []byte) (Schema, error) {
 	}
 
 	schemaType := gjson.GetBytes(b, "type")
-	if !schemaType.Exists() || schemaType.IsArray() {
-		s := &Any{}
-		if err := json.Unmarshal(b, s); err != nil {
-			return nil, err
+	if !schemaType.Exists() {
+		switch {
+		case gjson.GetBytes(b, "allOf").Exists():
+			var s AllOf
+			if err := json.Unmarshal(b, &s); err != nil {
+				return nil, err
+			}
+			return &s, nil
+		case gjson.GetBytes(b, "anyOf").Exists():
+			var s AnyOf
+			if err := json.Unmarshal(b, &s); err != nil {
+				return nil, err
+			}
+			return &s, nil
+		case gjson.GetBytes(b, "oneOf").Exists():
+			var s OneOf
+			if err := json.Unmarshal(b, &s); err != nil {
+				return nil, err
+			}
+			return &s, nil
+		default:
+			var s Any
+			if err := json.Unmarshal(b, &s); err != nil {
+				return nil, err
+			}
+			return &s, nil
 		}
-		return s, nil
 	}
 
 	var s Schema

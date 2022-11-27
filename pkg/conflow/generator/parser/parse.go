@@ -193,6 +193,21 @@ func GetSchemaForType(parseCtx *Context, typeNode ast.Expr, pkg string, metadata
 		return nil, false, err
 	}
 
+	var replaced bool
+	for _, directive := range metadata.Directives {
+		if r, ok := directive.(schema.SchemaReplacer); ok {
+			if replaced {
+				return nil, false, fmt.Errorf("multiple directives would change the schema type")
+			}
+			rs, err := r.ReplaceSchema(s)
+			if err != nil {
+				return nil, false, err
+			}
+			s = rs
+			replaced = true
+		}
+	}
+
 	if metadata.Description != "" {
 		s.(schema.MetadataAccessor).SetDescription(metadata.Description)
 	}

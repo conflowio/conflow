@@ -24,21 +24,6 @@ const (
 	TypeString     Type = "string"
 )
 
-var typeSchemas = map[Type]Schema{
-	TypeAny:        AnyValue(),
-	TypeArray:      &Array{Items: AnyValue()},
-	TypeByteStream: ByteStreamValue(),
-	TypeBoolean:    BooleanValue(),
-	TypeFalse:      False(),
-	TypeFunction:   &Function{},
-	TypeInteger:    IntegerValue(),
-	TypeMap:        &Map{AdditionalProperties: AnyValue()},
-	TypeNull:       NullValue(),
-	TypeNumber:     NumberValue(),
-	TypeObject:     &Object{},
-	TypeString:     StringValue(),
-}
-
 // @min_length 1
 type NonEmptyString = string
 

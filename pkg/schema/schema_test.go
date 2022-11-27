@@ -155,13 +155,6 @@ var _ = Describe("Schema", func() {
 			},
 		),
 		Entry(
-			"any with multiple types",
-			&schema.Any{
-				Metadata: schema.Metadata{Description: "foo"},
-				Types:    []string{string(schema.TypeString), string(schema.TypeBoolean)},
-			},
-		),
-		Entry(
 			"null",
 			&schema.Null{
 				Metadata: schema.Metadata{Description: "foo"},

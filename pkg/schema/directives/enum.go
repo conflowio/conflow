@@ -37,15 +37,19 @@ func (e *Enum) ApplyToSchema(s schema.Schema) error {
 	}
 
 	switch st := s.(type) {
+	case *schema.AllOf:
+		st.Enum = make([]interface{}, len(values))
+		copy(st.Enum, values)
+	case *schema.Any:
+		st.Enum = make([]interface{}, len(values))
+		copy(st.Enum, values)
+	case *schema.AnyOf:
+		st.Enum = make([]interface{}, len(values))
+		copy(st.Enum, values)
 	case *schema.Array:
 		st.Enum = make([][]interface{}, len(values))
 		for i, v := range values {
 			st.Enum[i] = v.([]interface{})
-		}
-	case *schema.Object:
-		st.Enum = make([]map[string]interface{}, len(values))
-		for i, v := range values {
-			st.Enum[i] = v.(map[string]interface{})
 		}
 	case *schema.Boolean:
 		st.Enum = make([]bool, len(values))
@@ -57,6 +61,11 @@ func (e *Enum) ApplyToSchema(s schema.Schema) error {
 		for i, v := range values {
 			st.Enum[i] = v.(int64)
 		}
+	case *schema.Map:
+		st.Enum = make([]map[string]interface{}, len(values))
+		for i, v := range values {
+			st.Enum[i] = v.(map[string]interface{})
+		}
 	case *schema.Number:
 		st.Enum = make([]float64, len(values))
 		for i, v := range values {
@@ -67,6 +76,14 @@ func (e *Enum) ApplyToSchema(s schema.Schema) error {
 		for i, v := range values {
 			st.Enum[i] = v.(string)
 		}
+	case *schema.Object:
+		st.Enum = make([]map[string]interface{}, len(values))
+		for i, v := range values {
+			st.Enum[i] = v.(map[string]interface{})
+		}
+	case *schema.OneOf:
+		st.Enum = make([]interface{}, len(values))
+		copy(st.Enum, values)
 	default:
 		return fmt.Errorf("const directive can not be applied to %T", s)
 	}

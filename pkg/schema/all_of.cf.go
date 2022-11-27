@@ -14,7 +14,7 @@ func init() {
 			},
 			ID: "github.com/conflowio/conflow/pkg/schema.AllOf",
 		},
-		FieldNames:     map[string]string{"allOf": "Schemas"},
+		FieldNames:     map[string]string{"allOf": "Schemas", "const": "Const", "default": "Default", "enum": "Enum", "nullable": "Nullable"},
 		ParameterNames: map[string]string{"allOf": "schema"},
 		Properties: map[string]Schema{
 			"allOf": &Array{
@@ -23,6 +23,12 @@ func init() {
 				},
 				MinItems: 1,
 			},
+			"const":   &Any{},
+			"default": &Any{},
+			"enum": &Array{
+				Items: &Any{},
+			},
+			"nullable": &Boolean{},
 		},
 		Required: []string{"schema"},
 	})

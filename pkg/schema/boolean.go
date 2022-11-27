@@ -23,8 +23,9 @@ import (
 type Boolean struct {
 	Metadata
 
-	Const    *bool  `json:"const,omitempty"`
-	Default  *bool  `json:"default,omitempty"`
+	Const   *bool `json:"const,omitempty"`
+	Default *bool `json:"default,omitempty"`
+	// @max_items 1
 	Enum     []bool `json:"enum,omitempty"`
 	Nullable bool   `json:"nullable,omitempty"`
 }
@@ -151,11 +152,7 @@ func (b *Boolean) UnmarshalJSON(input []byte) error {
 }
 
 func (b *Boolean) Validate(ctx context.Context) error {
-	if err := validateCommonFields(b, b.Const, b.Default, b.Enum); err != nil {
-		return err
-	}
-
-	return nil
+	return validateCommonFields(b, b.Const, b.Default, b.Enum)(ctx)
 }
 
 func (b *Boolean) ValidateSchema(b2 Schema, _ bool) error {

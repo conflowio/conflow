@@ -173,7 +173,10 @@ var _ = Describe("ParseArguments", func() {
 			source = `
 				package foo
 				func Foo(
-					// @types ["integer", "number"]
+					// @one_of {
+					//   schema:integer
+					//   schema:number
+					// }
 					a interface{},
 				) interface{} {
 					return a
@@ -190,8 +193,11 @@ var _ = Describe("ParseArguments", func() {
 				Parameters: []schema.NamedSchema{
 					{
 						Name: "a",
-						Schema: &schema.Any{
-							Types: []string{"integer", "number"},
+						Schema: &schema.OneOf{
+							Schemas: []schema.Schema{
+								&schema.Integer{},
+								&schema.Number{},
+							},
 						},
 					},
 				},

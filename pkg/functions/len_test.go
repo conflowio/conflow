@@ -44,7 +44,7 @@ var _ = Describe("Len", func() {
 		},
 		test.TableEntry(`test()`, errors.New("test requires exactly 1 argument, but got 0 at testfile:1:1")),
 		test.TableEntry(`test(1, 2)`, errors.New("test requires exactly 1 argument, but got 2 at testfile:1:9")),
-		test.TableEntry(`test(1)`, errors.New("was expecting string, array or map at testfile:1:6")),
+		test.TableEntry(`test(1)`, errors.New("was expecting array, map or string at testfile:1:6")),
 	)
 
 	It("should return with integer type", func() {
