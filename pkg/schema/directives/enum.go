@@ -43,9 +43,6 @@ func (e *Enum) ApplyToSchema(s schema.Schema) error {
 	case *schema.Any:
 		st.Enum = make([]interface{}, len(values))
 		copy(st.Enum, values)
-	case *schema.AnyOf:
-		st.Enum = make([]interface{}, len(values))
-		copy(st.Enum, values)
 	case *schema.Array:
 		st.Enum = make([][]interface{}, len(values))
 		for i, v := range values {
