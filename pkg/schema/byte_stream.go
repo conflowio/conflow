@@ -102,7 +102,7 @@ func (b *ByteStream) ValidateSchema(s2 Schema, compare bool) error {
 }
 
 func (b *ByteStream) ValidateValue(value interface{}) (interface{}, error) {
-	v, ok := value.(io.Reader)
+	v, ok := value.(io.ReadCloser)
 	if !ok {
 		return nil, errors.New("must be byte stream")
 	}
