@@ -37,8 +37,6 @@ func (d *Default) ApplyToSchema(s schema.Schema) error {
 		st.Default = value
 	case *schema.Any:
 		st.Const = value
-	case *schema.AnyOf:
-		st.Default = value
 	case *schema.Array:
 		st.Default = value.([]interface{})
 	case *schema.Boolean:

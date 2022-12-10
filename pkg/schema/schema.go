@@ -81,12 +81,6 @@ func UnmarshalJSON(b []byte) (Schema, error) {
 				return nil, err
 			}
 			return &s, nil
-		case gjson.GetBytes(b, "anyOf").Exists():
-			var s AnyOf
-			if err := json.Unmarshal(b, &s); err != nil {
-				return nil, err
-			}
-			return &s, nil
 		case gjson.GetBytes(b, "oneOf").Exists():
 			var s OneOf
 			if err := json.Unmarshal(b, &s); err != nil {
