@@ -15,15 +15,16 @@ import (
 	"time"
 )
 
+var randGen *rand.Rand
 var seedMathRandOnce sync.Once
 
 // SeedMathRand initializes the random generator
 func SeedMathRand() {
 	seedMathRandOnce.Do(func() {
 		if n, err := crand.Int(crand.Reader, big.NewInt(math.MaxInt64)); err == nil {
-			rand.Seed(n.Int64())
+			randGen = rand.New(rand.NewSource(n.Int64()))
 		} else {
-			rand.Seed(time.Now().UTC().UnixNano())
+			randGen = rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
 		}
 	})
 }
@@ -37,9 +38,9 @@ func RandHexString(n int, startsWithletter bool) string {
 	b := make([]byte, n)
 	for i := range b {
 		if i == 0 && startsWithletter {
-			b[i] = hexLetters[rand.Int63()%int64(len(hexLetters))]
+			b[i] = hexLetters[randGen.Int63()%int64(len(hexLetters))]
 		} else {
-			b[i] = hexBytes[rand.Int63()%int64(len(hexBytes))]
+			b[i] = hexBytes[randGen.Int63()%int64(len(hexBytes))]
 		}
 	}
 	return string(b)
