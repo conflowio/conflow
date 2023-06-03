@@ -129,6 +129,13 @@ func (e *Event) Msgf(format string, v ...interface{}) {
 	e.msg(fmt.Sprintf(format, v...))
 }
 
+func (e *Event) MsgFunc(createMsg func() string) {
+	if e == nil {
+		return
+	}
+	e.msg(createMsg())
+}
+
 func (e *Event) msg(msg string) {
 	for _, hook := range e.ch {
 		hook.Run(e, e.level, msg)
@@ -257,18 +264,24 @@ func (e *Event) Strs(key string, vals []string) *Event {
 	return e
 }
 
-// Stringer adds the field key with val.String() (or null if val is nil) to the *Event context.
+// Stringer adds the field key with val.String() (or null if val is nil)
+// to the *Event context.
 func (e *Event) Stringer(key string, val fmt.Stringer) *Event {
 	if e == nil {
 		return e
 	}
+	e.buf = enc.AppendStringer(enc.AppendKey(e.buf, key), val)
+	return e
+}
 
-	if val != nil {
-		e.buf = enc.AppendString(enc.AppendKey(e.buf, key), val.String())
+// Stringers adds the field key with vals where each individual val
+// is used as val.String() (or null if val is empty) to the *Event
+// context.
+func (e *Event) Stringers(key string, vals []fmt.Stringer) *Event {
+	if e == nil {
 		return e
 	}
-
-	e.buf = enc.AppendInterface(enc.AppendKey(e.buf, key), nil)
+	e.buf = enc.AppendStringers(enc.AppendKey(e.buf, key), vals)
 	return e
 }
 
@@ -639,7 +652,7 @@ func (e *Event) Timestamp() *Event {
 	return e
 }
 
-// Time adds the field key with t formated as string using zerolog.TimeFieldFormat.
+// Time adds the field key with t formatted as string using zerolog.TimeFieldFormat.
 func (e *Event) Time(key string, t time.Time) *Event {
 	if e == nil {
 		return e
@@ -648,7 +661,7 @@ func (e *Event) Time(key string, t time.Time) *Event {
 	return e
 }
 
-// Times adds the field key with t formated as string using zerolog.TimeFieldFormat.
+// Times adds the field key with t formatted as string using zerolog.TimeFieldFormat.
 func (e *Event) Times(key string, t []time.Time) *Event {
 	if e == nil {
 		return e
@@ -694,6 +707,11 @@ func (e *Event) TimeDiff(key string, t time.Time, start time.Time) *Event {
 	return e
 }
 
+// Any is a wrapper around Event.Interface.
+func (e *Event) Any(key string, i interface{}) *Event {
+	return e.Interface(key, i)
+}
+
 // Interface adds the field key with i marshaled using reflection.
 func (e *Event) Interface(key string, i interface{}) *Event {
 	if e == nil {
@@ -703,6 +721,15 @@ func (e *Event) Interface(key string, i interface{}) *Event {
 		return e.Object(key, obj)
 	}
 	e.buf = enc.AppendInterface(enc.AppendKey(e.buf, key), i)
+	return e
+}
+
+// Type adds the field key with val's type using reflection.
+func (e *Event) Type(key string, val interface{}) *Event {
+	if e == nil {
+		return e
+	}
+	e.buf = enc.AppendType(enc.AppendKey(e.buf, key), val)
 	return e
 }
 
@@ -731,11 +758,11 @@ func (e *Event) caller(skip int) *Event {
 	if e == nil {
 		return e
 	}
-	_, file, line, ok := runtime.Caller(skip + e.skipFrame)
+	pc, file, line, ok := runtime.Caller(skip + e.skipFrame)
 	if !ok {
 		return e
 	}
-	e.buf = enc.AppendString(enc.AppendKey(e.buf, CallerFieldName), CallerMarshalFunc(file, line))
+	e.buf = enc.AppendString(enc.AppendKey(e.buf, CallerFieldName), CallerMarshalFunc(pc, file, line))
 	return e
 }
 

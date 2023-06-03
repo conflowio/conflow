@@ -32,12 +32,15 @@ func NewWSL(settings *config.WSLSettings) *goanalysis.Linter {
 		conf.AllowCuddleDeclaration = settings.AllowCuddleDeclaration
 		conf.AllowCuddleWithCalls = settings.AllowCuddleWithCalls
 		conf.AllowCuddleWithRHS = settings.AllowCuddleWithRHS
+		conf.ForceCuddleErrCheckAndAssign = settings.ForceCuddleErrCheckAndAssign
+		conf.ErrorVariableNames = settings.ErrorVariableNames
+		conf.ForceExclusiveShortDeclarations = settings.ForceExclusiveShortDeclarations
 	}
 
 	analyzer := &analysis.Analyzer{
 		Name: goanalysis.TheOnlyAnalyzerName,
 		Doc:  goanalysis.TheOnlyanalyzerDoc,
-		Run: func(pass *analysis.Pass) (interface{}, error) {
+		Run: func(pass *analysis.Pass) (any, error) {
 			issues := runWSL(pass, &conf)
 
 			if len(issues) == 0 {
