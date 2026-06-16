@@ -158,7 +158,7 @@ func (t *Tracker) done(id int, msg string) {
 
 	j := t.jobs[id]
 	if j == nil {
-		panic(fmt.Errorf("job %q wasn't run by the job manager", id))
+		panic(fmt.Errorf("job %d wasn't run by the job manager", id))
 	}
 
 	t.running--
@@ -179,7 +179,7 @@ func (t *Tracker) Retry(id int, limit int, delay time.Duration, reason string, f
 
 	j, exists := t.jobs[id]
 	if !exists {
-		panic(fmt.Errorf("job %q wasn't run by the job manager", id))
+		panic(fmt.Errorf("job %d wasn't run by the job manager", id))
 	}
 
 	// make sure we cancel any previous timers just to be sure

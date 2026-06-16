@@ -240,7 +240,7 @@ func (p Parameters) MarshalJSON() ([]byte, error) {
 
 func (p Parameters) GoString(imports map[string]string) string {
 	buf := bytes.NewBuffer(nil)
-	fprintf(buf, fmt.Sprintf("%sParameters{\n", schemaPkg(imports)))
+	fprintf(buf, "%sParameters{\n", schemaPkg(imports))
 	for _, param := range p {
 		fprintf(buf, "\t%s,\n", indent(param.GoString(imports)))
 	}

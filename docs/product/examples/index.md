@@ -25,7 +25,7 @@ cd examples/helloworld
 make   # or: go run .
 ```
 
-Requirements: Go 1.20+, generated `*.cf.go` present (run `conflow generate` if missing).
+Requirements: Go 1.26+, generated `*.cf.go` present (run `conflow generate` if missing).
 
 ## Shared utilities
 

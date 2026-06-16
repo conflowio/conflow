@@ -6,7 +6,7 @@
 
 package directives_test
 
-func ExampleDoc_SingleLine() {
+func ExampleDoc_singleLine() {
 	eval(`
 		@doc "This will print Hello World! to stdout"
 		println "Hello World!"
@@ -14,7 +14,7 @@ func ExampleDoc_SingleLine() {
 	// Output: Hello World!
 }
 
-func ExampleDoc_Multiline() {
+func ExampleDoc_multiline() {
 	eval(`
 		@doc '''
 			This will print Hello World! to stdout

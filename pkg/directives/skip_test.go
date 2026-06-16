@@ -6,7 +6,7 @@
 
 package directives_test
 
-func ExampleSkip_ShortFormat() {
+func ExampleSkip_shortFormat() {
 	eval(`
 		println "First will run"
 
@@ -16,7 +16,7 @@ func ExampleSkip_ShortFormat() {
 	// Output: First will run
 }
 
-func ExampleSkip_LongFormat() {
+func ExampleSkip_longFormat() {
 	eval(`
 		println "First will run"
 
@@ -28,7 +28,7 @@ func ExampleSkip_LongFormat() {
 	// Output: First will run
 }
 
-func ExampleSkip_UsingAVariable() {
+func ExampleSkip_usingAVariable() {
 	eval(`
 		skip_second := true
 

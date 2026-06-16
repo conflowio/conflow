@@ -6,7 +6,7 @@
 
 package directives_test
 
-func ExampleRun_ShortFormat() {
+func ExampleRun_shortFormat() {
 	eval(`
 		println "First will run"
 
@@ -16,7 +16,7 @@ func ExampleRun_ShortFormat() {
 	// Output: First will run
 }
 
-func ExampleRun_LongFormat() {
+func ExampleRun_longFormat() {
 	eval(`
 		println "First will run"
 
@@ -28,7 +28,7 @@ func ExampleRun_LongFormat() {
 	// Output: First will run
 }
 
-func ExampleRun_UsingAVariable() {
+func ExampleRun_usingAVariable() {
 	eval(`
 		run_second := false
 

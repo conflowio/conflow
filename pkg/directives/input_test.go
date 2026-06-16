@@ -6,7 +6,7 @@
 
 package directives_test
 
-func ExampleInput_SingleLine() {
+func ExampleInput_singleLine() {
 	eval(`
 		@input {
 		  type:string

@@ -34,7 +34,7 @@ var _ = Describe("Object", func() {
 		Bar         interface{} `json:"bar,omitempty"`
 		Baz         TestObject2 `json:"baz,omitempty"`
 		notExported int8
-		Ignored     int8 `json:"-"'`
+		Ignored     int8 `json:"-"`
 	}
 
 	type OtherObject struct {
