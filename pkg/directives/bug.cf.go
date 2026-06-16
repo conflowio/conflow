@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -93,7 +94,12 @@ func (i BugInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	b := block.(*Bug)
 	switch name {
 	case "description":
-		b.description = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("description")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.description = schema.Value[string](bound)
 	}
 	return nil
 }

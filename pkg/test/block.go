@@ -108,8 +108,8 @@ func compareBlocks(b1, b2 conflow.Identifiable, interpreter conflow.BlockInterpr
 		}
 		parameterName := o.ParameterName(jsonPropertyName)
 
-		v1 := interpreter.Param(b1, conflow.ID(parameterName))
-		v2 := interpreter.Param(b2, conflow.ID(parameterName))
+		v1 := normalizeEvalValue(interpreter.Param(b1, conflow.ID(parameterName)))
+		v2 := normalizeEvalValue(interpreter.Param(b2, conflow.ID(parameterName)))
 		if v2 != nil {
 			Expect(v1).To(Equal(v2), "%s does not match, input: %s", parameterName, input)
 		} else {

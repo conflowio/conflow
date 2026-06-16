@@ -81,7 +81,7 @@ func (i {{ .Name }}Interpreter) SetParam(block {{ $conflowSel }}Block, name {{ $
 	switch name {
 	{{ range $name, $property := filterInputs (filterParams .Schema.Properties) -}}
 	case "{{ getParameterName $name }}":
-		{{ assignValue $property "value" (printf "b.%s" (getFieldName $name)) }}
+		{{ bindAndAssignValue $property (getParameterName $name) "value" (printf "b.%s" (getFieldName $name)) }}
 	{{ end -}}
 	}
 	return nil

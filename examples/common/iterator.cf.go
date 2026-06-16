@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -97,7 +98,12 @@ func (i IteratorInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	b := block.(*Iterator)
 	switch name {
 	case "count":
-		b.count = schema.Value[int64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("count")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.count = schema.Value[int64](bound)
 	}
 	return nil
 }

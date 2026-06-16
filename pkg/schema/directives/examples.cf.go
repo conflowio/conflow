@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -93,7 +95,17 @@ func (i ExamplesInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	b := block.(*Examples)
 	switch name {
 	case "value":
-		b.value = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("value")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.value = slice
+
 	}
 	return nil
 }

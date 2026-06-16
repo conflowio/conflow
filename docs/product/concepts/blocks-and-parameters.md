@@ -48,6 +48,43 @@ A parameter value can be:
 | Array/map element | `colors[i1.value]` |
 | Typed schema shorthand | `schema:object { ... }`, `items:string` |
 
+## Value semantics and isolation
+
+Blocks can run **in parallel** when dependencies allow. Parameter values cross block boundaries via references (`other_block.output`), `@input`, and child parameter wiring. Conflow enforces **data isolation** at those boundaries so one block cannot mutate data visible to another.
+
+### Bind at boundaries
+
+When a value enters a block — through `SetParam`, a parameter reference, or an `@input` — the runtime calls `bind.BindValue` with the parameter's schema. Block authors may use any Go types inside `Run()`; isolation applies at **bind time**, not inside block logic.
+
+| Value kind | Cross-block bind |
+|------------|------------------|
+| Scalars (`bool`, `int64`, `float64`, `string`, …) | Copied by value |
+| `*values.List`, `*values.Map` (frozen) | Pointer shared (O(1); backing store is immutable) |
+| `[]interface{}`, `map[string]interface{}`, typed slices/maps | Deep-copied, or converted to immutable on first bind |
+| Nested objects | Schema-driven deep copy of properties |
+| Child block references | Engine-owned; not data-copied |
+
+### Literals produce immutable collections
+
+Conflow array and map **literals** evaluate to frozen `*values.List` and `*values.Map`, not mutable Go slices or maps. This is the efficient default path: downstream binds can share the same pointer safely.
+
+```conflow
+colors := ["red", "green", "blue"]
+
+first print colors[0]
+second print colors[1]
+```
+
+Here `colors` is an immutable list. Parallel blocks that reference `main.colors` receive bound values that do not alias mutable upstream data.
+
+### Mutable input from Go
+
+When Go passes a mutable slice or map via `@input` or block outputs, bind **deep-copies** (or normalizes once to an immutable collection). Mutating the original Go value after evaluation does not affect values already bound into the workflow.
+
+### Debugging bind
+
+Set `CONFLOW_BIND_DEBUG=1` to log each `BindValue` call to stderr (schema type and value kind). Useful when tracing unexpected aliasing or copy behavior.
+
 ## Parameter kinds (Go field annotations)
 
 | Annotation | Meaning |
@@ -92,6 +129,8 @@ Here `program` is a user parameter on `main`, `test` is an `exec` task block, an
 - `BlockInterpreter` (`pkg/conflow/block.go`) — `SetParam`, `SetBlock`, `Schema()`, `CreateBlock`
 - User-defined parameters are tagged in schema via `annotations.UserDefined`
 - `pkg/conflow/parameter/` — containers and transforms
+- `pkg/conflow/bind/` — schema-driven `BindValue` at cross-block boundaries
+- `pkg/values/` — immutable `List` and `Map` types used by literal eval and bind fast path
 
 ## See also
 

@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -113,17 +115,46 @@ func (i OperationInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*Operation)
 	switch name {
 	case "deprecated":
-		b.Deprecated = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("deprecated")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Deprecated = schema.Value[bool](bound)
 	case "description":
-		b.Description = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("description")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Description = schema.Value[string](bound)
 	case "operation_id":
-		b.OperationID = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("operation_id")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.OperationID = schema.Value[string](bound)
 	case "summary":
-		b.Summary = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("summary")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Summary = schema.Value[string](bound)
 	case "tags":
-		b.Tags = make([]string, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.Tags[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("tags")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Tags = make([]string, len(slice))
+		for slicek, slicev := range slice {
+			b.Tags[slicek] = schema.Value[string](slicev)
 		}
 	}
 	return nil

@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -97,7 +99,18 @@ func (i LineScannerInterpreter) SetParam(block conflow.Block, name conflow.ID, v
 	b := block.(*LineScanner)
 	switch name {
 	case "input":
-		b.input = value
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("input")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		if slice, err := values.AsInterfaceSlice(bound); err == nil {
+			b.input = slice
+		} else if goMap, err := values.AsStringInterfaceMap(bound); err == nil {
+			b.input = goMap
+		} else {
+			b.input = bound
+		}
 	}
 	return nil
 }

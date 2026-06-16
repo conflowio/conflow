@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -100,11 +102,20 @@ func (i DependentRequiredInterpreter) SetParam(block conflow.Block, name conflow
 	b := block.(*DependentRequired)
 	switch name {
 	case "value":
-		b.Value = make(map[string][]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Value[valuek] = make([]string, len(valuev.([]interface{})))
-			for valuevk, valuevv := range valuev.([]interface{}) {
-				b.Value[valuek][valuevk] = schema.Value[string](valuevv)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("value")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.Value = make(map[string][]string, len(goMap))
+		for goMapk, goMapv := range goMap {
+			b.Value[goMapk] = make([]string, len(goMapv.([]interface{})))
+			for goMapvk, goMapvv := range goMapv.([]interface{}) {
+				b.Value[goMapk][goMapvk] = schema.Value[string](goMapvv)
 			}
 		}
 	}

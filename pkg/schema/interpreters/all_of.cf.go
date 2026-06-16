@@ -6,7 +6,9 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 // AllOfInterpreter is the Conflow interpreter for the AllOf block
@@ -58,13 +60,50 @@ func (i AllOfInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*schema.AllOf)
 	switch name {
 	case "const":
-		b.Const = value
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("const")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		if slice, err := values.AsInterfaceSlice(bound); err == nil {
+			b.Const = slice
+		} else if goMap, err := values.AsStringInterfaceMap(bound); err == nil {
+			b.Const = goMap
+		} else {
+			b.Const = bound
+		}
 	case "default":
-		b.Default = value
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("default")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		if slice, err := values.AsInterfaceSlice(bound); err == nil {
+			b.Default = slice
+		} else if goMap, err := values.AsStringInterfaceMap(bound); err == nil {
+			b.Default = goMap
+		} else {
+			b.Default = bound
+		}
 	case "enum":
-		b.Enum = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("enum")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Enum = slice
+
 	case "nullable":
-		b.Nullable = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("nullable")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Nullable = schema.Value[bool](bound)
 	}
 	return nil
 }

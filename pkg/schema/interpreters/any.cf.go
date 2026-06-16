@@ -6,7 +6,9 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 // AnyInterpreter is the Conflow interpreter for the Any block
@@ -74,31 +76,117 @@ func (i AnyInterpreter) SetParam(block conflow.Block, name conflow.ID, value int
 	b := block.(*schema.Any)
 	switch name {
 	case "id":
-		b.ID = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("id")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.ID = schema.Value[string](bound)
 	case "const":
-		b.Const = value
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("const")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		if slice, err := values.AsInterfaceSlice(bound); err == nil {
+			b.Const = slice
+		} else if goMap, err := values.AsStringInterfaceMap(bound); err == nil {
+			b.Const = goMap
+		} else {
+			b.Const = bound
+		}
 	case "default":
-		b.Default = value
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("default")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		if slice, err := values.AsInterfaceSlice(bound); err == nil {
+			b.Default = slice
+		} else if goMap, err := values.AsStringInterfaceMap(bound); err == nil {
+			b.Default = goMap
+		} else {
+			b.Default = bound
+		}
 	case "deprecated":
-		b.Deprecated = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("deprecated")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Deprecated = schema.Value[bool](bound)
 	case "description":
-		b.Description = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("description")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Description = schema.Value[string](bound)
 	case "enum":
-		b.Enum = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("enum")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Enum = slice
+
 	case "examples":
-		b.Examples = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("examples")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Examples = slice
+
 	case "nullable":
-		b.Nullable = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("nullable")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Nullable = schema.Value[bool](bound)
 	case "read_only":
-		b.ReadOnly = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("read_only")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.ReadOnly = schema.Value[bool](bound)
 	case "title":
-		b.Title = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("title")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Title = schema.Value[string](bound)
 	case "write_only":
-		b.WriteOnly = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("write_only")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.WriteOnly = schema.Value[bool](bound)
 	case "annotations":
-		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("annotations")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.Annotations = make(map[string]string, len(goMap))
+		for goMapk, goMapv := range goMap {
+			b.Annotations[goMapk] = schema.Value[string](goMapv)
 		}
 	}
 	return nil

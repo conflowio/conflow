@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/pkg/util/validation"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 //	@block {
@@ -60,18 +61,20 @@ for %sk, %sv := range %s.(map[string]interface{}) {
 func (m *Map) CompareValues(v1, v2 interface{}) int {
 	var m1 map[string]interface{}
 	if v1 != nil {
-		var ok bool
-		if m1, ok = v1.(map[string]interface{}); !ok {
+		goMap, err := values.AsStringInterfaceMap(v1)
+		if err != nil {
 			return -1
 		}
+		m1 = goMap
 	}
 
 	var m2 map[string]interface{}
 	if v2 != nil {
-		var ok bool
-		if m2, ok = v2.(map[string]interface{}); !ok {
+		goMap, err := values.AsStringInterfaceMap(v2)
+		if err != nil {
 			return 1
 		}
+		m2 = goMap
 	}
 
 	p := m.GetAdditionalProperties()
@@ -179,8 +182,8 @@ func (m *Map) GoString(imports map[string]string) string {
 }
 
 func (m *Map) StringValue(value interface{}) string {
-	v, ok := value.(map[string]interface{})
-	if !ok {
+	v, err := values.AsStringInterfaceMap(value)
+	if err != nil {
 		return ""
 	}
 
@@ -283,12 +286,9 @@ func (m *Map) ValidateSchema(s Schema, compare bool) error {
 }
 
 func (m *Map) ValidateValue(value interface{}) (interface{}, error) {
-	var v map[string]interface{}
-	if value != nil {
-		var ok bool
-		if v, ok = value.(map[string]interface{}); !ok {
-			return nil, errors.New("must be map")
-		}
+	v, err := values.AsStringInterfaceMap(value)
+	if err != nil {
+		return nil, errors.New("must be map")
 	}
 
 	if m.Const != nil && m.CompareValues(m.Const, v) != 0 {

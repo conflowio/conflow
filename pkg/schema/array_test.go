@@ -15,6 +15,7 @@ import (
 	"github.com/conflowio/conflow/pkg/internal/testhelper"
 	"github.com/conflowio/conflow/pkg/schema"
 	"github.com/conflowio/conflow/pkg/util/validation"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 var _ schema.Schema = &schema.Array{}
@@ -210,6 +211,39 @@ var _ = Describe("Array", func() {
 			},
 		),
 	)
+
+	Describe("Validate accepts immutable values", func() {
+		It("accepts immutable list input and returns a slice", func() {
+			s := &schema.Array{Items: schema.IntegerValue()}
+			input := values.ListOf(int64(1), int64(2))
+
+			result, err := s.ValidateValue(input)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result).To(Equal([]interface{}{int64(1), int64(2)}))
+		})
+
+		It("accepts empty immutable list input", func() {
+			s := &schema.Array{Items: schema.IntegerValue()}
+			input := values.NewListBuilder[interface{}]().Freeze()
+
+			result, err := s.ValidateValue(input)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result).To(Equal([]interface{}{}))
+		})
+
+		It("accepts nested immutable list input", func() {
+			s := &schema.Array{Items: &schema.Array{Items: schema.IntegerValue()}}
+			inner := values.ListOf(int64(1), int64(2))
+			input := values.ListOf(interface{}(inner), interface{}(values.ListOf(int64(3))))
+
+			result, err := s.ValidateValue(input)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result).To(Equal([]interface{}{
+				[]interface{}{int64(1), int64(2)},
+				[]interface{}{int64(3)},
+			}))
+		})
+	})
 
 	DescribeTable("Validate errors",
 		func(schema *schema.Array, value interface{}, expectedErr error) {

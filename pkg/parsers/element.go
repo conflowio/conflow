@@ -16,6 +16,7 @@ import (
 	"github.com/conflowio/parsley/text/terminal"
 
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 // Element will match a variable expression defined by the following rule, where P is the input parser:
@@ -110,6 +111,32 @@ func (a elementInterpreter) Eval(ctx interface{}, node parsley.NonTerminalNode) 
 			switch indext := index.(type) {
 			case string:
 				val, ok := rest[indext]
+				if !ok {
+					indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
+					return nil, parsley.NewErrorf(indexNode.Pos(), "key %q does not exist on map", indext)
+				}
+				res = val
+			default:
+				indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
+				return nil, parsley.NewErrorf(indexNode.Pos(), "invalid non-string index on map")
+			}
+		case *values.List[interface{}]:
+			switch indext := index.(type) {
+			case int64:
+				if indext >= 0 && indext < int64(rest.Len()) {
+					res = rest.At(int(indext))
+				} else {
+					indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
+					return nil, parsley.NewErrorf(indexNode.Pos(), "array index out of bounds: %d (0..%d)", indext, rest.Len()-1)
+				}
+			default:
+				indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
+				return nil, parsley.NewErrorf(indexNode.Pos(), "non-integer index on array")
+			}
+		case *values.Map[string, interface{}]:
+			switch indext := index.(type) {
+			case string:
+				val, ok := rest.Get(indext)
 				if !ok {
 					indexNode := nodes[i].(parsley.NonTerminalNode).Children()[1]
 					return nil, parsley.NewErrorf(indexNode.Pos(), "key %q does not exist on map", indext)

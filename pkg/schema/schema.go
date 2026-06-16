@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/conflowio/conflow/pkg/values"
 	"github.com/tidwall/gjson"
 )
 
@@ -179,10 +180,31 @@ func GetSchemaForValue(value interface{}) (Schema, error) {
 		}
 
 		return &Array{Items: items}, nil
+	case *values.List[interface{}]:
+		items, err := GetSchemaForValues(v.Len(), func(i int) (Schema, error) {
+			return GetSchemaForValue(v.At(i))
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return &Array{Items: items}, nil
 	case map[string]interface{}:
 		sortedKeys := getSortedMapKeys(v)
 		additionalProperties, err := GetSchemaForValues(len(v), func(i int) (Schema, error) {
 			return GetSchemaForValue(v[sortedKeys[i]])
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		return &Map{AdditionalProperties: additionalProperties}, nil
+	case *values.Map[string, interface{}]:
+		keys := v.Keys()
+		additionalProperties, err := GetSchemaForValues(len(keys), func(i int) (Schema, error) {
+			key := keys[i]
+			val, _ := v.Get(key)
+			return GetSchemaForValue(val)
 		})
 		if err != nil {
 			return nil, err

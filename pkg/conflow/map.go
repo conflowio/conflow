@@ -12,6 +12,7 @@ import (
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func NewMapNode(keys []string, items []parsley.Node, pos, readerPos parsley.Pos, s schema.Schema) *MapNode {
@@ -64,19 +65,15 @@ func (a *MapNode) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value creates a new block
 func (a *MapNode) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	if len(a.items) == 0 {
-		return map[string]interface{}{}, nil
-	}
-
-	res := make(map[string]interface{}, len(a.items))
+	builder := values.NewMapBuilder[string, interface{}]()
 	for i, item := range a.items {
 		value, err := parsley.EvaluateNode(userCtx, item)
 		if err != nil {
 			return nil, err
 		}
-		res[a.keys[i]] = value
+		builder.Set(a.keys[i], value)
 	}
-	return res, nil
+	return builder.Freeze(), nil
 }
 
 // Pos returns with the node's position

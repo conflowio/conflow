@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
@@ -84,11 +85,26 @@ func (i LicenseInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*License)
 	switch name {
 	case "identifier":
-		b.Identifier = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("identifier")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Identifier = schema.Value[string](bound)
 	case "name":
-		b.Name = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("name")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Name = schema.Value[string](bound)
 	case "url":
-		b.URL = schema.Value[types.URL](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("url")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.URL = schema.Value[types.URL](bound)
 	}
 	return nil
 }

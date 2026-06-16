@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -131,18 +133,46 @@ func (i ExecInterpreter) SetParam(block conflow.Block, name conflow.ID, value in
 	b := block.(*Exec)
 	switch name {
 	case "cmd":
-		b.cmd = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("cmd")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.cmd = schema.Value[string](bound)
 	case "dir":
-		b.dir = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("dir")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.dir = schema.Value[string](bound)
 	case "env":
-		b.env = make([]string, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.env[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("env")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.env = make([]string, len(slice))
+		for slicek, slicev := range slice {
+			b.env[slicek] = schema.Value[string](slicev)
 		}
 	case "params":
-		b.params = make([]string, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.params[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("params")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.params = make([]string, len(slice))
+		for slicek, slicev := range slice {
+			b.params[slicek] = schema.Value[string](slicev)
 		}
 	}
 	return nil

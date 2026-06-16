@@ -12,6 +12,7 @@ import (
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func NewArrayNode(items []parsley.Node, pos, readerPos parsley.Pos, schema schema.Schema) *ArrayNode {
@@ -62,19 +63,15 @@ func (a *ArrayNode) StaticCheck(ctx interface{}) parsley.Error {
 
 // Value creates a new block
 func (a *ArrayNode) Value(userCtx interface{}) (interface{}, parsley.Error) {
-	if len(a.items) == 0 {
-		return []interface{}{}, nil
-	}
-
-	res := make([]interface{}, len(a.items))
-	for i, item := range a.items {
+	builder := values.NewListBuilder[interface{}]()
+	for _, item := range a.items {
 		value, err := parsley.EvaluateNode(userCtx, item)
 		if err != nil {
 			return nil, err
 		}
-		res[i] = value
+		builder.Append(value)
 	}
-	return res, nil
+	return builder.Freeze(), nil
 }
 
 // Pos returns with the node's position

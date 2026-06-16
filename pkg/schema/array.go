@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/pkg/util/validation"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 //	@block {
@@ -61,18 +62,20 @@ for %sk, %sv := range %s.([]interface{}) {
 func (a *Array) CompareValues(v1, v2 interface{}) int {
 	var a1 []interface{}
 	if v1 != nil {
-		var ok bool
-		if a1, ok = v1.([]interface{}); !ok {
+		slice, err := values.AsInterfaceSlice(v1)
+		if err != nil {
 			return -1
 		}
+		a1 = slice
 	}
 
 	var a2 []interface{}
 	if v2 != nil {
-		var ok bool
-		if a2, ok = v2.([]interface{}); !ok {
+		slice, err := values.AsInterfaceSlice(v2)
+		if err != nil {
 			return 1
 		}
+		a2 = slice
 	}
 
 	switch {
@@ -164,8 +167,8 @@ func (a *Array) MarshalJSON() ([]byte, error) {
 }
 
 func (a *Array) StringValue(value interface{}) string {
-	v, ok := value.([]interface{})
-	if !ok {
+	v, err := values.AsInterfaceSlice(value)
+	if err != nil {
 		return ""
 	}
 
@@ -254,12 +257,9 @@ func (a *Array) ValidateSchema(s Schema, compare bool) error {
 }
 
 func (a *Array) ValidateValue(value interface{}) (interface{}, error) {
-	var v []interface{}
-	if value != nil {
-		var ok bool
-		if v, ok = value.([]interface{}); !ok {
-			return nil, errors.New("must be array")
-		}
+	v, err := values.AsInterfaceSlice(value)
+	if err != nil {
+		return nil, errors.New("must be array")
 	}
 
 	if a.Const != nil && a.CompareValues(a.Const, v) != 0 {

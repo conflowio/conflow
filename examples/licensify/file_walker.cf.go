@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -107,17 +109,40 @@ func (i FileWalkerInterpreter) SetParam(block conflow.Block, name conflow.ID, va
 	b := block.(*FileWalker)
 	switch name {
 	case "exclude":
-		b.exclude = make([]string, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.exclude[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("exclude")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.exclude = make([]string, len(slice))
+		for slicek, slicev := range slice {
+			b.exclude[slicek] = schema.Value[string](slicev)
 		}
 	case "include":
-		b.include = make([]string, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.include[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("include")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.include = make([]string, len(slice))
+		for slicek, slicev := range slice {
+			b.include[slicek] = schema.Value[string](slicev)
 		}
 	case "path":
-		b.path = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("path")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.path = schema.Value[string](bound)
 	}
 	return nil
 }

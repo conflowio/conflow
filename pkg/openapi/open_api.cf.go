@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -129,11 +131,25 @@ func (i OpenAPIInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*OpenAPI)
 	switch name {
 	case "openapi":
-		b.OpenAPI = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("openapi")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.OpenAPI = schema.Value[string](bound)
 	case "tags":
-		b.Tags = make([]string, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.Tags[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("tags")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Tags = make([]string, len(slice))
+		for slicek, slicev := range slice {
+			b.Tags[slicek] = schema.Value[string](slicev)
 		}
 	}
 	return nil

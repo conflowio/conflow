@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -93,7 +94,12 @@ func (i BlockValueRequiredInterpreter) SetParam(block conflow.Block, name conflo
 	b := block.(*BlockValueRequired)
 	switch name {
 	case "value":
-		b.Value = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("value")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Value = schema.Value[string](bound)
 	}
 	return nil
 }

@@ -10,11 +10,18 @@ import (
 	"encoding/json"
 
 	"github.com/conflowio/conflow/pkg/conflow/function"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 // Encode converts the given value to a json string
 // @function
 func Encode(value interface{}) (string, error) {
+	if slice, err := values.AsInterfaceSlice(value); err == nil {
+		value = slice
+	} else if goMap, err := values.AsStringInterfaceMap(value); err == nil {
+		value = goMap
+	}
+
 	b, err := json.Marshal(value)
 	if err != nil {
 		return "", function.NewErrorf(0, "encoding JSON failed: %s", err)

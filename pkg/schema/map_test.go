@@ -15,6 +15,7 @@ import (
 	"github.com/conflowio/conflow/pkg/internal/testhelper"
 	"github.com/conflowio/conflow/pkg/schema"
 	"github.com/conflowio/conflow/pkg/util/validation"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 var _ schema.Schema = &schema.Map{}
@@ -190,6 +191,32 @@ var _ = Describe("Map", func() {
 			},
 		),
 	)
+
+	Describe("Validate accepts immutable values", func() {
+		It("accepts immutable map input and returns a Go map", func() {
+			s := defaultSchema()
+			input := values.MapOf(map[string]interface{}{
+				"a": int64(1),
+				"b": int64(2),
+			})
+
+			result, err := s.ValidateValue(input)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result).To(Equal(map[string]interface{}{
+				"a": int64(1),
+				"b": int64(2),
+			}))
+		})
+
+		It("accepts empty immutable map input", func() {
+			s := defaultSchema()
+			input := values.NewMapBuilder[string, interface{}]().Freeze()
+
+			result, err := s.ValidateValue(input)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result).To(Equal(map[string]interface{}{}))
+		})
+	})
 
 	DescribeTable("Validate errors",
 		func(f func(s *schema.Map), value interface{}, expectedErr error) {

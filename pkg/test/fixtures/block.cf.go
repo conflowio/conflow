@@ -8,8 +8,10 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -144,30 +146,111 @@ func (i BlockInterpreter) SetParam(block conflow.Block, name conflow.ID, value i
 	b := block.(*Block)
 	switch name {
 	case "field_array":
-		b.FieldArray = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_array")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.FieldArray = slice
+
 	case "field_bool":
-		b.FieldBool = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_bool")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.FieldBool = schema.Value[bool](bound)
 	case "field_float":
-		b.FieldFloat = schema.Value[float64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_float")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.FieldFloat = schema.Value[float64](bound)
 	case "field_integer":
-		b.FieldInteger = schema.Value[int64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_integer")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.FieldInteger = schema.Value[int64](bound)
 	case "field_interface":
-		b.FieldInterface = value
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_interface")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		if slice, err := values.AsInterfaceSlice(bound); err == nil {
+			b.FieldInterface = slice
+		} else if goMap, err := values.AsStringInterfaceMap(bound); err == nil {
+			b.FieldInterface = goMap
+		} else {
+			b.FieldInterface = bound
+		}
 	case "field_map":
-		b.FieldMap = value.(map[string]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_map")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.FieldMap = goMap
+
 	case "field_number":
-		b.FieldNumber = value
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_number")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		if slice, err := values.AsInterfaceSlice(bound); err == nil {
+			b.FieldNumber = slice
+		} else if goMap, err := values.AsStringInterfaceMap(bound); err == nil {
+			b.FieldNumber = goMap
+		} else {
+			b.FieldNumber = bound
+		}
 	case "field_string":
-		b.FieldString = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_string")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.FieldString = schema.Value[string](bound)
 	case "field_string_array":
-		b.FieldStringArray = make([]string, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.FieldStringArray[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_string_array")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.FieldStringArray = make([]string, len(slice))
+		for slicek, slicev := range slice {
+			b.FieldStringArray[slicek] = schema.Value[string](slicev)
 		}
 	case "field_time":
-		b.FieldTime = schema.Value[time.Time](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_time")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.FieldTime = schema.Value[time.Time](bound)
 	case "field_time_duration":
-		b.FieldTimeDuration = schema.Value[types.Duration](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_time_duration")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.FieldTimeDuration = schema.Value[types.Duration](bound)
 	}
 	return nil
 }

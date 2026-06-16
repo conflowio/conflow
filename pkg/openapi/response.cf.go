@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -82,7 +83,12 @@ func (i ResponseInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	b := block.(*Response)
 	switch name {
 	case "description":
-		b.Description = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("description")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Description = schema.Value[string](bound)
 	}
 	return nil
 }

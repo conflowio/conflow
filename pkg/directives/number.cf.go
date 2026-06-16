@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -144,44 +146,142 @@ func (i NumberInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Number)
 	switch name {
 	case "id":
-		b.ID = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("id")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.ID = schema.Value[string](bound)
 	case "const":
-		b.Const = schema.PointerValue[float64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("const")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Const = schema.PointerValue[float64](bound)
 	case "default":
-		b.Default = schema.PointerValue[float64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("default")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Default = schema.PointerValue[float64](bound)
 	case "deprecated":
-		b.Deprecated = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("deprecated")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Deprecated = schema.Value[bool](bound)
 	case "description":
-		b.Description = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("description")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Description = schema.Value[string](bound)
 	case "enum":
-		b.Enum = make([]float64, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.Enum[valuek] = schema.Value[float64](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("enum")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Enum = make([]float64, len(slice))
+		for slicek, slicev := range slice {
+			b.Enum[slicek] = schema.Value[float64](slicev)
 		}
 	case "examples":
-		b.Examples = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("examples")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Examples = slice
+
 	case "exclusive_maximum":
-		b.ExclusiveMaximum = schema.PointerValue[float64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("exclusive_maximum")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.ExclusiveMaximum = schema.PointerValue[float64](bound)
 	case "exclusive_minimum":
-		b.ExclusiveMinimum = schema.PointerValue[float64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("exclusive_minimum")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.ExclusiveMinimum = schema.PointerValue[float64](bound)
 	case "maximum":
-		b.Maximum = schema.PointerValue[float64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("maximum")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Maximum = schema.PointerValue[float64](bound)
 	case "minimum":
-		b.Minimum = schema.PointerValue[float64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("minimum")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Minimum = schema.PointerValue[float64](bound)
 	case "multiple_of":
-		b.MultipleOf = schema.PointerValue[float64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("multiple_of")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.MultipleOf = schema.PointerValue[float64](bound)
 	case "nullable":
-		b.Nullable = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("nullable")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Nullable = schema.Value[bool](bound)
 	case "read_only":
-		b.ReadOnly = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("read_only")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.ReadOnly = schema.Value[bool](bound)
 	case "title":
-		b.Title = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("title")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Title = schema.Value[string](bound)
 	case "write_only":
-		b.WriteOnly = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("write_only")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.WriteOnly = schema.Value[bool](bound)
 	case "annotations":
-		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("annotations")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.Annotations = make(map[string]string, len(goMap))
+		for goMapk, goMapv := range goMap {
+			b.Annotations[goMapk] = schema.Value[string](goMapv)
 		}
 	}
 	return nil

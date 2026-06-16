@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -107,19 +108,54 @@ func (i ParameterInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*Parameter)
 	switch name {
 	case "deprecated":
-		b.Deprecated = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("deprecated")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Deprecated = schema.Value[bool](bound)
 	case "description":
-		b.Description = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("description")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Description = schema.Value[string](bound)
 	case "explode":
-		b.Explode = schema.PointerValue[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("explode")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Explode = schema.PointerValue[bool](bound)
 	case "in":
-		b.In = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("in")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.In = schema.Value[string](bound)
 	case "name":
-		b.Name = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("name")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Name = schema.Value[string](bound)
 	case "required":
-		b.Required = schema.PointerValue[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("required")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Required = schema.PointerValue[bool](bound)
 	case "style":
-		b.Style = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("style")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Style = schema.Value[string](bound)
 	}
 	return nil
 }

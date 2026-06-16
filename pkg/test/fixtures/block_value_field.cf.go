@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -92,7 +94,18 @@ func (i BlockValueFieldInterpreter) SetParam(block conflow.Block, name conflow.I
 	b := block.(*BlockValueField)
 	switch name {
 	case "value":
-		b.value = value
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("value")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		if slice, err := values.AsInterfaceSlice(bound); err == nil {
+			b.value = slice
+		} else if goMap, err := values.AsStringInterfaceMap(bound); err == nil {
+			b.value = goMap
+		} else {
+			b.value = bound
+		}
 	}
 	return nil
 }

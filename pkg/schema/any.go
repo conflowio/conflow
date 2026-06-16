@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/pkg/util/validation"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 //	@block {
@@ -119,6 +120,9 @@ func (a *Any) ValidateValue(v interface{}) (interface{}, error) {
 		if rv.IsNil() {
 			return nil, nil
 		}
+		if values.IsImmutableCollection(v) {
+			return a.validateImmutableCollection(v)
+		}
 		v = rv.Elem().Interface()
 	}
 
@@ -149,6 +153,47 @@ func (a *Any) ValidateValue(v interface{}) (interface{}, error) {
 	}
 
 	return v, nil
+}
+
+func (a *Any) validateImmutableCollection(v interface{}) (interface{}, error) {
+	if a.Const != nil {
+		if err := a.compareImmutableToConst(v, a.Const); err != nil {
+			return nil, err
+		}
+	}
+
+	if len(a.Enum) > 0 {
+		matched := false
+		for _, e := range a.Enum {
+			if err := a.compareImmutableToConst(v, e); err == nil {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return nil, fmt.Errorf("must be one of %s", a.join(a.Enum, ", "))
+		}
+	}
+
+	return v, nil
+}
+
+func (a *Any) compareImmutableToConst(v, expected interface{}) error {
+	actualSchema, err := GetSchemaForValue(v)
+	if err != nil {
+		return err
+	}
+	expectedSchema, err := GetSchemaForValue(expected)
+	if err != nil {
+		return err
+	}
+	if actualSchema.Type() != expectedSchema.Type() {
+		return fmt.Errorf("must be %s", a.StringValue(expected))
+	}
+	if actualSchema.CompareValues(v, expected) != 0 {
+		return fmt.Errorf("must be %s", a.StringValue(expected))
+	}
+	return nil
 }
 
 func (a *Any) join(elems []interface{}, sep string) string {

@@ -13,6 +13,7 @@ import (
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -48,7 +49,11 @@ func Evaluate(
 			if err != nil {
 				return nil, fmt.Errorf("invalid input parameter %q: %w", k, err)
 			}
-			inputParams[k] = nv
+			bound, err := bind.BindValue(property, nv)
+			if err != nil {
+				return nil, fmt.Errorf("invalid input parameter %q: %w", k, err)
+			}
+			inputParams[k] = bound
 		} else {
 			return nil, fmt.Errorf("unknown input parameter: %q", k)
 		}

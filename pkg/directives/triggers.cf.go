@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -95,7 +97,17 @@ func (i TriggersInterpreter) SetParam(block conflow.Block, name conflow.ID, valu
 	b := block.(*Triggers)
 	switch name {
 	case "block_ids":
-		b.blockIDs = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("block_ids")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.blockIDs = slice
+
 	}
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -93,7 +94,12 @@ func (i EvalStageInterpreter) SetParam(block conflow.Block, name conflow.ID, val
 	b := block.(*EvalStage)
 	switch name {
 	case "value":
-		b.value = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("value")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.value = schema.Value[string](bound)
 	}
 	return nil
 }

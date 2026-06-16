@@ -9,6 +9,7 @@ package test
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/conflowio/parsley/combinator"
 	"github.com/conflowio/parsley/parsley"
@@ -22,6 +23,7 @@ import (
 	"github.com/conflowio/conflow/pkg/conflow/function"
 	"github.com/conflowio/conflow/pkg/directives"
 	"github.com/conflowio/conflow/pkg/loggers/zerolog"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func ParseCtx(
@@ -117,7 +119,7 @@ func ExpectParserToEvaluate(p parsley.Parser) func(string, interface{}) {
 		Expect(evalErr).ToNot(HaveOccurred(), "input: %s", input)
 
 		if value != nil {
-			Expect(value).To(Equal(expected), "input: %s", input)
+			Expect(normalizeEvalValue(value)).To(Equal(normalizeEvalValue(expected)), "input: %s", input)
 		} else {
 			Expect(value).To(BeNil(), "input: %s", input)
 		}
@@ -223,7 +225,7 @@ func ExpectFunctionToEvaluate(p parsley.Parser, registry parsley.NodeTransformer
 		case nil:
 			Expect(value).To(BeNil())
 		default:
-			Expect(value).To(Equal(expected))
+			Expect(normalizeEvalValue(value)).To(Equal(normalizeEvalValue(expected)))
 		}
 	}
 }
@@ -257,5 +259,51 @@ func ExpectFunctionNode(p parsley.Parser, registry parsley.NodeTransformerRegist
 		Expect(err).ToNot(HaveOccurred(), "input: %s", input)
 
 		test(ctx.UserContext(), node)
+	}
+}
+
+func normalizeEvalValue(v interface{}) interface{} {
+	if v == nil {
+		return nil
+	}
+
+	switch typed := v.(type) {
+	case *values.List[interface{}]:
+		elems := typed.Elems()
+		normalized := make([]interface{}, len(elems))
+		for i, elem := range elems {
+			normalized[i] = normalizeEvalValue(elem)
+		}
+		return normalized
+	case *values.Map[string, interface{}]:
+		goMap := typed.GoMap()
+		normalized := make(map[string]interface{}, len(goMap))
+		for k, elem := range goMap {
+			normalized[k] = normalizeEvalValue(elem)
+		}
+		return normalized
+	case []interface{}:
+		normalized := make([]interface{}, len(typed))
+		for i, elem := range typed {
+			normalized[i] = normalizeEvalValue(elem)
+		}
+		return normalized
+	case map[string]interface{}:
+		normalized := make(map[string]interface{}, len(typed))
+		for k, elem := range typed {
+			normalized[k] = normalizeEvalValue(elem)
+		}
+		return normalized
+	default:
+		rv := reflect.ValueOf(v)
+		if rv.Kind() == reflect.Map {
+			normalized := make(map[interface{}]interface{}, rv.Len())
+			iter := rv.MapRange()
+			for iter.Next() {
+				normalized[iter.Key().Interface()] = normalizeEvalValue(iter.Value().Interface())
+			}
+			return normalized
+		}
+		return v
 	}
 }

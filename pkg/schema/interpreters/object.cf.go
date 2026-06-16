@@ -6,7 +6,9 @@ import (
 	"fmt"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 // ObjectInterpreter is the Conflow interpreter for the Object block
@@ -86,61 +88,190 @@ func (i ObjectInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*schema.Object)
 	switch name {
 	case "id":
-		b.ID = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("id")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.ID = schema.Value[string](bound)
 	case "const":
-		b.Const = value.(map[string]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("const")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.Const = goMap
+
 	case "default":
-		b.Default = value.(map[string]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("default")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.Default = goMap
+
 	case "dependent_required":
-		b.DependentRequired = make(map[string][]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.DependentRequired[valuek] = make([]string, len(valuev.([]interface{})))
-			for valuevk, valuevv := range valuev.([]interface{}) {
-				b.DependentRequired[valuek][valuevk] = schema.Value[string](valuevv)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("dependent_required")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.DependentRequired = make(map[string][]string, len(goMap))
+		for goMapk, goMapv := range goMap {
+			b.DependentRequired[goMapk] = make([]string, len(goMapv.([]interface{})))
+			for goMapvk, goMapvv := range goMapv.([]interface{}) {
+				b.DependentRequired[goMapk][goMapvk] = schema.Value[string](goMapvv)
 			}
 		}
 	case "deprecated":
-		b.Deprecated = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("deprecated")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Deprecated = schema.Value[bool](bound)
 	case "description":
-		b.Description = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("description")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Description = schema.Value[string](bound)
 	case "enum":
-		b.Enum = make([]map[string]interface{}, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.Enum[valuek] = valuev.(map[string]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("enum")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Enum = make([]map[string]interface{}, len(slice))
+		for slicek, slicev := range slice {
+			b.Enum[slicek] = slicev.(map[string]interface{})
 		}
 	case "examples":
-		b.Examples = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("examples")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Examples = slice
+
 	case "max_properties":
-		b.MaxProperties = schema.PointerValue[int64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("max_properties")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.MaxProperties = schema.PointerValue[int64](bound)
 	case "min_properties":
-		b.MinProperties = schema.Value[int64](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("min_properties")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.MinProperties = schema.Value[int64](bound)
 	case "nullable":
-		b.Nullable = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("nullable")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Nullable = schema.Value[bool](bound)
 	case "read_only":
-		b.ReadOnly = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("read_only")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.ReadOnly = schema.Value[bool](bound)
 	case "required":
-		b.Required = make([]string, len(value.([]interface{})))
-		for valuek, valuev := range value.([]interface{}) {
-			b.Required[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("required")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.Required = make([]string, len(slice))
+		for slicek, slicev := range slice {
+			b.Required[slicek] = schema.Value[string](slicev)
 		}
 	case "title":
-		b.Title = schema.Value[string](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("title")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Title = schema.Value[string](bound)
 	case "write_only":
-		b.WriteOnly = schema.Value[bool](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("write_only")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.WriteOnly = schema.Value[bool](bound)
 	case "annotations":
-		b.Annotations = make(map[string]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.Annotations[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("annotations")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.Annotations = make(map[string]string, len(goMap))
+		for goMapk, goMapv := range goMap {
+			b.Annotations[goMapk] = schema.Value[string](goMapv)
 		}
 	case "field_names":
-		b.FieldNames = make(map[string]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.FieldNames[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("field_names")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.FieldNames = make(map[string]string, len(goMap))
+		for goMapk, goMapv := range goMap {
+			b.FieldNames[goMapk] = schema.Value[string](goMapv)
 		}
 	case "parameter_names":
-		b.ParameterNames = make(map[string]string, len(value.(map[string]interface{})))
-		for valuek, valuev := range value.(map[string]interface{}) {
-			b.ParameterNames[valuek] = schema.Value[string](valuev)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("parameter_names")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		goMap, err := values.AsStringInterfaceMap(bound)
+		if err != nil {
+			return err
+		}
+		b.ParameterNames = make(map[string]string, len(goMap))
+		for goMapk, goMapv := range goMap {
+			b.ParameterNames[goMapk] = schema.Value[string](goMapv)
 		}
 	}
 	return nil

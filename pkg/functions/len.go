@@ -9,6 +9,8 @@ package functions
 import (
 	"fmt"
 	"unicode/utf8"
+
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 // Len returns with the length of the variable
@@ -32,8 +34,12 @@ func Len(
 		return int64(utf8.RuneCountInString(v))
 	case []interface{}:
 		return int64(len(v))
+	case *values.List[interface{}]:
+		return int64(v.Len())
 	case map[string]interface{}:
 		return int64(len(v))
+	case *values.Map[string, interface{}]:
+		return int64(v.Len())
 	default:
 		panic(fmt.Sprintf("unexpected type: %T", v))
 	}

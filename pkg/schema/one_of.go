@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/conflowio/conflow/pkg/util/validation"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 //	@block {
@@ -186,12 +187,17 @@ func (o *OneOf) ValidateValue(v interface{}) (interface{}, error) {
 		if rv.IsNil() {
 			return nil, nil
 		}
+		if values.IsImmutableCollection(v) {
+			goto validateBranches
+		}
 		v = rv.Elem().Interface()
 	}
 
 	if v == nil {
 		return nil, nil
 	}
+
+validateBranches:
 
 	if o.Const != nil && o.Const != v {
 		return nil, fmt.Errorf("must be %s", o.StringValue(o.Const))

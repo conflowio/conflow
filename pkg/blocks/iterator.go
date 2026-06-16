@@ -12,6 +12,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/block"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 // @block "generator"
@@ -50,8 +51,31 @@ func (i *Iterator) Run(ctx context.Context) (conflow.Result, error) {
 				return nil, err
 			}
 		}
+	case *values.List[interface{}]:
+		for k := 0; k < val.Len(); k++ {
+			_, err := i.blockPublisher.PublishBlock(&It{
+				id:    i.it.id,
+				key:   k,
+				value: val.At(k),
+			}, nil)
+			if err != nil {
+				return nil, err
+			}
+		}
 	case map[string]interface{}:
 		for k, v := range val {
+			_, err := i.blockPublisher.PublishBlock(&It{
+				id:    i.it.id,
+				key:   k,
+				value: v,
+			}, nil)
+			if err != nil {
+				return nil, err
+			}
+		}
+	case *values.Map[string, interface{}]:
+		for _, k := range val.Keys() {
+			v, _ := val.Get(k)
 			_, err := i.blockPublisher.PublishBlock(&It{
 				id:    i.it.id,
 				key:   k,

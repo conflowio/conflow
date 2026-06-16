@@ -7,7 +7,9 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
+	"github.com/conflowio/conflow/pkg/values"
 )
 
 func init() {
@@ -99,7 +101,17 @@ func (i BlockGeneratorInterpreter) SetParam(block conflow.Block, name conflow.ID
 	b := block.(*BlockGenerator)
 	switch name {
 	case "items":
-		b.items = value.([]interface{})
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("items")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		slice, err := values.AsInterfaceSlice(bound)
+		if err != nil {
+			return err
+		}
+		b.items = slice
+
 	}
 	return nil
 }

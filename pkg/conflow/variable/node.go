@@ -13,6 +13,7 @@ import (
 	"github.com/conflowio/parsley/parsley"
 
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -93,7 +94,17 @@ func (n *Node) Value(ctx interface{}) (interface{}, parsley.Error) {
 	if !ok {
 		panic(parsley.NewErrorf(n.Pos(), "%q was referenced before it was evaluated", n.blockIDNode.ID()))
 	}
-	return blockContainer.Param(n.paramNameNode.ID()), nil
+	raw := blockContainer.Param(n.paramNameNode.ID())
+	if n.schema == nil {
+		return raw, nil
+	}
+
+	bound, err := bind.BindValue(n.schema, raw)
+	if err != nil {
+		return nil, parsley.NewError(n.Pos(), err)
+	}
+
+	return bound, nil
 }
 
 // Pos returns with the node's position

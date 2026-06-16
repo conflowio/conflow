@@ -8,6 +8,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -87,7 +88,12 @@ func (i StreamInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Stream)
 	switch name {
 	case "stream":
-		b.Stream = value.(io.ReadCloser)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("stream")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.Stream = bound.(io.ReadCloser)
 	}
 	return nil
 }

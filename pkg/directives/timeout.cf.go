@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
@@ -95,7 +96,12 @@ func (i TimeoutInterpreter) SetParam(block conflow.Block, name conflow.ID, value
 	b := block.(*Timeout)
 	switch name {
 	case "duration":
-		b.duration = schema.Value[types.Duration](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("duration")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.duration = schema.Value[types.Duration](bound)
 	}
 	return nil
 }

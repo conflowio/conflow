@@ -16,6 +16,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/conflow/job"
 	"github.com/conflowio/conflow/pkg/conflow/parameter"
 	"github.com/conflowio/conflow/pkg/schema"
@@ -505,7 +506,18 @@ func (c *Container) setChild(result conflow.Container) parsley.Error {
 		name := node.Name()
 
 		s := c.node.Interpreter().Schema()
-		if _, ok := s.(*schema.Object).PropertyByParameterName(string(name)); ok {
+		propSchema, inSchema := s.(*schema.Object).PropertyByParameterName(string(name))
+		if !inSchema {
+			propSchema = schema.AnyValue()
+		}
+
+		bound, bindErr := bind.BindValue(propSchema, value)
+		if bindErr != nil {
+			return parsley.NewError(r.Node().Pos(), bindErr)
+		}
+		value = bound
+
+		if inSchema {
 			if err := c.node.Interpreter().SetParam(c.block, node.Name(), value); err != nil {
 				return parsley.NewError(r.Node().Pos(), err)
 			}

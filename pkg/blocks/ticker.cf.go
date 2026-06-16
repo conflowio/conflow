@@ -7,6 +7,7 @@ import (
 
 	"github.com/conflowio/conflow/pkg/conflow"
 	"github.com/conflowio/conflow/pkg/conflow/annotations"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/conflow/types"
 	"github.com/conflowio/conflow/pkg/schema"
 )
@@ -100,7 +101,12 @@ func (i TickerInterpreter) SetParam(block conflow.Block, name conflow.ID, value 
 	b := block.(*Ticker)
 	switch name {
 	case "interval":
-		b.interval = schema.Value[types.Duration](value)
+		propSchema, _ := i.Schema().(*schema.Object).PropertyByParameterName("interval")
+		bound, err := bind.BindValue(propSchema, value)
+		if err != nil {
+			return err
+		}
+		b.interval = schema.Value[types.Duration](bound)
 	}
 	return nil
 }
