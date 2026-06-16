@@ -16,12 +16,13 @@ jobs:
   test:
     docker:
       - image: cimg/go:1.26.4
-    working_directory: /home/circleci/go/src/github.com/conflowio/conflow
+    working_directory: /home/circleci/project
     resource_class: large
     steps:
       - checkout
       - run: make check
       - run: make test
+      - run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
   release:
     docker:
@@ -29,5 +30,5 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - run: go install github.com/goreleaser/goreleaser@latest
+      - run: go install github.com/goreleaser/goreleaser/v2@v2.16.0
       - run: goreleaser

@@ -458,20 +458,6 @@ func (fake *FakeVariableNode) TokenReturnsOnCall(i int, result1 string) {
 func (fake *FakeVariableNode) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.iDMutex.RLock()
-	defer fake.iDMutex.RUnlock()
-	fake.paramNameMutex.RLock()
-	defer fake.paramNameMutex.RUnlock()
-	fake.parentIDMutex.RLock()
-	defer fake.parentIDMutex.RUnlock()
-	fake.posMutex.RLock()
-	defer fake.posMutex.RUnlock()
-	fake.readerPosMutex.RLock()
-	defer fake.readerPosMutex.RUnlock()
-	fake.schemaMutex.RLock()
-	defer fake.schemaMutex.RUnlock()
-	fake.tokenMutex.RLock()
-	defer fake.tokenMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

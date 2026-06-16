@@ -78,8 +78,6 @@ func (fake *FakeIdentifiable) IDReturnsOnCall(i int, result1 conflow.ID) {
 func (fake *FakeIdentifiable) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.iDMutex.RLock()
-	defer fake.iDMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

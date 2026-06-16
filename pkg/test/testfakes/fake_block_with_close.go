@@ -88,8 +88,6 @@ func (fake *FakeBlockWithClose) CloseReturnsOnCall(i int, result1 error) {
 func (fake *FakeBlockWithClose) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.closeMutex.RLock()
-	defer fake.closeMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

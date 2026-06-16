@@ -163,10 +163,6 @@ func (fake *FakeFunctionInterpreter) SchemaReturnsOnCall(i int, result1 schema.S
 func (fake *FakeFunctionInterpreter) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.evalMutex.RLock()
-	defer fake.evalMutex.RUnlock()
-	fake.schemaMutex.RLock()
-	defer fake.schemaMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

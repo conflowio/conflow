@@ -47,13 +47,12 @@ goimports: ## Run goimports on all files
 .PHONY: lint
 lint: ## Runs linting checks
 	@echo "Running lint checks"
-	@go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
+	@go tool golangci-lint run ./...
 
 .PHONY: update-dependencies
 update-dependencies: ## Updates all dependencies
 	@echo "Updating Go dependencies"
 	@cat go.mod | grep -E "^\t" | grep -v "// indirect" | cut -f 2 | cut -d ' ' -f 1 | xargs -n 1 -t go get -d -u
-	@go mod vendor
 	@go mod tidy
 
 .PHONY: check

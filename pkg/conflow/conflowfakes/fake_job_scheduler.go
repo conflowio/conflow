@@ -87,8 +87,6 @@ func (fake *FakeJobScheduler) ScheduleJobReturnsOnCall(i int, result1 error) {
 func (fake *FakeJobScheduler) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.scheduleJobMutex.RLock()
-	defer fake.scheduleJobMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

@@ -215,14 +215,6 @@ func (fake *FakeWaitGroup) WaitReturnsOnCall(i int, result1 <-chan struct{}) {
 func (fake *FakeWaitGroup) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.addMutex.RLock()
-	defer fake.addMutex.RUnlock()
-	fake.doneMutex.RLock()
-	defer fake.doneMutex.RUnlock()
-	fake.errMutex.RLock()
-	defer fake.errMutex.RUnlock()
-	fake.waitMutex.RLock()
-	defer fake.waitMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

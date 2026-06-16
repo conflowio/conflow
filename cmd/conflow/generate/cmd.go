@@ -7,11 +7,9 @@
 package generate
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -31,12 +29,6 @@ func Command() *cobra.Command {
 				return fmt.Errorf("couldn't determine current working directory: %w", err)
 			}
 
-			goPath := os.Getenv("GOPATH")
-			if goPath == "" || !path.IsAbs(goPath) {
-				return errors.New("GOPATH is not defined or invalid")
-			}
-			srcPath := path.Join(goPath, "src")
-
 			if len(args) > 0 {
 				if path.IsAbs(args[0]) {
 					target = args[0]
@@ -45,10 +37,6 @@ func Command() *cobra.Command {
 				}
 			}
 			target = path.Clean(target)
-
-			if !strings.HasPrefix(target, srcPath) {
-				return fmt.Errorf("path must be in %s", srcPath)
-			}
 
 			return generator.Generate(target, localPrefixes)
 		},

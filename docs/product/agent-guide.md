@@ -65,7 +65,7 @@ Every directory has `index.md`. Follow `parent` links in YAML front matter to as
 ## Code generation rules
 
 1. Edit `*.go` files with annotations — **never** hand-edit `*.cf.go`
-2. Run `conflow generate` from path under `$GOPATH/src` (current CLI constraint)
+2. Run `conflow generate` from the module root or pass a target path (relative or absolute)
 3. Register `NewXInterpreter{}` on main's `ParseContextOverride`
 
 ## Common pitfalls
@@ -75,7 +75,7 @@ Every directory has `index.md`. Follow `parent` links in YAML front matter to as
 | Block not found in Conflow | Interpreter not registered on main |
 | Circular dependency | Generator + dependent reference same block fields |
 | Input param rejected | Not marked `@input` or wrong type at `Evaluate` |
-| generate fails GOPATH | Target outside `$GOPATH/src` |
+| generate fails on path | Pass `.` or an explicit directory; ensure it contains annotated `.go` files |
 | import module fails | Missing `module` block in registry / no `main` in module |
 
 ## Test locations

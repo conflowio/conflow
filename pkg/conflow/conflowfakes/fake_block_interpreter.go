@@ -516,20 +516,6 @@ func (fake *FakeBlockInterpreter) ValueParamNameReturnsOnCall(i int, result1 con
 func (fake *FakeBlockInterpreter) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.createBlockMutex.RLock()
-	defer fake.createBlockMutex.RUnlock()
-	fake.paramMutex.RLock()
-	defer fake.paramMutex.RUnlock()
-	fake.parseContextMutex.RLock()
-	defer fake.parseContextMutex.RUnlock()
-	fake.schemaMutex.RLock()
-	defer fake.schemaMutex.RUnlock()
-	fake.setBlockMutex.RLock()
-	defer fake.setBlockMutex.RUnlock()
-	fake.setParamMutex.RLock()
-	defer fake.setParamMutex.RUnlock()
-	fake.valueParamNameMutex.RLock()
-	defer fake.valueParamNameMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

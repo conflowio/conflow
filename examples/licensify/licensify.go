@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/conflowio/conflow/pkg/conflow"
 )
@@ -30,7 +30,7 @@ func (l *Licensify) ID() conflow.ID {
 }
 
 func (l *Licensify) Run(ctx context.Context) (conflow.Result, error) {
-	content, err := ioutil.ReadFile(l.path)
+	content, err := os.ReadFile(l.path)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (l *Licensify) Run(ctx context.Context) (conflow.Result, error) {
 	if bytes.Compare(content[0:len(l.license)], []byte(l.license)) != 0 {
 		buf := bytes.NewBufferString(l.license)
 		buf.Write(content)
-		if err := ioutil.WriteFile(l.path, buf.Bytes(), 0644); err != nil {
+		if err := os.WriteFile(l.path, buf.Bytes(), 0644); err != nil {
 			return nil, err
 		}
 		fmt.Printf("%s was updated\n", l.path)

@@ -302,16 +302,6 @@ func (fake *FakeParameterContainer) WaitGroupsReturnsOnCall(i int, result1 []con
 func (fake *FakeParameterContainer) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.blockContainerMutex.RLock()
-	defer fake.blockContainerMutex.RUnlock()
-	fake.closeMutex.RLock()
-	defer fake.closeMutex.RUnlock()
-	fake.nodeMutex.RLock()
-	defer fake.nodeMutex.RUnlock()
-	fake.valueMutex.RLock()
-	defer fake.valueMutex.RUnlock()
-	fake.waitGroupsMutex.RLock()
-	defer fake.waitGroupsMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

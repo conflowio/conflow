@@ -11,8 +11,7 @@ import (
 
 	"github.com/conflowio/parsley/combinator"
 	"github.com/conflowio/parsley/text/terminal"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/ginkgo/v2"
 
 	"github.com/conflowio/conflow/pkg/parsers"
 	"github.com/conflowio/conflow/pkg/schema"

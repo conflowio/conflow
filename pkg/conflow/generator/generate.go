@@ -11,7 +11,6 @@ import (
 	"bytes"
 	"fmt"
 	goast "go/ast"
-	"go/build"
 	goparser "go/parser"
 	gotoken "go/token"
 	"io"
@@ -111,13 +110,13 @@ func processFile(parseCtx *parser.Context, filePath string) error {
 		return fmt.Errorf("failed to parse file: %w", err)
 	}
 
-	buildContext := build.Default
-	pkg, err := buildContext.Import(".", path.Dir(filePath), 0)
+	fileDir := path.Dir(filePath)
+	importPath, err := parser.PackageImportPath(fileDir)
 	if err != nil {
 		return fmt.Errorf("failed to determine package import path for %s: %w", astFile.Name.Name, err)
 	}
 
-	fileParseCtx := parseCtx.WithFile(astFile)
+	fileParseCtx := parseCtx.WithWorkdir(fileDir).WithFile(astFile)
 
 	for _, d := range astFile.Decls {
 		switch dt := d.(type) {
@@ -135,7 +134,7 @@ func processFile(parseCtx *parser.Context, filePath string) error {
 				continue
 			}
 
-			return generateFilesForStruct(fileParseCtx, path.Dir(filePath), pkg.ImportPath, dt)
+			return generateFilesForStruct(fileParseCtx, fileDir, importPath, dt)
 		case *goast.FuncDecl:
 			hasDirective := false
 			if dt.Doc != nil {
@@ -150,7 +149,7 @@ func processFile(parseCtx *parser.Context, filePath string) error {
 				continue
 			}
 
-			return generateFilesForFunction(fileParseCtx, path.Dir(filePath), pkg.ImportPath, dt)
+			return generateFilesForFunction(fileParseCtx, fileDir, importPath, dt)
 		}
 	}
 

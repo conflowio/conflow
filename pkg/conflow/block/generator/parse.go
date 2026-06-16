@@ -107,6 +107,9 @@ func ParseStruct(
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse embedded struct %q: %w", strField.Type, err)
 			}
+			if fieldStr == nil {
+				continue
+			}
 
 			fieldStrSchema := fieldStr.Schema.(*schema.Object)
 
@@ -178,8 +181,16 @@ func ParseEmbeddedField(
 	if err != nil {
 		return nil, err
 	}
-	if len(metadata.Directives) > 0 {
+	hasIgnore := false
+	for _, directive := range metadata.Directives {
+		if _, ok := directive.(*schemadirectives.Ignore); ok {
+			hasIgnore = true
+			continue
+		}
 		return nil, fmt.Errorf("directives are not allowed on an embedded struct field")
+	}
+	if hasIgnore {
+		return nil, nil
 	}
 
 	switch t := astField.Type.(type) {

@@ -16,6 +16,7 @@ import (
 	"go/token"
 	"io"
 	"os"
+	"os/exec"
 	"path"
 	"regexp"
 	"strings"
@@ -30,6 +31,14 @@ func (e errTypeNotFound) Error() string {
 }
 
 func FindType(parseCtx *Context, pkgName, name string) (*ast.File, ast.Expr, *Metadata, error) {
+	if pkgName == "." {
+		var err error
+		pkgName, err = PackageImportPath(parseCtx.WorkDir)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("failed to find package .: %w", err)
+		}
+	}
+
 	buildContext := build.Default
 	pkg, err := buildContext.Import(pkgName, parseCtx.WorkDir, 0)
 	if err != nil {
@@ -178,4 +187,14 @@ func parseType(parseCtx *Context, pkgName, name string) (*ast.File, ast.Expr, *M
 	}
 
 	return nil, nil, nil, errTypeNotFound{msg: fmt.Sprintf("type %q not found in package %q", name, pkgName)}
+}
+
+func PackageImportPath(dir string) (string, error) {
+	cmd := exec.Command("go", "list", "-f", "{{.ImportPath}}", ".")
+	cmd.Dir = dir
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
 }

@@ -164,10 +164,6 @@ func (fake *FakeBlockNodeRegistry) BlockNodeReturnsOnCall(i int, result1 conflow
 func (fake *FakeBlockNodeRegistry) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.addBlockNodeMutex.RLock()
-	defer fake.addBlockNodeMutex.RUnlock()
-	fake.blockNodeMutex.RLock()
-	defer fake.blockNodeMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

@@ -93,8 +93,6 @@ func (fake *FakeBlockWithInit) InitReturnsOnCall(i int, result1 bool, result2 er
 func (fake *FakeBlockWithInit) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.initMutex.RLock()
-	defer fake.initMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

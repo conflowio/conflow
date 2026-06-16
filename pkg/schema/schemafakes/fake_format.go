@@ -238,12 +238,6 @@ func (fake *FakeFormat) ValidateValueReturnsOnCall(i int, result1 interface{}, r
 func (fake *FakeFormat) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.stringValueMutex.RLock()
-	defer fake.stringValueMutex.RUnlock()
-	fake.typeMutex.RLock()
-	defer fake.typeMutex.RUnlock()
-	fake.validateValueMutex.RLock()
-	defer fake.validateValueMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

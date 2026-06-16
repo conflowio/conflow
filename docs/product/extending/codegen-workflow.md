@@ -1,6 +1,6 @@
 ---
 title: Code generation workflow
-summary: conflow generate CLI, *.cf.go output, GOPATH constraints, and go generate integration.
+summary: conflow generate CLI, *.cf.go output, module-mode paths, and go generate integration.
 parent: extending/index.md
 keywords: [code generation, conflow generate, cf.go]
 ---
@@ -21,7 +21,7 @@ Behavior:
 2. Find files with `// @block` or `// @function` in comments
 3. Parse Go AST and emit generated code
 
-**Constraint:** Target path must lie under `$GOPATH/src` (legacy Go workspace requirement in current CLI).
+**Target path:** Defaults to the current working directory, or pass a relative/absolute directory. Works in Go module mode from any checkout location.
 
 Flags:
 
@@ -83,7 +83,7 @@ See [OpenAPI integration](../integrations/openapi.md).
 | Issue | Check |
 |-------|-------|
 | No `*.cf.go` emitted | `@block` comment on struct, not pointer type |
-| GOPATH error | Run from path under `$GOPATH/src` |
+| generate fails on path | Pass `.` or a directory containing annotated `.go` files |
 | Stale schema | Re-run generate after field changes |
 | Import cycles | Interpreter path / package layout |
 

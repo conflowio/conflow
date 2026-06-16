@@ -220,7 +220,7 @@ func (n *NodeContainer) createEvalContext(node parsley.Node, timeout time.Durati
 		case ParameterContainer:
 			dependencies[c.BlockContainer().Node().ID()] = c.BlockContainer()
 		default:
-			panic(fmt.Errorf("Unexpected dependency type: %T", cont))
+			panic(fmt.Errorf("unexpected dependency type: %T", cont))
 		}
 	}
 	var ctx context.Context

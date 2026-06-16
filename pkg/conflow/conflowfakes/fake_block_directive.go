@@ -52,8 +52,6 @@ func (fake *FakeBlockDirective) ApplyToRuntimeConfigArgsForCall(i int) *conflow.
 func (fake *FakeBlockDirective) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.applyToRuntimeConfigMutex.RLock()
-	defer fake.applyToRuntimeConfigMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

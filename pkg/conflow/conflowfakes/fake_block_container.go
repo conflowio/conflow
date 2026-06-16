@@ -448,22 +448,6 @@ func (fake *FakeBlockContainer) WaitGroupsReturnsOnCall(i int, result1 []conflow
 func (fake *FakeBlockContainer) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.closeMutex.RLock()
-	defer fake.closeMutex.RUnlock()
-	fake.evalStageMutex.RLock()
-	defer fake.evalStageMutex.RUnlock()
-	fake.nodeMutex.RLock()
-	defer fake.nodeMutex.RUnlock()
-	fake.paramMutex.RLock()
-	defer fake.paramMutex.RUnlock()
-	fake.setChildMutex.RLock()
-	defer fake.setChildMutex.RUnlock()
-	fake.setErrorMutex.RLock()
-	defer fake.setErrorMutex.RUnlock()
-	fake.valueMutex.RLock()
-	defer fake.valueMutex.RUnlock()
-	fake.waitGroupsMutex.RLock()
-	defer fake.waitGroupsMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

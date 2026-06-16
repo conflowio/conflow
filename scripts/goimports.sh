@@ -23,8 +23,6 @@ remove_lines_file() {
 
 cd "${PROJECT_DIR}"
 
-GOBIN="$PROJECT_DIR/bin" go install golang.org/x/tools/cmd/goimports
-
 # shellcheck disable=SC2016
 for path in $(go list -f '{{ $dir := .Dir }}{{ range .GoFiles }}{{ printf "%s/%s\n" $dir . }}{{ end }}{{ range .CgoFiles }}{{ printf "%s/%s\n" $dir . }}{{ end }}{{ range .TestGoFiles }}{{ printf "%s/%s\n" $dir . }}{{ end }}{{ range .XTestGoFiles }}{{ printf "%s/%s\n" $dir . }}{{ end }}' ./...); do
   if [[ "${path}" == *.cf.go ]]; then
@@ -37,5 +35,5 @@ for path in $(go list -f '{{ $dir := .Dir }}{{ range .GoFiles }}{{ printf "%s/%s
 
   remove_lines_file "${path}"
 
-  "${PROJECT_DIR}"/bin/goimports -local github.com/conflowio/conflow -w "${path}"
+  go tool goimports -local github.com/conflowio/conflow -w "${path}"
 done

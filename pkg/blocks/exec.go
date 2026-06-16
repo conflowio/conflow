@@ -63,7 +63,7 @@ func (e *Exec) Run(ctx context.Context) (conflow.Result, error) {
 	}
 
 	if startErr := cmd.Start(); startErr != nil {
-		return nil, fmt.Errorf("Failed to start command: %w", startErr)
+		return nil, fmt.Errorf("failed to start command: %w", startErr)
 	}
 
 	wg := &util.WaitGroup{}

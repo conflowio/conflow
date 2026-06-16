@@ -52,8 +52,6 @@ func (fake *FakeParameterDirective) ApplyToParameterConfigArgsForCall(i int) *co
 func (fake *FakeParameterDirective) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.applyToParameterConfigMutex.RLock()
-	defer fake.applyToParameterConfigMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

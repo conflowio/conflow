@@ -269,16 +269,6 @@ func (fake *FakeJob) SetJobIDArgsForCall(i int) int {
 func (fake *FakeJob) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.jobIDMutex.RLock()
-	defer fake.jobIDMutex.RUnlock()
-	fake.jobNameMutex.RLock()
-	defer fake.jobNameMutex.RUnlock()
-	fake.lightweightMutex.RLock()
-	defer fake.lightweightMutex.RUnlock()
-	fake.runMutex.RLock()
-	defer fake.runMutex.RUnlock()
-	fake.setJobIDMutex.RLock()
-	defer fake.setJobIDMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
