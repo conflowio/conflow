@@ -6,7 +6,7 @@ run:
 linters:
   enable:
 #    - depguard
-    - exportloopref
+    - copyloopvar
     - unparam
 
 linters-settings:

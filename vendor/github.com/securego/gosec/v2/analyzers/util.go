@@ -28,7 +28,7 @@ import (
 )
 
 // SSAAnalyzerResult contains various information returned by the
-// SSA analysis along with some configuraion
+// SSA analysis along with some configuration
 type SSAAnalyzerResult struct {
 	Config map[string]interface{}
 	Logger *log.Logger
@@ -38,11 +38,13 @@ type SSAAnalyzerResult struct {
 // BuildDefaultAnalyzers returns the default list of analyzers
 func BuildDefaultAnalyzers() []*analysis.Analyzer {
 	return []*analysis.Analyzer{
-		newSSRFAnalyzer("G107", "URL provided to HTTP request as taint input"),
+		newConversionOverflowAnalyzer("G115", "Type conversion which leads to integer overflow"),
+		newSliceBoundsAnalyzer("G602", "Possible slice bounds out of range"),
+		newHardCodedNonce("G407", "Use of hardcoded IV/nonce for encryption"),
 	}
 }
 
-// getSSAResult retrives the SSA result from analysis pass
+// getSSAResult retrieves the SSA result from analysis pass
 func getSSAResult(pass *analysis.Pass) (*SSAAnalyzerResult, error) {
 	result, ok := pass.ResultOf[buildssa.Analyzer]
 	if !ok {

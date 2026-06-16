@@ -35,7 +35,7 @@ func (Encoder) AppendString(dst []byte, s string) []byte {
 // AppendStringers encodes and adds an array of Stringer values
 // to the dst byte array.
 func (e Encoder) AppendStringers(dst []byte, vals []fmt.Stringer) []byte {
-	if len(vals) == 0 {
+	if vals == nil || len(vals) == 0 {
 		return e.AppendArrayEnd(e.AppendArrayStart(dst))
 	}
 	dst = e.AppendArrayStart(dst)
@@ -82,6 +82,28 @@ func AppendEmbeddedJSON(dst, s []byte) []byte {
 	dst = append(dst, byte(minor&0xff))
 
 	// Append the JSON Object as Byte String.
+	major = majorTypeByteString
+
+	l := len(s)
+	if l <= additionalMax {
+		lb := byte(l)
+		dst = append(dst, major|lb)
+	} else {
+		dst = appendCborTypePrefix(dst, major, uint64(l))
+	}
+	return append(dst, s...)
+}
+
+// AppendEmbeddedCBOR adds a tag and embeds input CBOR as such.
+func AppendEmbeddedCBOR(dst, s []byte) []byte {
+	major := majorTypeTags
+	minor := additionalTypeEmbeddedCBOR
+
+	// Append the TAG to indicate this is Embedded JSON.
+	dst = append(dst, major|additionalTypeIntUint8)
+	dst = append(dst, minor)
+
+	// Append the CBOR Object as Byte String.
 	major = majorTypeByteString
 
 	l := len(s)

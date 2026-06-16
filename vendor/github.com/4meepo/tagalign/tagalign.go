@@ -1,25 +1,28 @@
 package tagalign
 
 import (
+	"cmp"
 	"fmt"
 	"go/ast"
 	"go/token"
-	"log"
 	"reflect"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/fatih/structtag"
-
 	"golang.org/x/tools/go/analysis"
 )
 
-type Mode int
+type Style int
 
 const (
-	StandaloneMode Mode = iota
-	GolangciLintMode
+	DefaultStyle Style = iota
+	StrictStyle
+)
+
+const (
+	errTagValueSyntax = "bad syntax for struct tag value"
 )
 
 func NewAnalyzer(options ...Option) *analysis.Analyzer {
@@ -33,34 +36,42 @@ func NewAnalyzer(options ...Option) *analysis.Analyzer {
 	}
 }
 
-func Run(pass *analysis.Pass, options ...Option) []Issue {
-	var issues []Issue
+func Run(pass *analysis.Pass, options ...Option) {
 	for _, f := range pass.Files {
+		filename := getFilename(pass.Fset, f)
+		if !strings.HasSuffix(filename, ".go") {
+			continue
+		}
+
 		h := &Helper{
-			mode:  StandaloneMode,
+			style: DefaultStyle,
 			align: true,
 		}
 		for _, opt := range options {
 			opt(h)
 		}
 
+		//  StrictStyle must be used with WithAlign(true) and WithSort(...) together, or it will be ignored.
+		if h.style == StrictStyle && (!h.align || !h.sort) {
+			h.style = DefaultStyle
+		}
+
 		if !h.align && !h.sort {
 			// do nothing
-			return nil
+			return
 		}
 
 		ast.Inspect(f, func(n ast.Node) bool {
 			h.find(pass, n)
 			return true
 		})
+
 		h.Process(pass)
-		issues = append(issues, h.issues...)
 	}
-	return issues
 }
 
 type Helper struct {
-	mode Mode
+	style Style
 
 	align         bool     // whether enable tags align.
 	sort          bool     // whether enable tags sort.
@@ -68,19 +79,6 @@ type Helper struct {
 
 	singleFields            []*ast.Field
 	consecutiveFieldsGroups [][]*ast.Field // fields in this group, must be consecutive in struct.
-	issues                  []Issue
-}
-
-// Issue is used to integrate with golangci-lint's inline auto fix.
-type Issue struct {
-	Pos       token.Position
-	Message   string
-	InlineFix InlineFix
-}
-type InlineFix struct {
-	StartCol  int // zero-based
-	Length    int
-	NewString string
 }
 
 func (w *Helper) find(pass *analysis.Pass, n ast.Node) {
@@ -140,58 +138,64 @@ func (w *Helper) find(pass *analysis.Pass, n ast.Node) {
 	split()
 }
 
-func (w *Helper) report(pass *analysis.Pass, field *ast.Field, startCol int, msg, replaceStr string) {
-	if w.mode == GolangciLintMode {
-		iss := Issue{
-			Pos:     pass.Fset.Position(field.Tag.Pos()),
-			Message: msg,
-			InlineFix: InlineFix{
-				StartCol:  startCol,
-				Length:    len(field.Tag.Value),
-				NewString: replaceStr,
-			},
-		}
-		w.issues = append(w.issues, iss)
-	}
-
-	if w.mode == StandaloneMode {
-		pass.Report(analysis.Diagnostic{
-			Pos:     field.Tag.Pos(),
-			End:     field.Tag.End(),
-			Message: msg,
-			SuggestedFixes: []analysis.SuggestedFix{
-				{
-					Message: msg,
-					TextEdits: []analysis.TextEdit{
-						{
-							Pos:     field.Tag.Pos(),
-							End:     field.Tag.End(),
-							NewText: []byte(replaceStr),
-						},
+func (w *Helper) report(pass *analysis.Pass, field *ast.Field, msg, replaceStr string) {
+	pass.Report(analysis.Diagnostic{
+		Pos:     field.Tag.Pos(),
+		End:     field.Tag.End(),
+		Message: msg,
+		SuggestedFixes: []analysis.SuggestedFix{
+			{
+				Message: msg,
+				TextEdits: []analysis.TextEdit{
+					{
+						Pos:     field.Tag.Pos(),
+						End:     field.Tag.End(),
+						NewText: []byte(replaceStr),
 					},
 				},
 			},
-		})
-	}
+		},
+	})
 }
 
-func (w *Helper) Process(pass *analysis.Pass) { //nolint:gocognit
+//nolint:gocognit,gocyclo,nestif
+func (w *Helper) Process(pass *analysis.Pass) {
 	// process grouped fields
 	for _, fields := range w.consecutiveFieldsGroups {
 		offsets := make([]int, len(fields))
 
 		var maxTagNum int
 		var tagsGroup, notSortedTagsGroup [][]*structtag.Tag
-		for i, field := range fields {
-			offsets[i] = pass.Fset.Position(field.Tag.Pos()).Column
+
+		var uniqueKeys []string
+		addKey := func(k string) {
+			for _, key := range uniqueKeys {
+				if key == k {
+					return
+				}
+			}
+			uniqueKeys = append(uniqueKeys, k)
+		}
+
+		for i := 0; i < len(fields); {
+			field := fields[i]
+			column := pass.Fset.Position(field.Tag.Pos()).Column - 1
+			offsets[i] = column
+
 			tag, err := strconv.Unquote(field.Tag.Value)
 			if err != nil {
-				break
+				// if tag value is not a valid string, report it directly
+				w.report(pass, field, errTagValueSyntax, field.Tag.Value)
+				fields = removeField(fields, i)
+				continue
 			}
 
 			tags, err := structtag.Parse(tag)
 			if err != nil {
-				break
+				// if tag value is not a valid struct tag, report it directly
+				w.report(pass, field, err.Error(), field.Tag.Value)
+				fields = removeField(fields, i)
+				continue
 			}
 
 			maxTagNum = max(maxTagNum, tags.Len())
@@ -202,26 +206,49 @@ func (w *Helper) Process(pass *analysis.Pass) { //nolint:gocognit
 					cp[i] = tag
 				}
 				notSortedTagsGroup = append(notSortedTagsGroup, cp)
-				sortBy(w.fixedTagOrder, tags)
+				sortTags(w.fixedTagOrder, tags)
 			}
-
+			for _, t := range tags.Tags() {
+				addKey(t.Key)
+			}
 			tagsGroup = append(tagsGroup, tags.Tags())
+
+			i++
 		}
 
-		// if w.align{
-		// record the max length of each column tag
-		tagMaxLens := make([]int, maxTagNum)
+		if w.sort && StrictStyle == w.style {
+			sortKeys(w.fixedTagOrder, uniqueKeys)
+			maxTagNum = len(uniqueKeys)
+		}
 
+		// record the max length of each column tag
+		type tagLen struct {
+			Key string // present only when sort enabled
+			Len int
+		}
+		tagMaxLens := make([]tagLen, maxTagNum)
 		for j := 0; j < maxTagNum; j++ {
 			var maxLength int
+			var key string
 			for i := 0; i < len(tagsGroup); i++ {
-				if len(tagsGroup[i]) <= j {
-					// in case of index out of range
-					continue
+				if w.style == StrictStyle {
+					key = uniqueKeys[j]
+					// search by key
+					for _, tag := range tagsGroup[i] {
+						if tag.Key == key {
+							maxLength = max(maxLength, len(tag.String()))
+							break
+						}
+					}
+				} else {
+					if len(tagsGroup[i]) <= j {
+						// in case of index out of range
+						continue
+					}
+					maxLength = max(maxLength, len(tagsGroup[i][j].String()))
 				}
-				maxLength = max(maxLength, len(tagsGroup[i][j].String()))
 			}
-			tagMaxLens[j] = maxLength
+			tagMaxLens[j] = tagLen{key, maxLength}
 		}
 
 		for i, field := range fields {
@@ -231,9 +258,28 @@ func (w *Helper) Process(pass *analysis.Pass) { //nolint:gocognit
 			if w.align {
 				// if align enabled, align tags.
 				newTagBuilder := strings.Builder{}
-				for i, tag := range tags {
-					format := alignFormat(tagMaxLens[i] + 1) // with an extra space
-					newTagBuilder.WriteString(fmt.Sprintf(format, tag.String()))
+				for i, n := 0, 0; i < len(tags) && n < len(tagMaxLens); {
+					tag := tags[i]
+					var format string
+					if w.style == StrictStyle {
+						if tagMaxLens[n].Key == tag.Key {
+							// match
+							format = alignFormat(tagMaxLens[n].Len + 1) // with an extra space
+							newTagBuilder.WriteString(fmt.Sprintf(format, tag.String()))
+							i++
+							n++
+						} else {
+							// tag missing
+							format = alignFormat(tagMaxLens[n].Len + 1)
+							newTagBuilder.WriteString(fmt.Sprintf(format, ""))
+							n++
+						}
+					} else {
+						format = alignFormat(tagMaxLens[n].Len + 1) // with an extra space
+						newTagBuilder.WriteString(fmt.Sprintf(format, tag.String()))
+						i++
+						n++
+					}
 				}
 				newTagStr = newTagBuilder.String()
 			} else {
@@ -249,7 +295,8 @@ func (w *Helper) Process(pass *analysis.Pass) { //nolint:gocognit
 				newTagStr = strings.Join(tagsStr, " ")
 			}
 
-			unquoteTag := strings.TrimSpace(newTagStr)
+			unquoteTag := strings.TrimRight(newTagStr, " ")
+			// unquoteTag := newTagStr
 			newTagValue := fmt.Sprintf("`%s`", unquoteTag)
 			if field.Tag.Value == newTagValue {
 				// nothing changed
@@ -258,7 +305,7 @@ func (w *Helper) Process(pass *analysis.Pass) { //nolint:gocognit
 
 			msg := "tag is not aligned, should be: " + unquoteTag
 
-			w.report(pass, field, offsets[i]-1, msg, newTagValue)
+			w.report(pass, field, msg, newTagValue)
 		}
 	}
 
@@ -266,85 +313,82 @@ func (w *Helper) Process(pass *analysis.Pass) { //nolint:gocognit
 	for _, field := range w.singleFields {
 		tag, err := strconv.Unquote(field.Tag.Value)
 		if err != nil {
+			w.report(pass, field, errTagValueSyntax, field.Tag.Value)
 			continue
 		}
 
 		tags, err := structtag.Parse(tag)
 		if err != nil {
+			w.report(pass, field, err.Error(), field.Tag.Value)
 			continue
 		}
 		originalTags := append([]*structtag.Tag(nil), tags.Tags()...)
 		if w.sort {
-			sortBy(w.fixedTagOrder, tags)
-		}
-
-		if reflect.DeepEqual(originalTags, tags.Tags()) {
-			// if tags order not changed, do nothing
-			continue
+			sortTags(w.fixedTagOrder, tags)
 		}
 
 		newTagValue := fmt.Sprintf("`%s`", tags.String())
-		if field.Tag.Value == newTagValue {
-			// nothing changed
+		if reflect.DeepEqual(originalTags, tags.Tags()) && field.Tag.Value == newTagValue {
+			// if tags order not changed, do nothing
 			continue
 		}
 
 		msg := "tag is not aligned , should be: " + tags.String()
 
-		w.report(pass, field, pass.Fset.Position(field.Tag.Pos()).Column-1, msg, newTagValue)
+		w.report(pass, field, msg, newTagValue)
 	}
 }
 
-// Issues returns all issues found by the analyzer.
-// It is used to integrate with golangci-lint.
-func (w *Helper) Issues() []Issue {
-	log.Println("tagalign 's Issues() should only be called in golangci-lint mode")
-	return w.issues
-}
-
-// sortBy sorts tags by fixed order.
+// sortTags sorts tags by fixed order.
 // If a tag is not in the fixed order, it will be sorted by name.
-func sortBy(fixedOrder []string, tags *structtag.Tags) {
-	// sort by fixed order
-	sort.Slice(tags.Tags(), func(i, j int) bool {
-		ti := tags.Tags()[i]
-		tj := tags.Tags()[j]
-
-		oi := findIndex(fixedOrder, ti.Key)
-		oj := findIndex(fixedOrder, tj.Key)
-
-		if oi == -1 && oj == -1 {
-			return ti.Key < tj.Key
-		}
-
-		if oi == -1 {
-			return false
-		}
-
-		if oj == -1 {
-			return true
-		}
-
-		return oi < oj
+func sortTags(fixedOrder []string, tags *structtag.Tags) {
+	slices.SortFunc(tags.Tags(), func(a, b *structtag.Tag) int {
+		return compareByFixedOrder(fixedOrder)(a.Key, b.Key)
 	})
 }
 
-func findIndex(s []string, e string) int {
-	for i, a := range s {
-		if a == e {
-			return i
+func sortKeys(fixedOrder []string, keys []string) {
+	slices.SortFunc(keys, compareByFixedOrder(fixedOrder))
+}
+
+func compareByFixedOrder(fixedOrder []string) func(a, b string) int {
+	return func(a, b string) int {
+		oi := slices.Index(fixedOrder, a)
+		oj := slices.Index(fixedOrder, b)
+
+		if oi == -1 && oj == -1 {
+			return strings.Compare(a, b)
 		}
+
+		if oi == -1 {
+			return 1
+		}
+
+		if oj == -1 {
+			return -1
+		}
+
+		return cmp.Compare(oi, oj)
 	}
-	return -1
 }
 
 func alignFormat(length int) string {
 	return "%" + fmt.Sprintf("-%ds", length)
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
+func removeField(fields []*ast.Field, index int) []*ast.Field {
+	if index < 0 || index >= len(fields) {
+		return fields
 	}
-	return b
+
+	return append(fields[:index], fields[index+1:]...)
+}
+
+func getFilename(fset *token.FileSet, file *ast.File) string {
+	filename := fset.PositionFor(file.Pos(), true).Filename
+	if !strings.HasSuffix(filename, ".go") {
+		return fset.PositionFor(file.Pos(), false).Filename
+	}
+
+	return filename
 }
