@@ -8,6 +8,7 @@ package block
 
 import (
 	"github.com/conflowio/conflow/pkg/conflow"
+	"github.com/conflowio/conflow/pkg/conflow/bind"
 	"github.com/conflowio/conflow/pkg/schema"
 )
 
@@ -41,4 +42,12 @@ func getNameSchemaForChildBlock(s *schema.Object, node conflow.BlockNode) (confl
 	}
 
 	return node.ParameterName(), nil
+}
+
+func bindParameterValue(interpreter conflow.BlockInterpreter, paramName conflow.ID, value interface{}) (interface{}, error) {
+	propSchema, inSchema := interpreter.Schema().(*schema.Object).PropertyByParameterName(string(paramName))
+	if !inSchema {
+		propSchema = schema.AnyValue()
+	}
+	return bind.BindValue(propSchema, value)
 }

@@ -59,7 +59,7 @@ var _ = Describe("Evaluate input isolation", func() {
 		}
 	})
 
-	It("binds array @input parameters after validation", func() {
+	It("binds array @input parameters before validation", func() {
 		logger := zerolog.NewDisabledLogger()
 		scheduler := job.NewScheduler(logger, 1, 10)
 		scheduler.Start()
@@ -82,5 +82,29 @@ var _ = Describe("Evaluate input isolation", func() {
 
 		upstream[0] = "mutated"
 		Expect(list.At(0)).To(Equal("shared"))
+	})
+
+	It("preserves immutable list @input without slice round-trip", func() {
+		upstream := values.ListOf[interface{}]("shared")
+		inputParams = map[conflow.ID]interface{}{
+			"field_array": upstream,
+		}
+
+		logger := zerolog.NewDisabledLogger()
+		scheduler := job.NewScheduler(logger, 1, 10)
+		scheduler.Start()
+		defer scheduler.Stop()
+
+		_, err := conflow.Evaluate(
+			parseCtx,
+			context.Background(),
+			nil,
+			logger,
+			scheduler,
+			"foo",
+			inputParams,
+		)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(boundInput).To(BeIdenticalTo(upstream))
 	})
 })

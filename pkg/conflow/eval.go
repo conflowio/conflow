@@ -45,12 +45,11 @@ func Evaluate(
 	for k, v := range inputParams {
 		property, ok := o.PropertyByParameterName(string(k))
 		if ok && property.GetAnnotation(annotations.UserDefined) == "true" && !property.GetReadOnly() {
-			nv, err := property.ValidateValue(v)
+			bound, err := bind.BindValue(property, v)
 			if err != nil {
 				return nil, fmt.Errorf("invalid input parameter %q: %w", k, err)
 			}
-			bound, err := bind.BindValue(property, nv)
-			if err != nil {
+			if _, err := property.ValidateValue(bound); err != nil {
 				return nil, fmt.Errorf("invalid input parameter %q: %w", k, err)
 			}
 			inputParams[k] = bound

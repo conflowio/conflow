@@ -124,7 +124,11 @@ func (s *StaticContainer) evaluateChild(node conflow.Node) parsley.Error {
 	switch r := container.(type) {
 	case conflow.ParameterContainer:
 		node := r.Node().(conflow.ParameterNode)
-		if err := s.node.Interpreter().SetParam(s.block, node.Name(), value); err != nil {
+		bound, bindErr := bindParameterValue(s.node.Interpreter(), node.Name(), value)
+		if bindErr != nil {
+			return parsley.NewError(r.Node().Pos(), bindErr)
+		}
+		if err := s.node.Interpreter().SetParam(s.block, node.Name(), bound); err != nil {
 			return parsley.NewError(r.Node().Pos(), err)
 		}
 	case *StaticContainer:
