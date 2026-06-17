@@ -13,6 +13,7 @@ Documentation for [Conflow](https://github.com/conflowio/conflow): a strongly ty
 | Section | Purpose |
 |---------|---------|
 | [Product](./product/index.md) | What Conflow is, how it works, and how to use it |
+| [Design](./design/index.md) | Architecture and improvement designs (batch roadmaps) |
 | [Agent guide](./product/agent-guide.md) | Task-oriented navigation for LLM agents |
 | [README](../README.md) | Quick introduction and hello-world walkthrough |
 
